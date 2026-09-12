@@ -1,6 +1,6 @@
 [package]
 name = "goreecloud-memos-client"
-version = "0.1.3"
+version = "0.1.4"
 description = "First-party Linux and Android client for GoreeCloud Memos"
 authors = ["GoreeCloud"]
 edition = "2024"

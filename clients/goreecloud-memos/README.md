@@ -11,7 +11,7 @@ It intentionally does **not** create a second memo database, duplicate sync engi
 ## Architecture
 
 - Framework: Tauri 2
-- Current client acceptance candidate: `0.1.3`
+- Current client acceptance candidate: `0.1.4`
 - Linux target: AppImage and Debian package
 - Android target: APK
 - Application identifier: `com.goreecloud.memos`
@@ -36,7 +36,7 @@ Because the shell loads the canonical live service, a client APK can be newer th
 
 The icon is intentionally text-free and uses the Memos quick-capture document motif with GoreeCloud Glaze UI geometry and blue surface semantics. Platform launchers may apply their own icon mask, but the product symbol and source identity remain the same.
 
-The `0.1.3` acceptance candidate advances the native package identity after the current stabilization work so newly built Debian and Android packages can be distinguished from the earlier `0.1.2` acceptance artifacts. If a launcher continues to show a cached older icon after updating, uninstalling the prior debug/acceptance build before reinstalling is an acceptable test-only cache reset.
+The `0.1.4` acceptance candidate refreshes the native package identity for the current post-`v0.1.3` source line so newly built Debian and Android packages can be distinguished from the earlier `0.1.3` acceptance artifacts. The package refresh includes current main source provenance, but because the native shell loads the live service, post-`v0.1.3` web changes such as responsive Home masonry appear in the client only after a separately controlled web/server release and deployment. If a launcher continues to show a cached older icon after updating, uninstalling the prior debug/acceptance build before reinstalling is an acceptable test-only cache reset.
 
 ## Linux package metadata
 
@@ -58,7 +58,7 @@ Every current acceptance artifact is tied to one exact checked-out source revisi
 - Pull-request client builds explicitly check out the pull-request head revision rather than relying on an implicit merge-ref checkout.
 - The Debian package is inspected after build and must report the expected package version, GoreeCloud maintainer identity, canonical homepage, current AppStream release, desktop identity, and installed icon resources.
 - The Android APK is inspected after build with Android package tooling and must report application ID `com.goreecloud.memos` and the expected native client version.
-- Linux and Android uploads are staged into self-contained artifact directories with extraction-root-relative SHA-256 manifests.
+- Linux and Android uploads are staged into self-contained artifact directories with extraction-root-verifiable SHA-256 manifests.
 - Each artifact directory includes a provenance record containing the exact source SHA, client version, application identifier, workflow/run identity, and artifact role.
 - The canonical GoreeCloud Memos SVG is included with its own SHA-256 record so package acceptance can be tied back to the exact product identity source used by CI.
 
