@@ -75,8 +75,18 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 	}
 	s.Secret = secret
 
-	// Register healthz endpoint.
+	// Liveness reports only that the HTTP process is serving requests.
 	echoServer.GET("/healthz", func(c *echo.Context) error {
+		return c.String(http.StatusOK, "Service alive.")
+	})
+
+	// Readiness additionally proves the configured database is reachable. Keep
+	// the response deliberately terse so operational probes do not expose
+	// database details to unauthenticated callers.
+	echoServer.GET("/readyz", func(c *echo.Context) error {
+		if err := s.Store.GetDriver().GetDB().PingContext(c.Request().Context()); err != nil {
+			return c.String(http.StatusServiceUnavailable, "Service not ready.")
+		}
 		return c.String(http.StatusOK, "Service ready.")
 	})
 
