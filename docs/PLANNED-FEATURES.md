@@ -10,7 +10,7 @@ Priority work remains:
 - harden deployment configuration, Content Security Policy, headers, session/cookie behavior, and optional-provider boundaries;
 - reconcile upstream updates beyond v0.31.0 with reviewable maintenance commits;
 - validate SQLite/PostgreSQL/MySQL migration and upgrade behavior;
-- perform full export/import round-trip and clean-target recovery tests;
+- extend clean-target portability beyond the now-tested personal memo archive to instance-owned accounts/settings/Spaces and operational backup/restore;
 - add representative browser/device accessibility and performance evidence;
 - establish protected production build/signing/provenance and release/rollback processes;
 - qualify Release Candidate, Production Acceptance, Seal, and Anchor gates only when evidence supports them.
