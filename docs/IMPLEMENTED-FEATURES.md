@@ -22,3 +22,5 @@
 - Glaze V1.7 target mapping plus application-owned responsive/accessibility styling.
 - GoreeCloud repository/documentation links instead of presenting upstream as the fork's product home.
 - Browser-client hardening that does not execute administrator-provided arbitrary JavaScript.
+
+- Separate HTTP liveness (/healthz) and database-backed readiness (/readyz) probes for operations and future Manager integration.

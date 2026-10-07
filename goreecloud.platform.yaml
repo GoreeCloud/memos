@@ -100,8 +100,8 @@ platform_systems:
     notes: Privacy-minimized GoreeCloud Observability integration and acceptance remain open.
 
 health:
-  health_endpoint: null
-  readiness_endpoint: null
+  health_endpoint: /healthz
+  readiness_endpoint: /readyz
 
 continuity:
   backup:

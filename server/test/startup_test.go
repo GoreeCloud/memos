@@ -131,7 +131,7 @@ func (i *instance) shutdown(ctx context.Context) {
 func (i *instance) waitUntilReady(t *testing.T) {
 	t.Helper()
 	require.Eventually(t, func() bool {
-		resp, err := i.client.Get(i.baseURL + "/healthz")
+		resp, err := i.client.Get(i.baseURL + "/readyz")
 		if err != nil {
 			return false
 		}
@@ -263,6 +263,12 @@ func TestStartupServesEveryRegisteredRouter(t *testing.T) {
 
 	t.Run("healthz", func(t *testing.T) {
 		status, body := inst.do(t, http.MethodGet, "/healthz", "", nil)
+		require.Equal(t, http.StatusOK, status)
+		require.Equal(t, "Service alive.", string(body))
+	})
+
+	t.Run("readyz", func(t *testing.T) {
+		status, body := inst.do(t, http.MethodGet, "/readyz", "", nil)
 		require.Equal(t, http.StatusOK, status)
 		require.Equal(t, "Service ready.", string(body))
 	})
