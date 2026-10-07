@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "product": "GoreeCloud Memos",
+  "repository": "GoreeCloud/memos",
+  "requiredVersion": "1.7.0",
+  "productLabel": "Glaze V1.7",
+  "releaseIntegration": "1a5756daed2294155be2e9972b24f580f6222b7b",
+  "qualificationAnchor": "7c4ded83d7a8725165bb6a55dfb175667cc9589e",
+  "knownGoodRollbackVersion": "1.6.0",
+  "consumerStatus": "adoption-required",
+  "productionEligible": false,
+  "notes": "Application-owned Glaze-aligned presentation is being migrated in this rebuild. Shared Glaze release status does not grant Memos repository-local rendered, accessibility, performance, rollback, or production acceptance.",
+  "packagedStableWebEntrypoint": "web/public/goreecloud/glaze/css/glaze-v1.4.1.css",
+  "packagedStableRuntimeEntrypoint": "web/public/goreecloud/glaze/js/glaze-v1.7.0.mjs",
+  "vendoredFromReleaseIntegration": "1a5756daed2294155be2e9972b24f580f6222b7b",
+  "stableWebEntrypointSha256": "9c296d10ce5ef071e60c9da8ff8bb983f195534c138be5c1d6ab59a6be36c8fc",
+  "stableRuntimeEntrypointSha256": "f922c5f854f17748922b8b99d9af21f62f3c46536fa2cee43ea3fe97c3318d61"
+}

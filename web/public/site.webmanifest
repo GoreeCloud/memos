@@ -1,0 +1,17 @@
+{
+  "name": "GoreeCloud Memos",
+  "short_name": "Memos",
+  "description": "Private, self-hosted quick notes from GoreeCloud.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f7f4",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "/goreecloud-memos.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

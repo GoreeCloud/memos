@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "developmentPath": "maintained-fork",
+  "upstream": {
+    "repository": "usememos/memos",
+    "license": "MIT",
+    "baselineTag": "v0.31.0",
+    "baselineCommit": "2b2192d4e153bd04f1d325b60fd880cf00d68b01",
+    "assessedMainCommit": "b1fa9aefcc22fde5774b7f6cf0b3e19fc67acc6e",
+    "assessedAt": "2026-10-07"
+  },
+  "fork": {
+    "repository": "GoreeCloud/memos",
+    "repositoryId": "1409419590"
+  }
+}

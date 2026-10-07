@@ -1,0 +1,118 @@
+name: GoreeCloud Validate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: goreecloud-validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository-boundary:
+    name: Repository and policy boundary
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact source revision
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify exact source revision
+        env:
+          EXPECTED_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+
+      - name: Validate GoreeCloud boundary
+        run: python3 scripts/validate_goreecloud.py
+
+      - name: Verify whitespace
+        run: git diff --check
+
+  frontend:
+    name: Frontend quality and build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact source revision
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+        with:
+          version: "11.0.1"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24"
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install locked dependencies
+        working-directory: web
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint and typecheck
+        working-directory: web
+        run: pnpm lint
+
+      - name: Run frontend test suite
+        working-directory: web
+        run: pnpm test
+
+      - name: Build production frontend
+        working-directory: web
+        run: pnpm build
+
+  backend:
+    name: Backend privacy and build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Check out exact source revision
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: "1.27.0"
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Verify Go formatting and module graph
+        run: |
+          test -z "$(gofmt -l store/migrator.go server/test/startup_test.go)"
+          cp go.mod /tmp/go.mod.before
+          cp go.sum /tmp/go.sum.before
+          go mod tidy -go=1.27.0
+          cmp -s go.mod /tmp/go.mod.before
+          cmp -s go.sum /tmp/go.sum.before
+
+      - name: Run private-first startup acceptance
+        run: go test ./server/test -run 'TestStartupInitializesPrivateAccessOnce|TestStartupPrivateInstanceGatewayPolicy' -count=1
+
+      - name: Vet backend
+        run: go vet ./...
+
+      - name: Run backend test suite
+        run: go test ./...
+
+      - name: Build backend
+        run: go build ./cmd/memos
