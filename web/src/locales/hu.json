@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "TLS-tanúsítványellenőrzés letiltása a S3 végponthoz. Csak megbízható, önaláírt tanúsítványt használó végpontok esetén engedélyezze; ez eltávolítja a védelmet a közbeékelődéses támadások ellen."
     },
     "system": {
-      "additional-script": "Egyedi script",
-      "additional-script-placeholder": "Egyedi JavaScript kód",
-      "additional-style": "Egyedi stílus",
-      "additional-style-placeholder": "Egyedi CSS kód",
       "customize-server": {
         "description": "Leírás",
         "icon-url": "Ikon URL",
@@ -592,11 +588,7 @@
       "max-upload-size": "Maximális feltöltési méret (MiB)",
       "max-upload-size-hint": "Az ajánlott érték 32 MiB.",
       "server-name": "Szerver neve",
-      "additional-script-description": "Szúrja be az JavaScript-et minden weboldalba. Csak megbízható kódot használjon.",
-      "additional-style-description": "Szúrja be az CSS-et a webalkalmazásba a példányszintű megjelenítés beállításához.",
-      "basic-description": "Állítsa be a példány által megjelenített nyilvános identitást.",
-      "custom-code-description": "Választható példány-szerte CSS és JavaScript alkalmazva a frontendre.",
-      "custom-code-title": "Egyedi kód"
+      "basic-description": "Állítsa be a példány által megjelenített nyilvános identitást."
     },
     "webhook": {
       "create-dialog": {

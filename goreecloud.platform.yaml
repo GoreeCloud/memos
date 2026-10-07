@@ -1,0 +1,162 @@
+schema_version: "2.0"
+
+component:
+  type: application
+  id: goreecloud-memos
+  product_name: GoreeCloud Memos
+  repository: GoreeCloud/memos
+
+lifecycle: forge
+lifecycle_metadata:
+  deployment_state: development
+  qualification_state: not-qualified
+  next_gate: seal
+  candidate_identity:
+    source_revision: null
+    review_identity: null
+    build_identity: null
+    artifact_digest: null
+    rollback_target: null
+  evidence:
+    - README.md
+    - docs/PROJECT-SPECIFICATIONS.md
+    - docs/PROJECT-RECORD.md
+    - docs/IMPLEMENTED-FEATURES.md
+    - docs/PLANNED-FEATURES.md
+    - docs/VALIDATION.md
+    - provenance/upstream.json
+    - provenance/glaze.json
+    - provenance/branding.json
+
+version: "0.1.0-dev"
+
+supported_platforms:
+  - web
+  - linux
+  - container
+
+api:
+  versions:
+    - v1
+  endpoints:
+    - name: Memos API
+      url: /api/v1
+      purpose: Inherited same-origin notes, users, settings, attachments, and administration API surface.
+
+platform_systems:
+  manager:
+    result: applicable-blocked
+    version: null
+    evidence: [docs/PLANNED-FEATURES.md]
+    notes: Manager registration, lifecycle visibility, and operational acceptance remain open.
+  privacy_shield:
+    result: applicable-blocked
+    version: null
+    evidence: [docs/PRIVACY.md]
+    notes: Private-first defaults are implemented in the rebuild; authoritative Privacy Shield runtime policy and acceptance remain open.
+  wardveil_security:
+    result: applicable-blocked
+    version: null
+    evidence: [docs/SECURITY.md]
+    notes: Source hardening is active; Wardveil runtime protection and production security acceptance remain open.
+  everkeep:
+    result: applicable-blocked
+    version: null
+    evidence: [docs/PLANNED-FEATURES.md]
+    notes: Backup, clean-target restore, attachment recovery, and rollback acceptance remain open.
+  glaze_ui:
+    result: applicable-migration-required
+    version: "1.7.0"
+    evidence:
+      - docs/GLAZE-ADOPTION.md
+      - provenance/glaze.json
+      - web/src/themes/goreecloud.css
+      - web/public/goreecloud/glaze/css/glaze-v1.4.1.css
+      - web/public/goreecloud/glaze/js/glaze-v1.7.0.mjs
+    notes: The rebuild applies current Glaze-aligned application presentation, but fresh repository-local rendered, accessibility, responsive, performance, rollback, and human visual acceptance remain required.
+  mesh:
+    result: applicable-blocked
+    version: null
+    evidence: [docs/PLANNED-FEATURES.md]
+    notes: Capability registration and authenticated Mesh integration remain open.
+    capabilities: []
+    dependencies: []
+    published_events: []
+    consumed_events: []
+  identity:
+    result: applicable-blocked
+    version: null
+    evidence: [docs/SECURITY.md, docs/PLANNED-FEATURES.md]
+    notes: Existing local/OIDC account support is inherited; authoritative GoreeCloud Identity integration remains open.
+  policy:
+    result: applicable-blocked
+    version: null
+    evidence: [docs/PLANNED-FEATURES.md]
+    notes: GoreeCloud Policy runtime decisions and enforcement remain open.
+  observability:
+    result: applicable-blocked
+    version: null
+    evidence: [docs/PRIVACY.md, docs/PLANNED-FEATURES.md]
+    notes: Privacy-minimized GoreeCloud Observability integration and acceptance remain open.
+
+health:
+  health_endpoint: null
+  readiness_endpoint: null
+
+continuity:
+  backup:
+    required: true
+    requirements:
+      - Protect the database, attachments, and required durable deployment configuration.
+      - Exclude reusable secrets from ordinary portable backup bundles.
+      - Validate restore in a clean target before recovery claims.
+  restore:
+    required: true
+    requirements:
+      - Restore notes, relationships, tags, spaces, attachments, and user-owned settings without silent loss.
+  export:
+    required: true
+    requirements:
+      - Preserve upstream open Memos export capabilities and GoreeCloud portability requirements.
+  portability:
+    required: true
+    requirements:
+      - Preserve self-hosted operation without a mandatory GoreeCloud-hosted control plane.
+      - Maintain documented upstream-to-fork and fork-to-future-version migration paths.
+
+external_dependencies:
+  - name: Memos upstream
+    purpose: Maintained-fork upstream source and security/update stream.
+    required: true
+    version_constraint: "v0.31.0 baseline"
+  - name: Glaze UI
+    purpose: GoreeCloud design and experience authority.
+    required: true
+    version_constraint: "1.7.0"
+
+compatibility:
+  platform_contract: "2.0"
+  glaze_ui_required: "1.7.0"
+  requires:
+    - goreecloud-platform-contract==2.0
+    - glaze-ui==1.7.0
+  provides:
+    - goreecloud-memos-quick-capture
+
+evidence:
+  acceptance_tests: []
+  release: []
+
+conformance:
+  status: nonconformant
+  validated_at: null
+  evidence:
+    - docs/VALIDATION.md
+    - docs/SECURITY.md
+    - docs/PRIVACY.md
+    - docs/GLAZE-ADOPTION.md
+  blockers:
+    - Fresh Glaze V1.7 repository-local acceptance is incomplete.
+    - Integral Platform System runtime integrations remain incomplete.
+    - Representative browser, accessibility, recovery, upgrade, rollback, and production acceptance remain incomplete.
+    - Production signing, release, Seal, and Anchor qualification are incomplete.

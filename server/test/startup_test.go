@@ -380,27 +380,27 @@ func TestStartupPrivateInstance(t *testing.T) {
 	inst.requireMemo(t, token, "startup-private", "private instance sentinel")
 }
 
-// TestStartupInitializesLegacyAccessOnce verifies the compatibility bridge from
-// the former instance-URL-derived policy to the database-backed ACCESS setting.
-// Later URL changes must not silently change authorization behavior.
-func TestStartupInitializesLegacyAccessOnce(t *testing.T) {
+// TestStartupInitializesPrivateAccessOnce verifies GoreeCloud's fail-closed
+// initialization: canonical URL configuration never grants anonymous access.
+// Once persisted, later URL changes do not alter the access policy.
+func TestStartupInitializesPrivateAccessOnce(t *testing.T) {
 	ctx := context.Background()
 
-	t.Run("public remains public after URL removal", func(t *testing.T) {
+	t.Run("canonical URL still initializes private", func(t *testing.T) {
 		dataDir := t.TempDir()
 		first := bootInstance(ctx, t, instanceOptions{instanceURL: "https://memos.example.com", dataDir: dataDir})
 		accessSetting, err := first.server.Store.GetInstanceAccessSetting(ctx)
 		require.NoError(t, err)
-		require.Equal(t, storepb.InstanceAccessMode_INSTANCE_ACCESS_MODE_PUBLIC, accessSetting.AccessMode)
+		require.Equal(t, storepb.InstanceAccessMode_INSTANCE_ACCESS_MODE_PRIVATE, accessSetting.AccessMode)
 		first.shutdown(ctx)
 
 		second := bootInstance(ctx, t, instanceOptions{instanceURL: "", dataDir: dataDir})
 		accessSetting, err = second.server.Store.GetInstanceAccessSetting(ctx)
 		require.NoError(t, err)
-		require.Equal(t, storepb.InstanceAccessMode_INSTANCE_ACCESS_MODE_PUBLIC, accessSetting.AccessMode)
+		require.Equal(t, storepb.InstanceAccessMode_INSTANCE_ACCESS_MODE_PRIVATE, accessSetting.AccessMode)
 
-		status, body := second.do(t, http.MethodGet, "/api/v1/memos", "", nil)
-		require.Equal(t, http.StatusOK, status, "persisted PUBLIC mode should still allow anonymous access: %s", body)
+		status, _ := second.do(t, http.MethodGet, "/api/v1/memos", "", nil)
+		require.Equal(t, http.StatusUnauthorized, status, "canonical URL must not implicitly grant anonymous access")
 	})
 
 	t.Run("private remains private after URL addition", func(t *testing.T) {

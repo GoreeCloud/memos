@@ -445,13 +445,16 @@ describe("App sidebar logo", () => {
     expect(screen.getByRole("link", { name: "common.about" })).not.toHaveAttribute("aria-current");
     expect(screen.getByRole("heading", { name: "common.resources", level: 2 })).toBeInTheDocument();
     const documentationLink = screen.getByRole("link", { name: "about.documents" });
-    expect(documentationLink).toHaveAttribute("href", "https://usememos.com/docs");
+    expect(documentationLink).toHaveAttribute("href", "https://github.com/GoreeCloud/memos/tree/main/docs");
     expect(documentationLink).toHaveAttribute("target", "_blank");
     expect(documentationLink).toHaveAttribute("rel", "noreferrer");
     fireEvent.click(documentationLink);
     expect(sidebarState.setMobileOpen).toHaveBeenCalledWith(false);
-    expect(screen.getByRole("link", { name: "about.api-docs" })).toHaveAttribute("href", "https://usememos.com/docs/api");
-    expect(screen.getByRole("link", { name: "about.github-repository" })).toHaveAttribute("href", "https://github.com/usememos/memos");
+    expect(screen.getByRole("link", { name: "about.api-docs" })).toHaveAttribute(
+      "href",
+      "https://github.com/GoreeCloud/memos/blob/main/docs/UPSTREAM.md",
+    );
+    expect(screen.getByRole("link", { name: "about.github-repository" })).toHaveAttribute("href", "https://github.com/GoreeCloud/memos");
     expect(screen.queryByText("Calendar")).not.toBeInTheDocument();
     expect(screen.queryByRole("region", { name: "common.statistics" })).not.toBeInTheDocument();
     expect(screen.queryByText("common.views")).not.toBeInTheDocument();

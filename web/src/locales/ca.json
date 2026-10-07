@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "Desactiva la verificació del certificat TLS per al punt final S3. Activa-ho només per a punts finals de confiança que utilitzen un certificat autosignat; això elimina la protecció contra atacs de l'intermediari."
     },
     "system": {
-      "additional-script": "Script addicional",
-      "additional-script-placeholder": "Codi JavaScript addicional",
-      "additional-style": "Estil addicional",
-      "additional-style-placeholder": "Codi CSS addicional",
       "customize-server": {
         "description": "Descripció",
         "icon-url": "URL de la icona",
@@ -592,11 +588,7 @@
       "max-upload-size": "Mida màxima de pujada (MiB)",
       "max-upload-size-hint": "El valor recomanat és 32 MiB.",
       "server-name": "Nom del servidor",
-      "additional-script-description": "Injecteu JavaScript a cada pàgina web. Utilitzeu només codi de confiança.",
-      "additional-style-description": "Injecteu CSS a l'aplicació web per ajustar la presentació a tota la instància.",
-      "basic-description": "Configureu la identitat pública que mostra aquesta instància.",
-      "custom-code-description": "CSS i JavaScript opcionals per a tota la instància aplicats a la interfície.",
-      "custom-code-title": "Codi personalitzat"
+      "basic-description": "Configureu la identitat pública que mostra aquesta instància."
     },
     "webhook": {
       "create-dialog": {

@@ -694,20 +694,12 @@
       "insecure-skip-tls-verify-description": "Poista TLS-varmenteen vahvistus käytöstä S3-päätepisteelle. Ota käyttöön vain luotettaville päätepisteille, jotka käyttävät itse allekirjoitettua varmennetta; tämä poistaa suojauksen välikäsihyökkäyksiä vastaan."
     },
     "system": {
-      "additional-script": "Lisäskripti",
-      "additional-script-description": "Lisää JavaScript jokaiselle verkkosivulle. Käytä vain luotettua koodia.",
-      "additional-script-placeholder": "JavaScript-lisäkoodi",
-      "additional-style": "Lisätyyli",
-      "additional-style-description": "Lisää CSS verkkosovellukseen säätääksesi esiintymän laajuista esitystapaa.",
-      "additional-style-placeholder": "CSS-lisäkoodi",
       "basic-description": "Määritä tämän ilmentymän näyttämä julkinen identiteetti.",
       "customize-server": {
         "description": "Kuvaus",
         "icon-url": "Kuvake URL",
         "title": "Mukauta palvelinta"
       },
-      "custom-code-description": "Valinnainen ilmentymänlaajuinen CSS ja JavaScript käytetty käyttöliittymässä.",
-      "custom-code-title": "Mukautettu koodi",
       "enable-double-click-to-edit": "Ota muokkaus käyttöön kaksoisnapsauttamalla",
       "label": "Järjestelmä",
       "max-upload-size": "Suurin latauskoko (MiB)",

@@ -1,71 +1,57 @@
-> ✨ Featured sponsor: [CodeRabbit — Industry-leading AI code reviews](https://coderabbit.link/usememos).
+# GoreeCloud Memos
 
-# Memos
+GoreeCloud Memos is the lightweight, self-hosted quick-capture notes application in the GoreeCloud ecosystem.
 
-<img src="./web/public/logo.webp" alt="" width="96" align="right">
+This repository is a **GoreeCloud-maintained fork** of the MIT-licensed [Memos](https://github.com/usememos/memos) project. GoreeCloud keeps upstream provenance explicit while owning the product experience, privacy defaults, hardening, Glaze presentation layer, release process, and ecosystem integration.
 
-**Fast enough for every thought. Private enough for all of them.**
+## Current state
 
-Memos is an open-source, self-hosted home for short-form thinking. Daily notes, links, work logs, and snippets flow into a chronological Markdown timeline—on infrastructure you control, without the overhead of an all-in-one workspace.
+**Lifecycle: Forge / Development — not production-approved, not Seal-qualified, and not Anchor-qualified.**
 
-**[Run with Docker](#quick-start)** · **[Try the live demo](https://demo.usememos.com/)** · [Read the docs](https://usememos.com/docs)
+The current rebuild line starts from upstream **Memos v0.31.0** at commit `2b2192d4e153bd04f1d325b60fd880cf00d68b01`. At the October 7, 2026 assessment, upstream `main` had advanced to `b1fa9aefcc22fde5774b7f6cf0b3e19fc67acc6e`; unreleased upstream changes are reviewed separately instead of silently entering GoreeCloud.
 
-[![GitHub stars](https://img.shields.io/github/stars/usememos/memos?style=flat-square&logo=github&label=Stars)](https://github.com/usememos/memos)
-[![Latest release](https://img.shields.io/github/v/release/usememos/memos?style=flat-square&label=Release)](https://github.com/usememos/memos/releases)
-[![Docker pulls](https://img.shields.io/docker/pulls/neosmemo/memos?style=flat-square&logo=docker)](https://hub.docker.com/r/neosmemo/memos)
-[![MIT license](https://img.shields.io/github/license/usememos/memos?style=flat-square)](LICENSE)
+## GoreeCloud direction
 
-<img src="https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/demo.png" alt="Memos Demo Screenshot" height="512" />
+- Private-first self-hosting and data ownership.
+- Fast Markdown-native capture with search, tags, spaces, attachments, archive, export/import, and API access.
+- Glaze V1.7 / 1.7.0 design authority, with repository-local acceptance still required.
+- Canonical GoreeCloud Memos icon from `GoreeCloud/branding-assets`.
+- No required advertising, analytics, hosted control plane, remote font, or external AI service for core operation.
+- Explicit upstream maintenance and security-patch intake rather than an untracked source copy.
+- All nine Integral Platform Systems are evaluated; runtime integrations remain evidence-gated.
 
-## Why Memos?
+## Build
 
-- **Capture quickly** — Write in Markdown, attach media, and save without choosing a title, folder, or template.
-- **Organize lightly** — Revisit notes through the timeline, search, tags, and pins.
-- **Share selectively** — Keep memos private or publish only what you choose.
-- **Keep control** — Self-host Memos with [zero telemetry](https://usememos.com/features/data-ownership) and [MIT-licensed source](LICENSE).
-
-[Explore all features →](https://usememos.com/features)
-
-## Quick Start
-
-Run Memos with Docker:
+Backend:
 
 ```bash
-docker run -d \
-  --name memos \
-  -p 5230:5230 \
-  -v ~/.memos:/var/opt/memos \
-  neosmemo/memos:stable
+go build ./cmd/memos
 ```
 
-Other install options are in the [deployment guide](https://usememos.com/docs/deploy).
+Frontend:
 
-## Web Clipper
+```bash
+cd web
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm test
+pnpm build
+```
 
-Save pages, selections, and images from your browser straight into Memos as source-linked Markdown. Get the [Memos Web Clipper](https://usememos.com/web-clipper) for [Chrome](https://chromewebstore.google.com/detail/memos-web-clipper/nebaoebnljalfegiidibihhkebeiklbl) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/memos-web-clipper/).
+## Documentation
 
-## Sponsors
+- [Project specifications](docs/PROJECT-SPECIFICATIONS.md)
+- [Project record](docs/PROJECT-RECORD.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Implemented features](docs/IMPLEMENTED-FEATURES.md)
+- [Planned features](docs/PLANNED-FEATURES.md)
+- [Security](docs/SECURITY.md)
+- [Privacy](docs/PRIVACY.md)
+- [Glaze adoption](docs/GLAZE-ADOPTION.md)
+- [Upstream maintenance](docs/UPSTREAM.md)
+- [Validation](docs/VALIDATION.md)
+- [Changelog](docs/CHANGELOGS.md)
 
-<p>
-  <a href="https://coderabbit.link/usememos" target="_blank" rel="noopener"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/sponsors/coderabbit/white-typemark.svg" /><img src="https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/sponsors/coderabbit/orange-typemark.svg" alt="CodeRabbit — Cut code review time and bugs in half" height="40" align="middle" /></picture></a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://ssdnodes.com/?utm_source=memos&utm_medium=sponsor" target="_blank" rel="noopener"><img src="https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/sponsors/ssd-nodes.svg" alt="SSD Nodes — Affordable VPS hosting for self-hosters" height="72" align="middle" /></a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://www.testmuai.com/?utm_medium=sponsor&utm_source=memos" target="_blank" rel="noopener"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/sponsors/testmuai/white.png" /><img src="https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/sponsors/testmuai/black.png" alt="TestMu AI — The world’s first full-stack Agentic AI Quality Engineering platform" height="30" align="middle" /></picture></a>
-</p>
+## Licensing and provenance
 
-Love Memos? [Sponsor the project on GitHub](https://github.com/sponsors/usememos).
-
-## Get Help
-
-Read the [docs](https://usememos.com/docs), join [Discord](https://discord.gg/tfPJa4UmAv), or ask in [GitHub Discussions](https://github.com/usememos/memos/discussions). Found a bug or have an idea? [Open an issue](https://github.com/usememos/memos/issues/new/choose). To contribute, see the [contributing guide](https://usememos.com/docs/development/contributing).
-
-## Star History
-
-<a href="https://www.star-history.com/?repos=usememos%2Fmemos&amp;type=date&amp;legend=top-left">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=usememos/memos&amp;type=date&amp;theme=dark&amp;legend=top-left" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=usememos/memos&amp;type=date&amp;legend=top-left" />
-    <img alt="Memos star history chart" src="https://api.star-history.com/chart?repos=usememos/memos&amp;type=date&amp;legend=top-left" />
-  </picture>
-</a>
+The inherited Memos source remains MIT-licensed. See [LICENSE](LICENSE), [NOTICE.md](NOTICE.md), and [provenance/upstream.json](provenance/upstream.json). GoreeCloud modifications do not erase upstream attribution.

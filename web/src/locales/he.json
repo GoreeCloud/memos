@@ -727,20 +727,12 @@
       "use-path-style-description": "הפעילו זאת עבור ספקים כגון MinIO או שירותים תואמי S3 שאינם תומכים בדליים בסגנון מארח וירטואלי."
     },
     "system": {
-      "additional-script": "סקריפט נוסף",
-      "additional-script-description": "הזריקו JavaScript לכל דף אינטרנט. השתמשו רק בקוד מהימן.",
-      "additional-script-placeholder": "קוד JavaScript נוסף",
-      "additional-style": "סגנון נוסף",
-      "additional-style-description": "הזריקו CSS לאפליקציית האינטרנט כדי להתאים את המראה בכל המופע.",
-      "additional-style-placeholder": "קוד CSS נוסף",
       "basic-description": "הגדירו את הזהות הציבורית שמוצגת על ידי המופע הזה.",
       "customize-server": {
         "description": "תיאור",
         "icon-url": "כתובת סמל",
         "title": "התאמת השרת"
       },
-      "custom-code-description": "CSS ו־JavaScript אופציונליים ברמת המופע, המוחלים על ממשק המשתמש.",
-      "custom-code-title": "קוד מותאם אישית",
       "enable-double-click-to-edit": "אפשר לחיצה כפולה לעריכה",
       "label": "מערכת",
       "max-upload-size": "גודל העלאה מרבי (MiB)",

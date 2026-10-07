@@ -694,20 +694,12 @@
       "insecure-skip-tls-verify-description": "Zakázať overenie certifikátu TLS pre koncový bod S3. Povoliť iba pre dôveryhodné koncové body používajúce certifikát s vlastným podpisom; tým sa odstráni ochrana pred útokmi typu „man-in-the-middle“."
     },
     "system": {
-      "additional-script": "Dodatočný skript",
-      "additional-script-description": "Vložte JavaScript do každej webovej stránky. Používajte iba dôveryhodný kód.",
-      "additional-script-placeholder": "Dodatočný kód JavaScript",
-      "additional-style": "Dodatočný štýl",
-      "additional-style-description": "Vložte CSS do webovej aplikácie a upravte prezentáciu v celej inštancii.",
-      "additional-style-placeholder": "Dodatočný kód CSS",
       "basic-description": "Nakonfigurujte verejnú identitu zobrazenú touto inštanciou.",
       "customize-server": {
         "description": "Popis",
         "icon-url": "Ikona URL",
         "title": "Prispôsobiť server"
       },
-      "custom-code-description": "Voliteľné CSS a JavaScript pre celú inštanciu použité na frontend.",
-      "custom-code-title": "Vlastný kód",
       "enable-double-click-to-edit": "Povoliť úpravy dvojitým kliknutím",
       "label": "Systém",
       "max-upload-size": "Maximálna veľkosť nahrávania (MiB)",

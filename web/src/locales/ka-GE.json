@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "TLS სერტიფიკატის დადასტურების გამორთვა S3 საბოლოო წერტილისთვის. ჩართეთ მხოლოდ სანდო საბოლოო წერტილებისთვის, რომლებიც იყენებენ თვითხელმოწერილ სერტიფიკატს; ეს მოხსნის დაცვას შუამავალი ადამიანის შეტევებისგან."
     },
     "system": {
-      "additional-script": "დამატებითი სკრიპტი",
-      "additional-script-placeholder": "დამატებითი JavaScript კოდი",
-      "additional-style": "დამატებითი სტილი",
-      "additional-style-placeholder": "დამატებითი CSS კოდი",
       "customize-server": {
         "description": "აღწერა",
         "icon-url": "ხატულას URL",
@@ -592,11 +588,7 @@
       "max-upload-size": "მაქსიმალური ატვირთვის ზომა (MiB)",
       "max-upload-size-hint": "რეკომენდირებული ზომა არის 32 MiB.",
       "server-name": "სერვერის სახელი",
-      "additional-script-description": "შეიტანეთ JavaScript ყველა ვებ გვერდზე. გამოიყენეთ მხოლოდ სანდო კოდი.",
-      "additional-style-description": "შეიტანეთ CSS ვებ აპში, რათა დაარეგულიროთ პრეზენტაცია მაგალითზე.",
-      "basic-description": "ამ მაგალითში ნაჩვენები საჯარო იდენტობის კონფიგურაცია.",
-      "custom-code-description": "სურვილისამებრ, მაგალითზე CSS და JavaScript გამოიყენება წინა მხარეს.",
-      "custom-code-title": "მორგებული კოდი"
+      "basic-description": "ამ მაგალითში ნაჩვენები საჯარო იდენტობის კონფიგურაცია."
     },
     "webhook": {
       "create-dialog": {

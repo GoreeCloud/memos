@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "Onemogući provjeru TLS certifikata za krajnju točku S3. Omogući samo za pouzdane krajnje točke koje koriste samopotpisani certifikat; to uklanja zaštitu od napada posrednika. (Man-in-the-middle). (Kopiraj tajnu potpisivanja)"
     },
     "system": {
-      "additional-script": "Dodatna skripta",
-      "additional-script-placeholder": "Dodatni JavaScript kod",
-      "additional-style": "Dodatni stil",
-      "additional-style-placeholder": "Dodatni CSS kod",
       "customize-server": {
         "description": "Opis",
         "icon-url": "URL ikone",
@@ -592,11 +588,7 @@
       "max-upload-size": "Maksimalna veličina prijenosa (MiB)",
       "max-upload-size-hint": "Preporučena vrijednost je 32 MiB.",
       "server-name": "Naziv servera",
-      "additional-script-description": "Ubacite JavaScript u svaku web stranicu. Koristite samo pouzdani kod.",
-      "additional-style-description": "Ubacite CSS u web-aplikaciju da prilagodite prezentaciju cijele instance.",
-      "basic-description": "Konfigurirajte javni identitet prikazan ovom instancom.",
-      "custom-code-description": "Izborni CSS i JavaScript za cijelu instancu primijenjeni na sučelje.",
-      "custom-code-title": "Prilagođeni kod"
+      "basic-description": "Konfigurirajte javni identitet prikazan ovom instancom."
     },
     "webhook": {
       "create-dialog": {

@@ -743,10 +743,6 @@
       "use-path-style-description": "MinIO gibi sağlayıcılar veya sanal barındırılan stildeki grupları desteklemeyen bazı S3 uyumlu hizmetler için bunu etkinleştirin."
     },
     "system": {
-      "additional-script": "Ek script",
-      "additional-script-placeholder": "Ek JavaScript kodu",
-      "additional-style": "Ek stil",
-      "additional-style-placeholder": "Ek CSS kodu",
       "customize-server": {
         "description": "Açıklama",
         "icon-url": "İkon URL'si",
@@ -757,11 +753,7 @@
       "max-upload-size": "Maksimum yükleme boyutu (MiB)",
       "max-upload-size-hint": "Önerilen değer 32 MiB'dir.",
       "server-name": "Sunucu Adı",
-      "additional-script-description": "JavaScript'i her web sayfasına enjekte edin. Yalnızca güvenilir kodu kullanın.",
-      "additional-style-description": "Örnek çapında sunumu ayarlamak için CSS'i web uygulamasına enjekte edin.",
-      "basic-description": "Bu örnek tarafından gösterilen genel kimliği yapılandırın.",
-      "custom-code-description": "Ön uca uygulanan isteğe bağlı bulut sunucusu çapında CSS ve JavaScript.",
-      "custom-code-title": "Özel kod"
+      "basic-description": "Bu örnek tarafından gösterilen genel kimliği yapılandırın."
     },
     "webhook": {
       "create-dialog": {

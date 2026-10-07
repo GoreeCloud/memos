@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "S3エンドポイントのTLS証明書検証を無効にします。自己署名証明書を使用する信頼できるエンドポイントの場合にのみ有効にしてください。中間者攻撃に対する保護が失われます。"
     },
     "system": {
-      "additional-script": "追加スクリプト",
-      "additional-script-placeholder": "追加JavaScriptコード",
-      "additional-style": "追加CSS",
-      "additional-style-placeholder": "追加CSSコード",
       "customize-server": {
         "description": "説明",
         "icon-url": "アイコンURL",
@@ -592,11 +588,7 @@
       "max-upload-size": "最大アップロードサイズ(MiB)",
       "max-upload-size-hint": "推奨値は32 MiBです。",
       "server-name": "サーバー名",
-      "additional-script-description": "JavaScript をすべての Web ページに挿入します。 信頼できるコードのみを使用してください。",
-      "additional-style-description": "CSS を Web アプリに挿入して、インスタンス全体のプレゼンテーションを調整します。",
-      "basic-description": "このインスタンスによって表示されるパブリック ID を構成します。",
-      "custom-code-description": "フロントエンドに適用されるオプションのインスタンス全体の CSS および JavaScript。",
-      "custom-code-title": "カスタムコード"
+      "basic-description": "このインスタンスによって表示されるパブリック ID を構成します。"
     },
     "webhook": {
       "create-dialog": {

@@ -21,7 +21,7 @@ import {
 import { useTranslate } from "@/utils/i18n";
 import UpdateCustomizedProfileDialog from "../UpdateCustomizedProfileDialog";
 import SettingGroup from "./SettingGroup";
-import { SettingCodeEditor, SettingList, SettingListItem } from "./SettingList";
+import { SettingList, SettingListItem } from "./SettingList";
 import SettingSection from "./SettingSection";
 import useInstanceSettingUpdater, { buildInstanceSettingName } from "./useInstanceSettingUpdater";
 
@@ -117,7 +117,10 @@ const InstanceSection = () => {
     <SettingSection title={t("setting.system.label")}>
       <SettingGroup title={t("common.basic")} description={t("setting.system.basic-description")}>
         <SettingList>
-          <SettingListItem label={t("setting.system.server-name")} description={instanceGeneralSetting.customProfile?.title || "Memos"}>
+          <SettingListItem
+            label={t("setting.system.server-name")}
+            description={instanceGeneralSetting.customProfile?.title || "GoreeCloud Memos"}
+          >
             <Button variant="outline" onClick={customizeDialog.open}>
               {t("common.edit")}
             </Button>
@@ -201,24 +204,6 @@ const InstanceSection = () => {
             />
           </SettingListItem>
         </SettingList>
-      </SettingGroup>
-
-      <SettingGroup title={t("setting.system.custom-code-title")} description={t("setting.system.custom-code-description")} showSeparator>
-        <SettingCodeEditor
-          label={t("setting.system.additional-style")}
-          description={t("setting.system.additional-style-description")}
-          placeholder={t("setting.system.additional-style-placeholder")}
-          value={instanceGeneralSetting.additionalStyle}
-          onChange={(additionalStyle) => updatePartialSetting({ additionalStyle })}
-        />
-
-        <SettingCodeEditor
-          label={t("setting.system.additional-script")}
-          description={t("setting.system.additional-script-description")}
-          placeholder={t("setting.system.additional-script-placeholder")}
-          value={instanceGeneralSetting.additionalScript}
-          onChange={(additionalScript) => updatePartialSetting({ additionalScript })}
-        />
       </SettingGroup>
 
       <div className="w-full flex justify-end">

@@ -694,20 +694,12 @@
       "insecure-skip-tls-verify-description": "Απενεργοποίηση επαλήθευσης πιστοποιητικού TLS για το τελικό σημείο S3. Ενεργοποίηση μόνο για αξιόπιστα τελικά σημεία που χρησιμοποιούν αυτο-υπογεγραμμένο πιστοποιητικό. Αυτό καταργεί την προστασία από επιθέσεις man-in-the-middle."
     },
     "system": {
-      "additional-script": "Πρόσθετο σενάριο",
-      "additional-script-description": "Εισάγετε το JavaScript σε κάθε ιστοσελίδα. Χρησιμοποιήστε μόνο αξιόπιστο κωδικό.",
-      "additional-script-placeholder": "Πρόσθετος κωδικός JavaScript",
-      "additional-style": "Πρόσθετο στυλ",
-      "additional-style-description": "Εισαγάγετε το CSS στην εφαρμογή Ιστού για να προσαρμόσετε την παρουσίαση σε όλη την παρουσία.",
-      "additional-style-placeholder": "Πρόσθετος κωδικός CSS",
       "basic-description": "Διαμορφώστε τη δημόσια ταυτότητα που εμφανίζεται από αυτήν την εμφάνιση.",
       "customize-server": {
         "description": "Περιγραφή",
         "icon-url": "Εικονίδιο URL",
         "title": "Προσαρμογή διακομιστή"
       },
-      "custom-code-description": "Προαιρετικά τα CSS και JavaScript σε όλο το παράδειγμα εφαρμόζονται στο frontend.",
-      "custom-code-title": "Προσαρμοσμένος κωδικός",
       "enable-double-click-to-edit": "Ενεργοποιήστε το διπλό κλικ για επεξεργασία",
       "label": "Σύστημα",
       "max-upload-size": "Μέγιστο μέγεθος μεταφόρτωσης (MiB)",

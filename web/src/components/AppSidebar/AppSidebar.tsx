@@ -581,7 +581,7 @@ const AppSidebar = ({ className }: { className?: string }) => {
   const { setMobileOpen } = useAppSidebar();
   const { canOpen: canCompose, openEditor } = useGlobalMemoEditor();
   return (
-    <aside className={cn("flex h-full w-full select-none flex-col bg-sidebar text-sidebar-foreground", className)}>
+    <aside className={cn("goreecloud-sidebar flex h-full w-full select-none flex-col bg-sidebar text-sidebar-foreground", className)}>
       <div data-sidebar-header className={cn("flex h-13 shrink-0 items-center justify-between gap-2", SIDEBAR_RAIL_CLASSES)}>
         <SidebarBrand className="min-w-0" size="header" />
         {canCompose && <NewMemoAction onClick={openEditor} />}

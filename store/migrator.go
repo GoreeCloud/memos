@@ -140,12 +140,15 @@ func (s *Store) Migrate(ctx context.Context) error {
 	return nil
 }
 
-// initializeInstanceAccessSetting captures the pre-ACCESS behavior exactly once.
-// Existing installations that configured an external URL were public; all others
-// were private. Once persisted, later URL changes do not alter the access policy.
+// initializeInstanceAccessSetting establishes GoreeCloud's fail-closed default
+// exactly once. A canonical/external URL is routing metadata, not authorization;
+// public access must be an explicit administrator decision.
 func (s *Store) initializeInstanceAccessSetting(ctx context.Context) error {
 	accessMode := storepb.InstanceAccessMode_INSTANCE_ACCESS_MODE_PRIVATE
-	if strings.TrimSpace(s.profile.InstanceURL) != "" {
+	// Demo is an explicit operator-controlled public demonstration mode with
+	// synthetic seed data. It is the only startup mode that intentionally opens
+	// anonymous access; a canonical URL alone never grants authorization.
+	if s.profile.Demo {
 		accessMode = storepb.InstanceAccessMode_INSTANCE_ACCESS_MODE_PUBLIC
 	}
 	value, err := protojson.Marshal(&storepb.InstanceAccessSetting{AccessMode: accessMode})

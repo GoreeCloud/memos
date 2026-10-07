@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "Deshabilitar la verificación del certificado TLS para el punto final S3. Habilitar solo para puntos finales de confianza que utilicen un certificado autofirmado; esto elimina la protección contra ataques de intermediario (man-in-the-middle)."
     },
     "system": {
-      "additional-script": "Script adicional",
-      "additional-script-placeholder": "Código JavaScript adicional",
-      "additional-style": "Estilo adicional",
-      "additional-style-placeholder": "Código CSS adicional",
       "customize-server": {
         "description": "Descripción",
         "icon-url": "URL del icono",
@@ -592,11 +588,7 @@
       "max-upload-size": "Tamaño máximo de subida (MiB)",
       "max-upload-size-hint": "El valor recomendado es 32 MiB.",
       "server-name": "Nombre del servidor",
-      "additional-script-description": "Inyecte JavaScript en cada página web. Utilice únicamente código confiable.",
-      "additional-style-description": "Inyecte CSS en la aplicación web para ajustar la presentación de toda la instancia.",
-      "basic-description": "Configure la identidad pública que muestra esta instancia.",
-      "custom-code-description": "CSS y JavaScript opcionales para toda la instancia aplicados a la interfaz.",
-      "custom-code-title": "código personalizado"
+      "basic-description": "Configure la identidad pública que muestra esta instancia."
     },
     "webhook": {
       "create-dialog": {

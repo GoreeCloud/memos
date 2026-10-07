@@ -59,15 +59,12 @@ describe("<InstanceSection> access setting", () => {
     expect(instance.fetchSetting).not.toHaveBeenCalled();
   });
 
-  it("orders general settings before access policies and custom code", () => {
+  it("orders general settings before access policies and omits custom code", () => {
     render(<InstanceSection />);
 
     const groupHeadings = screen.getAllByRole("heading", { level: 4 });
-    expect(groupHeadings.map((heading) => heading.textContent)).toEqual([
-      "common.basic",
-      "setting.instance.access-title",
-      "setting.system.custom-code-title",
-    ]);
+    expect(groupHeadings.map((heading) => heading.textContent)).toEqual(["common.basic", "setting.instance.access-title"]);
+    expect(screen.queryByText("setting.system.custom-code-title")).not.toBeInTheDocument();
 
     const weekStartDay = screen.getByText("setting.instance.week-start-day");
     const accessHeading = screen.getByRole("heading", { level: 4, name: "setting.instance.access-title" });

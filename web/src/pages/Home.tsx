@@ -39,7 +39,7 @@ const Home = () => {
   });
 
   return (
-    <div className="w-full min-h-full bg-background text-foreground">
+    <div className="goreecloud-home w-full min-h-full bg-transparent text-foreground">
       <NewMemoProvider>
         <PagedMemoList
           renderer={(memo: Memo, { compact }) => (

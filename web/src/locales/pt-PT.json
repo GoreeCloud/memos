@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "Desativar a verificação do certificado TLS para o endpoint S3. Ativar apenas para endpoints fidedignos que utilizem um certificado autoassinado; isto remove a proteção contra ataques man-in-the-middle."
     },
     "system": {
-      "additional-script": "Script adicional",
-      "additional-script-placeholder": "Código JavaScript adicional",
-      "additional-style": "Estilo adicional",
-      "additional-style-placeholder": "Código CSS adicional",
       "customize-server": {
         "description": "Descrição",
         "icon-url": "URL do Ícone",
@@ -592,11 +588,7 @@
       "max-upload-size": "Tamanho máximo de upload (MiB)",
       "max-upload-size-hint": "O valor recomendado é 32 MiB.",
       "server-name": "Nome do Servidor",
-      "additional-script-description": "Injete JavaScript em todas as páginas da web. Use apenas código confiável.",
-      "additional-style-description": "Injete CSS no aplicativo Web para ajustar a apresentação de toda a instância.",
-      "basic-description": "Configure a identidade pública mostrada por esta instância.",
-      "custom-code-description": "CSS e JavaScript opcionais em toda a instância aplicados ao front-end.",
-      "custom-code-title": "Código personalizado"
+      "basic-description": "Configure a identidade pública mostrada por esta instância."
     },
     "webhook": {
       "create-dialog": {

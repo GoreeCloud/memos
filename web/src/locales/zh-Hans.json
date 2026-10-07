@@ -561,20 +561,12 @@
       "label": "存储"
     },
     "system": {
-      "additional-script": "自定义脚本",
-      "additional-script-description": "向所有 Web 页面注入 JavaScript。请只使用可信代码。",
-      "additional-script-placeholder": "自定义 JavaScript 代码",
-      "additional-style": "自定义样式",
-      "additional-style-description": "向前端应用注入 CSS，用于调整实例范围内的显示效果。",
-      "additional-style-placeholder": "自定义 CSS 代码",
       "basic-description": "配置该实例对外展示的身份信息和日历默认行为。",
       "customize-server": {
         "description": "描述",
         "icon-url": "图标链接",
         "title": "自定义服务器"
       },
-      "custom-code-description": "应用到前端的实例范围 CSS 和 JavaScript，可选。",
-      "custom-code-title": "自定义代码",
       "enable-double-click-to-edit": "启用双击编辑",
       "max-upload-size": "最大上传大小 (MiB)",
       "max-upload-size-hint": "建议值为 32 MiB。",

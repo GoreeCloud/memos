@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "TLS-Zertifikatsverifizierung für den Endpunkt S3 deaktivieren. Nur für vertrauenswürdige Endpunkte mit selbstsigniertem Zertifikat aktivieren; dadurch wird der Schutz vor Man-in-the-Middle-Angriffen aufgehoben."
     },
     "system": {
-      "additional-script": "Zusätzliches Skript",
-      "additional-script-placeholder": "Zusätzlicher JavaScript-Code",
-      "additional-style": "Zusätzlicher Stil",
-      "additional-style-placeholder": "Zusätzlicher CSS-Code",
       "customize-server": {
         "description": "Beschreibung",
         "icon-url": "Icon-URL",
@@ -592,11 +588,7 @@
       "max-upload-size": "Maximale Uploadgröße (MiB)",
       "max-upload-size-hint": "Empfohlener Wert ist 32 MiB.",
       "server-name": "Servername",
-      "additional-script-description": "Fügen Sie JavaScript in jede Webseite ein. Verwenden Sie nur vertrauenswürdigen Code.",
-      "additional-style-description": "Fügen Sie CSS in die Web-App ein, um die instanzweite Darstellung anzupassen.",
-      "basic-description": "Konfigurieren Sie die von dieser Instanz angezeigte öffentliche Identität.",
-      "custom-code-description": "Optionales instanzweites CSS und JavaScript, das auf das Frontend angewendet wird.",
-      "custom-code-title": "Benutzerdefinierter Code"
+      "basic-description": "Konfigurieren Sie die von dieser Instanz angezeigte öffentliche Identität."
     },
     "webhook": {
       "create-dialog": {

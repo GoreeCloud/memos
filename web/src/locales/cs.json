@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "Zakázat ověření certifikátu TLS pro koncový bod S3. Povolit pouze pro důvěryhodné koncové body používající certifikát podepsaný držitelem; tím se odstraní ochrana před útoky typu „man-in-the-middle“."
     },
     "system": {
-      "additional-script": "Vlastní rozšíření skriptu",
-      "additional-script-placeholder": "Vlastní rozšíření kódu JavaScript",
-      "additional-style": "Vlastní rozšíření stylu",
-      "additional-style-placeholder": "Vlastní rozšíření kódu CSS",
       "customize-server": {
         "description": "Popis",
         "icon-url": "URL ikony",
@@ -592,11 +588,7 @@
       "max-upload-size": "Maximální velikost nahrávaného souboru (MiB)",
       "max-upload-size-hint": "Doporučená hodnota je 32 MiB.",
       "server-name": "Název serveru",
-      "additional-script-description": "Vložte JavaScript do každé webové stránky. Používejte pouze důvěryhodný kód.",
-      "additional-style-description": "Vložením CSS do webové aplikace upravíte prezentaci v rámci celé instance.",
-      "basic-description": "Nakonfigurujte veřejnou identitu zobrazenou touto instancí.",
-      "custom-code-description": "Volitelné CSS a JavaScript pro celou instanci použité na frontend.",
-      "custom-code-title": "Vlastní kód"
+      "basic-description": "Nakonfigurujte veřejnou identitu zobrazenou touto instancí."
     },
     "webhook": {
       "create-dialog": {

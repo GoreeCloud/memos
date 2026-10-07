@@ -488,10 +488,6 @@
       "use-path-style-description": "MinIO किंवा काही S3-सुसंगत सेवांसारख्या प्रदात्यांसाठी हे सक्षम करा जे व्हर्च्युअल-होस्टेड-शैलीतील बकेट्सना समर्थन देत नाहीत."
     },
     "system": {
-      "additional-script": "अतिरिक्त स्क्रिप्ट",
-      "additional-script-placeholder": "अतिरिक्त JavaScript कोड",
-      "additional-style": "अतिरिक्त शैली",
-      "additional-style-placeholder": "अतिरिक्त CSS कोड",
       "customize-server": {
         "description": "वर्णन",
         "icon-url": "चिन्ह URL",
@@ -502,11 +498,7 @@
       "max-upload-size-hint": "शिफारस केलेले मूल्य 32 MiB आहे.",
       "server-name": "सर्व्हरचे नाव",
       "label": "प्रणाली",
-      "additional-script-description": "प्रत्येक वेब पेजमध्ये जावास्क्रिप्ट इंजेक्ट करा. फक्त विश्वसनीय कोड वापरा.",
-      "additional-style-description": "इन्स्टन्स-व्यापी सादरीकरण समायोजित करण्यासाठी वेब ॲपमध्ये CSS इंजेक्ट करा.",
-      "basic-description": "या इन्स्टन्ससाठी सार्वजनिक ओळख आणि कॅलेंडर डीफॉल्ट्स कॉन्फिगर करा.",
-      "custom-code-description": "फ्रंटएंडवर लागू केलेले ऐच्छिक इन्स्टन्स-व्यापी CSS आणि जावास्क्रिप्ट.",
-      "custom-code-title": "सानुकूल कोड"
+      "basic-description": "या इन्स्टन्ससाठी सार्वजनिक ओळख आणि कॅलेंडर डीफॉल्ट्स कॉन्फिगर करा."
     },
     "access-token": {
       "access-token-copied-to-clipboard": "ऍक्सेस टोकन क्लिपबोर्डवर कॉपी केले",

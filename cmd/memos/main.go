@@ -195,7 +195,7 @@ func privateWebhookAllowlist() []string {
 }
 
 func printServerInfo(profile *profile.Profile, accessMode storepb.InstanceAccessMode) {
-	fmt.Printf("Memos %s started successfully!\n", profile.Version)
+	fmt.Printf("GoreeCloud Memos %s started successfully!\n", profile.Version)
 
 	if profile.Demo {
 		fmt.Fprint(os.Stderr, "Demo mode is enabled\n")
@@ -209,10 +209,10 @@ func printServerInfo(profile *profile.Profile, accessMode storepb.InstanceAccess
 	if len(profile.UNIXSock) == 0 {
 		if len(profile.Addr) == 0 {
 			fmt.Printf("Server running on port %d\n", profile.Port)
-			fmt.Printf("Access your memos at: http://localhost:%d\n", profile.Port)
+			fmt.Printf("Access GoreeCloud Memos at: http://localhost:%d\n", profile.Port)
 		} else {
 			fmt.Printf("Server running on %s:%d\n", profile.Addr, profile.Port)
-			fmt.Printf("Access your memos at: http://%s:%d\n", profile.Addr, profile.Port)
+			fmt.Printf("Access GoreeCloud Memos at: http://%s:%d\n", profile.Addr, profile.Port)
 		}
 	} else {
 		fmt.Printf("Server running on unix socket: %s\n", profile.UNIXSock)

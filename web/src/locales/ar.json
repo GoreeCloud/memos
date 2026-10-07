@@ -488,10 +488,6 @@
       "use-path-style-description": "تفعيل هذا الخيار لموفري الخدمات مثل MinIO أو بعض الخدمات المتوافقة مع S3 التي لا تدعم حاويات التخزين الافتراضية."
     },
     "system": {
-      "additional-script": "سكريبت إضافي",
-      "additional-script-placeholder": "كود JavaScript إضافي",
-      "additional-style": "نمط إضافي",
-      "additional-style-placeholder": "كود CSS إضافي",
       "customize-server": {
         "description": "الوصف",
         "icon-url": "رابط الأيقونة",
@@ -502,11 +498,7 @@
       "max-upload-size-hint": "القيمة الموصى بها هي 32 ميغابايت.",
       "server-name": "اسم الخادم",
       "label": "النظام",
-      "additional-script-description": "إضافة جافا سكريبت إلى جميع صفحات الويب. استخدام التعليمات البرمجية الموثوقة فقط.",
-      "additional-style-description": "إضافة CSS إلى تطبيق الويب لضبط العرض على مستوى المثيل.",
-      "basic-description": "ضبط الهوية العامة والتقويم الافتراضيين لهذا المثيل.",
-      "custom-code-description": "تطبيق CSS وجافا سكريبت اختياري على مستوى المثيل في الواجهة الأمامية.",
-      "custom-code-title": "رمز مخصص"
+      "basic-description": "ضبط الهوية العامة والتقويم الافتراضيين لهذا المثيل."
     },
     "access-token": {
       "access-token-copied-to-clipboard": "تم نسخ رمز الوصول إلى الحافظة",

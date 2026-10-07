@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "Deaktiver TLS-sertifikatverifisering for S3-endepunktet. Aktiver kun for klarerte endepunkter som bruker et selvsignert sertifikat. Dette fjerner beskyttelsen mot mellommann-angrep."
     },
     "system": {
-      "additional-script": "Ekstra kode",
-      "additional-script-placeholder": "Ekstra Javascript-kode",
-      "additional-style": "Ekstra styling",
-      "additional-style-placeholder": "Ekstra CSS-kode",
       "customize-server": {
         "description": "Beskrivelse",
         "icon-url": "Ikon-URL",
@@ -592,11 +588,7 @@
       "max-upload-size": "Maksimal opplastingsstørrelse (MiB)",
       "max-upload-size-hint": "Anbefalt verdi er 32 MiB.",
       "server-name": "Servernavn",
-      "additional-script-description": "Injiser JavaScript på hver nettside. Bruk kun pålitelig kode.",
-      "additional-style-description": "Injiser CSS i nettappen for å justere presentasjonen for hele forekomsten.",
-      "basic-description": "Konfigurer den offentlige identiteten som vises av denne forekomsten.",
-      "custom-code-description": "Valgfrie forekomstomfattende CSS og JavaScript brukes på frontend.",
-      "custom-code-title": "Egendefinert kode"
+      "basic-description": "Konfigurer den offentlige identiteten som vises av denne forekomsten."
     },
     "webhook": {
       "create-dialog": {

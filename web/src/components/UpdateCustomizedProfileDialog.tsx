@@ -59,8 +59,8 @@ function UpdateCustomizedProfileDialog({ open, onOpenChange, onSuccess }: Props)
 
   const handleRestoreButtonClick = () => {
     setPartialState({
-      title: "Memos",
-      logoUrl: "/logo.webp",
+      title: "GoreeCloud Memos",
+      logoUrl: "/goreecloud-memos.svg",
       description: "",
     });
   };

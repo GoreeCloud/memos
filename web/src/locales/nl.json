@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "Schakel TLS-certificaatverificatie uit voor het S3-eindpunt. Schakel dit alleen in voor vertrouwde eindpunten die een zelfondertekend certificaat gebruiken; hiermee wordt de bescherming tegen man-in-the-middle-aanvallen verwijderd."
     },
     "system": {
-      "additional-script": "Optionele scripts",
-      "additional-script-placeholder": "Optionele JavaScript code",
-      "additional-style": "Optionele stijl",
-      "additional-style-placeholder": "Optionele CSS code",
       "customize-server": {
         "description": "Beschrijving",
         "icon-url": "Pictogram-URL",
@@ -592,11 +588,7 @@
       "max-upload-size": "Maximum uploadgrootte (MiB)",
       "max-upload-size-hint": "32 MiB wordt aangeraden.",
       "server-name": "Servernaam",
-      "additional-script-description": "Injecteer JavaScript in elke webpagina. Gebruik alleen vertrouwde code.",
-      "additional-style-description": "Injecteer CSS in de webapp om de presentatie voor de hele instantie aan te passen.",
-      "basic-description": "Configureer de openbare identiteit die door deze instantie wordt weergegeven.",
-      "custom-code-description": "Optioneel exemplaar-brede CSS en JavaScript toegepast op de frontend.",
-      "custom-code-title": "Aangepaste code"
+      "basic-description": "Configureer de openbare identiteit die door deze instantie wordt weergegeven."
     },
     "webhook": {
       "create-dialog": {

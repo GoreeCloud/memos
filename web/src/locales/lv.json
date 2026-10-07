@@ -694,20 +694,12 @@
       "insecure-skip-tls-verify-description": "Atspējot TLS sertifikāta verifikāciju S3 galapunktam. Iespējojiet tikai uzticamiem galapunktiem, izmantojot pašparakstītu sertifikātu; tas noņem aizsardzību pret starpnieka uzbrukumiem."
     },
     "system": {
-      "additional-script": "Papildu skripts",
-      "additional-script-description": "Ievadiet JavaScript katrā tīmekļa lapā. Izmantojiet tikai uzticamu kodu.",
-      "additional-script-placeholder": "Papildu JavaScript kods",
-      "additional-style": "Papildu stils",
-      "additional-style-description": "Ievadiet CSS tīmekļa lietotnē, lai pielāgotu eksemplāra mēroga prezentāciju.",
-      "additional-style-placeholder": "Papildu CSS kods",
       "basic-description": "Konfigurējiet šajā instancē parādīto publisko identitāti.",
       "customize-server": {
         "description": "Apraksts",
         "icon-url": "Ikona URL",
         "title": "Pielāgot serveri"
       },
-      "custom-code-description": "Izvēles instances mēroga CSS un JavaScript, kas tiek lietoti priekšgalā.",
-      "custom-code-title": "Pielāgots kods",
       "enable-double-click-to-edit": "Iespējojiet dubultklikšķi, lai rediģētu",
       "label": "Sistēma",
       "max-upload-size": "Maksimālais augšupielādes lielums (MiB)",

@@ -694,20 +694,12 @@
       "insecure-skip-tls-verify-description": "Dezactivați verificarea certificatului TLS pentru endpoint-ul S3. Activați numai pentru endpoint-urile de încredere care utilizează un certificat autosemnat; aceasta elimină protecția împotriva atacurilor man-in-the-middle."
     },
     "system": {
-      "additional-script": "Script suplimentar",
-      "additional-script-description": "Injectați JavaScript în fiecare pagină web. Utilizați numai cod de încredere.",
-      "additional-script-placeholder": "Cod suplimentar JavaScript",
-      "additional-style": "Stilul suplimentar",
-      "additional-style-description": "Injectați CSS în aplicația web pentru a ajusta prezentarea la nivel de instanță.",
-      "additional-style-placeholder": "Cod suplimentar CSS",
       "basic-description": "Configurați identitatea publică afișată de această instanță.",
       "customize-server": {
         "description": "Descriere",
         "icon-url": "Pictograma URL",
         "title": "Personalizați serverul"
       },
-      "custom-code-description": "Opțional, CSS și JavaScript la nivelul întregii instanțe aplicate frontend-ului.",
-      "custom-code-title": "Cod personalizat",
       "enable-double-click-to-edit": "Activați dublu clic pentru a edita",
       "label": "Sistem",
       "max-upload-size": "Dimensiunea maximă de încărcare (MiB)",

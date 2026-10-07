@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./themes/default.css";
+@import url("/goreecloud/glaze/css/glaze-v1.4.1.css");
+@import "./themes/goreecloud.css";
 
 @layer base {
   * {

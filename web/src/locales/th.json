@@ -488,10 +488,6 @@
       "use-path-style-description": "เปิดใช้งานสำหรับผู้ให้บริการ เช่น MinIO หรือบริการที่เข้ากันได้กับ S3 บางบริการที่ไม่รองรับ bucket แบบ virtual-hosted"
     },
     "system": {
-      "additional-script": "สคริปต์เพิ่มเติม",
-      "additional-script-placeholder": "โค้ดจาวาสคริปต์เพิ่มเติม",
-      "additional-style": "สไตล์เพิ่มเติม",
-      "additional-style-placeholder": "โค้ด CSS เพิ่มเติม",
       "customize-server": {
         "description": "คำอธิบาย",
         "icon-url": "URL ไอคอน",
@@ -502,11 +498,7 @@
       "max-upload-size-hint": "ค่าที่แนะนำคือ 32 MiB",
       "server-name": "ชื่อเซิร์ฟเวอร์",
       "label": "ระบบ",
-      "additional-script-description": "แทรก JavaScript ลงในทุกหน้าเว็บ ใช้เฉพาะโค้ดที่เชื่อถือได้เท่านั้น",
-      "additional-style-description": "แทรก CSS ลงในเว็บแอปเพื่อปรับการแสดงผลทั่วทั้งอินสแตนซ์",
-      "basic-description": "กำหนดค่าข้อมูลประจำตัวสาธารณะและค่าเริ่มต้นของปฏิทินสำหรับอินสแตนซ์นี้",
-      "custom-code-description": "CSS และ JavaScript ทั่วทั้งอินสแตนซ์ที่ใช้กับ frontend (ไม่บังคับ)",
-      "custom-code-title": "โค้ดที่กำหนดเอง"
+      "basic-description": "กำหนดค่าข้อมูลประจำตัวสาธารณะและค่าเริ่มต้นของปฏิทินสำหรับอินสแตนซ์นี้"
     },
     "access-token": {
       "access-token-copied-to-clipboard": "คัดลอกโทเค็นการเข้าถึงไปยังคลิปบอร์ดแล้ว",

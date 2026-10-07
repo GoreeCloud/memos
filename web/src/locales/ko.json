@@ -488,10 +488,6 @@
       "use-path-style-description": "가상 호스팅 스타일 버킷을 지원하지 않는 MinIO 또는 일부 S3 호환 서비스와 같은 공급자에 대해 이 옵션을 활성화합니다."
     },
     "system": {
-      "additional-script": "추가 스크립트",
-      "additional-script-placeholder": "추가 JavaScript 코드",
-      "additional-style": "추가 스타일",
-      "additional-style-placeholder": "추가 CSS 코드",
       "customize-server": {
         "description": "설명",
         "icon-url": "아이콘 URL",
@@ -502,11 +498,7 @@
       "max-upload-size-hint": "권장값은 32 MiB입니다.",
       "server-name": "서버 이름",
       "label": "시스템",
-      "additional-script-description": "모든 웹 페이지에 JavaScript를 삽입합니다. 신뢰할 수 있는 코드만 사용합니다.",
-      "additional-style-description": "인스턴스 전체의 표시를 조정하기 위해 웹 앱에 CSS를 삽입합니다.",
-      "basic-description": "이 인스턴스의 공개 ID 및 캘린더 기본값을 구성합니다.",
-      "custom-code-description": "프런트엔드에 적용되는 선택적 인스턴스 전체 CSS 및 JavaScript입니다.",
-      "custom-code-title": "사용자 지정 코드"
+      "basic-description": "이 인스턴스의 공개 ID 및 캘린더 기본값을 구성합니다."
     },
     "access-token": {
       "access-token-copied-to-clipboard": "액세스 토큰이 복사되었습니다",

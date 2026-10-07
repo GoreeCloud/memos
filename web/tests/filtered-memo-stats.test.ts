@@ -29,8 +29,10 @@ import { State } from "@/types/proto/api/v1/common_pb";
 
 const wrapper = ({ children }: { children: ReactNode }) => children as never;
 
+// The hook deliberately groups timestamps in the browser's local calendar.
+// Build fixtures in local time so the test is deterministic outside UTC too.
 const ts = (year: number, month: number, day: number) => ({
-  seconds: BigInt(Math.floor(Date.UTC(year, month - 1, day) / 1000)),
+  seconds: BigInt(Math.floor(new Date(year, month - 1, day, 12, 0, 0).getTime() / 1000)),
   nanos: 0,
 });
 

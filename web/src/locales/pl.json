@@ -578,10 +578,6 @@
       "use-path-style-description": "Włącz tę opcję dla dostawców takich jak MinIO lub niektórych usług zgodnych z S3, którzy nie obsługują zasobników w stylu hostowanego wirtualnie."
     },
     "system": {
-      "additional-script": "Dodatkowy skrypt",
-      "additional-script-placeholder": "Dodatkowy kod JavaScript",
-      "additional-style": "Dodatkowy styl",
-      "additional-style-placeholder": "Dodatkowy kod CSS",
       "customize-server": {
         "description": "Opis",
         "icon-url": "URL ikony",
@@ -592,11 +588,7 @@
       "max-upload-size": "Maksymalny rozmiar przesyłanego pliku (MiB)",
       "max-upload-size-hint": "Zalecana wartość to 32 MiB.",
       "server-name": "Nazwa serwera",
-      "additional-script-description": "Wstrzyknij JavaScript do każdej strony internetowej. Używaj tylko zaufanego kodu.",
-      "additional-style-description": "Wstrzyknij CSS do aplikacji internetowej, aby dostosować prezentację w całej instancji.",
-      "basic-description": "Skonfiguruj tożsamość publiczną pokazywaną przez tę instancję.",
-      "custom-code-description": "Opcjonalne CSS i JavaScript obejmujące całą instancję zastosowane w interfejsie użytkownika.",
-      "custom-code-title": "Kod niestandardowy"
+      "basic-description": "Skonfiguruj tożsamość publiczną pokazywaną przez tę instancję."
     },
     "webhook": {
       "create-dialog": {

@@ -892,20 +892,12 @@
       "use-path-style-description": "Virtual-hosted-style Bucket-ləri dəstəkləməyən MinIO kimi provayderlər və ya bəzi S3 uyğun xidmətlər üçün bunu aktivləşdirin."
     },
     "system": {
-      "additional-script": "Əlavə skript",
-      "additional-script-description": "Hər veb səhifəyə JavaScript əlavə edin. Yalnız etibarlı koddan istifadə edin.",
-      "additional-script-placeholder": "Əlavə JavaScript kodu",
-      "additional-style": "Əlavə üslub",
-      "additional-style-description": "İnstans üzrə görünüşü tənzimləmək üçün veb tətbiqə CSS əlavə edin.",
-      "additional-style-placeholder": "Əlavə CSS kodu",
       "basic-description": "Bu instans üçün ictimai kimlik və təqvim defoltlarını konfiqurasiya edin.",
       "customize-server": {
         "description": "Təsvir",
         "icon-url": "İkon URL-i",
         "title": "Serveri fərdiləşdir"
       },
-      "custom-code-description": "Frontend-ə tətbiq olunan, istəyə bağlı instans üzrə CSS və JavaScript.",
-      "custom-code-title": "Xüsusi kod",
       "enable-double-click-to-edit": "Redaktə üçün ikiqat kliki aktivləşdir",
       "label": "Sistem",
       "max-upload-size": "Maksimum yükləmə ölçüsü (MiB)",

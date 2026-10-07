@@ -48,12 +48,12 @@ describe("<About>", () => {
   it("renders the identity hero with linked version, commit, and license chips", () => {
     renderAbout();
 
-    expect(screen.getByRole("heading", { name: "Memos" })).toBeInTheDocument();
-    expect(screen.getByText(/Capture first/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "GoreeCloud Memos" })).toBeInTheDocument();
+    expect(screen.getByText(/Capture quickly/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "v0.25.0" })).toHaveAttribute("href", "https://github.com/usememos/memos/releases/tag/v0.25.0");
     expect(screen.getByRole("link", { name: "0123456" })).toHaveAttribute(
       "href",
-      "https://github.com/usememos/memos/commit/0123456789abcdef0123456789abcdef01234567",
+      "https://github.com/GoreeCloud/memos/commit/0123456789abcdef0123456789abcdef01234567",
     );
     expect(screen.getByRole("link", { name: "MIT" })).toHaveAttribute("href", "https://github.com/usememos/memos/blob/main/LICENSE");
   });
@@ -61,11 +61,17 @@ describe("<About>", () => {
   it("links to the project homepage, docs, API docs, GitHub, and Web Clipper", () => {
     renderAbout();
 
-    expect(screen.getByRole("link", { name: /about\.official-website/ })).toHaveAttribute("href", "https://usememos.com/");
-    expect(screen.getByRole("link", { name: /about\.documents/ })).toHaveAttribute("href", "https://usememos.com/docs");
-    expect(screen.getByRole("link", { name: /about\.api-docs/ })).toHaveAttribute("href", "https://usememos.com/docs/api");
+    expect(screen.getByRole("link", { name: /about\.official-website/ })).toHaveAttribute("href", "https://github.com/GoreeCloud/memos");
+    expect(screen.getByRole("link", { name: /about\.documents/ })).toHaveAttribute(
+      "href",
+      "https://github.com/GoreeCloud/memos/tree/main/docs",
+    );
+    expect(screen.getByRole("link", { name: /about\.api-docs/ })).toHaveAttribute(
+      "href",
+      "https://github.com/GoreeCloud/memos/blob/main/docs/UPSTREAM.md",
+    );
     expect(screen.getByRole("link", { name: /about\.web-clipper/ })).toHaveAttribute("href", "https://github.com/usememos/web-clipper");
-    expect(screen.getByRole("link", { name: /about\.github-repository/ })).toHaveAttribute("href", "https://github.com/usememos/memos");
+    expect(screen.getByRole("link", { name: /about\.github-repository/ })).toHaveAttribute("href", "https://github.com/GoreeCloud/memos");
   });
 
   it("does not surface the instance URL, administrator, or birds", () => {

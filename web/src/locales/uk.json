@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "Вимкнути перевірку сертифіката TLS для кінцевої точки S3. Увімкнути лише для довірених кінцевих точок, що використовують самопідписаний сертифікат; це знімає захист від атак типу «людина посередині»."
     },
     "system": {
-      "additional-script": "Додатковий скрипт",
-      "additional-script-placeholder": "Додатковий JavaScript код",
-      "additional-style": "Додатковий стиль",
-      "additional-style-placeholder": "Додатковий CSS код",
       "customize-server": {
         "description": "Опис",
         "icon-url": "URL значка",
@@ -592,11 +588,7 @@
       "max-upload-size": "Максимальний розмір завантаження (MiB)",
       "max-upload-size-hint": "Рекомендується значення - 32 MiB.",
       "server-name": "Назва сервера",
-      "additional-script-description": "Вставте JavaScript на кожну веб-сторінку. Використовуйте лише надійний код.",
-      "additional-style-description": "Вставте CSS у веб-програму, щоб налаштувати презентацію для всього екземпляра.",
-      "basic-description": "Налаштуйте загальнодоступну ідентифікацію, яку показує цей екземпляр.",
-      "custom-code-description": "Додаткові CSS і JavaScript для всього екземпляра, застосовані до інтерфейсу.",
-      "custom-code-title": "Спеціальний код"
+      "basic-description": "Налаштуйте загальнодоступну ідентифікацію, яку показує цей екземпляр."
     },
     "webhook": {
       "create-dialog": {

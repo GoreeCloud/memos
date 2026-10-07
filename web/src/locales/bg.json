@@ -694,20 +694,12 @@
       "insecure-skip-tls-verify-description": "Деактивиране на TLS проверката на сертификата за крайната точка S3. Активиране само за надеждни крайни точки, използващи самоподписан сертификат; това премахва защитата срещу атаки от типа „човек по средата“."
     },
     "system": {
-      "additional-script": "Допълнителен скрипт",
-      "additional-script-description": "Инжектирайте JavaScript във всяка уеб страница. Използвайте само доверен код.",
-      "additional-script-placeholder": "Допълнителен код JavaScript",
-      "additional-style": "Допълнителен стил",
-      "additional-style-description": "Инжектирайте CSS в уеб приложението, за да коригирате представянето за целия екземпляр.",
-      "additional-style-placeholder": "Допълнителен код CSS",
       "basic-description": "Конфигурирайте публичната самоличност, показвана от този екземпляр.",
       "customize-server": {
         "description": "Описание",
         "icon-url": "Икона URL",
         "title": "Персонализиране на сървъра"
       },
-      "custom-code-description": "Незадължителни CSS и JavaScript за целия екземпляр, приложени към интерфейса.",
-      "custom-code-title": "Персонализиран код",
       "enable-double-click-to-edit": "Активирайте двойното щракване за редактиране",
       "label": "система",
       "max-upload-size": "Максимален размер за качване (MiB)",

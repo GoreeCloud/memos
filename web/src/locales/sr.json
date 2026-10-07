@@ -694,20 +694,12 @@
       "insecure-skip-tls-verify-description": "Онемогући TLS верификацију сертификата за крајњу тачку S3. Омогући само за поуздане крајње тачке које користе самопотписани сертификат; ово уклања заштиту од посредничких напада."
     },
     "system": {
-      "additional-script": "Додатна скрипта",
-      "additional-script-description": "Убаците JavaScript у сваку веб страницу. Користите само поуздани код.",
-      "additional-script-placeholder": "Додатни JavaScript код",
-      "additional-style": "Додатни стил",
-      "additional-style-description": "Убаците CSS у веб апликацију да бисте прилагодили презентацију на нивоу инстанце.",
-      "additional-style-placeholder": "Додатни CSS код",
       "basic-description": "Конфигуришите јавни идентитет који приказује ова инстанца.",
       "customize-server": {
         "description": "Опис",
         "icon-url": "Икона URL",
         "title": "Прилагодите сервер"
       },
-      "custom-code-description": "Опциони CSS и JavaScript за читаву инстанцу примењени на фронтенд.",
-      "custom-code-title": "Прилагођени код",
       "enable-double-click-to-edit": "Омогућите двоструки клик за уређивање",
       "label": "Систем",
       "max-upload-size": "Максимална величина отпремања (MiB)",

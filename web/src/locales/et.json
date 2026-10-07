@@ -694,20 +694,12 @@
       "insecure-skip-tls-verify-description": "Keela TLS-sertifikaadi verifitseerimine S3 lõpp-punkti jaoks. Luba ainult usaldusväärsete lõpp-punktide puhul, mis kasutavad iseallkirjastatud sertifikaati; see eemaldab kaitse vahemehe rünnakute eest."
     },
     "system": {
-      "additional-script": "Täiendav skript",
-      "additional-script-description": "Sisestage JavaScript igale veebilehele. Kasutage ainult usaldusväärset koodi.",
-      "additional-script-placeholder": "Täiendav JavaScript kood",
-      "additional-style": "Täiendav stiil",
-      "additional-style-description": "Sisestage CSS veebirakendusse, et kohandada kogu eksemplari esitlust.",
-      "additional-style-placeholder": "Täiendav CSS kood",
       "basic-description": "Seadistage selle eksemplari kuvatav avalik identiteet.",
       "customize-server": {
         "description": "Kirjeldus",
         "icon-url": "Ikoon URL",
         "title": "Serveri kohandamine"
       },
-      "custom-code-description": "Valikuline kogu eksemplari hõlmav CSS ja JavaScript, mida rakendatakse esiservale.",
-      "custom-code-title": "Kohandatud kood",
       "enable-double-click-to-edit": "Redigeerimiseks lubage topeltklõps",
       "label": "Süsteem",
       "max-upload-size": "Maksimaalne üleslaadimise suurus (MiB)",

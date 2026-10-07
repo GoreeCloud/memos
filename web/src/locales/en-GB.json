@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "Disable TLS certificate verification for the S3 endpoint. Enable only for trusted endpoints using a self-signed certificate; this removes protection against man-in-the-middle attacks."
     },
     "system": {
-      "additional-script": "Additional script",
-      "additional-script-placeholder": "Additional JavaScript code",
-      "additional-style": "Additional style",
-      "additional-style-placeholder": "Additional CSS code",
       "customize-server": {
         "description": "Description",
         "icon-url": "Icon URL",
@@ -592,11 +588,7 @@
       "max-upload-size": "Maximum upload size (MiB)",
       "max-upload-size-hint": "Recommended value is 32 MiB.",
       "server-name": "Server Name",
-      "additional-script-description": "Inject JavaScript into every web page. Use only trusted code.",
-      "additional-style-description": "Inject CSS into the web app to adjust instance-wide presentation.",
-      "basic-description": "Configure the public identity and calendar defaults for this instance.",
-      "custom-code-description": "Optional instance-wide CSS and JavaScript applied to the frontend.",
-      "custom-code-title": "Custom code"
+      "basic-description": "Configure the public identity and calendar defaults for this instance."
     },
     "webhook": {
       "create-dialog": {

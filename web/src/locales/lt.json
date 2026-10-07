@@ -694,20 +694,12 @@
       "insecure-skip-tls-verify-description": "Išjungti TLS sertifikato patvirtinimą S3 galiniam taškui. Įjungti tik patikimiems galiniams taškams, naudojantiems savarankiškai pasirašytą sertifikatą; tai pašalina apsaugą nuo „žmogus-tarpininkas“ atakų."
     },
     "system": {
-      "additional-script": "Papildomas scenarijus",
-      "additional-script-description": "Įdėkite JavaScript į kiekvieną tinklalapį. Naudokite tik patikimą kodą.",
-      "additional-script-placeholder": "Papildomas JavaScript kodas",
-      "additional-style": "Papildomas stilius",
-      "additional-style-description": "Įveskite CSS į žiniatinklio programą, kad sureguliuotumėte visos egzemplioriaus pateikimą.",
-      "additional-style-placeholder": "Papildomas CSS kodas",
       "basic-description": "Sukonfigūruokite viešąją tapatybę, kurią rodo šis pavyzdys.",
       "customize-server": {
         "description": "Aprašymas",
         "icon-url": "Piktograma URL",
         "title": "Tinkinti serverį"
       },
-      "custom-code-description": "Pasirenkamas viso egzemplioriaus CSS ir JavaScript, pritaikytas priekinėje dalyje.",
-      "custom-code-title": "Pasirinktinis kodas",
       "enable-double-click-to-edit": "Įgalinkite dukart spustelėdami redaguoti",
       "label": "Sistema",
       "max-upload-size": "Maksimalus įkėlimo dydis (MiB)",

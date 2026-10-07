@@ -22,7 +22,7 @@ import { InstanceAccessMode } from "@/types/proto/api/v1/instance_service_pb";
 import { buildAuthRoute, shouldGatePrivateInstance } from "@/utils/auth-redirect";
 import { useTranslate } from "@/utils/i18n";
 
-const MEMOS_DEPLOY_URL = "https://usememos.com/docs/deploy";
+const MEMOS_DEPLOY_URL = "https://github.com/GoreeCloud/memos/blob/main/docs/UPSTREAM.md";
 
 const DemoBanner = () => {
   const t = useTranslate();
@@ -81,7 +81,10 @@ const RootLayoutContent = () => {
   return (
     <div
       ref={shellRef}
-      className={cn("w-full bg-background", fullBleed ? "h-dvh overflow-hidden" : "min-h-full")}
+      className={cn("goreecloud-shell w-full bg-background", fullBleed ? "h-dvh overflow-hidden" : "min-h-full")}
+      data-glaze-consumer="GoreeCloud Memos"
+      data-glaze-version="1.7.0"
+      data-glaze-optical-v14="adaptive-optical"
       style={{ [SIDEBAR_WIDTH_VAR]: `${sidebarWidth}px` } as CSSProperties}
     >
       {md && (
@@ -98,7 +101,10 @@ const RootLayoutContent = () => {
       )}
       <MobileAppSidebar />
       <main
-        className={cn("flex w-full min-w-0 flex-col items-center md:ps-(--app-sidebar-width)", fullBleed ? "h-full min-h-0" : "min-h-full")}
+        className={cn(
+          "goreecloud-main-surface flex w-full min-w-0 flex-col items-center md:ps-(--app-sidebar-width)",
+          fullBleed ? "h-full min-h-0" : "min-h-full",
+        )}
       >
         <MobileAppHeader />
         {profile.demo && <DemoBanner />}

@@ -30,22 +30,13 @@ const App = () => {
     }
   }, [profileLoaded, instanceProfile.needsSetup, navigateTo]);
 
-  useEffect(() => {
-    if (instanceGeneralSetting.additionalStyle) {
-      const styleEl = document.createElement("style");
-      styleEl.innerHTML = instanceGeneralSetting.additionalStyle;
-      styleEl.setAttribute("type", "text/css");
-      document.body.insertAdjacentElement("beforeend", styleEl);
-    }
-  }, [instanceGeneralSetting.additionalStyle]);
+  // GoreeCloud does not execute instance-provided CSS or JavaScript in the
+  // trusted application shell. Branding and presentation remain constrained to
+  // reviewed product settings and the Glaze design authority.
 
-  useEffect(() => {
-    if (instanceGeneralSetting.additionalScript) {
-      const scriptEl = document.createElement("script");
-      scriptEl.innerHTML = instanceGeneralSetting.additionalScript;
-      document.head.appendChild(scriptEl);
-    }
-  }, [instanceGeneralSetting.additionalScript]);
+  // GoreeCloud security boundary: instance-provided JavaScript is intentionally
+  // not executed by the browser client. Administrative customization must not
+  // silently expand into an arbitrary client-side code-execution channel.
 
   // Dynamic update metadata with customized profile
   useEffect(() => {
@@ -55,7 +46,7 @@ const App = () => {
 
     document.title = instanceGeneralSetting.customProfile.title;
     const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
-    link.href = instanceGeneralSetting.customProfile.logoUrl || "/logo.webp";
+    link.href = instanceGeneralSetting.customProfile.logoUrl || "/goreecloud-memos.svg";
   }, [instanceGeneralSetting.customProfile]);
 
   return (

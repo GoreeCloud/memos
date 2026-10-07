@@ -488,10 +488,6 @@
       "use-path-style-description": "इसे MinIO या कुछ S3-कम्पैटिबल सर्विसेज़ जैसे प्रोवाइडर्स के लिए इनेबल करें जो वर्चुअल-होस्टेड-स्टाइल बकेट को सपोर्ट नहीं करते हैं।"
     },
     "system": {
-      "additional-script": "अतिरिक्त स्क्रिप्ट",
-      "additional-script-placeholder": "अतिरिक्त JavaScript कोड",
-      "additional-style": "अतिरिक्त स्टाइल",
-      "additional-style-placeholder": "अतिरिक्त CSS कोड",
       "customize-server": {
         "description": "विवरण",
         "icon-url": "आइकन URL",
@@ -502,11 +498,7 @@
       "max-upload-size-hint": "अनुशंसित मान 32 MiB है।",
       "server-name": "सर्वर नाम",
       "label": "सिस्टम",
-      "additional-script-description": "हर वेब पेज में JavaScript डालें। सिर्फ़ भरोसेमंद कोड का इस्तेमाल करें।",
-      "additional-style-description": "इंस्टेंस-वाइड प्रेजेंटेशन को एडजस्ट करने के लिए वेब ऐप में CSS डालें।",
-      "basic-description": "इस इंस्टेंस के लिए पब्लिक आइडेंटिटी और कैलेंडर डिफ़ॉल्ट कॉन्फ़िगर करें।",
-      "custom-code-description": "ऑप्शनल इंस्टेंस-वाइड CSS और JavaScript फ्रंटएंड पर लागू किए गए।",
-      "custom-code-title": "कस्टम कोड"
+      "basic-description": "इस इंस्टेंस के लिए पब्लिक आइडेंटिटी और कैलेंडर डिफ़ॉल्ट कॉन्फ़िगर करें।"
     },
     "access-token": {
       "access-token-copied-to-clipboard": "एक्सेस टोकन क्लिपबोर्ड में कॉपी किया गया",

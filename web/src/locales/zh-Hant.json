@@ -815,20 +815,12 @@
       "use-path-style-description": "為 MinIO 或某些不支援 virtual-hosted-style 儲存桶的 S3 相容服務啟用此選項。"
     },
     "system": {
-      "additional-script": "自訂腳本",
-      "additional-script-description": "在每個網頁中注入 JavaScript。僅使用受信任的程式碼。",
-      "additional-script-placeholder": "自訂 JavaScript 代碼",
-      "additional-style": "自訂樣式",
-      "additional-style-description": "在網頁應用程式中注入 CSS 以調整實例範圍的呈現方式。",
-      "additional-style-placeholder": "自訂 CSS 代碼",
       "basic-description": "設定此實例顯示的公開身分資訊和日曆預設值。",
       "customize-server": {
         "description": "說明",
         "icon-url": "圖示網址",
         "title": "自訂伺服器"
       },
-      "custom-code-description": "套用至前端的選擇性全實例 CSS 和 JavaScript。",
-      "custom-code-title": "自訂代碼",
       "enable-double-click-to-edit": "啟用雙擊編輯",
       "label": "系統",
       "max-upload-size": "最大上傳檔案大小 (MiB)",

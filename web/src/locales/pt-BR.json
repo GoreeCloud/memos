@@ -488,10 +488,6 @@
       "use-path-style-description": "Habilite isso para provedores como MinIO ou alguns serviços compatíveis com S3 que não suportam buckets no estilo virtual-hospedado."
     },
     "system": {
-      "additional-script": "Script adicional",
-      "additional-script-placeholder": "Código JavaScript adicional",
-      "additional-style": "Estilo adicional",
-      "additional-style-placeholder": "Código CSS adicional",
       "customize-server": {
         "description": "Descrição",
         "icon-url": "URL do ícone",
@@ -502,11 +498,7 @@
       "max-upload-size-hint": "O valor recomendado é 32 MiB.",
       "server-name": "Nome da instância",
       "label": "Sistema",
-      "additional-script-description": "Injetar JavaScript em todas as páginas da web. Usar somente código confiável.",
-      "additional-style-description": "Injetar CSS no aplicativo da web para ajustar a apresentação em toda a instância.",
-      "basic-description": "Configurar a identidade pública e os padrões de calendário para esta instância.",
-      "custom-code-description": "CSS e JavaScript opcionais aplicados ao frontend em toda a instância.",
-      "custom-code-title": "Código personalizado"
+      "basic-description": "Configurar a identidade pública e os padrões de calendário para esta instância."
     },
     "access-token": {
       "access-token-copied-to-clipboard": "Token de acesso copiado para a área de transferência",

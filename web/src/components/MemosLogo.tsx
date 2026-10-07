@@ -22,8 +22,8 @@ function MemosLogo(props: Props) {
   const { collapsed, compact, size = "md" } = props;
   const scale = COMPACT_SCALE[size];
   const { generalSetting: instanceGeneralSetting } = useInstance();
-  const title = instanceGeneralSetting.customProfile?.title || "Memos";
-  const avatarUrl = instanceGeneralSetting.customProfile?.logoUrl || "/full-logo.webp";
+  const title = instanceGeneralSetting.customProfile?.title || "GoreeCloud Memos";
+  const avatarUrl = instanceGeneralSetting.customProfile?.logoUrl || "/goreecloud-memos.svg";
 
   return (
     <div className={cn("relative min-w-0 h-auto", props.className)}>
@@ -33,7 +33,7 @@ function MemosLogo(props: Props) {
           compact ? cn("px-0", scale.gap) : collapsed ? "px-1" : "gap-2 px-3",
         )}
       >
-        <UserAvatar className={cn("shrink-0", compact && scale.mark)} avatarUrl={avatarUrl} />
+        <UserAvatar data-goreecloud-brand-mark className={cn("shrink-0", compact && scale.mark)} avatarUrl={avatarUrl} />
         {!collapsed && (
           <span
             className={cn(

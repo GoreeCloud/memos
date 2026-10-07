@@ -1,41 +1,25 @@
-# Security Policy
+# GoreeCloud Memos Security Policy
 
-## Supported Versions
+GoreeCloud Memos is a maintained fork of usememos/memos. Security is treated as a release-blocking responsibility for the GoreeCloud fork.
 
-Memos is currently a `0.x` project. Security fixes are only provided for the latest release. Older releases are not supported for security updates, and fixes are not backported.
+## Supported line
 
-If you run Memos in production, keep your instance updated to the latest release.
+Only the current GoreeCloud development/release line is supported. Until a GoreeCloud release is explicitly promoted, this repository remains Development and must not be represented as production-approved, Seal-qualified, or Anchor-qualified.
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-Please report security issues privately by email: `dev@usememos.com`
+Do not disclose suspected vulnerabilities in a public issue, discussion, pull request, or social post.
 
-Do not open public GitHub issues, discussions, or pull requests for suspected vulnerabilities.
+Use GitHub's private vulnerability-reporting / Security Advisory path for GoreeCloud/memos when available. If that path is unavailable, contact the repository owner privately at admin@goreecloud.com.
 
-Please include:
+Include the affected revision, deployment context, reproduction steps, expected/actual behavior, and any evidence needed to assess impact. Do not include live credentials, tokens, private notes, or unrelated user data.
 
-- A clear description of the issue
-- Steps to reproduce
-- Affected version or commit
-- Deployment details that matter to reproduction
-- Your assessment of impact
+## Fork security responsibilities
 
-We will review reports as time permits and fix valid issues in regular releases.
+GoreeCloud is responsible for evaluating and integrating applicable upstream security fixes, dependency updates, protocol changes, migration changes, and security advisories. Upstream provenance is tracked in provenance/upstream.json and docs/UPSTREAM.md.
 
-## Disclosure and CVEs
+The GoreeCloud fork additionally enforces private-first initialization, does not execute administrator-supplied arbitrary CSS or JavaScript in the trusted browser shell, and keeps production claims gated on repository-local security, privacy, recovery, accessibility, Glaze, and platform-integration evidence.
 
-Memos is self-hosted software and is still in the `0.x` stage. At this stage, we do not run a formal disclosure program, publish separate security advisories for every issue, or request CVE IDs.
+## Deployment boundary
 
-Security fixes may be shipped directly in normal releases or noted briefly in release notes and changelogs.
-
-## Self-Hosted Deployment Notes
-
-The security posture of a Memos instance depends heavily on how it is deployed and operated. In particular:
-
-- Keep Memos updated
-- Put it behind a properly configured reverse proxy when exposed to the internet
-- Require authentication for any non-public deployment
-- Use TLS in production
-- Limit access to trusted users and administrators
-
-Reports that depend entirely on intentionally unsafe deployment choices, unsupported local patches, or administrator actions may be treated as deployment issues rather than product vulnerabilities.
+Self-hosting does not remove the need for TLS, authenticated administration, least privilege, protected secrets, controlled ingress, secure backups, restore testing, and prompt patching. Core operation must not require telemetry, advertising, a hosted control plane, remote fonts, or an external AI provider.

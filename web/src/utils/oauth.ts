@@ -67,7 +67,7 @@ export async function storeOAuthState(
     } else {
       console.warn(
         "PKCE not available: crypto.subtle requires HTTPS. Falling back to standard OAuth flow without PKCE. " +
-          "For enhanced security, please access Memos over HTTPS.",
+          "For enhanced security, please access GoreeCloud Memos over HTTPS.",
       );
     }
   } catch (error) {

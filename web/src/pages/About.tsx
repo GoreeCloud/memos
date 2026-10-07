@@ -10,12 +10,12 @@ import {
 } from "@/lib/constants";
 import { useTranslate } from "@/utils/i18n";
 
-const GITHUB_COMMIT_URL_PREFIX = "https://github.com/usememos/memos/commit/";
+const GITHUB_COMMIT_URL_PREFIX = "https://github.com/GoreeCloud/memos/commit/";
 const GITHUB_RELEASE_URL_PREFIX = "https://github.com/usememos/memos/releases/tag/v";
 
-const DEFAULT_TITLE = "Memos";
-const DEFAULT_TAGLINE = "Capture first. Keep it yours.";
-const DEFAULT_LOGO = "/logo.webp";
+const DEFAULT_TITLE = "GoreeCloud Memos";
+const DEFAULT_TAGLINE = "Capture quickly. Keep it private. Own it.";
+const DEFAULT_LOGO = "/goreecloud-memos.svg";
 
 const isCommitSha = (commit: string) => /^[0-9a-f]{7,40}$/i.test(commit);
 const isSemver = (version: string) => /^\d+\.\d+\.\d+/.test(version);
@@ -109,7 +109,7 @@ const About = () => {
           <nav aria-label={t("about.project-links")} className="mt-2.5 border-t border-border">
             {projectLinks.map((link) => (
               <a
-                key={link.href}
+                key={`${link.label}:${link.href}`}
                 className="group flex items-center justify-between gap-4 border-b border-border/60 py-2.5"
                 href={link.href}
                 target="_blank"

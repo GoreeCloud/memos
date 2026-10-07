@@ -694,20 +694,12 @@
       "insecure-skip-tls-verify-description": "Deaktiver TLS-certifikatbekræftelse for S3-slutpunktet. Aktiver kun for betroede slutpunkter, der bruger et selvsigneret certifikat; dette fjerner beskyttelsen mod man-in-the-middle-angreb."
     },
     "system": {
-      "additional-script": "Yderligere script",
-      "additional-script-description": "Injicer JavaScript på hver webside. Brug kun betroet kode.",
-      "additional-script-placeholder": "Yderligere JavaScript-kode",
-      "additional-style": "Ekstra stil",
-      "additional-style-description": "Injicer CSS i webappen for at justere præsentationen i hele instansen.",
-      "additional-style-placeholder": "Yderligere CSS-kode",
       "basic-description": "Konfigurer den offentlige identitet, der vises af denne instans.",
       "customize-server": {
         "description": "Beskrivelse",
         "icon-url": "Ikon URL",
         "title": "Tilpas server"
       },
-      "custom-code-description": "Valgfri instansdækkende CSS og JavaScript anvendes på frontend.",
-      "custom-code-title": "Brugerdefineret kode",
       "enable-double-click-to-edit": "Aktiver dobbeltklik for at redigere",
       "label": "System",
       "max-upload-size": "Maksimal uploadstørrelse (MiB)",

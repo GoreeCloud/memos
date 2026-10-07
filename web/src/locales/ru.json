@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "Отключить проверку сертификата TLS для конечной точки S3. Включайте только для доверенных конечных точек с самоподписанным сертификатом: это отключает защиту от атак посредника."
     },
     "system": {
-      "additional-script": "Дополнительный скрипт",
-      "additional-script-placeholder": "Напишите ваш JavaScript-код здесь",
-      "additional-style": "Дополнительный стиль",
-      "additional-style-placeholder": "Напишите ваш CSS-код здесь",
       "customize-server": {
         "description": "Описание",
         "icon-url": "URL иконки",
@@ -592,11 +588,7 @@
       "max-upload-size": "Макс. размер файла (МБ)",
       "max-upload-size-hint": "Рекомендуемое значение 32 MБ",
       "server-name": "Имя сервера",
-      "additional-script-description": "Внедрите JavaScript на каждую веб-страницу. Используйте только проверенный код.",
-      "additional-style-description": "Внедрите CSS в веб-приложение, чтобы настроить представление всего экземпляра.",
-      "basic-description": "Настройте общедоступное удостоверение, отображаемое этим экземпляром.",
-      "custom-code-description": "Дополнительные CSS и JavaScript для всего экземпляра применяются к интерфейсу.",
-      "custom-code-title": "Пользовательский код"
+      "basic-description": "Настройте общедоступное удостоверение, отображаемое этим экземпляром."
     },
     "webhook": {
       "create-dialog": {

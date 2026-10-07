@@ -578,10 +578,6 @@
       "insecure-skip-tls-verify-description": "Inaktivera TLS-certifikatverifiering för S3-slutpunkten. Aktivera endast för betrodda slutpunkter som använder ett självsignerat certifikat; detta tar bort skyddet mot man-in-the-middle-attacker."
     },
     "system": {
-      "additional-script": "Ytterligare skript",
-      "additional-script-placeholder": "Ytterligare JavaScript kod",
-      "additional-style": "Ytterligare stil",
-      "additional-style-placeholder": "Ytterligare CSS kod",
       "customize-server": {
         "description": "Beskrivning",
         "icon-url": "Ikon-URL",
@@ -592,11 +588,7 @@
       "max-upload-size": "Maximal uppladdningsstorlek (MiB)",
       "max-upload-size-hint": "Rekommenderat värde är 32 MiB.",
       "server-name": "Servernamn",
-      "additional-script-description": "Injicera JavaScript i varje webbsida. Använd endast betrodd kod.",
-      "additional-style-description": "Injicera CSS i webbappen för att justera instansomfattande presentation.",
-      "basic-description": "Konfigurera den offentliga identiteten som visas av denna instans.",
-      "custom-code-description": "Valfria instansomfattande CSS och JavaScript tillämpas på frontend.",
-      "custom-code-title": "Anpassad kod"
+      "basic-description": "Konfigurera den offentliga identiteten som visas av denna instans."
     },
     "webhook": {
       "create-dialog": {

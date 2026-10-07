@@ -488,10 +488,6 @@
       "use-path-style-description": "Aktifkan ini untuk penyedia seperti MinIO atau beberapa layanan yang kompatibel dengan S3 yang tidak mendukung bucket bergaya virtual-hosted."
     },
     "system": {
-      "additional-script": "Skrip tambahan",
-      "additional-script-placeholder": "Kode JavaScript tambahan",
-      "additional-style": "Gaya tambahan",
-      "additional-style-placeholder": "Kode CSS tambahan",
       "customize-server": {
         "description": "Deskripsi",
         "icon-url": "URL Ikon",
@@ -502,11 +498,7 @@
       "max-upload-size-hint": "Nilai yang direkomendasikan adalah 32 MiB.",
       "server-name": "Nama Server",
       "label": "Sistem",
-      "additional-script-description": "Suntikkan JavaScript ke setiap halaman web. Gunakan hanya kode tepercaya.",
-      "additional-style-description": "Suntikkan CSS ke aplikasi web untuk menyesuaikan presentasi di seluruh instance.",
-      "basic-description": "Konfigurasi identitas publik dan default kalender untuk instance ini.",
-      "custom-code-description": "CSS dan JavaScript opsional di seluruh instance diterapkan ke frontend.",
-      "custom-code-title": "Kode kustom"
+      "basic-description": "Konfigurasi identitas publik dan default kalender untuk instance ini."
     },
     "access-token": {
       "access-token-copied-to-clipboard": "Token akses disalin ke papan klip",

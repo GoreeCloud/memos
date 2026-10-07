@@ -488,10 +488,6 @@
       "use-path-style-description": "این را برای ارائه‌دهندگانی مانند MinIO یا برخی از سرویس‌های سازگار با S3 که از سطل‌های سبک میزبانی مجازی پشتیبانی نمی‌کنند، فعال کنید."
     },
     "system": {
-      "additional-script": "اسکریپت اضافی",
-      "additional-script-placeholder": "کد جاوااسکریپت اضافی",
-      "additional-style": "استایل اضافی",
-      "additional-style-placeholder": "کد CSS اضافی",
       "customize-server": {
         "description": "توضیحات",
         "icon-url": "آدرس آیکون",
@@ -502,11 +498,7 @@
       "max-upload-size-hint": "مقدار پیشنهادی ۳۲ مگابایت است.",
       "server-name": "نام سرور",
       "label": "سیستم",
-      "additional-script-description": "جاوا اسکریپت را به هر صفحه وب تزریق کنید. فقط از کد قابل اعتماد استفاده کنید.",
-      "additional-style-description": "CSS را به برنامه وب تزریق کنید تا نمایش در سطح نمونه را تنظیم کنید.",
-      "basic-description": "پیش‌فرض‌های هویت عمومی و تقویم را برای این نمونه پیکربندی کنید.",
-      "custom-code-description": "CSS و جاوا اسکریپت اختیاری در سطح نمونه که در ظاهر اعمال می‌شوند.",
-      "custom-code-title": "کد سفارشی"
+      "basic-description": "پیش‌فرض‌های هویت عمومی و تقویم را برای این نمونه پیکربندی کنید."
     },
     "access-token": {
       "access-token-copied-to-clipboard": "توکن دسترسی کپی شد",
