@@ -10,6 +10,7 @@ Current rebuild controls include:
 - upstream rate limiting and import validation are retained;
 - optional external AI integrations remain inactive until explicitly configured;
 - arbitrary instance-provided JavaScript injection is disabled in the GoreeCloud browser client;
+- response hardening sets CSP trust-boundary directives, Permissions-Policy, Referrer-Policy, X-Content-Type-Options, and X-Frame-Options across the HTTP application;
 - upstream provenance is retained so security fixes can be reviewed and merged;
 - secrets must remain outside source control and ordinary documentation.
 

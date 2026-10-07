@@ -24,3 +24,4 @@
 - Browser-client hardening that does not execute administrator-provided arbitrary JavaScript.
 
 - Separate HTTP liveness (/healthz) and database-backed readiness (/readyz) probes for operations and future Manager integration.
+- Browser security-header baseline covering document trust boundaries, MIME sniffing, referrer leakage, framing, and dangerous browser capabilities.
