@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest an improvement to Memos
+description: Suggest an improvement to GoreeCloud Memos
 type: Feature
 body:
   - type: markdown
@@ -7,7 +7,7 @@ body:
       value: |
         Thanks for suggesting an improvement. Please keep the request focused on one problem.
 
-        Before submitting, search [existing issues](https://github.com/usememos/memos/issues) to avoid duplicates. For broad ideas and questions, use [Discussions](https://github.com/usememos/memos/discussions).
+        Before submitting, search [GoreeCloud Memos issues](https://github.com/GoreeCloud/memos/issues) to avoid duplicates. Keep requests focused on GoreeCloud Memos behavior, integrations, privacy, security, accessibility, portability, or product experience.
 
   - type: checkboxes
     id: pre-check
@@ -30,8 +30,8 @@ body:
     id: solution
     attributes:
       label: What would you like to happen?
-      description: Describe the behavior you would like Memos to support.
-      placeholder: It would be helpful if Memos could ...
+      description: Describe the behavior you would like GoreeCloud Memos to support.
+      placeholder: It would be helpful if GoreeCloud Memos could ...
     validations:
       required: true
 

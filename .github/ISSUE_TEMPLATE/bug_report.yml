@@ -7,7 +7,7 @@ body:
       value: |
         Thanks for reporting a bug.
 
-        Before submitting, please search [existing issues](https://github.com/usememos/memos/issues) and, if possible, check the [latest release](https://github.com/usememos/memos/releases/latest). For questions and setup help, use [Discussions](https://github.com/usememos/memos/discussions).
+        Before submitting, please search [GoreeCloud Memos issues](https://github.com/GoreeCloud/memos/issues). If the behavior also occurs in upstream Memos, include that fact and any relevant upstream issue or release reference.
 
   - type: checkboxes
     id: pre-check
@@ -43,8 +43,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Memos version
-      description: Use the version from Settings > System, the image tag, or `memos --version`.
+      label: GoreeCloud Memos version
+      description: Use the version from Settings > System, the image tag, or the exact GoreeCloud Memos revision when available.
       placeholder: "v0.29.x or main@abcdef"
     validations:
       required: true
