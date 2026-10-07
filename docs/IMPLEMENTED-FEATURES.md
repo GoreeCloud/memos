@@ -24,3 +24,5 @@
 - Browser-client hardening that does not execute administrator-provided arbitrary JavaScript.
 
 - Separate HTTP liveness (/healthz) and database-backed readiness (/readyz) probes for operations and future Manager integration.
+
+- Clean-target automated acceptance for the personal Memos archive, covering memo content/state, comments, relations, tags, location, timestamps, pinning, and attachment bytes while failing closed on missing Space authority.

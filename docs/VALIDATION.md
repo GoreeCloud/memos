@@ -38,3 +38,10 @@ The broader inherited upstream unit suite had already exposed baseline failures 
 
 
 - explicit Demo-mode public access remains separately tested as an intentional synthetic-content exception to private-first normal startup.
+
+
+## Personal archive clean-target portability
+
+The Development validation suite includes a clean-target round-trip test for the existing personal Memos archive: a user library is exported from one isolated instance, imported into a fresh isolated instance with the same user identity recreated, and exported again for verification. The test covers memo count/content, timestamps, pin state, archive state, comments, memo relations, location, tags, and attachment bytes.
+
+This is portable user-data evidence, not an operational instance-backup claim. Accounts, sessions, instance settings, identity providers, webhooks, and Spaces remain instance-owned state. When a personal archive references a Space that does not exist on the destination, import fails closed by dropping the Space association and making that memo private rather than fabricating authorization state.

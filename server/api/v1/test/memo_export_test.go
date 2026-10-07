@@ -307,6 +307,82 @@ func TestImportMemoExportIntoAnotherAccount(t *testing.T) {
 	require.Equal(t, fixture.photo, blob)
 }
 
+// TestMemoExportCleanTargetRoundTrip proves the personal archive can restore
+// one user's portable memo state into a fresh instance. Instance-owned state
+// such as accounts and Spaces is intentionally outside the personal archive.
+func TestMemoExportCleanTargetRoundTrip(t *testing.T) {
+	source := NewTestService(t)
+	defer source.Cleanup()
+	fixture := buildArchiveFixture(t, source, "roundtrip")
+	exported := exportArchiveBytes(t, source, fixture.user)
+
+	target := NewTestService(t)
+	defer target.Cleanup()
+	t.Cleanup(target.Service.CloseUploads)
+
+	ctx := context.Background()
+	user, err := target.CreateRegularUser(ctx, "roundtrip")
+	require.NoError(t, err)
+	userCtx := target.CreateUserContext(ctx, user.ID)
+
+	response, err := target.Service.ImportMemos(userCtx, &v1pb.ImportMemosRequest{
+		Name:        userName(user),
+		Upload:      &v1pb.ImportMemosRequest_Spec{Spec: &v1pb.ImportMemosSpec{TotalSize: int64(len(exported))}},
+		Data:        exported,
+		FinishWrite: true,
+	})
+	require.NoError(t, err)
+	report := response.GetReport()
+	require.NotNil(t, report)
+	require.EqualValues(t, 5, report.Created)
+	require.Zero(t, report.Updated)
+	require.Zero(t, report.Skipped)
+	require.Zero(t, report.Failed, "%v", report.Failures)
+	require.Len(t, report.Warnings, 2, "Space membership is instance-owned and must not be silently fabricated")
+
+	restored := exportArchive(t, target, user)
+	require.Equal(t, memoexport.ScopeKindUser, restored.Manifest.Scope.Kind)
+	require.Equal(t, "roundtrip", restored.Manifest.Scope.User.Username)
+	require.Equal(t, &memoexport.Counts{Memos: 5, Attachments: 1}, restored.Manifest.Counts)
+	require.Len(t, restored.Memos, 5)
+
+	byUID := archiveMemosByUID(restored)
+	for _, uid := range fixture.allMemoUIDs {
+		require.Contains(t, byUID, uid, "free UIDs should survive a clean-target import")
+		require.Equal(t, "roundtrip", byUID[uid].Creator)
+	}
+
+	parent := byUID["parent00001"]
+	require.Equal(t, "# Whiteboard\n\nSee the photo. No trailing newline", string(mustArchiveContent(t, restored, parent)))
+	require.Equal(t, "2026-03-02T14:05:11Z", parent.CreateTime)
+	require.Equal(t, "2026-03-02T14:20:47Z", parent.UpdateTime)
+	require.True(t, parent.Pinned)
+	require.Equal(t, "PRIVATE", parent.Visibility)
+	require.Equal(t, &memoexport.Location{Placeholder: "Office", Latitude: 52.52, Longitude: 13.405}, parent.Location)
+	require.Equal(t, []memoexport.Relation{{Type: "REFERENCE", Memo: "referenced1"}}, parent.Relations)
+	require.Len(t, parent.Attachments, 1)
+	photo, err := restored.ReadAttachment(&parent.Attachments[0])
+	require.NoError(t, err)
+	require.Equal(t, fixture.photo, photo)
+
+	comment := byUID["comment0001"]
+	require.Equal(t, "parent00001", comment.Parent)
+	require.Equal(t, "ARCHIVED", byUID["archived001"].State)
+	require.Equal(t, "PROTECTED", byUID["archived001"].Visibility)
+	require.Equal(t, []string{"work"}, byUID["referenced1"].Tags)
+
+	spaceMemo := byUID["spacememo01"]
+	require.Nil(t, spaceMemo.Space, "personal import must not create an instance Space implicitly")
+	require.Equal(t, "PRIVATE", spaceMemo.Visibility, "a missing destination Space fails closed to private visibility")
+}
+
+func mustArchiveContent(t *testing.T, archive *memoexport.File, memo *memoexport.Memo) []byte {
+	t.Helper()
+	content, err := archive.Content(memo)
+	require.NoError(t, err)
+	return content
+}
+
 func TestPlanMemoImport(t *testing.T) {
 	ts := NewTestService(t)
 	defer ts.Cleanup()
