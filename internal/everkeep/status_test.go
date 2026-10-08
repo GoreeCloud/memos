@@ -91,6 +91,22 @@ func TestDecodeRecordRejectsMalformedOrSensitiveEvidence(t *testing.T) {
 	}
 }
 
+func TestEvaluateMalformedMatchingRecordCannotBeHiddenByValidRecord(t *testing.T) {
+	now := time.Date(2026, 10, 8, 8, 0, 0, 0, time.UTC)
+	policy := Policy{Producer: "Everkeep", Scope: "goreecloud-memos", RequiredDimensions: []string{"backup_coverage"}}
+	valid := readyRecord("backup_coverage", now, 0)
+	malformed := readyRecord("backup_coverage", now.Add(-time.Minute), 1)
+	malformed.ObservedAt = "not-a-date"
+
+	summary := Evaluate(policy, []StatusRecord{malformed, valid}, now)
+	if summary.State != StateUnknown {
+		t.Fatalf("expected malformed matching evidence to fail closed, got %s", summary.State)
+	}
+	if summary.Dimensions["backup_coverage"] != StateUnknown {
+		t.Fatalf("expected malformed dimension to remain unknown, got %s", summary.Dimensions["backup_coverage"])
+	}
+}
+
 func TestEvaluateWrongProducerAndFutureEvidenceFailClosed(t *testing.T) {
 	now := time.Date(2026, 10, 8, 8, 0, 0, 0, time.UTC)
 	policy := Policy{Producer: "Everkeep", Scope: "goreecloud-memos", RequiredDimensions: []string{"backup_coverage"}}

@@ -112,6 +112,7 @@ func Evaluate(policy Policy, records []StatusRecord, now time.Time) Summary {
 
 	latest := map[string]StatusRecord{}
 	latestTime := map[string]time.Time{}
+	invalid := map[string]bool{}
 	for _, record := range records {
 		if record.Producer != policy.Producer || record.Scope != policy.Scope {
 			continue
@@ -120,9 +121,7 @@ func Evaluate(policy Policy, records []StatusRecord, now time.Time) Summary {
 			continue
 		}
 		if err := validateRecord(record); err != nil {
-			summary.State = StateUnknown
-			summary.Reasons = append(summary.Reasons, fmt.Sprintf("%s: malformed evidence", record.Dimension))
-			summary.Dimensions[record.Dimension] = StateUnknown
+			invalid[record.Dimension] = true
 			continue
 		}
 		observed, _ := time.Parse(time.RFC3339, record.ObservedAt)
@@ -133,6 +132,11 @@ func Evaluate(policy Policy, records []StatusRecord, now time.Time) Summary {
 	}
 
 	for _, dimension := range policy.RequiredDimensions {
+		if invalid[dimension] {
+			summary.Dimensions[dimension] = StateUnknown
+			summary.Reasons = append(summary.Reasons, dimension+": malformed evidence")
+			continue
+		}
 		record, ok := latest[dimension]
 		if !ok {
 			summary.Dimensions[dimension] = StateUnknown
