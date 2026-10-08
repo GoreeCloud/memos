@@ -15,3 +15,9 @@ The local Git repository keeps an `upstream` remote. Future intake must:
 7. merge through the GoreeCloud repository workflow.
 
 Unreleased upstream `main` is not an automatic production source.
+
+## Selective intake in progress
+
+Upstream commit `5d1649bec6936946d8f36487586a173de1f370f0` is under GoreeCloud review as an isolated data-integrity candidate. It deletes a memo's full comment subtree and owned resources across SQLite, MySQL, and PostgreSQL instead of leaving nested replies detached.
+
+The candidate preserves upstream author attribution and must pass GoreeCloud exact-head CI and current-main integration rules before it is treated as part of the fork. Other unreleased upstream commits remain separate review items in issue #10.
