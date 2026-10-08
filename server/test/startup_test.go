@@ -232,6 +232,26 @@ func (i *instance) createMemo(t *testing.T, token, memoID, content string) {
 	require.Equal(t, content, created.Content)
 }
 
+// createDatabaseAttachment stores bytes with the default database attachment backend
+// and links them to an existing memo. The returned value is the attachment resource name.
+func (i *instance) createDatabaseAttachment(t *testing.T, token, memoID, filename string, content []byte) string {
+	t.Helper()
+
+	status, body := i.do(t, http.MethodPost, "/api/v1/attachments", token, map[string]any{
+		"filename": filename,
+		"type":     "application/octet-stream",
+		"content":  content,
+		"memo":     "memos/" + memoID,
+	})
+	require.Equal(t, http.StatusOK, status, "creating a database attachment should succeed: %s", body)
+
+	created := map[string]any{}
+	require.NoError(t, json.Unmarshal(body, &created))
+	name, ok := created["name"].(string)
+	require.True(t, ok && strings.HasPrefix(name, "attachments/"), "attachment should have a resource name: %s", body)
+	return name
+}
+
 // requireMemo asserts a memo is readable and has the expected content.
 func (i *instance) requireMemo(t *testing.T, token, memoID, content string) {
 	t.Helper()
@@ -369,6 +389,8 @@ func TestStartupSQLiteSnapshotBootsCleanTarget(t *testing.T) {
 	source.createAdmin(t)
 	token := source.signIn(t)
 	source.createMemo(t, token, "snapshot-restore", "restored from SQLite snapshot")
+	attachmentBytes := []byte("database-backed attachment survives snapshot")
+	attachmentName := source.createDatabaseAttachment(t, token, "snapshot-restore", "snapshot.bin", attachmentBytes)
 
 	targetDataDir := t.TempDir()
 	snapshotPath := filepath.Join(targetDataDir, "memos_prod.db")
@@ -385,6 +407,17 @@ func TestStartupSQLiteSnapshotBootsCleanTarget(t *testing.T) {
 	})
 	restoredToken := target.signIn(t)
 	target.requireMemo(t, restoredToken, "snapshot-restore", "restored from SQLite snapshot")
+
+	attachmentUID := strings.TrimPrefix(attachmentName, "attachments/")
+	status, metadataBody := target.do(t, http.MethodGet, "/api/v1/"+attachmentName, restoredToken, nil)
+	require.Equal(t, http.StatusOK, status, "restored attachment metadata should remain readable: %s", metadataBody)
+	metadata := map[string]any{}
+	require.NoError(t, json.Unmarshal(metadataBody, &metadata))
+	require.Equal(t, "memos/snapshot-restore", metadata["memo"])
+
+	status, restoredBlob := target.do(t, http.MethodGet, "/file/attachments/"+attachmentUID, restoredToken, nil)
+	require.Equal(t, http.StatusOK, status, "restored database attachment should be served")
+	require.Equal(t, attachmentBytes, restoredBlob)
 
 	status, body := target.do(t, http.MethodGet, "/readyz", "", nil)
 	require.Equal(t, http.StatusOK, status)
