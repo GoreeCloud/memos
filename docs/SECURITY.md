@@ -10,6 +10,7 @@ Current rebuild controls include:
 - upstream rate limiting and import validation are retained;
 - optional external AI integrations remain inactive until explicitly configured;
 - arbitrary instance-provided JavaScript injection is disabled in the GoreeCloud browser client;
+- refresh-cookie Secure inference is derived from direct TLS or forwarding metadata supplied by a configured trusted immediate proxy; client-supplied Origin/forwarding metadata alone cannot mark an HTTP request secure;
 - upstream provenance is retained so security fixes can be reviewed and merged;
 - secrets must remain outside source control and ordinary documentation.
 
