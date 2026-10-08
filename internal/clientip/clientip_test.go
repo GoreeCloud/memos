@@ -57,3 +57,30 @@ func TestParseTrustedProxiesRejectsGarbage(t *testing.T) {
 	_, err := ParseTrustedProxies([]string{"proxy.internal"})
 	require.Error(t, err)
 }
+
+func TestSecureRequest(t *testing.T) {
+	tests := []struct {
+		name      string
+		trusted   []string
+		remote    string
+		header    http.Header
+		directTLS bool
+		want      bool
+	}{
+		{name: "direct TLS is authoritative", trusted: []string{"none"}, remote: "203.0.113.5:443", directTLS: true, want: true},
+		{name: "trusted proxy https forwarded proto", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("X-Forwarded-Proto", "https"), want: true},
+		{name: "trusted proxy standard forwarded proto", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("Forwarded", "for=198.51.100.1;proto=\"https\""), want: true},
+		{name: "untrusted peer cannot spoof forwarded proto", trusted: []string{"none"}, remote: "203.0.113.9:80", header: headers("X-Forwarded-Proto", "https"), want: false},
+		{name: "origin is not a transport signal", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("Origin", "https://memos.example"), want: false},
+		{name: "trusted proxy plain http remains insecure", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("X-Forwarded-Proto", "http"), want: false},
+		{name: "conflicting trusted forwarding schemes fail closed", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("X-Forwarded-Proto", "https", "Forwarded", "for=198.51.100.1;proto=http"), want: false},
+		{name: "malformed trusted forwarding scheme fails closed", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("X-Forwarded-Proto", "ftp"), want: false},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			resolver, err := ParseTrustedProxies(test.trusted)
+			require.NoError(t, err)
+			require.Equal(t, test.want, resolver.IsSecureRequest(test.remote, test.header, test.directTLS))
+		})
+	}
+}
