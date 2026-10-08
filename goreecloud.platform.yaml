@@ -51,8 +51,11 @@ platform_systems:
   manager:
     result: applicable-blocked
     version: null
-    evidence: [docs/PLANNED-FEATURES.md]
-    notes: Manager registration, lifecycle visibility, and operational acceptance remain open.
+    evidence:
+      - docs/MANAGER-INTEGRATION.md
+      - docs/PLANNED-FEATURES.md
+      - goreecloud.platform.yaml
+    notes: Memos has truthful lifecycle metadata plus /healthz liveness and /readyz database readiness, but the canonical downstream application registration/lifecycle-visibility contract does not yet exist. GoreeCloud/manager#111 tracks that dependency. Memos must not invent a local registration schema; Manager runtime visibility and operational acceptance remain open.
   privacy_shield:
     result: applicable-migration-required
     version: "2.0.0"
