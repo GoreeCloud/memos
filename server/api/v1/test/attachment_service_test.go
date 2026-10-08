@@ -147,6 +147,39 @@ func TestCreateAttachment(t *testing.T) {
 		require.Equal(t, []byte("first-image"), firstBlob)
 		require.Equal(t, []byte("second-image"), secondBlob)
 	})
+
+	t.Run("LocalStorage_AbsoluteTemplatePreservesAbsoluteReference", func(t *testing.T) {
+		absoluteDir := t.TempDir()
+		_, err := ts.Store.UpsertInstanceSetting(ctx, &storepb.InstanceSetting{
+			Key: storepb.InstanceSettingKey_STORAGE,
+			Value: &storepb.InstanceSetting_StorageSetting{
+				StorageSetting: &storepb.InstanceStorageSetting{
+					StorageType:      storepb.InstanceStorageSetting_LOCAL,
+					FilepathTemplate: filepath.Join(absoluteDir, "{filename}"),
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		created, err := ts.Service.CreateAttachment(userCtx, &v1pb.CreateAttachmentRequest{
+			Attachment: &v1pb.Attachment{
+				Filename: "absolute-template.txt",
+				Type:     "text/plain",
+				Content:  []byte("absolute template remains supported"),
+			},
+		})
+		require.NoError(t, err)
+
+		uid, err := apiv1.ExtractAttachmentUIDFromName(created.Name)
+		require.NoError(t, err)
+		stored, err := ts.Store.GetAttachment(ctx, &store.FindAttachment{UID: &uid})
+		require.NoError(t, err)
+		require.NotNil(t, stored)
+		require.True(t, filepath.IsAbs(filepath.FromSlash(stored.Reference)),
+			"explicit absolute local-storage templates must remain absolute")
+		require.Equal(t, filepath.Join(absoluteDir, "absolute-template.txt"), filepath.FromSlash(stored.Reference))
+		require.FileExists(t, filepath.FromSlash(stored.Reference))
+	})
 }
 
 func TestCreateAttachmentCleansSavedBlobWhenStoreCreateFails(t *testing.T) {
