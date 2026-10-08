@@ -153,12 +153,42 @@ const productNameKeys = [
   "demo.deploy-link",
 ] as const;
 
+const reviewedProductReferenceKeys = [
+  "profile.not-found-description",
+  "setting.access-token.description",
+  "setting.access-token.about-description",
+  "setting.ai.byok-description",
+  "setting.ai.byok-key-note",
+  "setting.ai.byok-model-note",
+  "setting.ai.dialog-description",
+  "setting.spaces.active-user",
+  "setting.spaces.invite-description",
+  "setting.spaces.memos-user",
+  "setting.spaces.user-not-found",
+  "space.back-to-memos",
+] as const;
+const reviewedProductReferenceKeySet = new Set<string>(reviewedProductReferenceKeys);
+
+const placeholdersForComparison = (key: string, value: string) => {
+  const values = placeholders(value);
+  return reviewedProductReferenceKeySet.has(key) ? values.filter((placeholder) => placeholder !== "{{productName}}") : values;
+};
+
 describe("GoreeCloud product-name localization", () => {
-  it("uses a product-name slot only in the reviewed branding keys", () => {
+  it("uses a product-name slot in the reviewed branding keys", () => {
     for (const [path, module] of Object.entries(locales)) {
       const messages = flatten(module.default);
       for (const key of productNameKeys) {
         expect(messages[key], `${path}:${key}`).toContain("{{productName}}");
+        expect(messages[key], `${path}:${key}`).not.toContain("Memos");
+      }
+    }
+  });
+
+  it("does not retain the upstream product literal in reviewed product-reference copy", () => {
+    for (const [path, module] of Object.entries(locales)) {
+      const messages = flatten(module.default);
+      for (const key of reviewedProductReferenceKeys) {
         expect(messages[key], `${path}:${key}`).not.toContain("Memos");
       }
     }
@@ -184,7 +214,7 @@ describe("locale resources", () => {
         expect(value.trim(), key).not.toBe("");
         const reference = referenceFor(key);
         if (reference !== undefined) {
-          expect(placeholders(value), key).toEqual(placeholders(reference));
+          expect(placeholdersForComparison(key, value), key).toEqual(placeholdersForComparison(key, reference));
         }
       }
     });
