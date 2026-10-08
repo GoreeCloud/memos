@@ -11,6 +11,7 @@ export const LOADING_INDICATOR_DELAY_MS = 250;
 export const MEMOS_WEBSITE_URL = "https://github.com/GoreeCloud/memos";
 export const MEMOS_DOCUMENTATION_URL = "https://github.com/GoreeCloud/memos/tree/main/docs";
 export const MEMOS_API_DOCUMENTATION_URL = "https://github.com/GoreeCloud/memos/blob/main/docs/UPSTREAM.md";
+export const MEMOS_ACCESS_TOKEN_SECURITY_URL = "https://github.com/GoreeCloud/memos/blob/main/docs/SECURITY.md#personal-access-tokens";
 export const MEMOS_GITHUB_URL = "https://github.com/GoreeCloud/memos";
 export const UPSTREAM_MEMOS_GITHUB_URL = "https://github.com/usememos/memos";
 
