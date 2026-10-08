@@ -189,6 +189,7 @@ func (s *APIV1Service) RegisterGateway(ctx context.Context, echoServer *echo.Ech
 		runtime.WithMiddlewares(gatewayAuthMiddleware),
 		runtime.WithErrorHandler(gatewayErrorHandler),
 		runtime.WithIncomingHeaderMatcher(gatewayIncomingHeaderMatcher),
+		runtime.WithOutgoingHeaderMatcher(gatewayOutgoingHeaderMatcher),
 	)
 	if err := v1pb.RegisterInstanceServiceHandlerServer(ctx, gwMux, s); err != nil {
 		return err
@@ -267,6 +268,16 @@ func newProfileRateLimiter(profile *profile.Profile) ratelimit.Limiter {
 func gatewayIncomingHeaderMatcher(key string) (string, bool) {
 	if http.CanonicalHeaderKey(key) == challengeTokenHeader {
 		return challengeTokenMetadataKey, true
+	}
+	return runtime.DefaultHeaderMatcher(key)
+}
+
+// gatewayOutgoingHeaderMatcher exposes only the authentication cookie under its
+// native HTTP header name. Other gRPC response metadata keeps the gateway's
+// default mapping behavior.
+func gatewayOutgoingHeaderMatcher(key string) (string, bool) {
+	if key == "set-cookie" {
+		return "Set-Cookie", true
 	}
 	return runtime.DefaultHeaderMatcher(key)
 }
