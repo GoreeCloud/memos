@@ -30,6 +30,14 @@ func newUploadTestService(t *testing.T) (*APIV1Service, context.Context) {
 	return svc, userCtx(context.Background(), user.ID)
 }
 
+func uploadTestAttachmentPath(svc *APIV1Service, reference string) string {
+	path := filepath.FromSlash(reference)
+	if !filepath.IsAbs(path) {
+		path = filepath.Join(svc.Profile.Data, path)
+	}
+	return path
+}
+
 func uploadSpec(filename string, size int64) *v1pb.UploadAttachmentRequest_Spec {
 	return &v1pb.UploadAttachmentRequest_Spec{Spec: &v1pb.UploadAttachmentSpec{Attachment: &v1pb.Attachment{Filename: filename}, TotalSize: size}}
 }
@@ -87,7 +95,7 @@ func TestUploadAttachmentChunksAndRetries(t *testing.T) {
 	rows, err := svc.Store.ListAttachments(ctx, &store.FindAttachment{})
 	require.NoError(t, err)
 	require.Len(t, rows, 1)
-	content, err := os.ReadFile(rows[0].Reference)
+	content, err := os.ReadFile(uploadTestAttachmentPath(svc, rows[0].Reference))
 	require.NoError(t, err)
 	require.Equal(t, "abcdef", string(content))
 	require.NoFileExists(t, svc.attachmentUploads.entries[id].path)
@@ -216,7 +224,7 @@ func TestUploadAttachmentFinalizationRecovery(t *testing.T) {
 	rows, err := svc.Store.ListAttachments(ctx, &store.FindAttachment{})
 	require.NoError(t, err)
 	require.Len(t, rows, 1)
-	content, err := os.ReadFile(rows[0].Reference)
+	content, err := os.ReadFile(uploadTestAttachmentPath(svc, rows[0].Reference))
 	require.NoError(t, err)
 	require.Equal(t, "abc", string(content))
 }
@@ -305,7 +313,7 @@ func TestUploadAttachmentAboveLegacyRequestLimit(t *testing.T) {
 	rows, err := svc.Store.ListAttachments(ctx, &store.FindAttachment{})
 	require.NoError(t, err)
 	require.Len(t, rows, 1)
-	file, err := os.Open(rows[0].Reference)
+	file, err := os.Open(uploadTestAttachmentPath(svc, rows[0].Reference))
 	require.NoError(t, err)
 	defer file.Close()
 	info, err := file.Stat()
@@ -342,7 +350,7 @@ func TestUploadAttachmentMediaProcessing(t *testing.T) {
 			require.NoError(t, err)
 			row, err := svc.Store.GetAttachment(ctx, &store.FindAttachment{UID: &uid})
 			require.NoError(t, err)
-			content, err := os.ReadFile(row.Reference)
+			content, err := os.ReadFile(uploadTestAttachmentPath(svc, row.Reference))
 			require.NoError(t, err)
 			if tc.motion {
 				require.Equal(t, tc.content, content)
