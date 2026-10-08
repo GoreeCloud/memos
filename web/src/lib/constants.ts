@@ -8,6 +8,8 @@ export const DEFAULT_LIST_MEMOS_PAGE_SIZE = 16;
 // Loads that finish faster than this never render the spinner, avoiding a flash on fast/self-hosted networks.
 export const LOADING_INDICATOR_DELAY_MS = 250;
 
+export const GORECLOUD_MEMOS_PRODUCT_NAME = "GoreeCloud Memos";
+
 export const MEMOS_WEBSITE_URL = "https://github.com/GoreeCloud/memos";
 export const MEMOS_DOCUMENTATION_URL = "https://github.com/GoreeCloud/memos/tree/main/docs";
 export const MEMOS_API_DOCUMENTATION_URL = "https://github.com/GoreeCloud/memos/blob/main/docs/UPSTREAM.md";

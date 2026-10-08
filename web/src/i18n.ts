@@ -1,6 +1,7 @@
 import i18n, { BackendModule, FallbackLng, FallbackLngObjList } from "i18next";
 import { orderBy } from "lodash-es";
 import { initReactI18next } from "react-i18next";
+import { GORECLOUD_MEMOS_PRODUCT_NAME } from "./lib/constants";
 import { findNearestMatchedLanguage } from "./utils/i18n";
 
 export const locales = orderBy([
@@ -87,6 +88,9 @@ i18n
     },
     interpolation: {
       escapeValue: false,
+      defaultVariables: {
+        productName: GORECLOUD_MEMOS_PRODUCT_NAME,
+      },
     },
     fallbackLng: {
       ...fallbacks,

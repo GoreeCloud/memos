@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Демо",
     "distribution": "Розповсюдження",
-    "documents-note": "Розгортання, налаштування та використання Memos",
+    "documents-note": "Розгортання, налаштування та використання {{productName}}",
     "github-repository-note": "Вихідний код, проблеми та релізи",
     "license": "Ліцензія",
     "official-website-note": "Домашня сторінка проекту",
-    "powered-by": "Розроблено Memos",
+    "powered-by": "Розроблено {{productName}}",
     "project": "Проект",
     "project-links": "Посилання на проекти",
     "web-clipper": "Web Clipper",
@@ -134,7 +134,7 @@
     "previous-month": "Попередній місяць",
     "resize-panel": "Змінити розмір панелі",
     "resize-sidebar": "Змінити розмір бічної панелі",
-    "sign-in-to-memos": "Увійти до Memos",
+    "sign-in-to-memos": "Увійти до {{productName}}",
     "view-all": "Переглянути всі"
   },
   "locale-picker": {
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "Зміни є тимчасовими та можуть бути скинуті.",
-    "banner-title": "Демо Memos",
-    "deploy-link": "Розгорніть свій Memos"
+    "banner-title": "Демо {{productName}}",
+    "deploy-link": "Розгорніть свій {{productName}}"
   },
   "attachment-library": {
     "actions": {

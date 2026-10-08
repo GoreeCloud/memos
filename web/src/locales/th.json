@@ -9,11 +9,11 @@
     "commit": "คอมมิต",
     "demo": "สาธิต",
     "distribution": "การแจกจ่าย",
-    "documents-note": "ปรับใช้ กำหนดค่า และใช้งาน Memos",
+    "documents-note": "ปรับใช้ กำหนดค่า และใช้งาน {{productName}}",
     "github-repository-note": "ซอร์สโค้ด ปัญหา และรุ่นต่างๆ",
     "license": "ใบอนุญาต",
     "official-website-note": "หน้าแรกของโครงการ",
-    "powered-by": "ขับเคลื่อนโดย Memos",
+    "powered-by": "ขับเคลื่อนโดย {{productName}}",
     "project": "โครงการ",
     "project-links": "ลิงก์โครงการ",
     "web-clipper": "Web Clipper",
@@ -132,7 +132,7 @@
     "previous-month": "เดือนก่อนหน้า",
     "resize-panel": "ปรับขนาดแผง",
     "resize-sidebar": "ปรับขนาดแถบด้านข้าง",
-    "sign-in-to-memos": "เข้าสู่ระบบ Memos",
+    "sign-in-to-memos": "เข้าสู่ระบบ {{productName}}",
     "tasks": "งาน",
     "unlink": "ยกเลิกการเชื่อมโยง",
     "view-all": "ดูทั้งหมด"
@@ -950,8 +950,8 @@
   },
   "demo": {
     "banner-description": "สำรวจได้ตามสบาย! เดโมนี้จะถูกรีเซ็ตเป็นระยะ",
-    "banner-title": "Memos สาธิต",
-    "deploy-link": "ปรับใช้ Memos ของคุณเอง"
+    "banner-title": "{{productName}} สาธิต",
+    "deploy-link": "ปรับใช้ {{productName}} ของคุณเอง"
   },
   "profile": {
     "no-shared-memos": "@{{username}} ยังไม่ได้แชร์บันทึกใดๆ",

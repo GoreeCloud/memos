@@ -9,11 +9,11 @@
     "commit": "कमिट",
     "demo": "डेमो",
     "distribution": "डिस्ट्रीब्यूशन",
-    "documents-note": "डिप्लॉय, कॉन्फ़िगर और इस्तेमाल करें Memos",
+    "documents-note": "डिप्लॉय, कॉन्फ़िगर और इस्तेमाल करें {{productName}}",
     "github-repository-note": "सोर्स, इश्यू और रिलीज़",
     "license": "लाइसेंस",
     "official-website-note": "प्रोजेक्ट होमपेज",
-    "powered-by": "पावर्ड बाय Memos",
+    "powered-by": "पावर्ड बाय {{productName}}",
     "project": "प्रोजेक्ट",
     "project-links": "प्रोजेक्ट लिंक्स",
     "web-clipper": "वेब क्लिपर",
@@ -132,7 +132,7 @@
     "previous-month": "पिछला महीना",
     "resize-panel": "पैनल का साइज़ बदलें",
     "resize-sidebar": "साइडबार का साइज़ बदलें",
-    "sign-in-to-memos": "साइन इन करें Memos",
+    "sign-in-to-memos": "साइन इन करें {{productName}}",
     "tasks": "टास्क",
     "unlink": "अनलिंक करें",
     "view-all": "सभी देखें"
@@ -950,8 +950,8 @@
   },
   "demo": {
     "banner-description": "बेझिझक एक्सप्लोर करें! यह डेमो समय-समय पर रीसेट किया जाता है।",
-    "banner-title": "Memos डेमो",
-    "deploy-link": "अपना खुद का डिप्लॉय करें Memos"
+    "banner-title": "{{productName}} डेमो",
+    "deploy-link": "अपना खुद का डिप्लॉय करें {{productName}}"
   },
   "profile": {
     "no-shared-memos": "@{{username}} ने अभी तक कोई मेमो शेयर नहीं किया है।",

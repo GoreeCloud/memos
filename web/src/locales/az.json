@@ -25,13 +25,13 @@
     "demo": "Demo",
     "distribution": "Paylanma",
     "documents": "Sənədlər",
-    "documents-note": "Memos-u yerləşdirin, tənzimləyin və istifadə edin",
+    "documents-note": "{{productName}}-u yerləşdirin, tənzimləyin və istifadə edin",
     "github-repository": "GitHub repozitoriyası",
     "github-repository-note": "Mənbə kodu, məsələlər və buraxılışlar",
     "license": "Lisenziya",
     "official-website": "Rəsmi sayt",
     "official-website-note": "Layihənin əsas səhifəsi",
-    "powered-by": "Memos ilə işləyir",
+    "powered-by": "{{productName}} ilə işləyir",
     "project": "Layihə",
     "project-links": "Layihə keçidləri",
     "web-clipper": "Web Clipper",
@@ -71,8 +71,8 @@
   },
   "demo": {
     "banner-description": "Rahatlıqla kəşf edin! Bu demo vaxtaşırı sıfırlanır.",
-    "banner-title": "Memos demosu",
-    "deploy-link": "Öz Memos nüsxənizi yerləşdirin"
+    "banner-title": "{{productName}} demosu",
+    "deploy-link": "Öz {{productName}} nüsxənizi yerləşdirin"
   },
   "attachment-details": {
     "actions": {
@@ -212,7 +212,7 @@
     "settings": "Parametrlər",
     "share": "Paylaş",
     "sign-in": "Daxil ol",
-    "sign-in-to-memos": "Memos-a daxil ol",
+    "sign-in-to-memos": "{{productName}}-a daxil ol",
     "sign-out": "Çıxış et",
     "sign-up": "Qeydiyyatdan keç",
     "statistics": "Statistika",

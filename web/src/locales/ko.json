@@ -9,11 +9,11 @@
     "commit": "커밋",
     "demo": "데모",
     "distribution": "배포",
-    "documents-note": "Memos 배포, 구성 및 사용",
+    "documents-note": "{{productName}} 배포, 구성 및 사용",
     "github-repository-note": "소스, 이슈 및 릴리스",
     "license": "라이선스",
     "official-website-note": "프로젝트 홈페이지",
-    "powered-by": "Memos 제공",
+    "powered-by": "{{productName}} 제공",
     "project": "프로젝트",
     "project-links": "프로젝트 링크",
     "web-clipper": "웹 클리퍼",
@@ -132,7 +132,7 @@
     "previous-month": "이전 달",
     "resize-panel": "패널 크기 조정",
     "resize-sidebar": "사이드바 크기 조정",
-    "sign-in-to-memos": "Memos에 로그인",
+    "sign-in-to-memos": "{{productName}}에 로그인",
     "tasks": "작업",
     "unlink": "연결 해제",
     "view-all": "모두 보기"
@@ -950,8 +950,8 @@
   },
   "demo": {
     "banner-description": "자유롭게 둘러보세요! 이 데모는 주기적으로 초기화됩니다.",
-    "banner-title": "Memos 데모",
-    "deploy-link": "Memos 직접 배포"
+    "banner-title": "{{productName}} 데모",
+    "deploy-link": "{{productName}} 직접 배포"
   },
   "profile": {
     "no-shared-memos": "@{{username}}님은 아직 메모를 공유하지 않았습니다.",

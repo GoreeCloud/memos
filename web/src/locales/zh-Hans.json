@@ -25,13 +25,13 @@
     "demo": "演示",
     "distribution": "发行版本",
     "documents": "文档",
-    "documents-note": "部署、配置和使用 Memos",
+    "documents-note": "部署、配置和使用 {{productName}}",
     "github-repository": "GitHub 仓库",
     "github-repository-note": "源代码、问题与版本发布",
     "license": "许可证",
     "official-website": "官网",
     "official-website-note": "项目主页",
-    "powered-by": "由 Memos 提供支持",
+    "powered-by": "由 {{productName}} 提供支持",
     "project": "项目",
     "project-links": "项目链接",
     "web-clipper": "网页剪藏器",
@@ -71,8 +71,8 @@
   },
   "demo": {
     "banner-description": "这里的改动是临时的，可能会被重置。",
-    "banner-title": "Memos 演示站",
-    "deploy-link": "部署你的 Memos"
+    "banner-title": "{{productName}} 演示站",
+    "deploy-link": "部署你的 {{productName}}"
   },
   "common": {
     "about": "关于",
@@ -145,7 +145,7 @@
     "settings": "设置",
     "share": "分享",
     "sign-in": "登录",
-    "sign-in-to-memos": "登录 Memos",
+    "sign-in-to-memos": "登录 {{productName}}",
     "sign-out": "退出登录",
     "sign-up": "注册",
     "statistics": "统计",

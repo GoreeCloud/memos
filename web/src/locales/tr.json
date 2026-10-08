@@ -25,13 +25,13 @@
     "demo": "Demo",
     "distribution": "Dağıtım",
     "documents": "Belgeler",
-    "documents-note": "Memos'u kurun, yapılandırın ve kullanın",
+    "documents-note": "{{productName}}'u kurun, yapılandırın ve kullanın",
     "github-repository": "GitHub Deposu",
     "github-repository-note": "Kaynak kod, sorunlar ve sürümler",
     "license": "Lisans",
     "official-website": "Resmi Web Sitesi",
     "official-website-note": "Projenin ana sayfası",
-    "powered-by": "Memos altyapısıyla çalışır",
+    "powered-by": "{{productName}} altyapısıyla çalışır",
     "project": "Proje",
     "project-links": "Proje bağlantıları",
     "web-clipper": "Web Clipper",
@@ -140,7 +140,7 @@
     "settings": "Ayarlar",
     "share": "Paylaş",
     "sign-in": "Giriş yap",
-    "sign-in-to-memos": "Memos'a giriş yap",
+    "sign-in-to-memos": "{{productName}}'a giriş yap",
     "sign-out": "Çıkış yap",
     "sign-up": "Kayıt ol",
     "statistics": "İstatistikler",
@@ -935,8 +935,8 @@
   },
   "demo": {
     "banner-description": "Değişiklikler geçicidir ve sıfırlanabilir.",
-    "banner-title": "Memos demosu",
-    "deploy-link": "Memos'inizi konuşlandırın"
+    "banner-title": "{{productName}} demosu",
+    "deploy-link": "{{productName}}'inizi konuşlandırın"
   },
   "attachment-details": {
     "actions": {

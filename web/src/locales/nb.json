@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demo",
     "distribution": "Distribusjon",
-    "documents-note": "Distribuer, konfigurer og bruk Memos",
+    "documents-note": "Distribuer, konfigurer og bruk {{productName}}",
     "github-repository-note": "Kilde, problemer og utgivelser",
     "license": "Lisens",
     "official-website-note": "Prosjektets hjemmeside",
-    "powered-by": "Drevet av Memos",
+    "powered-by": "Drevet av {{productName}}",
     "project": "Prosjekt",
     "project-links": "Prosjektlenker",
     "web-clipper": "Web Clipper",
@@ -134,7 +134,7 @@
     "previous-month": "Forrige måned",
     "resize-panel": "Endre størrelse på panel",
     "resize-sidebar": "Endre størrelse på sidefelt",
-    "sign-in-to-memos": "Logg på Memos",
+    "sign-in-to-memos": "Logg på {{productName}}",
     "view-all": "Vis alle"
   },
   "locale-picker": {
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "Endringene er midlertidige og kan tilbakestilles.",
-    "banner-title": "Memos demo",
-    "deploy-link": "Distribuer din Memos"
+    "banner-title": "{{productName}} demo",
+    "deploy-link": "Distribuer din {{productName}}"
   },
   "attachment-library": {
     "actions": {

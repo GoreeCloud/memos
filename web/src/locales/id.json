@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demo",
     "distribution": "Distribusi",
-    "documents-note": "Deploy, konfigurasi, dan penggunaan Memos",
+    "documents-note": "Deploy, konfigurasi, dan penggunaan {{productName}}",
     "github-repository-note": "Kode sumber, masalah, dan rilis",
     "license": "Lisensi",
     "official-website-note": "Beranda proyek",
-    "powered-by": "Didukung oleh Memos",
+    "powered-by": "Didukung oleh {{productName}}",
     "project": "Proyek",
     "project-links": "Tautan proyek",
     "web-clipper": "Web Clipper",
@@ -132,7 +132,7 @@
     "previous-month": "Bulan sebelumnya",
     "resize-panel": "Ubah ukuran panel",
     "resize-sidebar": "Ubah ukuran sidebar",
-    "sign-in-to-memos": "Masuk ke Memos",
+    "sign-in-to-memos": "Masuk ke {{productName}}",
     "tasks": "Tugas",
     "unlink": "Putuskan tautan",
     "view-all": "Lihat semua"
@@ -950,8 +950,8 @@
   },
   "demo": {
     "banner-description": "Silakan jelajahi! Demo ini direset secara berkala.",
-    "banner-title": "Demo Memos",
-    "deploy-link": "Sebarkan Memos Anda sendiri"
+    "banner-title": "Demo {{productName}}",
+    "deploy-link": "Sebarkan {{productName}} Anda sendiri"
   },
   "profile": {
     "no-shared-memos": "@{{username}} belum membagikan memo apa pun.",
