@@ -24,6 +24,7 @@ lifecycle_metadata:
     - docs/IMPLEMENTED-FEATURES.md
     - docs/PLANNED-FEATURES.md
     - docs/VALIDATION.md
+    - docs/DATABASE-COMPATIBILITY.md
     - provenance/upstream.json
     - provenance/glaze.json
     - provenance/branding.json
@@ -152,6 +153,7 @@ conformance:
   validated_at: null
   evidence:
     - docs/VALIDATION.md
+    - docs/DATABASE-COMPATIBILITY.md
     - docs/SECURITY.md
     - docs/PRIVACY.md
     - docs/GLAZE-ADOPTION.md

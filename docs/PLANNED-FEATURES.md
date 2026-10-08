@@ -10,7 +10,7 @@ Priority work remains:
 - harden deployment configuration, Content Security Policy, headers, session/cookie behavior, and optional-provider boundaries;
 - continue grammar-aware localization migration beyond the implemented reviewed product-name keys, including remaining user/AI/instance phrases with representative-locale review;
 - reconcile upstream updates beyond v0.31.0 with reviewable maintenance commits;
-- validate SQLite/PostgreSQL/MySQL migration and upgrade behavior;
+- keep the dedicated SQLite/PostgreSQL/MySQL migration and upgrade matrix green on exact candidate and post-merge revisions, and expand it when supported engine/version policy changes;
 - extend clean-target portability beyond the now-tested personal memo archive to instance-owned accounts/settings/Spaces and operational backup/restore;
 - add representative browser/device accessibility and performance evidence;
 - establish protected production build/signing/provenance and release/rollback processes;
