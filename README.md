@@ -52,6 +52,7 @@ pnpm build
 - [Webhooks](docs/WEBHOOKS.md)
 - [Privacy](docs/PRIVACY.md)
 - [Privacy Shield integration](docs/PRIVACY-SHIELD-INTEGRATION.md)
+- [Manager integration boundary](docs/MANAGER-INTEGRATION.md)
 - [Backup and recovery](docs/BACKUP-AND-RECOVERY.md)
 - [Performance](docs/PERFORMANCE.md)
 - [Database compatibility](docs/DATABASE-COMPATIBILITY.md)
