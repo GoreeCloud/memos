@@ -27,6 +27,7 @@ required = [
     "docs/BACKUP-AND-RECOVERY.md",
     "docs/PERFORMANCE.md",
     "docs/DATABASE-COMPATIBILITY.md",
+    "docs/EVERKEEP-INTEGRATION.md",
     "docs/GLAZE-ADOPTION.md",
     "docs/UPSTREAM.md",
     "docs/VALIDATION.md",
@@ -34,6 +35,10 @@ required = [
     "provenance/glaze.json",
     "provenance/branding.json",
     "scripts/run_database_upgrade_acceptance.sh",
+    "integrations/everkeep/adoption.json",
+    "integrations/everkeep/acceptance.json",
+    "internal/everkeep/status.go",
+    "internal/everkeep/status_test.go",
     "web/public/goreecloud-memos.svg",
     "web/src/themes/goreecloud.css",
     "web/public/goreecloud/glaze/css/glaze-v1.4.1.css",
@@ -49,6 +54,8 @@ if errors:
 upstream = json.loads((ROOT / "provenance/upstream.json").read_text())
 glaze = json.loads((ROOT / "provenance/glaze.json").read_text())
 branding = json.loads((ROOT / "provenance/branding.json").read_text())
+everkeep_adoption = json.loads((ROOT / "integrations/everkeep/adoption.json").read_text())
+everkeep_acceptance = json.loads((ROOT / "integrations/everkeep/acceptance.json").read_text())
 platform = (ROOT / "goreecloud.platform.yaml").read_text()
 migrator = (ROOT / "store/migrator.go").read_text()
 app = (ROOT / "web/src/App.tsx").read_text()
@@ -88,6 +95,19 @@ require(init_block.count("INSTANCE_ACCESS_MODE_PUBLIC") == 1, "public startup ac
 require('document.createElement("script")' not in app, "browser client must not execute instance-provided arbitrary scripts")
 require('document.createElement("style")' not in app, "browser client must not execute instance-provided arbitrary CSS")
 require("GoreeCloud Memos" in readme, "README must identify GoreeCloud Memos")
+require(everkeep_adoption["schema_version"] == 1, "Everkeep adoption schema version mismatch")
+require(everkeep_adoption["project"] == "GoreeCloud Memos", "Everkeep adoption project mismatch")
+require(everkeep_adoption["repository"] == "GoreeCloud/memos", "Everkeep adoption repository mismatch")
+require(everkeep_adoption["role"] == "consumer", "Everkeep adoption role must remain consumer before a producer path is implemented")
+require(everkeep_adoption["read_only"] is True and everkeep_adoption["fail_closed"] is True, "Everkeep adoption must remain read-only/fail-closed")
+require(everkeep_acceptance["producer"] == "Everkeep", "Everkeep acceptance producer mismatch")
+require(everkeep_acceptance["freshness"]["required_for_ready"] is True, "Everkeep readiness must require fresh evidence")
+require(everkeep_acceptance["acceptance"]["everkeep_integrated"] is False, "Everkeep integration must remain false before live acceptance")
+require(everkeep_acceptance["acceptance"]["everkeep_ready"] is False, "Everkeep readiness must remain false before live acceptance")
+require("result: applicable-migration-required" in platform and 'version: "0.5.0"' in platform, "platform manifest must retain the bounded Everkeep migration-required state")
+everkeep_source = (ROOT / "internal/everkeep/status.go").read_text()
+for marker in ("DisallowUnknownFields", "fresh_until", "sensitive evidence marker rejected", "StateUnknown"):
+    require(marker in everkeep_source, f"Everkeep fail-closed source marker missing: {marker}")
 require("usememos/memos" in readme, "README must retain upstream provenance")
 require("MIT License" in license_text and "Copyright (c) 2025 Memos" in license_text, "upstream MIT license/attribution missing")
 
