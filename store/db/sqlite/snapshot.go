@@ -63,13 +63,18 @@ func CreateSnapshot(ctx context.Context, source *sql.DB, destination string) (st
 		}
 	}
 
+	reserved, err := os.OpenFile(absoluteDestination, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+	if err != nil {
+		return "", errors.Wrap(err, "reserve SQLite snapshot destination")
+	}
+	if err := reserved.Close(); err != nil {
+		_ = os.Remove(absoluteDestination)
+		return "", errors.Wrap(err, "close reserved SQLite snapshot destination")
+	}
+
 	if _, err := source.ExecContext(ctx, "VACUUM INTO ?", absoluteDestination); err != nil {
 		_ = os.Remove(absoluteDestination)
 		return "", errors.Wrap(err, "create SQLite snapshot")
-	}
-	if err := os.Chmod(absoluteDestination, 0o600); err != nil {
-		_ = os.Remove(absoluteDestination)
-		return "", errors.Wrap(err, "restrict SQLite snapshot permissions")
 	}
 
 	if err := verifySnapshot(ctx, absoluteDestination); err != nil {
