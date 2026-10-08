@@ -48,6 +48,9 @@ type instanceOptions struct {
 	// rateLimit enables the request rate limiter, which the other tests leave
 	// off so that their request volume never trips a budget.
 	rateLimit bool
+	// trustedProxies controls which immediate peers may supply forwarding
+	// metadata used for client identity and browser-facing transport security.
+	trustedProxies []string
 	// dataDir reuses an existing data directory instead of a fresh one, which
 	// is how a restart against an already-migrated database is simulated.
 	dataDir string
@@ -82,8 +85,9 @@ func bootInstance(ctx context.Context, t *testing.T, opts instanceOptions) *inst
 		Data:        dataDir,
 		Driver:      "sqlite",
 		InstanceURL: opts.instanceURL,
-		RateLimit:   opts.rateLimit,
-		Version:     version.GetCurrentVersion(),
+		RateLimit:      opts.rateLimit,
+		TrustedProxies: opts.trustedProxies,
+		Version:        version.GetCurrentVersion(),
 		Commit:      version.Commit,
 	}
 	require.NoError(t, instanceProfile.Validate(), "profile should validate")
