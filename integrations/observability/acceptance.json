@@ -1,0 +1,18 @@
+{
+  "application": "GoreeCloud Memos",
+  "repository": "GoreeCloud/memos",
+  "observability": {
+    "repository": "GoreeCloud/observability",
+    "revision": "a7f6a65f442d3e517baddbe7b6ce7c250d142c8c",
+    "foundation_version": "0.1.0-dev",
+    "signal_schema_id": "https://goreecloud.com/contracts/observability/operational-signal/v1",
+    "component_health_schema_id": "https://goreecloud.com/contracts/observability/component-health/v1"
+  },
+  "acceptance": {
+    "source_producer_implemented": true,
+    "collector_transport_active": false,
+    "producer_authentication_complete": false,
+    "runtime_acceptance_complete": false,
+    "production_approved": false
+  }
+}

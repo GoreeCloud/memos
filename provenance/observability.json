@@ -1,0 +1,16 @@
+{
+  "source": "GoreeCloud/observability",
+  "revision": "a7f6a65f442d3e517baddbe7b6ce7c250d142c8c",
+  "foundationVersion": "0.1.0-dev",
+  "signalSchema": {
+    "path": "contracts/operational-signal.schema.json",
+    "id": "https://goreecloud.com/contracts/observability/operational-signal/v1",
+    "blobSha": "db5f70c4c2466143b0024ad1e1e9723c3ea0bfec"
+  },
+  "componentHealthSchema": {
+    "path": "contracts/component-health.schema.json",
+    "id": "https://goreecloud.com/contracts/observability/component-health/v1",
+    "blobSha": "ee35e3549c786822560d7c24cbd2c22cbbbbafab"
+  },
+  "reviewedAt": "2026-10-08"
+}

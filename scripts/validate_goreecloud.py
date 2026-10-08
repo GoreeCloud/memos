@@ -33,6 +33,8 @@ required = [
     "docs/DATABASE-COMPATIBILITY.md",
     "docs/EVERKEEP-INTEGRATION.md",
     "docs/PRIVACY-SHIELD-INTEGRATION.md",
+    "docs/MANAGER-INTEGRATION.md",
+    "docs/OBSERVABILITY-INTEGRATION.md",
     "docs/GLAZE-ADOPTION.md",
     "docs/UPSTREAM.md",
     "docs/VALIDATION.md",
@@ -40,13 +42,18 @@ required = [
     "provenance/glaze.json",
     "provenance/branding.json",
     "provenance/privacy-shield.json",
+    "provenance/observability.json",
     "scripts/run_database_upgrade_acceptance.sh",
     "integrations/everkeep/adoption.json",
     "integrations/everkeep/acceptance.json",
     "integrations/privacy-shield/adapter.json",
     "integrations/privacy-shield/acceptance.json",
+    "integrations/observability/producer.json",
+    "integrations/observability/acceptance.json",
     "internal/everkeep/status.go",
     "internal/everkeep/status_test.go",
+    "internal/observability/signal.go",
+    "internal/observability/signal_test.go",
     "web/public/goreecloud-memos.svg",
     "web/src/themes/goreecloud.css",
     "web/public/goreecloud/glaze/css/glaze-v1.4.1.css",
@@ -63,8 +70,11 @@ upstream = json.loads((ROOT / "provenance/upstream.json").read_text())
 glaze = json.loads((ROOT / "provenance/glaze.json").read_text())
 branding = json.loads((ROOT / "provenance/branding.json").read_text())
 privacy_shield_provenance = json.loads((ROOT / "provenance/privacy-shield.json").read_text())
+observability_provenance = json.loads((ROOT / "provenance/observability.json").read_text())
 privacy_shield_adapter = json.loads((ROOT / "integrations/privacy-shield/adapter.json").read_text())
 privacy_shield_acceptance = json.loads((ROOT / "integrations/privacy-shield/acceptance.json").read_text())
+observability_producer = json.loads((ROOT / "integrations/observability/producer.json").read_text())
+observability_acceptance = json.loads((ROOT / "integrations/observability/acceptance.json").read_text())
 everkeep_adoption = json.loads((ROOT / "integrations/everkeep/adoption.json").read_text())
 everkeep_acceptance = json.loads((ROOT / "integrations/everkeep/acceptance.json").read_text())
 platform = (ROOT / "goreecloud.platform.yaml").read_text()
@@ -106,6 +116,37 @@ require(init_block.count("INSTANCE_ACCESS_MODE_PUBLIC") == 1, "public startup ac
 require('document.createElement("script")' not in app, "browser client must not execute instance-provided arbitrary scripts")
 require('document.createElement("style")' not in app, "browser client must not execute instance-provided arbitrary CSS")
 require("GoreeCloud Memos" in readme, "README must identify GoreeCloud Memos")
+manager_integration = (ROOT / "docs/MANAGER-INTEGRATION.md").read_text()
+require("GoreeCloud/manager#111" in manager_integration, "Manager integration boundary must pin the canonical contract issue")
+require("applicable-blocked" in manager_integration, "Manager integration boundary must remain fail-closed before contract acceptance")
+manager_start = platform.find("  manager:")
+manager_end = platform.find("  privacy_shield:", manager_start)
+manager_block = platform[manager_start:manager_end]
+require(manager_start >= 0 and manager_end > manager_start, "Manager platform block missing")
+require("GoreeCloud/manager#111" in manager_block, "Manager platform block must pin the canonical contract dependency")
+require("result: applicable-blocked" in manager_block, "Manager platform state must remain blocked before contract acceptance")
+require("docs/MANAGER-INTEGRATION.md" in manager_block, "Manager platform evidence must include the integration boundary")
+require("      - docs/GLAZE-ADOPTION.md\n      - provenance/glaze.json" in platform, "Glaze evidence indentation drifted or contains cross-system evidence")
+require("    - docs/OBSERVABILITY-INTEGRATION.md\n  blockers:" in platform, "Observability integration evidence must remain in the conformance evidence list")
+mesh_start = platform.find("  mesh:")
+mesh_end = platform.find("  identity:", mesh_start)
+mesh_block = platform[mesh_start:mesh_end]
+require(mesh_start >= 0 and mesh_end > mesh_start, "Mesh platform block missing")
+require("GoreeCloud/mesh#51" in mesh_block, "Mesh platform block must pin the canonical Observability producer dependency")
+require("result: applicable-blocked" in mesh_block, "Mesh platform state must remain blocked before the producer contract exists")
+identity_start = platform.find("  identity:")
+identity_end = platform.find("  policy:", identity_start)
+identity_block = platform[identity_start:identity_end]
+require(identity_start >= 0 and identity_end > identity_start, "Identity platform block missing")
+require("GoreeCloud/identity#3" in identity_block, "Identity platform block must pin the first-party session/user-context dependency")
+require("result: applicable-blocked" in identity_block, "Identity platform state must remain blocked before authoritative application identity/session acceptance")
+policy_start = platform.find("  policy:")
+policy_end = platform.find("  observability:", policy_start)
+policy_block = platform[policy_start:policy_end]
+require(policy_start >= 0 and policy_end > policy_start, "Policy platform block missing")
+require("GoreeCloud/policy#3" in policy_block, "Policy platform block must pin the authenticated consumer-contract dependency")
+require("result: applicable-blocked" in policy_block, "Policy platform state must remain blocked before authenticated evaluation/enforcement acceptance")
+
 
 # Privacy Shield source-contract boundary. This validates a repository-local
 # application adapter declaration against the reviewed canonical contract
@@ -192,6 +233,60 @@ require("result: applicable-migration-required" in platform and 'version: "0.5.0
 everkeep_source = (ROOT / "internal/everkeep/status.go").read_text()
 for marker in ("DisallowUnknownFields", "fresh_until", "sensitive evidence marker rejected", "StateUnknown"):
     require(marker in everkeep_source, f"Everkeep fail-closed source marker missing: {marker}")
+# GoreeCloud Observability source-level producer boundary. This pins reviewed
+# Development contracts and prevents source-level telemetry declarations from
+# becoming live/runtime or production acceptance claims without new evidence.
+require(observability_provenance["source"] == "GoreeCloud/observability", "Observability provenance source mismatch")
+require(observability_provenance["revision"] == "a7f6a65f442d3e517baddbe7b6ce7c250d142c8c", "Observability provenance revision mismatch")
+require(observability_provenance["foundationVersion"] == "0.1.0-dev", "Observability foundation version mismatch")
+require(observability_provenance["signalSchema"] == {
+    "path": "contracts/operational-signal.schema.json",
+    "id": "https://goreecloud.com/contracts/observability/operational-signal/v1",
+    "blobSha": "db5f70c4c2466143b0024ad1e1e9723c3ea0bfec",
+}, "Observability signal-schema provenance mismatch")
+require(observability_provenance["componentHealthSchema"] == {
+    "path": "contracts/component-health.schema.json",
+    "id": "https://goreecloud.com/contracts/observability/component-health/v1",
+    "blobSha": "ee35e3549c786822560d7c24cbd2c22cbbbbafab",
+}, "Observability component-health provenance mismatch")
+require(observability_producer["schema_version"] == 1, "Observability producer schema version mismatch")
+require(observability_producer["producer"] == {
+    "id": "goreecloud-memos-operational-health",
+    "component_id": "goreecloud-memos",
+    "source": "goreecloud-memos",
+    "runtime_authority": "GoreeCloud/memos",
+    "signal_contract": "https://goreecloud.com/contracts/observability/operational-signal/v1",
+}, "Observability producer identity mismatch")
+require(observability_producer["signals"] == [
+    {"signal_type": "process.liveness", "state_source": "/healthz", "ttl_seconds": 60},
+    {"signal_type": "database.readiness", "state_source": "/readyz", "ttl_seconds": 60},
+], "Observability declared signal set drifted")
+require(observability_producer["privacy"] == {
+    "memo_content_emitted": False,
+    "user_identity_emitted": False,
+    "attachment_metadata_emitted": False,
+    "database_error_text_emitted": False,
+}, "Observability privacy-minimization boundary drifted")
+require(observability_producer["transport"] == {
+    "collector_submission_implemented": False,
+    "producer_authentication_implemented": False,
+    "durable_telemetry_storage_implemented": False,
+}, "Observability transport boundary drifted")
+require(observability_acceptance["application"] == "GoreeCloud Memos", "Observability acceptance application mismatch")
+require(observability_acceptance["repository"] == "GoreeCloud/memos", "Observability acceptance repository mismatch")
+require(observability_acceptance["observability"]["revision"] == observability_provenance["revision"], "Observability acceptance/provenance revision mismatch")
+require(observability_acceptance["acceptance"] == {
+    "source_producer_implemented": True,
+    "collector_transport_active": False,
+    "producer_authentication_complete": False,
+    "runtime_acceptance_complete": False,
+    "production_approved": False,
+}, "Observability acceptance boundary drifted")
+require('observability:\n    result: applicable-migration-required\n    version: "0.1.0-dev"' in platform, "platform manifest must retain the bounded Observability migration-required state")
+observability_source = (ROOT / "internal/observability/signal.go").read_text()
+for marker in ("database_ping_failed", "database_handle_missing", "sensitive telemetry attribute key rejected", "StateUnavailable", "StateUnknown"):
+    require(marker in observability_source, f"Observability fail-closed source marker missing: {marker}")
+
 require("usememos/memos" in readme, "README must retain upstream provenance")
 require("MIT License" in license_text and "Copyright (c) 2025 Memos" in license_text, "upstream MIT license/attribution missing")
 

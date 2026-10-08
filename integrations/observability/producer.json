@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "producer": {
+    "id": "goreecloud-memos-operational-health",
+    "component_id": "goreecloud-memos",
+    "source": "goreecloud-memos",
+    "runtime_authority": "GoreeCloud/memos",
+    "signal_contract": "https://goreecloud.com/contracts/observability/operational-signal/v1"
+  },
+  "signals": [
+    {"signal_type": "process.liveness", "state_source": "/healthz", "ttl_seconds": 60},
+    {"signal_type": "database.readiness", "state_source": "/readyz", "ttl_seconds": 60}
+  ],
+  "privacy": {
+    "memo_content_emitted": false,
+    "user_identity_emitted": false,
+    "attachment_metadata_emitted": false,
+    "database_error_text_emitted": false
+  },
+  "transport": {
+    "collector_submission_implemented": false,
+    "producer_authentication_implemented": false,
+    "durable_telemetry_storage_implemented": false
+  }
+}
