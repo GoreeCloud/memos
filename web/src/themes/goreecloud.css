@@ -167,15 +167,13 @@
   }
 }
 
-
 .goreecloud-auth-shell {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   background:
     radial-gradient(circle at 18% 8%, color-mix(in oklch, var(--gc-memos-accent) 13%, transparent), transparent 30rem),
-    radial-gradient(circle at 86% 92%, color-mix(in oklch, var(--primary) 8%, transparent), transparent 28rem),
-    var(--background);
+    radial-gradient(circle at 86% 92%, color-mix(in oklch, var(--primary) 8%, transparent), transparent 28rem), var(--background);
 }
 
 .goreecloud-auth-shell::before {
