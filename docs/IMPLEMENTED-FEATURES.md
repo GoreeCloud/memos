@@ -21,6 +21,7 @@
 - GoreeCloud documentation and explicit Stable blockers.
 - Glaze V1.7 target mapping plus application-owned responsive/accessibility styling.
 - GoreeCloud repository/documentation links instead of presenting upstream as the fork's product home.
+- GoreeCloud-owned user-help destinations for API, search/saved views, authentication, webhooks, and missing-language feedback while preserving upstream protocol/provenance identifiers.
 - Browser-client hardening that does not execute administrator-provided arbitrary JavaScript.
 
 - Separate HTTP liveness (/healthz) and database-backed readiness (/readyz) probes for operations and future Manager integration.
