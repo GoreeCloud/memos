@@ -6,7 +6,7 @@
 
 GoreeCloud Memos is a first-party GoreeCloud application and Manager visibility is applicable, but the current GoreeCloud Manager repository does not yet expose an accepted application-registration and lifecycle-visibility contract for downstream applications to implement.
 
-The dependency is tracked canonically in [GoreeCloud/manager issue #111](https://github.com/GoreeCloud/manager/issues/111), **Define canonical application registration and lifecycle-visibility contract**.
+The dependency is tracked canonically in [GoreeCloud/manager#111](https://github.com/GoreeCloud/manager/issues/111), **Define canonical application registration and lifecycle-visibility contract**.
 
 Reviewed Manager source authority for this boundary: `GoreeCloud/manager@ebf5ea526c14a198ebaabf76fe923e82bddd2ad6` on October 8, 2026.
 
