@@ -105,6 +105,7 @@ func init() {
 	rootCmd.SetVersionTemplate("{{.Version}}\n")
 
 	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(newSnapshotCommand())
 }
 
 func runServer() error {
