@@ -35,7 +35,9 @@ The default self-hosted path uses SQLite and can use managed local attachments u
 - Deployment-provided settings may not be stored in the database.
 - A successful file copy does not prove that the resulting target starts, passes readiness, or serves every expected attachment.
 
-Any future SQLite/local backup implementation must create a consistent database snapshot, capture every managed local attachment required by that snapshot, include a machine-readable manifest, and validate restoration into a clean target.
+The current Development line now proves one bounded SQLite/local recovery path: when LOCAL attachment storage uses a relative template under the instance data directory, new attachment rows persist data-directory-relative references; a clean target can restore the SQLite snapshot plus the referenced local file at the same relative path and serve the exact bytes through the authenticated file route. Explicit administrator-configured absolute templates remain absolute and require path-specific recovery planning.
+
+This is still not an automated full SQLite/local backup implementation. A complete implementation must inventory and capture every managed local attachment required by the snapshot, include a machine-readable manifest, handle explicitly external absolute paths, and validate the complete restored set rather than one representative file.
 
 
 
@@ -98,7 +100,8 @@ The current repository establishes only these bounded pieces:
 - private-first initialization;
 - separate process liveness (/healthz) and database-backed readiness (/readyz);
 - personal memo archive clean-target portability, including attachment bytes carried by that archive;
-- a bounded SQLite database snapshot primitive plus automated clean-target boot/readiness/data-preservation acceptance for that database artifact, including database-backed attachment bytes; and
-- explicit source/documentation boundaries that keep operational backup/recovery unclaimed.
+- a bounded SQLite database snapshot primitive plus automated clean-target boot/readiness/data-preservation acceptance for that database artifact, including explicitly database-backed attachment bytes;
+- clean-target recovery acceptance for a representative managed-local attachment when its reference is data-directory-relative and the referenced file is restored alongside the SQLite snapshot; and
+- explicit source/documentation boundaries that keep S3, external absolute local paths, complete local-file inventory/manifests, deployment configuration, secret authority, scheduling, retention, off-device copies, and full operational backup/recovery unclaimed.
 
 These pieces are recovery foundations. They do not constitute automated backup, full-instance restore, disaster-recovery acceptance, Everkeep acceptance, Production Acceptance, Seal, or Anchor qualification.

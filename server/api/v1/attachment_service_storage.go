@@ -88,19 +88,24 @@ func saveAttachmentContent(
 		internalPath = replaceFilenameWithPathTemplate(internalPath, create.Filename)
 		internalPath = filepath.ToSlash(internalPath)
 
-		// Ensure the directory exists.
+		// Preserve relative references for files managed under the instance data
+		// directory so a backed-up data directory can be restored at a different
+		// absolute host path. Explicit absolute templates remain absolute for
+		// backward compatibility with administrator-managed paths.
 		osPath := filepath.FromSlash(internalPath)
-		if !filepath.IsAbs(osPath) {
+		referenceIsRelative := !filepath.IsAbs(osPath)
+		if referenceIsRelative {
 			osPath = filepath.Join(profile.Data, osPath)
 		}
 		osPath = ensureUniqueLocalAttachmentPath(osPath, create.UID)
-		internalPath = filepath.ToSlash(osPath)
-		if !filepath.IsAbs(filepath.FromSlash(internalPath)) {
+		if referenceIsRelative {
 			relativePath, err := filepath.Rel(profile.Data, osPath)
 			if err != nil {
 				return errors.Wrap(err, "Failed to get relative path")
 			}
 			internalPath = filepath.ToSlash(relativePath)
+		} else {
+			internalPath = filepath.ToSlash(osPath)
 		}
 		dir := filepath.Dir(osPath)
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
