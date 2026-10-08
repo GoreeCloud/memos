@@ -986,7 +986,7 @@
       "use-emoji": "Kasuta {{emoji}}"
     },
     "unavailable": "Seda ruumi pole olemas või sul pole sellele juurdepääsu.",
-    "back-to-memos": "Tagasi Memos juurde",
+    "back-to-memos": "Tagasi {{productName}} juurde",
     "create": "Loo ruum",
     "create-description": "Loo jagatud koht memode ja liikmete jaoks.",
     "create-success": "Ruum loodud",

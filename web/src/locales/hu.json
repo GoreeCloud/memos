@@ -986,7 +986,7 @@
       "use-emoji": "{{emoji}} használata"
     },
     "unavailable": "Ez a tér nem létezik, vagy nincs hozzáférésed hozzá.",
-    "back-to-memos": "Vissza ide: Memos",
+    "back-to-memos": "Vissza ide: {{productName}}",
     "create": "Tér létrehozása",
     "create-description": "Megosztott hely létrehozása emlékeztetők és tagok számára.",
     "create-success": "Tér létrehozva",

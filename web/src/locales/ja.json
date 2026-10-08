@@ -986,7 +986,7 @@
       "use-emoji": "{{emoji}} を使用する"
     },
     "unavailable": "このスペースは存在しないか、アクセス権がありません。",
-    "back-to-memos": "Memos に戻る",
+    "back-to-memos": "{{productName}} に戻る",
     "create": "スペースを作成する",
     "create-description": "メモとメンバーのための共有スペースを作成します。",
     "create-success": "スペースが作成されました",

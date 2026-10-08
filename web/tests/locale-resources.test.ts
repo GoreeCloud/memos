@@ -165,6 +165,24 @@ describe("GoreeCloud product-name localization", () => {
   });
 });
 
+describe("GoreeCloud navigation product-name localization", () => {
+  it("uses the product-name slot in reviewed back-navigation copy while preserving the Turkish generic noun", () => {
+    for (const [path, module] of Object.entries(locales)) {
+      const messages = flatten(module.default);
+      const value = messages["space.back-to-memos"];
+
+      if (path.endsWith("/tr.json")) {
+        expect(value, path).toBe("Notlara dön");
+        expect(value, path).not.toContain("{{productName}}");
+        continue;
+      }
+
+      expect(value, path).toContain("{{productName}}");
+      expect(value, path).not.toContain("Memos");
+    }
+  });
+});
+
 describe("locale resources", () => {
   it("allows extra plural categories only for existing plural messages", () => {
     expect(referenceFor("setting.sso.scope-count_few")).toBe(source["setting.sso.scope-count_other"]);
@@ -184,7 +202,13 @@ describe("locale resources", () => {
         expect(value.trim(), key).not.toBe("");
         const reference = referenceFor(key);
         if (reference !== undefined) {
-          expect(placeholders(value), key).toEqual(placeholders(reference));
+          const reviewedGenericNavigationException = path.endsWith("/tr.json") && key === "space.back-to-memos";
+          if (reviewedGenericNavigationException) {
+            expect(placeholders(value), key).toEqual([]);
+            expect(placeholders(reference), key).toEqual(["{{productName}}"]);
+          } else {
+            expect(placeholders(value), key).toEqual(placeholders(reference));
+          }
         }
       }
     });

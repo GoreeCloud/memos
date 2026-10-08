@@ -986,7 +986,7 @@
       "use-emoji": "Käytä {{emoji}}"
     },
     "unavailable": "Tätä tilaa ei ole olemassa tai sinulla ei ole siihen pääsyä.",
-    "back-to-memos": "Takaisin kohteeseen Memos",
+    "back-to-memos": "Takaisin kohteeseen {{productName}}",
     "create": "Luo tila",
     "create-description": "Luo jaettu paikka muistioille ja jäsenille.",
     "create-success": "Tila luotu",

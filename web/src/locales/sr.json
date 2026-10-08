@@ -986,7 +986,7 @@
       "use-emoji": "Користи {{emoji}}"
     },
     "unavailable": "Овај простор не постоји или му немате приступ.",
-    "back-to-memos": "Назад на Memos",
+    "back-to-memos": "Назад на {{productName}}",
     "create": "Направи простор",
     "create-description": "Направи дељено место за белешке и чланове.",
     "create-success": "Простор је креиран",

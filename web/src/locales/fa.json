@@ -986,7 +986,7 @@
       "use-emoji": "استفاده از {{emoji}}"
     },
     "unavailable": "این فضا وجود ندارد یا شما به آن دسترسی ندارید.",
-    "back-to-memos": "بازگشت به Memos",
+    "back-to-memos": "بازگشت به {{productName}}",
     "create": "ایجاد فضا",
     "create-description": "ایجاد یک مکان مشترک برای یادداشت‌ها و اعضا.",
     "create-success": "فضا ایجاد شد",

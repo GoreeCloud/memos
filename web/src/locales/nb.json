@@ -986,7 +986,7 @@
       "use-emoji": "Bruk {{emoji}}"
     },
     "unavailable": "Dette rommet finnes ikke, eller du har ikke tilgang til det.",
-    "back-to-memos": "Tilbake til Memos",
+    "back-to-memos": "Tilbake til {{productName}}",
     "create": "Opprett rom",
     "create-description": "Opprett et delt sted for notater og medlemmer.",
     "create-success": "Rom opprettet",

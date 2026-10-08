@@ -967,7 +967,7 @@
       "use-emoji": "使用 {{emoji}}"
     },
     "unavailable": "空间不存在或你没有访问权限。",
-    "back-to-memos": "返回 Memos",
+    "back-to-memos": "返回 {{productName}}",
     "create": "创建空间",
     "create-description": "创建一个供成员共享备忘录的空间。",
     "create-success": "空间已创建",

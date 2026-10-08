@@ -986,7 +986,7 @@
       "use-emoji": "Utilitza {{emoji}}"
     },
     "unavailable": "Aquest espai no existeix o no hi tens accés.",
-    "back-to-memos": "Torna a Memos",
+    "back-to-memos": "Torna a {{productName}}",
     "create": "Crea un espai",
     "create-description": "Crea un lloc compartit per a notes i membres.",
     "create-success": "Espai creat",

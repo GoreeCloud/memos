@@ -986,7 +986,7 @@
       "use-emoji": "שימוש ב-{{emoji}}"
     },
     "unavailable": "מרחב זה אינו קיים או שאין לך גישה אליו.",
-    "back-to-memos": "חזרה אל Memos",
+    "back-to-memos": "חזרה אל {{productName}}",
     "create": "יצירת מרחב",
     "create-description": "יצירת מקום משותף לתזכירים ולחברים.",
     "create-success": "נוצר מרחב",

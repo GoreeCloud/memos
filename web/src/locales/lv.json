@@ -986,7 +986,7 @@
       "use-emoji": "Izmantot {{emoji}}"
     },
     "unavailable": "Šī telpa neeksistē vai jums nav piekļuves tai.",
-    "back-to-memos": "Atpakaļ uz Memos",
+    "back-to-memos": "Atpakaļ uz {{productName}}",
     "create": "Izveidot telpu",
     "create-description": "Izveidojiet koplietojamu vietu piezīmēm un dalībniekiem.",
     "create-success": "Telpa izveidota",

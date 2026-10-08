@@ -986,7 +986,7 @@
       "use-emoji": "{{emoji}} वापरा"
     },
     "unavailable": "ही जागा अस्तित्वात नाही किंवा तुम्हाला तिचा ॲक्सेस नाही.",
-    "back-to-memos": "Memos वर परत जा",
+    "back-to-memos": "{{productName}} वर परत जा",
     "create": "जागा तयार करा",
     "create-description": "मेमो आणि सदस्यांसाठी एक सामायिक जागा तयार करा.",
     "create-success": "जागा तयार झाली",

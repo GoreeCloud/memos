@@ -986,7 +986,7 @@
       "use-emoji": "Usar {{emoji}}"
     },
     "unavailable": "Este espacio no existe o no tienes acceso a él.",
-    "back-to-memos": "Volver a Memos",
+    "back-to-memos": "Volver a {{productName}}",
     "create": "Crear espacio",
     "create-description": "Crear un espacio compartido para notas y miembros.",
     "create-success": "Espacio creado",

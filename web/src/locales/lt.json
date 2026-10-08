@@ -986,7 +986,7 @@
       "use-emoji": "Naudoti {{emoji}}"
     },
     "unavailable": "Šios erdvės nėra arba jūs neturite prieigos prie jos.",
-    "back-to-memos": "Grįžti į Memos",
+    "back-to-memos": "Grįžti į {{productName}}",
     "create": "Sukurti erdvę",
     "create-description": "Sukurti bendrą vietą atmintinėms ir nariams.",
     "create-success": "Erdvė sukurta",

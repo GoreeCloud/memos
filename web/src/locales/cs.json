@@ -986,7 +986,7 @@
       "use-emoji": "Použít {{emoji}}"
     },
     "unavailable": "Tento prostor neexistuje nebo k němu nemáte přístup.",
-    "back-to-memos": "Zpět na Memos",
+    "back-to-memos": "Zpět na {{productName}}",
     "create": "Vytvořit prostor",
     "create-description": "Vytvořte sdílené místo pro poznámky a členy.",
     "create-success": "Prostor vytvořen",

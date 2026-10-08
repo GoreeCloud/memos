@@ -986,7 +986,7 @@
       "use-emoji": "Brug {{emoji}}"
     },
     "unavailable": "Dette rum findes ikke, eller du har ikke adgang til det.",
-    "back-to-memos": "Tilbage til Memos",
+    "back-to-memos": "Tilbage til {{productName}}",
     "create": "Opret rum",
     "create-description": "Opret et delt rum til notater og medlemmer.",
     "create-success": "Rum oprettet",

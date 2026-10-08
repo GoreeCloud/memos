@@ -986,7 +986,7 @@
       "use-emoji": "Sử dụng {{emoji}}"
     },
     "unavailable": "Không gian này không tồn tại hoặc bạn không có quyền truy cập vào nó.",
-    "back-to-memos": "Quay lại Memos",
+    "back-to-memos": "Quay lại {{productName}}",
     "create": "Tạo không gian",
     "create-description": "Tạo một nơi dùng chung cho ghi chú và thành viên.",
     "create-success": "Không gian đã được tạo",

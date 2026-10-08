@@ -986,7 +986,7 @@
       "use-emoji": "{{emoji}} verwenden"
     },
     "unavailable": "Dieser Bereich existiert nicht oder Sie haben keinen Zugriff darauf.",
-    "back-to-memos": "Zurück zu Memos",
+    "back-to-memos": "Zurück zu {{productName}}",
     "create": "Bereich erstellen",
     "create-description": "Einen gemeinsamen Bereich für Notizen und Mitglieder erstellen.",
     "create-success": "Bereich erstellt",

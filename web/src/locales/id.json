@@ -986,7 +986,7 @@
       "use-emoji": "Gunakan {{emoji}}"
     },
     "unavailable": "Ruang ini tidak ada atau Anda tidak memiliki akses ke ruang ini.",
-    "back-to-memos": "Kembali ke Memos",
+    "back-to-memos": "Kembali ke {{productName}}",
     "create": "Buat ruang",
     "create-description": "Buat tempat bersama untuk memo dan anggota.",
     "create-success": "Ruang dibuat",

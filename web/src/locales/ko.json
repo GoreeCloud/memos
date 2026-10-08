@@ -986,7 +986,7 @@
       "use-emoji": "{{emoji}} 사용"
     },
     "unavailable": "이 공간이 없거나 접근 권한이 없습니다.",
-    "back-to-memos": "Memos으로 돌아가기",
+    "back-to-memos": "{{productName}}으로 돌아가기",
     "create": "공간 생성",
     "create-description": "메모와 멤버를 위한 공유 공간을 생성합니다.",
     "create-success": "공간이 생성되었습니다.",

@@ -982,7 +982,7 @@
       "use-emoji": "{{emoji}} istifadə et"
     },
     "unavailable": "Bu sahə mövcud deyil və ya ona giriş icazəniz yoxdur.",
-    "back-to-memos": "Memos-a qayıt",
+    "back-to-memos": "{{productName}}-a qayıt",
     "create": "Sahə yarat",
     "create-description": "Qeydlər və üzvlər üçün ortaq yer yaradın.",
     "create-success": "Sahə yaradıldı",

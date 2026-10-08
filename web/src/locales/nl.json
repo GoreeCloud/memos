@@ -986,7 +986,7 @@
       "use-emoji": "Gebruik {{emoji}}"
     },
     "unavailable": "Deze ruimte bestaat niet of je hebt er geen toegang toe.",
-    "back-to-memos": "Terug naar Memos",
+    "back-to-memos": "Terug naar {{productName}}",
     "create": "Ruimte aanmaken",
     "create-description": "Maak een gedeelde ruimte aan voor memo's en leden.",
     "create-success": "Ruimte aangemaakt",

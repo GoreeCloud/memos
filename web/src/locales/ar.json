@@ -986,7 +986,7 @@
       "use-emoji": "استخدام {{emoji}}"
     },
     "unavailable": "هذه المساحة غير موجودة أو ليس لديك صلاحية الوصول إليها.",
-    "back-to-memos": "العودة إلى Memos",
+    "back-to-memos": "العودة إلى {{productName}}",
     "create": "إنشاء مساحة",
     "create-description": "إنشاء مساحة مشتركة للمذكرات والأعضاء.",
     "create-success": "تم إنشاء المساحة",

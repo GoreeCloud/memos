@@ -986,7 +986,7 @@
       "use-emoji": "Använd {{emoji}}"
     },
     "unavailable": "Detta utrymme finns inte eller så har du inte åtkomst till det.",
-    "back-to-memos": "Tillbaka till Memos",
+    "back-to-memos": "Tillbaka till {{productName}}",
     "create": "Skapa utrymme",
     "create-description": "Skapa en delad plats för meddelanden och medlemmar.",
     "create-success": "Utrymme skapat",

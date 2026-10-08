@@ -986,7 +986,7 @@
       "use-emoji": "इस्तेमाल करें {{emoji}}"
     },
     "unavailable": "यह स्पेस मौजूद नहीं है या आपके पास इसका एक्सेस नहीं है.",
-    "back-to-memos": "Memos पर वापस जाएं",
+    "back-to-memos": "{{productName}} पर वापस जाएं",
     "create": "स्पेस बनाएं",
     "create-description": "मेमो और मेंबर्स के लिए एक शेयर्ड जगह बनाएं.",
     "create-success": "स्पेस बनाया गया",

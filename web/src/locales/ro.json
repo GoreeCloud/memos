@@ -986,7 +986,7 @@
       "use-emoji": "Folosește {{emoji}}"
     },
     "unavailable": "Acest spațiu nu există sau nu ai acces la el.",
-    "back-to-memos": "Înapoi la Memos",
+    "back-to-memos": "Înapoi la {{productName}}",
     "create": "Creează spațiu",
     "create-description": "Creează un loc partajat pentru memo-uri și membri.",
     "create-success": "Spațiu creat",

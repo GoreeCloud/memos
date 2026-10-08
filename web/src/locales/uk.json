@@ -986,7 +986,7 @@
       "use-emoji": "Використати {{emoji}}"
     },
     "unavailable": "Цього простору не існує, або у вас немає до нього доступу.",
-    "back-to-memos": "Назад до Memos",
+    "back-to-memos": "Назад до {{productName}}",
     "create": "Створити простір",
     "create-description": "Створіть спільне місце для нотаток та учасників.",
     "create-success": "Простір створено",
