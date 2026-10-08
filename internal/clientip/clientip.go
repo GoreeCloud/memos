@@ -133,32 +133,39 @@ func trustedForwardedProto(header http.Header) (string, bool) {
 }
 
 func lastXForwardedProto(values []string) string {
+	entries := []string{}
 	for _, value := range values {
 		for entry := range strings.SplitSeq(value, ",") {
 			if entry = strings.TrimSpace(entry); entry != "" {
-				return strings.ToLower(entry)
+				entries = append(entries, strings.ToLower(entry))
 			}
 		}
 	}
-	return ""
+	if len(entries) == 0 {
+		return ""
+	}
+	return entries[len(entries)-1]
 }
 
 func lastForwardedProto(values []string) string {
+	elements := []string{}
 	for _, value := range values {
 		for element := range strings.SplitSeq(value, ",") {
-			element = strings.TrimSpace(element)
-			if element == "" {
-				continue
+			if element = strings.TrimSpace(element); element != "" {
+				elements = append(elements, element)
 			}
-			for parameter := range strings.SplitSeq(element, ";") {
-				key, rawValue, ok := strings.Cut(parameter, "=")
-				if !ok || !strings.EqualFold(strings.TrimSpace(key), "proto") {
-					continue
-				}
-				return strings.ToLower(strings.Trim(strings.TrimSpace(rawValue), "\""))
-			}
-			return ""
 		}
+	}
+	if len(elements) == 0 {
+		return ""
+	}
+
+	for parameter := range strings.SplitSeq(elements[len(elements)-1], ";") {
+		key, rawValue, ok := strings.Cut(parameter, "=")
+		if !ok || !strings.EqualFold(strings.TrimSpace(key), "proto") {
+			continue
+		}
+		return strings.ToLower(strings.Trim(strings.TrimSpace(rawValue), "\""))
 	}
 	return ""
 }
