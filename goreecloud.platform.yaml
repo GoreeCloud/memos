@@ -31,6 +31,7 @@ lifecycle_metadata:
     - provenance/glaze.json
     - provenance/branding.json
     - provenance/privacy-shield.json
+    - provenance/observability.json
 
 version: "0.1.0-dev"
 
@@ -88,6 +89,7 @@ platform_systems:
     version: "1.7.0"
     evidence:
       - docs/GLAZE-ADOPTION.md
+    - docs/OBSERVABILITY-INTEGRATION.md
       - provenance/glaze.json
       - web/src/themes/goreecloud.css
       - web/public/goreecloud/glaze/css/glaze-v1.4.1.css
@@ -113,10 +115,16 @@ platform_systems:
     evidence: [docs/PLANNED-FEATURES.md]
     notes: GoreeCloud Policy runtime decisions and enforcement remain open.
   observability:
-    result: applicable-blocked
-    version: null
-    evidence: [docs/PRIVACY.md, docs/PLANNED-FEATURES.md]
-    notes: Privacy-minimized GoreeCloud Observability integration and acceptance remain open.
+    result: applicable-migration-required
+    version: "0.1.0-dev"
+    evidence:
+      - docs/OBSERVABILITY-INTEGRATION.md
+      - integrations/observability/producer.json
+      - integrations/observability/acceptance.json
+      - provenance/observability.json
+      - internal/observability/signal.go
+      - internal/observability/signal_test.go
+    notes: A privacy-minimized source-level producer boundary emits canonical process-liveness and database-readiness signal objects against the reviewed Observability v1 schemas. Live collector transport, producer authentication, durable telemetry, target-runtime acceptance, and production approval remain open.
 
 health:
   health_endpoint: /healthz
@@ -178,6 +186,6 @@ conformance:
     - docs/GLAZE-ADOPTION.md
   blockers:
     - Fresh Glaze V1.7 repository-local acceptance is incomplete.
-    - Integral Platform System runtime integrations remain incomplete; Everkeep and Privacy Shield currently have source-level adoption boundaries only, without accepted live/runtime provider paths or production approval.
+    - Integral Platform System runtime integrations remain incomplete; Everkeep, Privacy Shield, and Observability currently have source-level adoption/producer boundaries only, without accepted live/runtime provider paths or production approval.
     - Representative browser, accessibility, recovery, upgrade, rollback, and production acceptance remain incomplete.
     - Production signing, release, Seal, and Anchor qualification are incomplete.
