@@ -95,6 +95,74 @@ func (r *Resolver) Trusts(addr netip.Addr) bool {
 	return false
 }
 
+// IsSecureRequest determines whether the browser-facing request used HTTPS.
+// Direct TLS is authoritative. Forwarded scheme headers are considered only
+// when the immediate peer is inside the configured trusted-proxy boundary.
+func (r *Resolver) IsSecureRequest(remoteAddr string, header http.Header, directTLS bool) bool {
+	if directTLS {
+		return true
+	}
+
+	peer, ok := parseAddr(remoteAddr)
+	if !ok || !r.Trusts(peer) {
+		return false
+	}
+
+	proto, ok := trustedForwardedProto(header)
+	return ok && proto == "https"
+}
+
+func trustedForwardedProto(header http.Header) (string, bool) {
+	var selected string
+	for _, candidate := range []string{
+		firstForwardedProto(header.Values("Forwarded")),
+		firstXForwardedProto(header.Values("X-Forwarded-Proto")),
+	} {
+		if candidate == "" {
+			continue
+		}
+		if candidate != "http" && candidate != "https" {
+			return "", false
+		}
+		if selected != "" && selected != candidate {
+			return "", false
+		}
+		selected = candidate
+	}
+	return selected, selected != ""
+}
+
+func firstXForwardedProto(values []string) string {
+	for _, value := range values {
+		for entry := range strings.SplitSeq(value, ",") {
+			if entry = strings.TrimSpace(entry); entry != "" {
+				return strings.ToLower(entry)
+			}
+		}
+	}
+	return ""
+}
+
+func firstForwardedProto(values []string) string {
+	for _, value := range values {
+		for element := range strings.SplitSeq(value, ",") {
+			element = strings.TrimSpace(element)
+			if element == "" {
+				continue
+			}
+			for parameter := range strings.SplitSeq(element, ";") {
+				key, rawValue, ok := strings.Cut(parameter, "=")
+				if !ok || !strings.EqualFold(strings.TrimSpace(key), "proto") {
+					continue
+				}
+				return strings.ToLower(strings.Trim(strings.TrimSpace(rawValue), "\""))
+			}
+			return ""
+		}
+	}
+	return ""
+}
+
 // Resolve returns the client address for a request with the given peer
 // address (host:port or bare host) and headers. It always returns a usable
 // string: an unparseable peer is returned as-is so that the limiter still
@@ -154,6 +222,7 @@ func parseAddr(value string) (netip.Addr, bool) {
 }
 
 type contextKey struct{}
+type secureTransportContextKey struct{}
 
 // WithClientIP stores the resolved client address in ctx.
 func WithClientIP(ctx context.Context, ip string) context.Context {
@@ -169,6 +238,18 @@ func FromContext(ctx context.Context) string {
 	return ""
 }
 
+// WithSecureTransport stores the trusted browser-facing transport decision.
+func WithSecureTransport(ctx context.Context, secure bool) context.Context {
+	return context.WithValue(ctx, secureTransportContextKey{}, secure)
+}
+
+// SecureTransportFromContext reports whether the browser-facing request was
+// established as HTTPS by direct TLS or a configured trusted proxy.
+func SecureTransportFromContext(ctx context.Context) bool {
+	secure, _ := ctx.Value(secureTransportContextKey{}).(bool)
+	return secure
+}
+
 // Middleware resolves the client address once per request and stores it in
 // the request context, where both API transports and the file server read it.
 func Middleware(resolver *Resolver) echo.MiddlewareFunc {
@@ -176,7 +257,9 @@ func Middleware(resolver *Resolver) echo.MiddlewareFunc {
 		return func(c *echo.Context) error {
 			request := c.Request()
 			ip := resolver.Resolve(request.RemoteAddr, request.Header)
-			c.SetRequest(request.WithContext(WithClientIP(request.Context(), ip)))
+			ctx := WithClientIP(request.Context(), ip)
+			ctx = WithSecureTransport(ctx, resolver.IsSecureRequest(request.RemoteAddr, request.Header, request.TLS != nil))
+			c.SetRequest(request.WithContext(ctx))
 			return next(c)
 		}
 	}
