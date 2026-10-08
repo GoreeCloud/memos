@@ -27,10 +27,12 @@ lifecycle_metadata:
     - docs/DATABASE-COMPATIBILITY.md
     - docs/EVERKEEP-INTEGRATION.md
     - docs/PRIVACY-SHIELD-INTEGRATION.md
+    - docs/WARDVEIL-INTEGRATION.md
     - provenance/upstream.json
     - provenance/glaze.json
     - provenance/branding.json
     - provenance/privacy-shield.json
+    - provenance/wardveil.json
     - provenance/observability.json
 
 version: "0.1.0-dev"
@@ -80,7 +82,7 @@ platform_systems:
       - provenance/wardveil.json
       - internal/wardveil/status.go
       - internal/wardveil/status_test.go
-    notes: A source-level, read-only, fail-closed Wardveil 2.0 / Foundation 0.9 status consumer is implemented against status contract 0.1.0. Live status transport, producer authentication, Wardveil runtime controls and events, target-runtime acceptance, Protected by Wardveil authority, and production approval remain open.
+    notes: The source-level, read-only, fail-closed Wardveil 2.0 / Foundation 0.9 status consumer is centrally registered in GoreeCloud/wardveil through PR #210 / main 96969fe80acec564ea509c0ae722e9b97e22f6b3. Live status transport, producer authentication, Wardveil runtime controls and events, target-runtime acceptance, Protected by Wardveil authority, and production approval remain open.
   everkeep:
     result: applicable-migration-required
     version: "0.5.0"
@@ -189,10 +191,11 @@ conformance:
     - docs/SECURITY.md
     - docs/PRIVACY.md
     - docs/PRIVACY-SHIELD-INTEGRATION.md
+    - docs/WARDVEIL-INTEGRATION.md
     - docs/GLAZE-ADOPTION.md
     - docs/OBSERVABILITY-INTEGRATION.md
   blockers:
     - Fresh Glaze V1.7 repository-local acceptance is incomplete.
-    - Integral Platform System runtime integrations remain incomplete; Everkeep, Privacy Shield, and Observability currently have source-level adoption/producer boundaries only, without accepted live/runtime provider paths or production approval.
+    - Integral Platform System runtime integrations remain incomplete; Everkeep, Privacy Shield, Wardveil Security, and Observability currently have source-level adoption/producer boundaries only, without accepted live/runtime provider paths or production approval.
     - Representative browser, accessibility, recovery, upgrade, rollback, and production acceptance remain incomplete.
     - Production signing, release, Seal, and Anchor qualification are incomplete.

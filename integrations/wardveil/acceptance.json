@@ -11,6 +11,11 @@
     "status_schema": {
       "path": "contracts/wardveil.status.schema.json",
       "blob_sha": "d0f31bbbd2d7f7c059736433b25883e76301581e"
+    },
+    "central_source_evidence": {
+      "path": "contracts/wardveil.memos.consumer-source-evidence.json",
+      "blob_sha": "66d4dac9d0e5f6ad1df3522ddbbba6dc6deee2d1",
+      "revision": "96969fe80acec564ea509c0ae722e9b97e22f6b3"
     }
   },
   "acceptance": {
@@ -19,6 +24,7 @@
     "producer_authentication_complete": false,
     "runtime_acceptance_complete": false,
     "production_approved": false,
-    "protected_by_wardveil_authorized": false
+    "protected_by_wardveil_authorized": false,
+    "central_source_evidence_registered": true
   }
 }

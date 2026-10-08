@@ -33,6 +33,7 @@ required = [
     "docs/DATABASE-COMPATIBILITY.md",
     "docs/EVERKEEP-INTEGRATION.md",
     "docs/PRIVACY-SHIELD-INTEGRATION.md",
+    "docs/WARDVEIL-INTEGRATION.md",
     "docs/MANAGER-INTEGRATION.md",
     "docs/OBSERVABILITY-INTEGRATION.md",
     "docs/GLAZE-ADOPTION.md",
@@ -313,6 +314,21 @@ require(wardveil_provenance["adoptionRequirements"] == {
     "path": "docs/ADOPTION.md",
     "blobSha": "a7e4a2cae402e6c88f0e63698e100d4d0fb9e417",
 }, "Wardveil adoption provenance mismatch")
+require(wardveil_provenance["centralRegistration"] == {
+    "repository": "GoreeCloud/wardveil",
+    "pullRequest": 210,
+    "revision": "96969fe80acec564ea509c0ae722e9b97e22f6b3",
+    "sourceEvidencePath": "contracts/wardveil.memos.consumer-source-evidence.json",
+    "sourceEvidenceBlobSha": "66d4dac9d0e5f6ad1df3522ddbbba6dc6deee2d1",
+    "validatorPath": "scripts/validate_memos_consumer_source_evidence.py",
+    "validatorBlobSha": "5f9e18caa3bd8ebbb59a7ef651a5857b1f030ee4",
+    "exactMainValidation": [
+        {"workflow": "Validate Wardveil foundation", "runNumber": 813, "runId": 37769379314, "conclusion": "success"},
+        {"workflow": "Validate authenticated Wardveil Scan transport", "runNumber": 534, "runId": 37769379284, "conclusion": "success"},
+        {"workflow": "Validate pinned Wardveil Mesh evidence contract source", "runNumber": 425, "runId": 37769379290, "conclusion": "success"},
+    ],
+    "productionApproved": False,
+}, "Wardveil central-registration provenance mismatch")
 require(wardveil_adoption["schema_version"] == 1, "Wardveil adoption schema version mismatch")
 require(wardveil_adoption["application"] == "GoreeCloud Memos", "Wardveil adoption application mismatch")
 require(wardveil_adoption["repository"] == "GoreeCloud/memos", "Wardveil adoption repository mismatch")
@@ -324,6 +340,11 @@ require(wardveil_adoption["high_impact_executor"] is False, "Wardveil consumer m
 require(wardveil_acceptance["application"] == "GoreeCloud Memos", "Wardveil acceptance application mismatch")
 require(wardveil_acceptance["repository"] == "GoreeCloud/memos", "Wardveil acceptance repository mismatch")
 require(wardveil_acceptance["wardveil"]["revision"] == wardveil_provenance["revision"], "Wardveil acceptance/provenance revision mismatch")
+require(wardveil_acceptance["wardveil"]["central_source_evidence"] == {
+    "path": "contracts/wardveil.memos.consumer-source-evidence.json",
+    "blob_sha": "66d4dac9d0e5f6ad1df3522ddbbba6dc6deee2d1",
+    "revision": "96969fe80acec564ea509c0ae722e9b97e22f6b3",
+}, "Wardveil central source-evidence binding mismatch")
 require(wardveil_acceptance["acceptance"] == {
     "source_consumer_implemented": True,
     "live_status_transport_active": False,
@@ -331,6 +352,7 @@ require(wardveil_acceptance["acceptance"] == {
     "runtime_acceptance_complete": False,
     "production_approved": False,
     "protected_by_wardveil_authorized": False,
+    "central_source_evidence_registered": True,
 }, "Wardveil acceptance boundary drifted")
 require('wardveil_security:\n    result: applicable-migration-required\n    version: "2.0.0"' in platform, "platform manifest must retain the bounded Wardveil migration-required state")
 wardveil_source = (ROOT / "internal/wardveil/status.go").read_text()

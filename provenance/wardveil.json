@@ -19,5 +19,35 @@
   "adoptionRequirements": {
     "path": "docs/ADOPTION.md",
     "blobSha": "a7e4a2cae402e6c88f0e63698e100d4d0fb9e417"
+  },
+  "centralRegistration": {
+    "repository": "GoreeCloud/wardveil",
+    "pullRequest": 210,
+    "revision": "96969fe80acec564ea509c0ae722e9b97e22f6b3",
+    "sourceEvidencePath": "contracts/wardveil.memos.consumer-source-evidence.json",
+    "sourceEvidenceBlobSha": "66d4dac9d0e5f6ad1df3522ddbbba6dc6deee2d1",
+    "validatorPath": "scripts/validate_memos_consumer_source_evidence.py",
+    "validatorBlobSha": "5f9e18caa3bd8ebbb59a7ef651a5857b1f030ee4",
+    "exactMainValidation": [
+      {
+        "workflow": "Validate Wardveil foundation",
+        "runNumber": 813,
+        "runId": 37769379314,
+        "conclusion": "success"
+      },
+      {
+        "workflow": "Validate authenticated Wardveil Scan transport",
+        "runNumber": 534,
+        "runId": 37769379284,
+        "conclusion": "success"
+      },
+      {
+        "workflow": "Validate pinned Wardveil Mesh evidence contract source",
+        "runNumber": 425,
+        "runId": 37769379290,
+        "conclusion": "success"
+      }
+    ],
+    "productionApproved": false
   }
 }
