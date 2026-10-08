@@ -126,6 +126,21 @@ require(manager_start >= 0 and manager_end > manager_start, "Manager platform bl
 require("GoreeCloud/manager#111" in manager_block, "Manager platform block must pin the canonical contract dependency")
 require("result: applicable-blocked" in manager_block, "Manager platform state must remain blocked before contract acceptance")
 require("docs/MANAGER-INTEGRATION.md" in manager_block, "Manager platform evidence must include the integration boundary")
+require("      - docs/GLAZE-ADOPTION.md\n      - provenance/glaze.json" in platform, "Glaze evidence indentation drifted or contains cross-system evidence")
+require("    - docs/OBSERVABILITY-INTEGRATION.md\n  blockers:" in platform, "Observability integration evidence must remain in the conformance evidence list")
+mesh_start = platform.find("  mesh:")
+mesh_end = platform.find("  identity:", mesh_start)
+mesh_block = platform[mesh_start:mesh_end]
+require(mesh_start >= 0 and mesh_end > mesh_start, "Mesh platform block missing")
+require("GoreeCloud/mesh#51" in mesh_block, "Mesh platform block must pin the canonical Observability producer dependency")
+require("result: applicable-blocked" in mesh_block, "Mesh platform state must remain blocked before the producer contract exists")
+policy_start = platform.find("  policy:")
+policy_end = platform.find("  observability:", policy_start)
+policy_block = platform[policy_start:policy_end]
+require(policy_start >= 0 and policy_end > policy_start, "Policy platform block missing")
+require("GoreeCloud/policy#3" in policy_block, "Policy platform block must pin the authenticated consumer-contract dependency")
+require("result: applicable-blocked" in policy_block, "Policy platform state must remain blocked before authenticated evaluation/enforcement acceptance")
+
 
 # Privacy Shield source-contract boundary. This validates a repository-local
 # application adapter declaration against the reviewed canonical contract
