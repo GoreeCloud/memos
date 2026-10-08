@@ -186,8 +186,19 @@ func validateRecord(record StatusRecord) error {
 	if strings.TrimSpace(record.VerificationMethod) == "" || len(record.VerificationMethod) > 500 {
 		return errors.New("invalid verification_method")
 	}
+	if len(stringValue(record.EvidenceReference)) > 1000 {
+		return errors.New("evidence_reference too long")
+	}
+	if len(stringValue(record.Reason)) > 1000 {
+		return errors.New("reason too long")
+	}
 	if len(record.Limitations) > 25 {
 		return errors.New("too many limitations")
+	}
+	for _, limitation := range record.Limitations {
+		if len(limitation) > 500 {
+			return errors.New("limitation too long")
+		}
 	}
 	for _, value := range append([]string{
 		stringValue(record.EvidenceReference),

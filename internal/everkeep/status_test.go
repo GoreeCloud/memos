@@ -91,6 +91,30 @@ func TestDecodeRecordRejectsMalformedOrSensitiveEvidence(t *testing.T) {
 	}
 }
 
+func TestDecodeRecordRejectsCanonicalSchemaLengthViolations(t *testing.T) {
+	now := time.Date(2026, 10, 8, 8, 0, 0, 0, time.UTC)
+	record := readyRecord("backup_coverage", now, 0)
+
+	tooLongReference := strings.Repeat("e", 1001)
+	record.EvidenceReference = &tooLongReference
+	if err := validateRecord(record); err == nil {
+		t.Fatal("expected oversized evidence_reference to be rejected")
+	}
+
+	record = readyRecord("backup_coverage", now, 1)
+	tooLongReason := strings.Repeat("r", 1001)
+	record.Reason = &tooLongReason
+	if err := validateRecord(record); err == nil {
+		t.Fatal("expected oversized reason to be rejected")
+	}
+
+	record = readyRecord("backup_coverage", now, 2)
+	record.Limitations = []string{strings.Repeat("l", 501)}
+	if err := validateRecord(record); err == nil {
+		t.Fatal("expected oversized limitation to be rejected")
+	}
+}
+
 func TestEvaluateMalformedMatchingRecordCannotBeHiddenByValidRecord(t *testing.T) {
 	now := time.Date(2026, 10, 8, 8, 0, 0, 0, time.UTC)
 	policy := Policy{Producer: "Everkeep", Scope: "goreecloud-memos", RequiredDimensions: []string{"backup_coverage"}}
