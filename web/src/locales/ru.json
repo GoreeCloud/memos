@@ -45,7 +45,7 @@
     "welcome-back": "С возвращением."
   },
   "common": {
-    "about": "О Memos",
+    "about": "О {{productName}}",
     "add": "Добавить",
     "admin": "Администратор",
     "all": "Все",
