@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "application": "GoreeCloud Memos",
+  "producer": "Everkeep",
+  "status_schema": "contracts/continuity.status.schema.json",
+  "freshness": {
+    "required_for_ready": true,
+    "rule": "A ready record must have a parseable fresh_until later than evaluation time. Missing, expired, future-dated beyond bounded clock skew, malformed, or unavailable evidence cannot produce ready."
+  },
+  "failure_behavior": {
+    "producer_unavailable": "unknown",
+    "malformed_evidence": "unknown",
+    "missing_required_evidence": "unknown",
+    "failed_restore_validation": "degraded",
+    "summary_rule": "The summary is ready only when every required dimension has current ready evidence. Any degraded dimension yields degraded; otherwise attention yields attention; otherwise any missing, stale, malformed, unavailable, or not-applicable required dimension yields unknown."
+  },
+  "required_ready_evidence": {
+    "backup_coverage": [
+      "The approved durable Memos state scope is explicitly defined.",
+      "A backup artifact exists and its integrity has been verified."
+    ],
+    "restore_capability": [
+      "A clean-target restore has completed successfully.",
+      "Notes, relationships, tags, Spaces, attachments, and user-owned settings in the approved scope have been verified after restore."
+    ],
+    "recovery_freshness": [
+      "Recovery evidence is current under the active Everkeep freshness policy."
+    ],
+    "portability": [
+      "Supported export data validates successfully.",
+      "A clean-target re-import completes without undocumented loss."
+    ],
+    "migration": [
+      "Supported database migration and upgrade paths pass exact-revision acceptance for the candidate."
+    ],
+    "documentation": [
+      "Current backup, restore, limitations, and operator recovery documentation exists."
+    ],
+    "provenance": [
+      "Recovery evidence is bound to an exact GoreeCloud Memos source revision and identifies the authoritative producer."
+    ]
+  },
+  "sensitive_evidence": {
+    "forbidden": [
+      "memo content",
+      "attachment content",
+      "passwords",
+      "access tokens",
+      "refresh tokens",
+      "API keys",
+      "recovery codes",
+      "private keys",
+      "session cookies",
+      "database row payloads",
+      "reusable credentials"
+    ]
+  },
+  "acceptance": {
+    "everkeep_integrated": false,
+    "everkeep_ready": false,
+    "target_runtime_acceptance_required": true,
+    "exact_revision_acceptance_required": true
+  }
+}

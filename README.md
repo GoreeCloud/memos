@@ -50,6 +50,7 @@ pnpm build
 - [Backup and recovery](docs/BACKUP-AND-RECOVERY.md)
 - [Performance](docs/PERFORMANCE.md)
 - [Database compatibility](docs/DATABASE-COMPATIBILITY.md)
+- [Everkeep integration](docs/EVERKEEP-INTEGRATION.md)
 - [Glaze adoption](docs/GLAZE-ADOPTION.md)
 - [Upstream maintenance](docs/UPSTREAM.md)
 - [Validation](docs/VALIDATION.md)
