@@ -24,6 +24,8 @@ The following upstream commits were reviewed and integrated independently throug
 - `c621d03ae44de497d36a529ce24b36a6fe3c33f9` — use dynamic viewport height for mobile image-preview controls so controls remain accessible; integrated through PR #12.
 - `1724f0bd26bd4a48e74de0ec31045ad2c96a9936` — preserve selection-edge whitespace when applying Markdown marks; integrated through PR #13.
 - `0c53b775ce9a56a9fd2e67f03e364cbcd7ab017e` — make JSON boolean filter comparisons correctly match memos where a false flag is omitted; integrated through PR #14.
+- `200b4d0920afd0d4a9c2737c4c01ca43e47bddbe` — keep nested preference submenus on-screen under narrow viewport collision constraints; adapted to the GoreeCloud fork's current nested submenu layer and integrated through PR #23.
+- `631a7ef488998cb444c9a1acf4bd9964a96cdc8a` — prevent the reaction picker from flashing at the page origin when its hover anchor disappears during close; integrated through PR #24 with rendered regression coverage.
 
 Each candidate was isolated, kept attributable to upstream, refreshed onto the then-current protected GoreeCloud `main` without rewriting shared history, and required the repository's exact-head validation path before integration.
 
@@ -31,6 +33,6 @@ Each candidate was isolated, kept attributable to upstream, refreshed onto the t
 
 GitHub issue #10 remains the provider-native tracker for unreleased upstream drift beyond `v0.31.0`. Remaining commits must continue to be evaluated individually or in narrowly coherent groups.
 
-Potential later review candidates include mixed-scope pinned-memo correctness, narrow-viewport submenu positioning, and reaction-picker initial positioning. Their presence on upstream `main` is not an implementation claim for GoreeCloud Memos.
+Potential later review candidates still include mixed-scope pinned-memo correctness and other unreleased changes tracked in issue #10. Their presence on upstream `main` is not an implementation claim for GoreeCloud Memos.
 
 A future stable upstream release may justify a broader baseline review, but adopting a new baseline still requires explicit migration, divergence review, GoreeCloud policy checks, exact-head CI, and protected current-main integration.
