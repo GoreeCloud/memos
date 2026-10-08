@@ -12,6 +12,7 @@ Current rebuild controls include:
 - arbitrary instance-provided JavaScript injection is disabled in the GoreeCloud browser client;
 - upstream provenance is retained so security fixes can be reviewed and merged;
 - secrets must remain outside source control and ordinary documentation.
+- a source-level, read-only Wardveil status consumer rejects stale, missing, malformed, or sensitive evidence and never authorizes Protected by Wardveil without current authoritative evidence;
 
 
 
@@ -31,5 +32,5 @@ The token value is shown only when it is created. GoreeCloud Memos stores the to
 
 A PAT does not create a new authorization role. Requests made with a PAT act with the account authority represented by that token and remain subject to server-side authorization checks.
 
-Open gates include Wardveil integration, dependency/security scanning, hostile-file validation, production deployment review, backup/restore validation, signing/provenance, and representative penetration/security acceptance.
+Open gates include live Wardveil provider transport, authentication, runtime acceptance, security-event delivery, and production approval; dependency/security scanning; hostile-file validation; production deployment review; backup/restore validation; signing/provenance; and representative penetration/security acceptance.
 Demo mode is an explicit public demonstration exception intended for synthetic/demo content; it must not be used as the deployment mode for private user data.

@@ -59,3 +59,10 @@ This is source-defined Development coverage, not a production database certifica
 Repository validation pins the Memos operational-signal producer to GoreeCloud/observability revision a7f6a65f442d3e517baddbe7b6ce7c250d142c8c and its v1 operational-signal/component-health schemas. Focused Go tests verify healthy process/database signals, fail-closed database-unavailable/unknown states, timestamp ordering, and rejection of obvious secret-bearing telemetry attribute keys.
 
 This is source validation only. Collector connectivity, producer authentication, transport/retry behavior, durable telemetry, target-runtime acceptance, and production observability approval remain unverified.
+
+
+## Wardveil source-consumer boundary
+
+The Development repository includes a read-only Wardveil status consumer pinned to GoreeCloud/wardveil at d3c54f47dcbd3b691ab2c98946b1e556985d8391, product version 2.0.0 / Foundation 0.9.0, status contract 0.1.0.
+
+Focused tests prove strict decoding, canonical text state labels, rejection of non-authoritative protected state, stale and expired fail-closed behavior, and rejection of obvious sensitive evidence markers. This is source-level adoption evidence only. No live status transport, producer authentication, runtime protection, security-event transport, Protected by Wardveil claim, target-runtime acceptance, or production approval is established.

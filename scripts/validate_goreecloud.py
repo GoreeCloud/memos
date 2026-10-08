@@ -75,6 +75,9 @@ privacy_shield_adapter = json.loads((ROOT / "integrations/privacy-shield/adapter
 privacy_shield_acceptance = json.loads((ROOT / "integrations/privacy-shield/acceptance.json").read_text())
 observability_producer = json.loads((ROOT / "integrations/observability/producer.json").read_text())
 observability_acceptance = json.loads((ROOT / "integrations/observability/acceptance.json").read_text())
+wardveil_provenance = json.loads((ROOT / "provenance/wardveil.json").read_text())
+wardveil_adoption = json.loads((ROOT / "integrations/wardveil/adoption.json").read_text())
+wardveil_acceptance = json.loads((ROOT / "integrations/wardveil/acceptance.json").read_text())
 everkeep_adoption = json.loads((ROOT / "integrations/everkeep/adoption.json").read_text())
 everkeep_acceptance = json.loads((ROOT / "integrations/everkeep/acceptance.json").read_text())
 platform = (ROOT / "goreecloud.platform.yaml").read_text()
@@ -286,6 +289,53 @@ require('observability:\n    result: applicable-migration-required\n    version:
 observability_source = (ROOT / "internal/observability/signal.go").read_text()
 for marker in ("database_ping_failed", "database_handle_missing", "sensitive telemetry attribute key rejected", "StateUnavailable", "StateUnknown"):
     require(marker in observability_source, f"Observability fail-closed source marker missing: {marker}")
+
+# Wardveil source-level status-consumer boundary. This pins the reviewed
+# contract identity while keeping live/runtime/production acceptance false.
+require(wardveil_provenance["source"] == "GoreeCloud/wardveil", "Wardveil provenance source mismatch")
+require(wardveil_provenance["revision"] == "d3c54f47dcbd3b691ab2c98946b1e556985d8391", "Wardveil provenance revision mismatch")
+require(wardveil_provenance["productVersion"] == "2.0.0", "Wardveil product version mismatch")
+require(wardveil_provenance["foundationVersion"] == "0.9.0", "Wardveil foundation version mismatch")
+require(wardveil_provenance["statusContractVersion"] == "0.1.0", "Wardveil status contract version mismatch")
+require(wardveil_provenance["statusSchema"] == {
+    "path": "contracts/wardveil.status.schema.json",
+    "blobSha": "d0f31bbbd2d7f7c059736433b25883e76301581e",
+}, "Wardveil status-schema provenance mismatch")
+require(wardveil_provenance["capabilitiesContract"] == {
+    "path": "contracts/wardveil.capabilities.json",
+    "blobSha": "a32f81feb912f4e4929c2c06036995c73346b0e7",
+}, "Wardveil capabilities provenance mismatch")
+require(wardveil_provenance["identityContract"] == {
+    "path": "contracts/wardveil.identity.json",
+    "blobSha": "1a26fd67a61215fa2428256714791973e4fc29b4",
+}, "Wardveil identity provenance mismatch")
+require(wardveil_provenance["adoptionRequirements"] == {
+    "path": "docs/ADOPTION.md",
+    "blobSha": "a7e4a2cae402e6c88f0e63698e100d4d0fb9e417",
+}, "Wardveil adoption provenance mismatch")
+require(wardveil_adoption["schema_version"] == 1, "Wardveil adoption schema version mismatch")
+require(wardveil_adoption["application"] == "GoreeCloud Memos", "Wardveil adoption application mismatch")
+require(wardveil_adoption["repository"] == "GoreeCloud/memos", "Wardveil adoption repository mismatch")
+require(wardveil_adoption["role"] == "status-consumer", "Wardveil adoption role mismatch")
+require(wardveil_adoption["status_contract_version"] == "0.1.0", "Wardveil adoption contract mismatch")
+require(wardveil_adoption["read_only"] is True and wardveil_adoption["fail_closed"] is True, "Wardveil consumer must remain read-only and fail-closed")
+require(wardveil_adoption["accessible_text_state_required"] is True, "Wardveil consumer must preserve textual state")
+require(wardveil_adoption["high_impact_executor"] is False, "Wardveil consumer must not become a high-impact executor")
+require(wardveil_acceptance["application"] == "GoreeCloud Memos", "Wardveil acceptance application mismatch")
+require(wardveil_acceptance["repository"] == "GoreeCloud/memos", "Wardveil acceptance repository mismatch")
+require(wardveil_acceptance["wardveil"]["revision"] == wardveil_provenance["revision"], "Wardveil acceptance/provenance revision mismatch")
+require(wardveil_acceptance["acceptance"] == {
+    "source_consumer_implemented": True,
+    "live_status_transport_active": False,
+    "producer_authentication_complete": False,
+    "runtime_acceptance_complete": False,
+    "production_approved": False,
+    "protected_by_wardveil_authorized": False,
+}, "Wardveil acceptance boundary drifted")
+require('wardveil_security:\n    result: applicable-migration-required\n    version: "2.0.0"' in platform, "platform manifest must retain the bounded Wardveil migration-required state")
+wardveil_source = (ROOT / "internal/wardveil/status.go").read_text()
+for marker in ("DisallowUnknownFields", "Protected by Wardveil claim requires protected state", "sensitive Wardveil evidence marker rejected", "Wardveil evidence is stale", "Attention required"):
+    require(marker in wardveil_source, f"Wardveil fail-closed source marker missing: {marker}")
 
 require("usememos/memos" in readme, "README must retain upstream provenance")
 require("MIT License" in license_text and "Copyright (c) 2025 Memos" in license_text, "upstream MIT license/attribution missing")
