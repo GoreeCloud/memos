@@ -135,6 +135,10 @@ func TestCreateAttachment(t *testing.T) {
 		require.NotNil(t, secondStoreAttachment)
 
 		require.NotEqual(t, firstStoreAttachment.Reference, secondStoreAttachment.Reference)
+		require.False(t, filepath.IsAbs(filepath.FromSlash(firstStoreAttachment.Reference)),
+			"relative local-storage templates must persist relocatable references")
+		require.False(t, filepath.IsAbs(filepath.FromSlash(secondStoreAttachment.Reference)),
+			"relative local-storage templates must persist relocatable references")
 
 		firstBlob, err := ts.Service.GetAttachmentBlob(ctx, firstStoreAttachment)
 		require.NoError(t, err)
@@ -142,6 +146,39 @@ func TestCreateAttachment(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, []byte("first-image"), firstBlob)
 		require.Equal(t, []byte("second-image"), secondBlob)
+	})
+
+	t.Run("LocalStorage_AbsoluteTemplatePreservesAbsoluteReference", func(t *testing.T) {
+		absoluteDir := t.TempDir()
+		_, err := ts.Store.UpsertInstanceSetting(ctx, &storepb.InstanceSetting{
+			Key: storepb.InstanceSettingKey_STORAGE,
+			Value: &storepb.InstanceSetting_StorageSetting{
+				StorageSetting: &storepb.InstanceStorageSetting{
+					StorageType:      storepb.InstanceStorageSetting_LOCAL,
+					FilepathTemplate: filepath.Join(absoluteDir, "{filename}"),
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		created, err := ts.Service.CreateAttachment(userCtx, &v1pb.CreateAttachmentRequest{
+			Attachment: &v1pb.Attachment{
+				Filename: "absolute-template.txt",
+				Type:     "text/plain",
+				Content:  []byte("absolute template remains supported"),
+			},
+		})
+		require.NoError(t, err)
+
+		uid, err := apiv1.ExtractAttachmentUIDFromName(created.Name)
+		require.NoError(t, err)
+		stored, err := ts.Store.GetAttachment(ctx, &store.FindAttachment{UID: &uid})
+		require.NoError(t, err)
+		require.NotNil(t, stored)
+		require.True(t, filepath.IsAbs(filepath.FromSlash(stored.Reference)),
+			"explicit absolute local-storage templates must remain absolute")
+		require.Equal(t, filepath.Join(absoluteDir, "absolute-template.txt"), filepath.FromSlash(stored.Reference))
+		require.FileExists(t, filepath.FromSlash(stored.Reference))
 	})
 }
 
@@ -229,7 +266,8 @@ func TestCreateAttachmentCleansSavedBlobWhenStoreCreateFails(t *testing.T) {
 	persistedPostCommit, err := ts.Store.GetAttachment(ctx, &store.FindAttachment{UID: &postCommitUID})
 	require.NoError(t, err)
 	require.NotNil(t, persistedPostCommit)
-	require.Equal(t, postCommitPath, filepath.FromSlash(persistedPostCommit.Reference))
+	require.Equal(t, filepath.Join("assets", "post-commit.txt"), filepath.FromSlash(persistedPostCommit.Reference))
+	require.Equal(t, postCommitPath, filepath.Join(ts.Profile.Data, filepath.FromSlash(persistedPostCommit.Reference)))
 
 	cleanupFailurePath := filepath.Join(ts.Profile.Data, "assets", "cleanup-failure.txt")
 	t.Cleanup(func() { _ = os.Remove(cleanupFailurePath) })

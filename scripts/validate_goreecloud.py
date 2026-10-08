@@ -40,6 +40,8 @@ required = [
     "docs/GLAZE-ADOPTION.md",
     "docs/UPSTREAM.md",
     "docs/VALIDATION.md",
+    "docs/RELEASE-AND-ROLLBACK.md",
+    ".github/CONTRIBUTING.md",
     "provenance/upstream.json",
     "provenance/glaze.json",
     "provenance/branding.json",
@@ -97,6 +99,8 @@ license_text = (ROOT / "LICENSE").read_text()
 icon = (ROOT / "web/public/goreecloud-memos.svg").read_bytes()
 linkmeta_source = (ROOT / "internal/linkmeta/html_meta.go").read_text()
 outbound_network_doc = (ROOT / "docs/OUTBOUND-NETWORK.md").read_text()
+contributing_doc = (ROOT / ".github/CONTRIBUTING.md").read_text()
+release_doc = (ROOT / "docs/RELEASE-AND-ROLLBACK.md").read_text()
 
 require(upstream["developmentPath"] == "maintained-fork", "development path must be maintained-fork")
 require(upstream["upstream"]["repository"] == "usememos/memos", "upstream repository mismatch")
@@ -134,6 +138,15 @@ for marker in ("Link metadata preview", "User webhooks", "OAuth2/OIDC identity p
     require(marker in outbound_network_doc, f"outbound network inventory missing path: {marker}")
 require("Outbound Network Behavior](OUTBOUND-NETWORK.md)" in (ROOT / "docs/PRIVACY.md").read_text(), "privacy documentation must link the outbound network inventory")
 require("Outbound network behavior](docs/OUTBOUND-NETWORK.md)" in readme, "README documentation index must include outbound network behavior")
+require("Contributing](.github/CONTRIBUTING.md)" in readme, "README documentation index must include contribution guidance")
+require("Release and rollback](docs/RELEASE-AND-ROLLBACK.md)" in readme, "README documentation index must include release/rollback guidance")
+for context in ("Repository and policy boundary", "Frontend quality and build", "Backend privacy and build", "Database upgrade (sqlite)", "Database upgrade (mysql)", "Database upgrade (postgres)"):
+    require(context in contributing_doc, f"contribution guidance missing required current check: {context}")
+require("independent human security review" in contributing_doc, "contribution guidance must preserve independent security review boundary")
+require("is not a release" in release_doc, "release documentation must separate merge from release")
+require("Production Acceptance" in release_doc and "Seal" in release_doc and "Anchor" in release_doc, "release documentation must preserve lifecycle acceptance boundaries")
+require("Managed-local files" in release_doc and "S3 objects" in release_doc, "release documentation must preserve incomplete full-instance recovery boundary")
+require("release-please-config.json" in release_doc and "preparatory" in release_doc, "release documentation must not treat release-please metadata as release authority")
 manager_integration = (ROOT / "docs/MANAGER-INTEGRATION.md").read_text()
 require("GoreeCloud/manager#111" in manager_integration, "Manager integration boundary must pin the canonical contract issue")
 require("applicable-blocked" in manager_integration, "Manager integration boundary must remain fail-closed before contract acceptance")
