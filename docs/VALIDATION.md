@@ -68,3 +68,14 @@ The Development repository includes a read-only Wardveil status consumer pinned 
 Focused tests prove strict decoding, canonical text state labels, rejection of non-authoritative protected state, stale and expired fail-closed behavior, and rejection of obvious sensitive evidence markers. This is source-level adoption evidence only. No live status transport, producer authentication, runtime protection, security-event transport, Protected by Wardveil claim, target-runtime acceptance, or production approval is established.
 
 The source consumer is also centrally registered in GoreeCloud/wardveil through PR #210. Wardveil main `96969fe80acec564ea509c0ae722e9b97e22f6b3` contains the Memos evidence record at `contracts/wardveil.memos.consumer-source-evidence.json` (blob `66d4dac9d0e5f6ad1df3522ddbbba6dc6deee2d1`) and its validator (blob `5f9e18caa3bd8ebbb59a7ef651a5857b1f030ee4`). Exact Wardveil merged-main runs 813 / 37769379314, 534 / 37769379284, and 425 / 37769379290 all succeeded. Central source registration still does not establish runtime or production acceptance.
+
+
+## Managed-local attachment relocation recovery
+
+Development recovery acceptance now separately verifies LOCAL attachment relocation rather than allowing the database-only test to depend on the source machine's absolute path.
+
+The storage regression coverage proves that relative LOCAL templates persist data-directory-relative attachment references while explicit absolute templates remain supported. The clean-target startup test configures real LOCAL storage, creates a private memo and attachment, snapshots SQLite, copies the referenced managed-local file to the same relative path under a different target data directory, shuts down the source, boots the target, signs in with the original account, reads the memo, and retrieves the exact attachment bytes through the authenticated file route.
+
+The database-backed attachment helper now explicitly selects DATABASE storage before creating its fixture, so the existing database-attachment recovery acceptance proves database blob recovery rather than accidentally following a LOCAL file path.
+
+This is bounded Development evidence only. It does not inventory all local files, capture explicitly absolute local references, preserve S3 objects, reconstruct deployment/user-managed configuration or governed secrets, schedule/retain/offload backup generations, or establish full-instance recovery.
