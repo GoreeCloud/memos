@@ -42,3 +42,5 @@
 - Grammar-specific About labels in Japanese, Russian, and Ukrainian now use the shared GoreeCloud product-name slot instead of hard-coding the upstream product proper name.
 
 - Automated clean-target SQLite database-snapshot startup acceptance proving preserved account secret, authentication, memo data, database-backed attachment bytes/binding, real migrations, and /readyz success while keeping managed-local/S3/configuration recovery outside the claim.
+
+- Relocatable managed-local attachment references for relative LOCAL storage templates, with clean-target acceptance proving a SQLite snapshot plus the referenced local file can boot at a different data-directory path and serve the exact authenticated attachment bytes; explicit absolute templates and S3 remain separate recovery boundaries.
