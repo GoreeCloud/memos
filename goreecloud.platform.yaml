@@ -25,6 +25,7 @@ lifecycle_metadata:
     - docs/PLANNED-FEATURES.md
     - docs/VALIDATION.md
     - docs/DATABASE-COMPATIBILITY.md
+    - docs/EVERKEEP-INTEGRATION.md
     - provenance/upstream.json
     - provenance/glaze.json
     - provenance/branding.json
@@ -61,10 +62,15 @@ platform_systems:
     evidence: [docs/SECURITY.md]
     notes: Source hardening is active; Wardveil runtime protection and production security acceptance remain open.
   everkeep:
-    result: applicable-blocked
-    version: null
-    evidence: [docs/PLANNED-FEATURES.md]
-    notes: Backup, clean-target restore, attachment recovery, and rollback acceptance remain open.
+    result: applicable-migration-required
+    version: "0.5.0"
+    evidence:
+      - docs/EVERKEEP-INTEGRATION.md
+      - integrations/everkeep/adoption.json
+      - integrations/everkeep/acceptance.json
+      - internal/everkeep/status.go
+      - internal/everkeep/status_test.go
+    notes: A fail-closed source-level normalized continuity-status consumer boundary is implemented against the reviewed Everkeep contracts. Live provider connectivity, full approved backup scope, clean-target full-instance restore, target-runtime acceptance, and production recovery acceptance remain open.
   glaze_ui:
     result: applicable-migration-required
     version: "1.7.0"
@@ -159,6 +165,6 @@ conformance:
     - docs/GLAZE-ADOPTION.md
   blockers:
     - Fresh Glaze V1.7 repository-local acceptance is incomplete.
-    - Integral Platform System runtime integrations remain incomplete.
+    - Integral Platform System runtime integrations remain incomplete; Everkeep has only a source-level fail-closed adoption boundary and no accepted live provider path.
     - Representative browser, accessibility, recovery, upgrade, rollback, and production acceptance remain incomplete.
     - Production signing, release, Seal, and Anchor qualification are incomplete.
