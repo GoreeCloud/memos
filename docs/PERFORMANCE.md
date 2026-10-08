@@ -12,7 +12,7 @@ The existing benchmark harness seeds 5,000 top-level memos in SQLite with repres
 | --- | ---: | ---: | ---: |
 | authenticated first page | 19.5 ms | 394,211 | 4,949 |
 | authenticated page ten | 30.5 ms | 386,865 | 4,968 |
-| public first page | 7.2 ms | 388,838 | 5,043 |
+| public first page | 7.2 ms | 388,838 | 5,043 |\n| comment preview | 5.64 ms | 45,846 | 554 |
 
 The measurement used the repository benchmark suite with five iterations per benchmark and allocation reporting. Absolute timings depend on hardware, storage, operating system, Go runtime, database driver, dataset shape, thermal state, and background activity.
 
