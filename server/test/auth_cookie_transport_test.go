@@ -50,6 +50,39 @@ func TestRefreshCookieSecureTransportTrustBoundary(t *testing.T) {
 		require.False(t, setCookieHasAttribute(resp.Header.Values("Set-Cookie"), "Secure"))
 	})
 
+	t.Run("gateway rotation preserves Secure behind trusted proxy", func(t *testing.T) {
+		inst := bootInstance(context.Background(), t, instanceOptions{instanceURL: "http://localhost"})
+		inst.createAdmin(t)
+
+		signIn := gatewayPasswordSignIn(t, inst, http.Header{"X-Forwarded-Proto": []string{"https"}})
+		var refreshCookie *http.Cookie
+		for _, cookie := range signIn.Cookies() {
+			if cookie.Name == "memos_refresh" {
+				refreshCookie = cookie
+				break
+			}
+		}
+		signIn.Body.Close()
+		require.NotNil(t, refreshCookie)
+
+		req, err := http.NewRequestWithContext(
+			context.Background(),
+			http.MethodPost,
+			inst.baseURL+"/api/v1/auth/refresh",
+			bytes.NewReader([]byte("{}")),
+		)
+		require.NoError(t, err)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("X-Forwarded-Proto", "https")
+		req.AddCookie(refreshCookie)
+
+		resp, err := inst.client.Do(req)
+		require.NoError(t, err)
+		defer resp.Body.Close()
+		require.Equal(t, http.StatusOK, resp.StatusCode)
+		require.True(t, setCookieHasAttribute(resp.Header.Values("Set-Cookie"), "Secure"))
+	})
+
 	t.Run("connect trusts HTTPS forwarding from configured proxy", func(t *testing.T) {
 		inst := bootInstance(context.Background(), t, instanceOptions{instanceURL: "http://localhost"})
 		inst.createAdmin(t)
