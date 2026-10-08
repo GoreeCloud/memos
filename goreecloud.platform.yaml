@@ -89,7 +89,6 @@ platform_systems:
     version: "1.7.0"
     evidence:
       - docs/GLAZE-ADOPTION.md
-    - docs/OBSERVABILITY-INTEGRATION.md
       - provenance/glaze.json
       - web/src/themes/goreecloud.css
       - web/public/goreecloud/glaze/css/glaze-v1.4.1.css
@@ -184,6 +183,7 @@ conformance:
     - docs/PRIVACY.md
     - docs/PRIVACY-SHIELD-INTEGRATION.md
     - docs/GLAZE-ADOPTION.md
+    - docs/OBSERVABILITY-INTEGRATION.md
   blockers:
     - Fresh Glaze V1.7 repository-local acceptance is incomplete.
     - Integral Platform System runtime integrations remain incomplete; Everkeep, Privacy Shield, and Observability currently have source-level adoption/producer boundaries only, without accepted live/runtime provider paths or production approval.
