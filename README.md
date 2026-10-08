@@ -62,6 +62,8 @@ pnpm build
 - [Glaze adoption](docs/GLAZE-ADOPTION.md)
 - [Upstream maintenance](docs/UPSTREAM.md)
 - [Validation](docs/VALIDATION.md)
+- [Contributing](.github/CONTRIBUTING.md)
+- [Release and rollback](docs/RELEASE-AND-ROLLBACK.md)
 - [Changelog](docs/CHANGELOGS.md)
 
 ## Licensing and provenance
