@@ -48,6 +48,7 @@ Safety properties:
 - the source must be explicit through --data or --dsn;
 - the destination must not already exist;
 - the command never overwrites the live database or an existing snapshot;
+- newly created snapshot files are restricted to owner read/write permissions (0600) where the host filesystem supports POSIX modes;
 - committed WAL-backed state is included by SQLite's snapshot operation;
 - a failed integrity check removes the incomplete output; and
 - command output states that the artifact is database-only.

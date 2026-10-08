@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -29,6 +30,11 @@ func TestCreateSnapshotCapturesCommittedWALState(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, destination, created)
 	require.FileExists(t, destination)
+	if runtime.GOOS != "windows" {
+		info, err := os.Stat(destination)
+		require.NoError(t, err)
+		require.Equal(t, os.FileMode(0o600), info.Mode().Perm())
+	}
 
 	snapshot, err := NewDB(&profile.Profile{Driver: "sqlite", DSN: destination})
 	require.NoError(t, err)

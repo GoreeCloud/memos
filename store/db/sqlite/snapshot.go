@@ -67,6 +67,10 @@ func CreateSnapshot(ctx context.Context, source *sql.DB, destination string) (st
 		_ = os.Remove(absoluteDestination)
 		return "", errors.Wrap(err, "create SQLite snapshot")
 	}
+	if err := os.Chmod(absoluteDestination, 0o600); err != nil {
+		_ = os.Remove(absoluteDestination)
+		return "", errors.Wrap(err, "restrict SQLite snapshot permissions")
+	}
 
 	if err := verifySnapshot(ctx, absoluteDestination); err != nil {
 		_ = os.Remove(absoluteDestination)
