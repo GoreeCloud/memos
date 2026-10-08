@@ -45,7 +45,7 @@
     "welcome-back": "おかえりなさい。"
   },
   "common": {
-    "about": "Memos について",
+    "about": "{{productName}} について",
     "actions": "操作",
     "add": "追加",
     "admin": "管理者設定",
