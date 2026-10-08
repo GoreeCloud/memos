@@ -30,6 +30,7 @@ import (
 	"github.com/usememos/memos/server"
 	"github.com/usememos/memos/store"
 	"github.com/usememos/memos/store/db"
+	sqlitedb "github.com/usememos/memos/store/db/sqlite"
 )
 
 const (
@@ -353,6 +354,41 @@ func TestStartupRestartPreservesData(t *testing.T) {
 	second.requireMemo(t, restartToken, "startup-restart", "written before restart")
 	second.createMemo(t, restartToken, "startup-after-restart", "written after restart")
 	second.requireMemo(t, restartToken, "startup-after-restart", "written after restart")
+}
+
+// TestStartupSQLiteSnapshotBootsCleanTarget proves the bounded SQLite snapshot
+// can seed a fresh data directory that survives the real startup path, passes
+// database-backed readiness, preserves the instance secret/account, and serves
+// data written before the snapshot.
+//
+// This is database-only recovery evidence. It does not cover managed local
+// attachment files, S3 objects, deployment configuration, or external secrets.
+func TestStartupSQLiteSnapshotBootsCleanTarget(t *testing.T) {
+	ctx := context.Background()
+	source := bootInstance(ctx, t, instanceOptions{instanceURL: "http://localhost"})
+	source.createAdmin(t)
+	token := source.signIn(t)
+	source.createMemo(t, token, "snapshot-restore", "restored from SQLite snapshot")
+
+	targetDataDir := t.TempDir()
+	snapshotPath := filepath.Join(targetDataDir, "memos_prod.db")
+	created, err := sqlitedb.CreateSnapshot(ctx, source.server.Store.GetDriver().GetDB(), snapshotPath)
+	require.NoError(t, err)
+	require.Equal(t, snapshotPath, created)
+	require.FileExists(t, snapshotPath)
+
+	source.shutdown(ctx)
+
+	target := bootInstance(ctx, t, instanceOptions{
+		instanceURL: "http://localhost",
+		dataDir:     targetDataDir,
+	})
+	restoredToken := target.signIn(t)
+	target.requireMemo(t, restoredToken, "snapshot-restore", "restored from SQLite snapshot")
+
+	status, body := target.do(t, http.MethodGet, "/readyz", "", nil)
+	require.Equal(t, http.StatusOK, status)
+	require.Equal(t, "Service ready.", string(body))
 }
 
 // TestStartupPrivateInstance verifies a private instance still exposes the auth
