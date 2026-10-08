@@ -29,6 +29,12 @@ The following upstream commits were reviewed and integrated independently throug
 
 Each candidate was isolated, kept attributable to upstream, refreshed onto the then-current protected GoreeCloud `main` without rewriting shared history, and required the repository's exact-head validation path before integration.
 
+## October 8, 2026 upstream assessment
+
+Upstream `main` is `a2ccca7a92cd97a3141e64be144f8509a690a394`, 40 commits beyond the v0.31.0 stable baseline. GoreeCloud continues to assess this drift selectively; the assessed head is provenance, not the fork baseline.
+
+The intervening `af38e75e2dfd0ddd5b685614bd9ec4aafd46306a` change, `refactor(api)!: drop the v1 version marker (#6447)`, is a breaking migration and is **not** a routine cherry-pick candidate. It changes REST paths, SSE paths, the proto package identity, Connect/gRPC procedure names, resource types, numerous request/response fields, and protobuf field numbering. Before any adoption, GoreeCloud must inventory all API consumers and proxy/integration contracts, define compatibility and rollback behavior, regenerate clients, validate all supported databases and representative clients, and explicitly approve the migration boundary. GitHub issue #10 is the provider-native tracker for that review.
+
 ## Remaining unreleased drift
 
 GitHub issue #10 remains the provider-native tracker for unreleased upstream drift beyond `v0.31.0`. Remaining commits must continue to be evaluated individually or in narrowly coherent groups.
