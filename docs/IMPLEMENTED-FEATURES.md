@@ -21,6 +21,7 @@
 - GoreeCloud documentation and explicit Stable blockers.
 - Glaze V1.7 target mapping plus application-owned responsive/accessibility styling.
 - GoreeCloud repository/documentation links instead of presenting upstream as the fork's product home.
+- GoreeCloud-owned user-help destinations for API, search/saved views, authentication, webhooks, and missing-language feedback while preserving upstream protocol/provenance identifiers.
 - Browser-client hardening that does not execute administrator-provided arbitrary JavaScript.
 
 - Separate HTTP liveness (/healthz) and database-backed readiness (/readyz) probes for operations and future Manager integration.
@@ -32,5 +33,7 @@
 
 - Shared GoreeCloud Memos product-name interpolation for reviewed product-branding locale keys across all bundled locales, preserving each locale's surrounding grammar while leaving generic memo nouns, export-format terminology, companion-project names, and upstream provenance untouched.
 - Trusted-proxy-aware refresh-cookie transport inference shared by REST/gRPC-Gateway and Connect, preserving HttpOnly/SameSite behavior while ignoring untrusted forwarding and Origin spoofing.
+- Reviewed product-reference localization now routes profile lookup, access-token guidance, optional AI-provider copy, Space membership copy, and Back-to-product navigation through the shared `{{productName}}` slot wherever a locale previously named the upstream product, while preserving translations that intentionally omit the product name.
 - Dedicated Development database-upgrade acceptance runner and exact-revision CI matrix across SQLite, MySQL 8.4, and PostgreSQL 18 for critical supported-version, idempotency, data-preservation, user-setting, and unique-email migrations; production database qualification remains separate.
 - Source-level Everkeep continuity adoption boundary pinned to reviewed Everkeep contracts, including explicit non-acceptance policy and a fail-closed normalized status evaluator for freshness, missing/malformed evidence, failed recovery state, producer/scope authority, and sensitive-evidence exclusion; live Everkeep connectivity and recovery acceptance remain open.
+- Privacy Shield 2.0 application-adapter source contract for telemetry minimization, data minimization, deletion controls, and portable export, centrally registered through Privacy Shield PR #180 while exact-runtime acceptance and production approval remain explicitly false.

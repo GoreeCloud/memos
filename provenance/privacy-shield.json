@@ -1,0 +1,23 @@
+{
+  "source": "GoreeCloud/privacy-shield",
+  "revision": "0da3d1bea33272990375553891044f54b02fcfd4",
+  "version": "2.0.0",
+  "adapterSchema": {
+    "path": "contracts/privacy-shield.adapter.schema.json",
+    "blobSha": "cc0a50a3d0d5151d06ed34be2df30266a91c3bf9"
+  },
+  "capabilityRegistry": {
+    "path": "contracts/privacy-shield.capabilities.json",
+    "blobSha": "d9bb4e26cf7eb3b90034f763e885d47023df3664"
+  },
+  "reviewedAt": "2026-10-08",
+  "notes": "Pinned Privacy Shield 2.0 source-contract provenance plus verified central adapter registration. Exact-runtime acceptance and production approval remain separate.",
+  "centralRegistration": {
+    "repository": "GoreeCloud/privacy-shield",
+    "pullRequest": 180,
+    "revision": "96213c9b415ba132ded7c65778be04b38da79ff4",
+    "validationRun": 37757637020,
+    "adapterPath": "adapters/memos-application-privacy.json",
+    "productionApproved": false
+  }
+}
