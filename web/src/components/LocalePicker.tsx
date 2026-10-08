@@ -87,6 +87,7 @@ interface LocalePickerProps {
 
 const LocalePicker = (props: LocalePickerProps) => {
   const { value, onChange, className } = props;
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
 
   const handleChange = (locale: Locale) => {
@@ -96,7 +97,11 @@ const LocalePicker = (props: LocalePickerProps) => {
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger render={<Button type="button" variant="outline" className={cn("w-full justify-between", className)} />}>
+      <PopoverTrigger
+        render={
+          <Button type="button" variant="outline" className={cn("w-full justify-between", className)} aria-label={t("common.language")} />
+        }
+      >
         <span className="flex min-w-0 flex-1 items-center gap-2">
           <GlobeIcon className="size-4 shrink-0 text-muted-foreground" />
           <span className="truncate">{getLocaleDisplayName(value)}</span>

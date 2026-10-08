@@ -230,4 +230,11 @@
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
+
+  .goreecloud-auth-shell .bg-primary {
+    background: Highlight;
+    color: HighlightText;
+    border-color: Highlight;
+    forced-color-adjust: none;
+  }
 }
