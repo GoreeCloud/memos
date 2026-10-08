@@ -6,7 +6,7 @@ The personal Memos export/import archive is useful for user-owned memo portabili
 
 ## Current operational state
 
-Automated full-instance backup, restore orchestration, retention, off-device replication, encryption-at-rest for backup artifacts, integrity scheduling, and clean-target operational restore are **not yet implemented or accepted** in this rebuild line.
+Automated full-instance backup, restore orchestration, retention, off-device replication, encryption-at-rest for backup artifacts, integrity scheduling, and clean-target operational restore are **not yet implemented or accepted** in this rebuild line. A bounded SQLite database-snapshot command is available as a recovery building block; it is not a complete instance backup.
 
 GoreeCloud Memos therefore remains Development/nonconformant for operational recovery.
 
@@ -36,6 +36,23 @@ The default self-hosted path uses SQLite and can use managed local attachments u
 - A successful file copy does not prove that the resulting target starts, passes readiness, or serves every expected attachment.
 
 Any future SQLite/local backup implementation must create a consistent database snapshot, capture every managed local attachment required by that snapshot, include a machine-readable manifest, and validate restoration into a clean target.
+
+
+
+## SQLite database snapshot primitive
+
+memos snapshot sqlite --data <data-dir> --output <new-file.db> creates a transactionally consistent SQLite database snapshot with VACUUM INTO and verifies the result with PRAGMA quick_check.
+
+Safety properties:
+
+- the source must be explicit through --data or --dsn;
+- the destination must not already exist;
+- the command never overwrites the live database or an existing snapshot;
+- committed WAL-backed state is included by SQLite's snapshot operation;
+- a failed integrity check removes the incomplete output; and
+- command output states that the artifact is database-only.
+
+The snapshot includes database-backed attachments because their bytes live in database rows. It does **not** capture managed local attachment files, S3 objects, deployment configuration, or runtime secret material. Those remain required for full-instance recovery.
 
 ## S3 boundary
 
