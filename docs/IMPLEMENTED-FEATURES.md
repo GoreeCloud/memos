@@ -36,3 +36,5 @@
 - Dedicated Development database-upgrade acceptance runner and exact-revision CI matrix across SQLite, MySQL 8.4, and PostgreSQL 18 for critical supported-version, idempotency, data-preservation, user-setting, and unique-email migrations; production database qualification remains separate.
 - Source-level Everkeep continuity adoption boundary pinned to reviewed Everkeep contracts, including explicit non-acceptance policy and a fail-closed normalized status evaluator for freshness, missing/malformed evidence, failed recovery state, producer/scope authority, and sensitive-evidence exclusion; live Everkeep connectivity and recovery acceptance remain open.
 - Privacy Shield 2.0 application-adapter source contract for telemetry minimization, data minimization, deletion controls, and portable export, centrally registered through Privacy Shield PR #180 while exact-runtime acceptance and production approval remain explicitly false.
+
+- Source-level GoreeCloud Observability operational-signal producer boundary for process liveness and database readiness, pinned to reviewed v1 schemas with minimized/fail-closed state and no live collector or production-acceptance claim.
