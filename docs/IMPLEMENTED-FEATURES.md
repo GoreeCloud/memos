@@ -25,3 +25,5 @@
 
 - Separate HTTP liveness (/healthz) and database-backed readiness (/readyz) probes for operations and future Manager integration.
 - Browser security-header baseline covering document trust boundaries, MIME sniffing, referrer leakage, framing, and dangerous browser capabilities.
+- Clean-target automated acceptance for the personal Memos archive, covering memo content/state, comments, relations, tags, location, timestamps, pinning, and attachment bytes while failing closed on missing Space authority.
+- Repository-level and frontend-test Glaze consumer source-contract checks for GoreeCloud presentation surfaces, visible focus, responsive mobile transparency fallbacks, reduced motion, reduced transparency, and forced-colors fallbacks; rendered and human acceptance remain separate.
