@@ -98,7 +98,7 @@ The current repository establishes only these bounded pieces:
 - private-first initialization;
 - separate process liveness (/healthz) and database-backed readiness (/readyz);
 - personal memo archive clean-target portability, including attachment bytes carried by that archive;
-- a bounded SQLite database snapshot primitive plus automated clean-target boot/readiness/data-preservation acceptance for that database artifact; and
+- a bounded SQLite database snapshot primitive plus automated clean-target boot/readiness/data-preservation acceptance for that database artifact, including database-backed attachment bytes; and
 - explicit source/documentation boundaries that keep operational backup/recovery unclaimed.
 
 These pieces are recovery foundations. They do not constitute automated backup, full-instance restore, disaster-recovery acceptance, Everkeep acceptance, Production Acceptance, Seal, or Anchor qualification.
