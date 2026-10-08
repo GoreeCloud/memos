@@ -452,7 +452,7 @@ describe("App sidebar logo", () => {
     expect(sidebarState.setMobileOpen).toHaveBeenCalledWith(false);
     expect(screen.getByRole("link", { name: "about.api-docs" })).toHaveAttribute(
       "href",
-      "https://github.com/GoreeCloud/memos/blob/main/docs/UPSTREAM.md",
+      "https://github.com/GoreeCloud/memos/blob/main/docs/API.md",
     );
     expect(screen.getByRole("link", { name: "about.github-repository" })).toHaveAttribute("href", "https://github.com/GoreeCloud/memos");
     expect(screen.queryByText("Calendar")).not.toBeInTheDocument();

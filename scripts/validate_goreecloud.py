@@ -20,6 +20,10 @@ required = [
     "docs/PROJECT-SPECIFICATIONS.md",
     "docs/PROJECT-RECORD.md",
     "docs/ARCHITECTURE.md",
+    "docs/WEBHOOKS.md",
+    "docs/SEARCH-AND-VIEWS.md",
+    "docs/AUTHENTICATION.md",
+    "docs/API.md",
     "docs/IMPLEMENTED-FEATURES.md",
     "docs/PLANNED-FEATURES.md",
     "docs/SECURITY.md",
@@ -28,15 +32,19 @@ required = [
     "docs/PERFORMANCE.md",
     "docs/DATABASE-COMPATIBILITY.md",
     "docs/EVERKEEP-INTEGRATION.md",
+    "docs/PRIVACY-SHIELD-INTEGRATION.md",
     "docs/GLAZE-ADOPTION.md",
     "docs/UPSTREAM.md",
     "docs/VALIDATION.md",
     "provenance/upstream.json",
     "provenance/glaze.json",
     "provenance/branding.json",
+    "provenance/privacy-shield.json",
     "scripts/run_database_upgrade_acceptance.sh",
     "integrations/everkeep/adoption.json",
     "integrations/everkeep/acceptance.json",
+    "integrations/privacy-shield/adapter.json",
+    "integrations/privacy-shield/acceptance.json",
     "internal/everkeep/status.go",
     "internal/everkeep/status_test.go",
     "web/public/goreecloud-memos.svg",
@@ -54,6 +62,9 @@ if errors:
 upstream = json.loads((ROOT / "provenance/upstream.json").read_text())
 glaze = json.loads((ROOT / "provenance/glaze.json").read_text())
 branding = json.loads((ROOT / "provenance/branding.json").read_text())
+privacy_shield_provenance = json.loads((ROOT / "provenance/privacy-shield.json").read_text())
+privacy_shield_adapter = json.loads((ROOT / "integrations/privacy-shield/adapter.json").read_text())
+privacy_shield_acceptance = json.loads((ROOT / "integrations/privacy-shield/acceptance.json").read_text())
 everkeep_adoption = json.loads((ROOT / "integrations/everkeep/adoption.json").read_text())
 everkeep_acceptance = json.loads((ROOT / "integrations/everkeep/acceptance.json").read_text())
 platform = (ROOT / "goreecloud.platform.yaml").read_text()
@@ -95,6 +106,71 @@ require(init_block.count("INSTANCE_ACCESS_MODE_PUBLIC") == 1, "public startup ac
 require('document.createElement("script")' not in app, "browser client must not execute instance-provided arbitrary scripts")
 require('document.createElement("style")' not in app, "browser client must not execute instance-provided arbitrary CSS")
 require("GoreeCloud Memos" in readme, "README must identify GoreeCloud Memos")
+
+# Privacy Shield source-contract boundary. This validates a repository-local
+# application adapter declaration against the reviewed canonical contract
+# identity; it does not establish central registration, target-runtime
+# acceptance, policy/status transport, production approval, or lifecycle
+# promotion.
+require(privacy_shield_provenance["source"] == "GoreeCloud/privacy-shield", "Privacy Shield provenance source mismatch")
+require(privacy_shield_provenance["revision"] == "0da3d1bea33272990375553891044f54b02fcfd4", "Privacy Shield provenance revision mismatch")
+require(privacy_shield_provenance["version"] == "2.0.0", "Privacy Shield provenance version mismatch")
+require(privacy_shield_provenance["adapterSchema"]["path"] == "contracts/privacy-shield.adapter.schema.json", "Privacy Shield adapter schema path mismatch")
+require(privacy_shield_provenance["adapterSchema"]["blobSha"] == "cc0a50a3d0d5151d06ed34be2df30266a91c3bf9", "Privacy Shield adapter schema blob mismatch")
+require(privacy_shield_provenance["capabilityRegistry"]["path"] == "contracts/privacy-shield.capabilities.json", "Privacy Shield capability registry path mismatch")
+require(privacy_shield_provenance["capabilityRegistry"]["blobSha"] == "d9bb4e26cf7eb3b90034f763e885d47023df3664", "Privacy Shield capability registry blob mismatch")
+
+expected_privacy_capabilities = [
+    "telemetry-minimization",
+    "data-minimization",
+    "deletion-controls",
+    "portable-export",
+]
+require(set(privacy_shield_adapter) == {"schema_version", "adapter", "capabilities", "privacy", "acceptance"}, "Privacy Shield adapter has unexpected top-level fields")
+require(privacy_shield_adapter["schema_version"] == 1, "Privacy Shield adapter schema version mismatch")
+require(privacy_shield_adapter["adapter"] == {
+    "id": "memos-application-privacy",
+    "product": "GoreeCloud Memos",
+    "runtime_authority": "GoreeCloud/memos",
+    "contract_version": 1,
+}, "Privacy Shield adapter identity mismatch")
+require(privacy_shield_adapter["capabilities"] == expected_privacy_capabilities, "Privacy Shield declared capability set/order mismatch")
+require(privacy_shield_adapter["privacy"] == {
+    "local_first": True,
+    "raw_private_activity_exported_for_status": False,
+    "remote_tracker_learning": False,
+    "remote_tracker_telemetry": False,
+}, "Privacy Shield privacy assertions drifted")
+require(privacy_shield_adapter["acceptance"] == {
+    "runtime_acceptance_required": True,
+    "production_approved": False,
+}, "Privacy Shield adapter acceptance boundary drifted")
+
+require(privacy_shield_acceptance["application"] == "GoreeCloud Memos", "Privacy Shield acceptance application mismatch")
+require(privacy_shield_acceptance["repository"] == "GoreeCloud/memos", "Privacy Shield acceptance repository mismatch")
+require(privacy_shield_acceptance["privacy_shield"]["revision"] == privacy_shield_provenance["revision"], "Privacy Shield acceptance/provenance revision mismatch")
+require(list(privacy_shield_acceptance["declared_capabilities"]) == expected_privacy_capabilities, "Privacy Shield acceptance capability set/order mismatch")
+require(privacy_shield_acceptance["acceptance"] == {
+    "central_adapter_registered": False,
+    "runtime_acceptance_complete": False,
+    "privacy_status_producer_active": False,
+    "production_approved": False,
+}, "Privacy Shield acceptance must remain unapproved before runtime acceptance")
+for capability in expected_privacy_capabilities:
+    for evidence_path in privacy_shield_acceptance["declared_capabilities"][capability]["evidence"]:
+        require((ROOT / evidence_path).is_file(), f"Privacy Shield evidence path missing for {capability}: {evidence_path}")
+require('privacy_shield:\n    result: applicable-migration-required\n    version: "2.0.0"' in platform, "platform manifest must retain the bounded Privacy Shield migration-required state")
+
+memo_delete_policy = (ROOT / "store/memo_delete_policy.go").read_text()
+user_delete_tests = (ROOT / "server/api/v1/test/user_service_delete_test.go").read_text()
+memo_export_doc = (ROOT / "core/memoexport/doc.go").read_text()
+memo_export_service = (ROOT / "server/api/v1/user_service_memo_export.go").read_text()
+memo_export_tests = (ROOT / "server/api/v1/test/memo_export_test.go").read_text()
+require("DeleteMemoWithPolicy" in memo_delete_policy and "ActorUserID" in memo_delete_policy, "Privacy Shield deletion-control source evidence missing")
+require("TestDeleteUserSelfDeleteCleansAccountDataAndAuthCookies" in user_delete_tests, "Privacy Shield account-deletion regression evidence missing")
+require("carries one user's memos and attachments between Memos instances" in memo_export_doc, "Privacy Shield portable-export source evidence missing")
+require("WriteMemoExport" in memo_export_service and "Nothing another user created is included" in memo_export_service, "Privacy Shield export scope evidence missing")
+require("TestImportMemoExportIntoAnotherAccount" in memo_export_tests, "Privacy Shield portable-export round-trip evidence missing")
 require(everkeep_adoption["schema_version"] == 1, "Everkeep adoption schema version mismatch")
 require(everkeep_adoption["project"] == "GoreeCloud Memos", "Everkeep adoption project mismatch")
 require(everkeep_adoption["repository"] == "GoreeCloud/memos", "Everkeep adoption repository mismatch")
@@ -163,8 +239,33 @@ for line in workflow_text.splitlines():
         ref = stripped.split("@", 1)[1].split()[0] if "@" in stripped else ""
         require(len(ref) == 40 and all(c in "0123456789abcdef" for c in ref.lower()), f"GitHub Action must be pinned to a full commit SHA: {stripped}")
 
+
+# GoreeCloud product help must not regress to upstream product documentation or intake.
+forbidden_product_help = (
+    "https://usememos.com/docs",
+    "https://www.usememos.com/docs",
+    "https://github.com/usememos/memos/issues/new",
+)
+for source_path in (ROOT / "web/src").rglob("*"):
+    if not source_path.is_file() or source_path.suffix not in {".ts", ".tsx", ".js", ".jsx"}:
+        continue
+    source_text = source_path.read_text(encoding="utf-8")
+    for forbidden in forbidden_product_help:
+        require(forbidden not in source_text, f"product help must use GoreeCloud-owned destination: {source_path.relative_to(ROOT)} -> {forbidden}")
+
 for forbidden in ("google-analytics.com", "googletagmanager.com", "facebook.com/tr", "fonts.googleapis.com"):
     require(forbidden not in theme, f"forbidden remote/analytics dependency in GoreeCloud theme: {forbidden}")
+
+# The declared Privacy Shield telemetry-minimization capability covers the
+# application source boundary, not third-party package metadata. Core runtime
+# source must not introduce mandatory hosted analytics collectors.
+for source_root in (ROOT / "web/src", ROOT / "server"):
+    for source_path in source_root.rglob("*"):
+        if not source_path.is_file() or source_path.suffix not in {".go", ".ts", ".tsx", ".js", ".jsx", ".html", ".css"}:
+            continue
+        source_text = source_path.read_text(encoding="utf-8")
+        for forbidden in ("google-analytics.com", "googletagmanager.com", "segment.com", "plausible.io"):
+            require(forbidden not in source_text, f"mandatory hosted analytics collector found in application source: {source_path.relative_to(ROOT)} -> {forbidden}")
 
 if errors:
     print("\n".join(f"ERROR: {e}" for e in errors))

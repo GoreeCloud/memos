@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { identityProviderServiceClient } from "@/connect";
 import { useDialog } from "@/hooks/useDialog";
+import { MEMOS_AUTHENTICATION_DOCUMENTATION_URL } from "@/lib/constants";
 import { handleError } from "@/lib/error";
 import { IdentityProvider } from "@/types/proto/api/v1/idp_service_pb";
 import { useTranslate } from "@/utils/i18n";
@@ -111,7 +112,7 @@ const SSOSection = () => {
       title={
         <div className="flex items-center gap-2">
           <span>{t("setting.sso.sso-list")}</span>
-          <LearnMore url="https://usememos.com/docs/configuration/authentication" />
+          <LearnMore url={MEMOS_AUTHENTICATION_DOCUMENTATION_URL} />
         </div>
       }
       actions={

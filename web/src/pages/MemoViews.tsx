@@ -38,6 +38,7 @@ import { useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import useLoading from "@/hooks/useLoading";
 import { useMemoViews, userKeys } from "@/hooks/useUserQueries";
+import { MEMOS_SEARCH_DOCUMENTATION_URL } from "@/lib/constants";
 import { handleError } from "@/lib/error";
 import { getMemoViewId } from "@/lib/memo-views";
 import { cn } from "@/lib/utils";
@@ -485,7 +486,7 @@ const MemoViews = () => {
                 </div>
                 <a
                   className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-                  href="https://www.usememos.com/docs"
+                  href={MEMOS_SEARCH_DOCUMENTATION_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

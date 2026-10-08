@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "application": "GoreeCloud Memos",
+  "repository": "GoreeCloud/memos",
+  "privacy_shield": {
+    "repository": "GoreeCloud/privacy-shield",
+    "revision": "0da3d1bea33272990375553891044f54b02fcfd4",
+    "version": "2.0.0",
+    "adapter_schema": {
+      "path": "contracts/privacy-shield.adapter.schema.json",
+      "blob_sha": "cc0a50a3d0d5151d06ed34be2df30266a91c3bf9"
+    },
+    "capabilities_registry": {
+      "path": "contracts/privacy-shield.capabilities.json",
+      "blob_sha": "d9bb4e26cf7eb3b90034f763e885d47023df3664"
+    }
+  },
+  "declared_capabilities": {
+    "telemetry-minimization": {
+      "evidence": [
+        "docs/PRIVACY.md",
+        "scripts/validate_goreecloud.py"
+      ],
+      "boundary": "Core operation requires no advertising, third-party analytics, or hosted telemetry. Optional external providers remain explicit and separate."
+    },
+    "data-minimization": {
+      "evidence": [
+        "docs/PRIVACY.md",
+        "store/migrator.go"
+      ],
+      "boundary": "New instances are private-first and core operation does not require a proprietary hosted control plane or external AI provider."
+    },
+    "deletion-controls": {
+      "evidence": [
+        "store/memo_delete_policy.go",
+        "server/api/v1/test/user_service_delete_test.go"
+      ],
+      "boundary": "Authorized memo deletion is policy-checked and account self-deletion removes owned account data while preserving unrelated users' state."
+    },
+    "portable-export": {
+      "evidence": [
+        "core/memoexport/doc.go",
+        "server/api/v1/user_service_memo_export.go",
+        "server/api/v1/test/memo_export_test.go"
+      ],
+      "boundary": "The Memos Export Format carries a user's memos and attachments between instances and has clean-target import coverage."
+    }
+  },
+  "acceptance": {
+    "central_adapter_registered": false,
+    "runtime_acceptance_complete": false,
+    "privacy_status_producer_active": false,
+    "production_approved": false
+  },
+  "notes": "This is a repository-local source-contract declaration only. It does not establish live Privacy Shield policy execution, centralized status delivery, target-runtime acceptance, production approval, or lifecycle promotion."
+}
