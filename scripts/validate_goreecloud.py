@@ -24,6 +24,8 @@ required = [
     "docs/PLANNED-FEATURES.md",
     "docs/SECURITY.md",
     "docs/PRIVACY.md",
+    "docs/BACKUP-AND-RECOVERY.md",
+    "docs/PERFORMANCE.md",
     "docs/GLAZE-ADOPTION.md",
     "docs/UPSTREAM.md",
     "docs/VALIDATION.md",
@@ -49,6 +51,7 @@ platform = (ROOT / "goreecloud.platform.yaml").read_text()
 migrator = (ROOT / "store/migrator.go").read_text()
 app = (ROOT / "web/src/App.tsx").read_text()
 shell = (ROOT / "web/src/layouts/RootLayout.tsx").read_text()
+theme = (ROOT / "web/src/themes/goreecloud.css").read_text()
 readme = (ROOT / "README.md").read_text()
 license_text = (ROOT / "LICENSE").read_text()
 icon = (ROOT / "web/public/goreecloud-memos.svg").read_bytes()
@@ -90,6 +93,28 @@ require(branding["canonicalAsset"] == "products/memos/app-icon.svg", "canonical 
 require(branding["canonicalBlob"] == "eb9396c3a1891f6afb96849a29110c6f35e65f19", "canonical branding blob mismatch")
 require(hashlib.sha256(icon).hexdigest() == "03ec74ede0f14f39f7c3171bf23046eda7304f506491e7677ad6bb919c4863ff", "packaged Memos icon bytes do not match canonical source")
 
+# Source-level Glaze consumer contract. These checks prevent accidental removal
+# of already-implemented accessibility and presentation fallbacks. They do not
+# constitute rendered, assistive-technology, representative-device, performance,
+# rollback, human visual, release, or product acceptance.
+for required_selector in (
+    ".goreecloud-shell",
+    ".goreecloud-sidebar",
+    ".goreecloud-composer",
+    ".goreecloud-memo-card",
+):
+    require(required_selector in theme, f"missing GoreeCloud presentation surface: {required_selector}")
+
+require(":focus-visible" in theme, "visible focus contract missing")
+require("outline: 2px solid var(--ring);" in theme, "visible focus outline missing")
+require("@media (prefers-reduced-motion: reduce)" in theme, "reduced-motion fallback missing")
+require("animation-duration: 0.001ms !important;" in theme, "reduced-motion animation suppression missing")
+require("transition-duration: 0.001ms !important;" in theme, "reduced-motion transition suppression missing")
+require("@media (prefers-reduced-transparency: reduce)" in theme, "reduced-transparency fallback missing")
+require("@media (forced-colors: active)" in theme, "forced-colors fallback missing")
+require("background: Canvas;" in theme and "color: CanvasText;" in theme, "forced-colors semantic colors missing")
+require("backdrop-filter: none;" in theme, "transparency fallback must disable backdrop filtering")
+
 
 workflow_dir = ROOT / ".github/workflows"
 workflow_files = sorted(path.name for path in workflow_dir.glob("*.yml"))
@@ -102,7 +127,7 @@ for line in workflow_text.splitlines():
         require(len(ref) == 40 and all(c in "0123456789abcdef" for c in ref.lower()), f"GitHub Action must be pinned to a full commit SHA: {stripped}")
 
 for forbidden in ("google-analytics.com", "googletagmanager.com", "facebook.com/tr", "fonts.googleapis.com"):
-    require(forbidden not in (ROOT / "web/src/themes/goreecloud.css").read_text(), f"forbidden remote/analytics dependency in GoreeCloud theme: {forbidden}")
+    require(forbidden not in theme, f"forbidden remote/analytics dependency in GoreeCloud theme: {forbidden}")
 
 if errors:
     print("\n".join(f"ERROR: {e}" for e in errors))

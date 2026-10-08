@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { userServiceClient } from "@/connect";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { useDialog } from "@/hooks/useDialog";
-import { WEB_CLIPPER_URL } from "@/lib/constants";
+import { MEMOS_ACCESS_TOKEN_SECURITY_URL, WEB_CLIPPER_URL } from "@/lib/constants";
 import { handleError } from "@/lib/error";
 import { CreatePersonalAccessTokenResponse, PersonalAccessToken } from "@/types/proto/api/v1/user_service_pb";
 import { useTranslate } from "@/utils/i18n";
@@ -89,7 +89,7 @@ const HowToUseDisclosure = () => {
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
               <a
                 className="inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
-                href="https://usememos.com/docs/security/access-tokens"
+                href={MEMOS_ACCESS_TOKEN_SECURITY_URL}
                 target="_blank"
                 rel="noreferrer"
               >
