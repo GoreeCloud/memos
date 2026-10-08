@@ -26,3 +26,4 @@
 - Separate HTTP liveness (/healthz) and database-backed readiness (/readyz) probes for operations and future Manager integration.
 
 - Clean-target automated acceptance for the personal Memos archive, covering memo content/state, comments, relations, tags, location, timestamps, pinning, and attachment bytes while failing closed on missing Space authority.
+\n- Repository-level Glaze consumer source-contract checks for GoreeCloud presentation surfaces, visible focus, reduced motion, reduced transparency, and forced-colors fallbacks; rendered and human acceptance remain separate.\n
