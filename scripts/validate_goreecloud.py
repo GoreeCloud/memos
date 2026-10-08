@@ -33,6 +33,7 @@ required = [
     "docs/DATABASE-COMPATIBILITY.md",
     "docs/EVERKEEP-INTEGRATION.md",
     "docs/PRIVACY-SHIELD-INTEGRATION.md",
+    "docs/MANAGER-INTEGRATION.md",
     "docs/GLAZE-ADOPTION.md",
     "docs/UPSTREAM.md",
     "docs/VALIDATION.md",
@@ -106,6 +107,11 @@ require(init_block.count("INSTANCE_ACCESS_MODE_PUBLIC") == 1, "public startup ac
 require('document.createElement("script")' not in app, "browser client must not execute instance-provided arbitrary scripts")
 require('document.createElement("style")' not in app, "browser client must not execute instance-provided arbitrary CSS")
 require("GoreeCloud Memos" in readme, "README must identify GoreeCloud Memos")
+manager_integration = (ROOT / "docs/MANAGER-INTEGRATION.md").read_text()
+require("GoreeCloud/manager#111" in manager_integration, "Manager integration boundary must pin the canonical contract issue")
+require("applicable-blocked" in manager_integration, "Manager integration boundary must remain fail-closed before contract acceptance")
+require("GoreeCloud/manager#111" in platform, "platform manifest must pin the canonical Manager contract dependency")
+require("result: applicable-blocked" in platform, "Manager platform state must remain blocked before contract acceptance")
 
 # Privacy Shield source-contract boundary. This validates a repository-local
 # application adapter declaration against the reviewed canonical contract
