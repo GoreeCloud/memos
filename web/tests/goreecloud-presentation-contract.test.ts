@@ -6,7 +6,14 @@ const goreecloudCss = readFileSync(resolve(process.cwd(), "src/themes/goreecloud
 
 describe("GoreeCloud Glaze presentation source contract", () => {
   it("keeps the branded shell and memo surfaces", () => {
-    for (const selector of [".goreecloud-shell", ".goreecloud-sidebar", ".goreecloud-composer", ".goreecloud-memo-card"]) {
+    for (const selector of [
+      ".goreecloud-shell",
+      ".goreecloud-sidebar",
+      ".goreecloud-composer",
+      ".goreecloud-memo-card",
+      ".goreecloud-auth-shell",
+      ".goreecloud-auth-card",
+    ]) {
       expect(goreecloudCss).toContain(selector);
     }
   });
