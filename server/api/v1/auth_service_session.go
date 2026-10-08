@@ -215,33 +215,7 @@ func (s *APIV1Service) clearAuthCookies(ctx context.Context) error {
 }
 
 func isSecureRequest(ctx context.Context) bool {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return false
-	}
-
-	for _, value := range md.Get("x-forwarded-proto") {
-		for proto := range strings.SplitSeq(value, ",") {
-			if strings.EqualFold(strings.TrimSpace(proto), "https") {
-				return true
-			}
-		}
-	}
-
-	for _, value := range md.Get("forwarded") {
-		lowerValue := strings.ToLower(value)
-		if strings.Contains(lowerValue, "proto=https") {
-			return true
-		}
-	}
-
-	for _, value := range md.Get("origin") {
-		if strings.HasPrefix(strings.ToLower(strings.TrimSpace(value)), "https://") {
-			return true
-		}
-	}
-
-	return false
+	return clientip.SecureTransportFromContext(ctx)
 }
 
 func (*APIV1Service) buildRefreshTokenCookie(ctx context.Context, refreshToken string, expireTime time.Time) string {
