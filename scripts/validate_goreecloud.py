@@ -110,8 +110,13 @@ require("GoreeCloud Memos" in readme, "README must identify GoreeCloud Memos")
 manager_integration = (ROOT / "docs/MANAGER-INTEGRATION.md").read_text()
 require("GoreeCloud/manager#111" in manager_integration, "Manager integration boundary must pin the canonical contract issue")
 require("applicable-blocked" in manager_integration, "Manager integration boundary must remain fail-closed before contract acceptance")
-require("GoreeCloud/manager#111" in platform, "platform manifest must pin the canonical Manager contract dependency")
-require("result: applicable-blocked" in platform, "Manager platform state must remain blocked before contract acceptance")
+manager_start = platform.find("  manager:")
+manager_end = platform.find("  privacy_shield:", manager_start)
+manager_block = platform[manager_start:manager_end]
+require(manager_start >= 0 and manager_end > manager_start, "Manager platform block missing")
+require("GoreeCloud/manager#111" in manager_block, "Manager platform block must pin the canonical contract dependency")
+require("result: applicable-blocked" in manager_block, "Manager platform state must remain blocked before contract acceptance")
+require("docs/MANAGER-INTEGRATION.md" in manager_block, "Manager platform evidence must include the integration boundary")
 
 # Privacy Shield source-contract boundary. This validates a repository-local
 # application adapter declaration against the reviewed canonical contract
