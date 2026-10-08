@@ -43,7 +43,7 @@ This is still not an automated full SQLite/local backup implementation. A comple
 
 ## SQLite database snapshot primitive
 
-memos snapshot sqlite --data <data-dir> --output <new-file.db> creates a transactionally consistent SQLite database snapshot with VACUUM INTO and verifies the result with PRAGMA quick_check.
+memos snapshot sqlite --data <data-dir> --output <new-file.db> creates a transactionally consistent SQLite database snapshot with VACUUM INTO, verifies the result with PRAGMA quick_check, and writes an owner-only <new-file.db>.manifest.json sidecar.
 
 Safety properties:
 
@@ -52,8 +52,10 @@ Safety properties:
 - the command never overwrites the live database or an existing snapshot;
 - the destination is atomically reserved before snapshot creation with owner read/write permissions (0600) where the host filesystem supports POSIX modes;
 - committed WAL-backed state is included by SQLite's snapshot operation;
-- a failed integrity check removes the incomplete output; and
-- command output states that the artifact is database-only.
+- the sidecar records schema version, creation time, exact application version/commit, snapshot byte size, SHA-256 digest, successful SQLite quick-check state, and an explicit included/excluded recovery-scope matrix;
+- an existing manifest path fails preflight before snapshot creation;
+- snapshot or manifest failures remove the incomplete artifact set; and
+- command output and the manifest state that the artifact is database-only.
 
 The snapshot includes database-backed attachments because their bytes live in database rows. It does **not** capture managed local attachment files, S3 objects, deployment configuration, or runtime secret material. Those remain required for full-instance recovery.
 
@@ -84,7 +86,7 @@ Operational backup work remains incomplete until GoreeCloud defines and validate
 
 - scheduled execution;
 - multiple recoverable generations;
-- integrity verification;
+- integrity verification beyond the implemented per-SQLite-snapshot SHA-256 plus SQLite quick-check manifest evidence;
 - encryption and protected key handling where applicable;
 - retention policy;
 - off-device or failure-domain-separated copies;
