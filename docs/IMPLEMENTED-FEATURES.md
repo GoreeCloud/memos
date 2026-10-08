@@ -44,3 +44,5 @@
 - Automated clean-target SQLite database-snapshot startup acceptance proving preserved account secret, authentication, memo data, database-backed attachment bytes/binding, real migrations, and /readyz success while keeping managed-local/S3/configuration recovery outside the claim.
 
 - Relocatable managed-local attachment references for relative LOCAL storage templates, with clean-target acceptance proving a SQLite snapshot plus the referenced local file can boot at a different data-directory path and serve the exact authenticated attachment bytes; explicit absolute templates and S3 remain separate recovery boundaries.
+
+- Dedicated cross-user core-isolation acceptance proving a second regular user cannot read, mutate, delete, rebind attachments for, export, or read saved-view state belonging to a PRIVATE owner, with owner-state integrity rechecked after denied operations.
