@@ -4,11 +4,14 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/usememos/memos/internal/profile"
+	"github.com/usememos/memos/internal/version"
 	"github.com/usememos/memos/store/db"
 	sqlitedb "github.com/usememos/memos/store/db/sqlite"
 )
@@ -45,6 +48,10 @@ func runSQLiteSnapshot(ctx context.Context, dataDir, dsn, output string, out io.
 		return errors.New("either --data or --dsn is required so the source database is explicit")
 	}
 
+	if err := ensureSnapshotManifestDestinationAvailable(output); err != nil {
+		return err
+	}
+
 	instanceProfile := &profile.Profile{
 		Data:   dataDir,
 		Driver: "sqlite",
@@ -65,7 +72,14 @@ func runSQLiteSnapshot(ctx context.Context, dataDir, dsn, output string, out io.
 		return err
 	}
 
+	manifestPath, err := writeSQLiteSnapshotManifest(created, version.GetCurrentVersion(), version.Commit, time.Now())
+	if err != nil {
+		_ = os.Remove(created)
+		return errors.Wrap(err, "create SQLite snapshot manifest")
+	}
+
 	fmt.Fprintf(out, "SQLite database snapshot created: %s\n", created)
+	fmt.Fprintf(out, "Snapshot manifest created: %s\n", manifestPath)
 	fmt.Fprintln(out, "This snapshot contains database state only. Preserve required local/S3 attachment bytes, deployment configuration, and secret material separately for full-instance recovery.")
 	return nil
 }
