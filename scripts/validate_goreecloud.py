@@ -134,6 +134,12 @@ mesh_block = platform[mesh_start:mesh_end]
 require(mesh_start >= 0 and mesh_end > mesh_start, "Mesh platform block missing")
 require("GoreeCloud/mesh#51" in mesh_block, "Mesh platform block must pin the canonical Observability producer dependency")
 require("result: applicable-blocked" in mesh_block, "Mesh platform state must remain blocked before the producer contract exists")
+identity_start = platform.find("  identity:")
+identity_end = platform.find("  policy:", identity_start)
+identity_block = platform[identity_start:identity_end]
+require(identity_start >= 0 and identity_end > identity_start, "Identity platform block missing")
+require("GoreeCloud/identity#3" in identity_block, "Identity platform block must pin the first-party session/user-context dependency")
+require("result: applicable-blocked" in identity_block, "Identity platform state must remain blocked before authoritative application identity/session acceptance")
 policy_start = platform.find("  policy:")
 policy_end = platform.find("  observability:", policy_start)
 policy_block = platform[policy_start:policy_end]
