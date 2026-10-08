@@ -51,6 +51,7 @@ pnpm build
 - [Search and saved views](docs/SEARCH-AND-VIEWS.md)
 - [Webhooks](docs/WEBHOOKS.md)
 - [Privacy](docs/PRIVACY.md)
+- [Privacy Shield integration](docs/PRIVACY-SHIELD-INTEGRATION.md)
 - [Backup and recovery](docs/BACKUP-AND-RECOVERY.md)
 - [Performance](docs/PERFORMANCE.md)
 - [Database compatibility](docs/DATABASE-COMPATIBILITY.md)
