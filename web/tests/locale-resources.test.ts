@@ -154,6 +154,7 @@ const productNameKeys = [
 ] as const;
 
 const reviewedProductReferenceKeys = [
+  "common.about",
   "profile.not-found-description",
   "setting.access-token.description",
   "setting.access-token.about-description",
