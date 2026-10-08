@@ -78,6 +78,10 @@ jobs:
         working-directory: web
         run: pnpm build
 
+      - name: Record web bundle baseline
+        working-directory: web
+        run: python3 ../scripts/report_web_bundle.py dist >> "$GITHUB_STEP_SUMMARY"
+
   backend:
     name: Backend privacy and build
     runs-on: ubuntu-24.04
