@@ -47,3 +47,5 @@
 - Relocatable managed-local attachment references for relative LOCAL storage templates, with clean-target acceptance proving a SQLite snapshot plus the referenced local file can boot at a different data-directory path and serve the exact authenticated attachment bytes; explicit absolute templates and S3 remain separate recovery boundaries.
 
 - Dedicated cross-user core-isolation acceptance proving a second regular user cannot read, mutate, delete, rebind attachments for, export, or read saved-view state belonging to a PRIVATE owner, with owner-state integrity rechecked after denied operations.
+
+- Real Chromium Development acceptance for the clean-instance GoreeCloud/Glaze setup shell across desktop/phone/tablet contexts, including keyboard focus, 200% text scaling, forced-colors, reduced motion, dark appearance, overflow checks, axe serious/critical checks, and retained screenshots; human visual and independent assistive-technology acceptance remain separate.

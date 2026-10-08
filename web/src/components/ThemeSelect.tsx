@@ -1,6 +1,7 @@
 import { Monitor, Moon, Palette, Sun } from "lucide-react";
 import type { ReactElement } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useTranslate } from "@/utils/i18n";
 import { loadTheme, THEME_OPTIONS } from "@/utils/theme";
 
 interface ThemeSelectProps {
@@ -18,6 +19,7 @@ const THEME_ICONS: Record<string, ReactElement> = {
 };
 
 const ThemeSelect = ({ value, onValueChange, className, compact = false }: ThemeSelectProps = {}) => {
+  const t = useTranslate();
   const currentTheme = value || "system";
   const triggerLabel = currentTheme === "system" ? "System" : THEME_OPTIONS.find((option) => option.value === currentTheme)?.label;
 
@@ -32,7 +34,7 @@ const ThemeSelect = ({ value, onValueChange, className, compact = false }: Theme
 
   return (
     <Select value={currentTheme} items={THEME_OPTIONS} onValueChange={handleThemeChange}>
-      <SelectTrigger className={className}>
+      <SelectTrigger className={className} aria-label={t("setting.preference.theme")}>
         <div className="flex min-w-0 flex-1 items-center gap-2">
           {compact && THEME_ICONS[currentTheme]}
           {compact ? <span className="truncate">{triggerLabel}</span> : <SelectValue className="truncate" placeholder="Select theme" />}
