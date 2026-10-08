@@ -165,7 +165,16 @@ func lastForwardedProto(values []string) string {
 		if !ok || !strings.EqualFold(strings.TrimSpace(key), "proto") {
 			continue
 		}
-		return strings.ToLower(strings.Trim(strings.TrimSpace(rawValue), "\""))
+		value := strings.TrimSpace(rawValue)
+		if strings.HasPrefix(value, "\"") || strings.HasSuffix(value, "\"") {
+			if len(value) < 2 || !strings.HasPrefix(value, "\"") || !strings.HasSuffix(value, "\"") {
+				// Preserve malformed quote syntax so the caller rejects it as
+				// something other than the allowed http/https tokens.
+				return strings.ToLower(value)
+			}
+			value = value[1 : len(value)-1]
+		}
+		return strings.ToLower(value)
 	}
 	return ""
 }
