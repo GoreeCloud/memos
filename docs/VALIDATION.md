@@ -68,3 +68,12 @@ The Development repository includes a read-only Wardveil status consumer pinned 
 Focused tests prove strict decoding, canonical text state labels, rejection of non-authoritative protected state, stale and expired fail-closed behavior, and rejection of obvious sensitive evidence markers. This is source-level adoption evidence only. No live status transport, producer authentication, runtime protection, security-event transport, Protected by Wardveil claim, target-runtime acceptance, or production approval is established.
 
 The source consumer is also centrally registered in GoreeCloud/wardveil through PR #210. Wardveil main `96969fe80acec564ea509c0ae722e9b97e22f6b3` contains the Memos evidence record at `contracts/wardveil.memos.consumer-source-evidence.json` (blob `66d4dac9d0e5f6ad1df3522ddbbba6dc6deee2d1`) and its validator (blob `5f9e18caa3bd8ebbb59a7ef651a5857b1f030ee4`). Exact Wardveil merged-main runs 813 / 37769379314, 534 / 37769379284, and 425 / 37769379290 all succeeded. Central source registration still does not establish runtime or production acceptance.
+
+
+## Rendered browser acceptance
+
+CI runs Playwright Chromium against a clean private instance built from the exact source revision and exact embedded production frontend. The current bounded lane verifies the first-run authentication/setup shell across 1440x900 desktop light, 390x844 phone dark, and 820x1180 tablet forced-colors contexts with reduced motion enabled.
+
+The lane asserts the main landmark and heading structure, labeled credential inputs, visible keyboard focus, no horizontal overflow before and after 200% text scaling, serious/critical axe findings, expected media-query activation, and page-error absence. Full-page screenshots are retained as workflow artifacts for review.
+
+This establishes automated rendered Development evidence, not human visual approval, independent assistive-technology acceptance, broad application-flow coverage, physical-device qualification, or Glaze production acceptance.
