@@ -53,3 +53,9 @@ The repository defines a dedicated Development acceptance runner at `scripts/run
 The bounded matrix exercises critical migration behavior including minimum-supported-version handling, downgrade rejection, previous-stable upgrade, v0.26.2 legacy-data preservation, repeated/idempotent migration, and unique-email migration behavior. The container-backed lanes use the repository-pinned MySQL 8.4 and PostgreSQL 18 test engines plus pinned historical Memos release fixtures.
 
 This is source-defined Development coverage, not a production database certification. Exact candidate and exact merged-main workflow evidence remains required before claiming an integrated result, and representative production-sized datasets, deployment-specific backup/restore, rollback, and long-running upgrade acceptance remain separate gates.
+
+## Observability source boundary
+
+Repository validation pins the Memos operational-signal producer to GoreeCloud/observability revision a7f6a65f442d3e517baddbe7b6ce7c250d142c8c and its v1 operational-signal/component-health schemas. Focused Go tests verify healthy process/database signals, fail-closed database-unavailable/unknown states, timestamp ordering, and rejection of obvious secret-bearing telemetry attribute keys.
+
+This is source validation only. Collector connectivity, producer authentication, transport/retry behavior, durable telemetry, target-runtime acceptance, and production observability approval remain unverified.
