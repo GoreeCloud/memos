@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "adapter": {
+    "id": "memos-application-privacy",
+    "product": "GoreeCloud Memos",
+    "runtime_authority": "GoreeCloud/memos",
+    "contract_version": 1
+  },
+  "capabilities": [
+    "telemetry-minimization",
+    "data-minimization",
+    "deletion-controls",
+    "portable-export"
+  ],
+  "privacy": {
+    "local_first": true,
+    "raw_private_activity_exported_for_status": false,
+    "remote_tracker_learning": false,
+    "remote_tracker_telemetry": false
+  },
+  "acceptance": {
+    "runtime_acceptance_required": true,
+    "production_approved": false
+  }
+}
