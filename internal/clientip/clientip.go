@@ -115,8 +115,8 @@ func (r *Resolver) IsSecureRequest(remoteAddr string, header http.Header, direct
 func trustedForwardedProto(header http.Header) (string, bool) {
 	var selected string
 	for _, candidate := range []string{
-		firstForwardedProto(header.Values("Forwarded")),
-		firstXForwardedProto(header.Values("X-Forwarded-Proto")),
+		lastForwardedProto(header.Values("Forwarded")),
+		lastXForwardedProto(header.Values("X-Forwarded-Proto")),
 	} {
 		if candidate == "" {
 			continue
@@ -132,7 +132,7 @@ func trustedForwardedProto(header http.Header) (string, bool) {
 	return selected, selected != ""
 }
 
-func firstXForwardedProto(values []string) string {
+func lastXForwardedProto(values []string) string {
 	for _, value := range values {
 		for entry := range strings.SplitSeq(value, ",") {
 			if entry = strings.TrimSpace(entry); entry != "" {
@@ -143,7 +143,7 @@ func firstXForwardedProto(values []string) string {
 	return ""
 }
 
-func firstForwardedProto(values []string) string {
+func lastForwardedProto(values []string) string {
 	for _, value := range values {
 		for element := range strings.SplitSeq(value, ",") {
 			element = strings.TrimSpace(element)
