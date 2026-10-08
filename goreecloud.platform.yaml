@@ -26,9 +26,11 @@ lifecycle_metadata:
     - docs/VALIDATION.md
     - docs/DATABASE-COMPATIBILITY.md
     - docs/EVERKEEP-INTEGRATION.md
+    - docs/PRIVACY-SHIELD-INTEGRATION.md
     - provenance/upstream.json
     - provenance/glaze.json
     - provenance/branding.json
+    - provenance/privacy-shield.json
 
 version: "0.1.0-dev"
 
@@ -52,10 +54,17 @@ platform_systems:
     evidence: [docs/PLANNED-FEATURES.md]
     notes: Manager registration, lifecycle visibility, and operational acceptance remain open.
   privacy_shield:
-    result: applicable-blocked
-    version: null
-    evidence: [docs/PRIVACY.md]
-    notes: Private-first defaults are implemented in the rebuild; authoritative Privacy Shield runtime policy and acceptance remain open.
+    result: applicable-migration-required
+    version: "2.0.0"
+    evidence:
+      - docs/PRIVACY.md
+      - docs/PRIVACY-SHIELD-INTEGRATION.md
+      - integrations/privacy-shield/adapter.json
+      - integrations/privacy-shield/acceptance.json
+      - provenance/privacy-shield.json
+      - core/memoexport/doc.go
+      - store/memo_delete_policy.go
+    notes: A repository-local application-privacy adapter declaration is pinned to reviewed Privacy Shield 2.0 contracts for telemetry minimization, data minimization, deletion controls, and portable export. Central adapter registration, exact-runtime acceptance, Privacy Shield policy/status transport, production approval, and lifecycle promotion remain open.
   wardveil_security:
     result: applicable-blocked
     version: null
@@ -162,9 +171,10 @@ conformance:
     - docs/DATABASE-COMPATIBILITY.md
     - docs/SECURITY.md
     - docs/PRIVACY.md
+    - docs/PRIVACY-SHIELD-INTEGRATION.md
     - docs/GLAZE-ADOPTION.md
   blockers:
     - Fresh Glaze V1.7 repository-local acceptance is incomplete.
-    - Integral Platform System runtime integrations remain incomplete; Everkeep has only a source-level fail-closed adoption boundary and no accepted live provider path.
+    - Integral Platform System runtime integrations remain incomplete; Everkeep and Privacy Shield currently have source-level adoption boundaries only, without accepted live/runtime provider paths or production approval.
     - Representative browser, accessibility, recovery, upgrade, rollback, and production acceptance remain incomplete.
     - Production signing, release, Seal, and Anchor qualification are incomplete.
