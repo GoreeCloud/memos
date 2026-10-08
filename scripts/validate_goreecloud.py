@@ -20,6 +20,10 @@ required = [
     "docs/PROJECT-SPECIFICATIONS.md",
     "docs/PROJECT-RECORD.md",
     "docs/ARCHITECTURE.md",
+    "docs/WEBHOOKS.md",
+    "docs/SEARCH-AND-VIEWS.md",
+    "docs/AUTHENTICATION.md",
+    "docs/API.md",
     "docs/IMPLEMENTED-FEATURES.md",
     "docs/PLANNED-FEATURES.md",
     "docs/SECURITY.md",
@@ -162,6 +166,20 @@ for line in workflow_text.splitlines():
     if stripped.startswith("uses:"):
         ref = stripped.split("@", 1)[1].split()[0] if "@" in stripped else ""
         require(len(ref) == 40 and all(c in "0123456789abcdef" for c in ref.lower()), f"GitHub Action must be pinned to a full commit SHA: {stripped}")
+
+
+# GoreeCloud product help must not regress to upstream product documentation or intake.
+forbidden_product_help = (
+    "https://usememos.com/docs",
+    "https://www.usememos.com/docs",
+    "https://github.com/usememos/memos/issues/new",
+)
+for source_path in (ROOT / "web/src").rglob("*"):
+    if not source_path.is_file() or source_path.suffix not in {".ts", ".tsx", ".js", ".jsx"}:
+        continue
+    source_text = source_path.read_text(encoding="utf-8")
+    for forbidden in forbidden_product_help:
+        require(forbidden not in source_text, f"product help must use GoreeCloud-owned destination: {source_path.relative_to(ROOT)} -> {forbidden}")
 
 for forbidden in ("google-analytics.com", "googletagmanager.com", "facebook.com/tr", "fonts.googleapis.com"):
     require(forbidden not in theme, f"forbidden remote/analytics dependency in GoreeCloud theme: {forbidden}")
