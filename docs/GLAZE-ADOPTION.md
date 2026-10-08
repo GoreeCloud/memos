@@ -13,6 +13,6 @@ This is **not** a claim of completed Glaze consumer acceptance. The shared Glaze
 
 ## Repository-local source contract
 
-The GoreeCloud repository-boundary validator now fails if the application-owned Memos presentation layer loses its GoreeCloud shell/sidebar/composer/memo-card surfaces, visible focus treatment, reduced-motion suppression, reduced-transparency fallback, forced-colors semantic treatment, or transparency-disable fallback.
+The GoreeCloud repository-boundary validator and frontend test suite now fail if the application-owned Memos presentation layer loses its GoreeCloud shell/sidebar/composer/memo-card surfaces, visible focus treatment, responsive mobile transparency fallback, reduced-motion suppression, reduced-transparency fallback, forced-colors semantic treatment, or transparency-disable fallback.
 
 This is source-level regression evidence only. It does not establish rendered conformance, screen-reader or other assistive-technology acceptance, responsive or representative-device acceptance, performance acceptance, rollback acceptance, human visual review, release acceptance, or product acceptance. Memos remains an adoption-required Glaze consumer until those separate gates are satisfied.
