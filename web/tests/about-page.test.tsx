@@ -68,7 +68,7 @@ describe("<About>", () => {
     );
     expect(screen.getByRole("link", { name: /about\.api-docs/ })).toHaveAttribute(
       "href",
-      "https://github.com/GoreeCloud/memos/blob/main/docs/UPSTREAM.md",
+      "https://github.com/GoreeCloud/memos/blob/main/docs/API.md",
     );
     expect(screen.getByRole("link", { name: /about\.web-clipper/ })).toHaveAttribute("href", "https://github.com/usememos/web-clipper");
     expect(screen.getByRole("link", { name: /about\.github-repository/ })).toHaveAttribute("href", "https://github.com/GoreeCloud/memos");
