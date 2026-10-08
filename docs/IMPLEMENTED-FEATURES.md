@@ -31,3 +31,5 @@
 - Bounded SQLite database snapshot CLI (memos snapshot sqlite) using transactionally consistent VACUUM INTO, no-overwrite safeguards, and post-write integrity verification; this is explicitly not a full-instance backup.
 
 - Shared GoreeCloud Memos product-name interpolation for reviewed product-branding locale keys across all bundled locales, preserving each locale's surrounding grammar while leaving generic memo nouns, export-format terminology, companion-project names, and upstream provenance untouched.
+- Dedicated Development database-upgrade acceptance runner and exact-revision CI matrix across SQLite, MySQL 8.4, and PostgreSQL 18 for critical supported-version, idempotency, data-preservation, user-setting, and unique-email migrations; production database qualification remains separate.
+- Source-level Everkeep continuity adoption boundary pinned to reviewed Everkeep contracts, including explicit non-acceptance policy and a fail-closed normalized status evaluator for freshness, missing/malformed evidence, failed recovery state, producer/scope authority, and sensitive-evidence exclusion; live Everkeep connectivity and recovery acceptance remain open.

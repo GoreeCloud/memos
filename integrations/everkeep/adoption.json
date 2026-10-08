@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "project": "GoreeCloud Memos",
+  "repository": "GoreeCloud/memos",
+  "role": "consumer",
+  "dimensions": [
+    "backup_coverage",
+    "restore_capability",
+    "recovery_freshness",
+    "portability",
+    "migration",
+    "documentation",
+    "provenance"
+  ],
+  "read_only": true,
+  "fail_closed": true,
+  "status_schema": "contracts/continuity.status.schema.json",
+  "authoritative_sources": [
+    "GoreeCloud/everkeep@f69e369e4d8627280fac728b7f7bcb02c43b5edd",
+    "docs/BACKUP-AND-RECOVERY.md",
+    "docs/DATABASE-COMPATIBILITY.md",
+    "docs/VALIDATION.md"
+  ],
+  "notes": "Source-level normalized continuity-status consumption only. Live Everkeep provider connectivity, target-runtime acceptance, full-instance recovery, and production readiness remain unaccepted."
+}
