@@ -243,6 +243,10 @@ func TestHTMLMetaFetcherBotAwareSPA(t *testing.T) {
 	require.Equal(t, "Prerendered for MemosBot", meta.Description)
 }
 
+func TestDefaultLinkPreviewUserAgentIdentifiesGoreeCloud(t *testing.T) {
+	require.Equal(t, "GoreeCloud-Memos-LinkPreview/0.1 (+https://github.com/GoreeCloud/memos)", defaultLinkPreviewUserAgent)
+}
+
 func TestHTMLMetaFetcherDefaultHeadersAndDeadline(t *testing.T) {
 	fetcher := newTestFetcher(roundTripFunc(func(req *http.Request) (*http.Response, error) {
 		assert.Equal(t, defaultLinkPreviewUserAgent, req.Header.Get("User-Agent"))

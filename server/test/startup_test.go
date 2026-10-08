@@ -30,6 +30,7 @@ import (
 	"github.com/usememos/memos/server"
 	"github.com/usememos/memos/store"
 	"github.com/usememos/memos/store/db"
+	sqlitedb "github.com/usememos/memos/store/db/sqlite"
 )
 
 const (
@@ -231,6 +232,26 @@ func (i *instance) createMemo(t *testing.T, token, memoID, content string) {
 	require.Equal(t, content, created.Content)
 }
 
+// createDatabaseAttachment stores bytes with the default database attachment backend
+// and links them to an existing memo. The returned value is the attachment resource name.
+func (i *instance) createDatabaseAttachment(t *testing.T, token, memoID, filename string, content []byte) string {
+	t.Helper()
+
+	status, body := i.do(t, http.MethodPost, "/api/v1/attachments", token, map[string]any{
+		"filename": filename,
+		"type":     "application/octet-stream",
+		"content":  content,
+		"memo":     "memos/" + memoID,
+	})
+	require.Equal(t, http.StatusOK, status, "creating a database attachment should succeed: %s", body)
+
+	created := map[string]any{}
+	require.NoError(t, json.Unmarshal(body, &created))
+	name, ok := created["name"].(string)
+	require.True(t, ok && strings.HasPrefix(name, "attachments/"), "attachment should have a resource name: %s", body)
+	return name
+}
+
 // requireMemo asserts a memo is readable and has the expected content.
 func (i *instance) requireMemo(t *testing.T, token, memoID, content string) {
 	t.Helper()
@@ -353,6 +374,54 @@ func TestStartupRestartPreservesData(t *testing.T) {
 	second.requireMemo(t, restartToken, "startup-restart", "written before restart")
 	second.createMemo(t, restartToken, "startup-after-restart", "written after restart")
 	second.requireMemo(t, restartToken, "startup-after-restart", "written after restart")
+}
+
+// TestStartupSQLiteSnapshotBootsCleanTarget proves the bounded SQLite snapshot
+// can seed a fresh data directory that survives the real startup path, passes
+// database-backed readiness, preserves the instance secret/account, and serves
+// data written before the snapshot.
+//
+// This is database-only recovery evidence. It does not cover managed local
+// attachment files, S3 objects, deployment configuration, or external secrets.
+func TestStartupSQLiteSnapshotBootsCleanTarget(t *testing.T) {
+	ctx := context.Background()
+	source := bootInstance(ctx, t, instanceOptions{instanceURL: "http://localhost"})
+	source.createAdmin(t)
+	token := source.signIn(t)
+	source.createMemo(t, token, "snapshot-restore", "restored from SQLite snapshot")
+	attachmentBytes := []byte("database-backed attachment survives snapshot")
+	attachmentName := source.createDatabaseAttachment(t, token, "snapshot-restore", "snapshot.bin", attachmentBytes)
+
+	targetDataDir := t.TempDir()
+	snapshotPath := filepath.Join(targetDataDir, "memos_prod.db")
+	created, err := sqlitedb.CreateSnapshot(ctx, source.server.Store.GetDriver().GetDB(), snapshotPath)
+	require.NoError(t, err)
+	require.Equal(t, snapshotPath, created)
+	require.FileExists(t, snapshotPath)
+
+	source.shutdown(ctx)
+
+	target := bootInstance(ctx, t, instanceOptions{
+		instanceURL: "http://localhost",
+		dataDir:     targetDataDir,
+	})
+	restoredToken := target.signIn(t)
+	target.requireMemo(t, restoredToken, "snapshot-restore", "restored from SQLite snapshot")
+
+	attachmentUID := strings.TrimPrefix(attachmentName, "attachments/")
+	status, metadataBody := target.do(t, http.MethodGet, "/api/v1/"+attachmentName, restoredToken, nil)
+	require.Equal(t, http.StatusOK, status, "restored attachment metadata should remain readable: %s", metadataBody)
+	metadata := map[string]any{}
+	require.NoError(t, json.Unmarshal(metadataBody, &metadata))
+	require.Equal(t, "memos/snapshot-restore", metadata["memo"])
+
+	status, restoredBlob := target.do(t, http.MethodGet, "/file/attachments/"+attachmentUID, restoredToken, nil)
+	require.Equal(t, http.StatusOK, status, "restored database attachment should be served")
+	require.Equal(t, attachmentBytes, restoredBlob)
+
+	status, body := target.do(t, http.MethodGet, "/readyz", "", nil)
+	require.Equal(t, http.StatusOK, status)
+	require.Equal(t, "Service ready.", string(body))
 }
 
 // TestStartupPrivateInstance verifies a private instance still exposes the auth

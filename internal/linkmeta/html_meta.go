@@ -20,7 +20,7 @@ import (
 var ErrInternalIP = errors.New("internal IP addresses are not allowed")
 
 const (
-	defaultLinkPreviewUserAgent = "MemosBot/1.0 (+https://usememos.com)"
+	defaultLinkPreviewUserAgent = "GoreeCloud-Memos-LinkPreview/0.1 (+https://github.com/GoreeCloud/memos)"
 
 	maxHTMLMetaBytes     = 512 * 1024
 	maxOEmbedBytes       = 128 * 1024
