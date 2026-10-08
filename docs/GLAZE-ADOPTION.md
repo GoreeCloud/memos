@@ -22,3 +22,10 @@ This is source-level regression evidence only. It does not establish rendered co
 The sign-in, sign-up, first-run setup, and administrator sign-in pages share an application-owned GoreeCloud authentication shell layered on the current Glaze source authority. The shell provides product identity, responsive card geometry, visible hierarchy, reduced-transparency fallback, and forced-colors fallback without changing credential, session, challenge, redirect, or identity-provider semantics.
 
 This is source-level implementation evidence. Representative rendered review, keyboard/screen-reader acceptance, scaling/zoom, reduced-motion/contrast review, and authentication threat-model acceptance remain separate release gates.
+
+
+## Automated rendered browser acceptance
+
+The Development validation matrix now includes a real Chromium lane against a clean private GoreeCloud Memos instance with the exact embedded production frontend. It exercises the first-run GoreeCloud/Glaze setup shell at representative desktop, phone, and tablet viewport sizes; light and dark appearance; forced-colors; reduced motion; keyboard focus visibility; 200% text scaling/reflow; horizontal-overflow detection; programmatic credential labels; and serious/critical axe accessibility violations. Passing runs retain rendered screenshots as CI evidence.
+
+This is automated rendered evidence only. It does not replace required human visual review, independent screen-reader acceptance, representative physical-device/browser review, reduced-transparency rendered review, full RTL/localization review, performance acceptance, rollback evidence, or production acceptance.
