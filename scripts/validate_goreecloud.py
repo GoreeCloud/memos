@@ -24,6 +24,7 @@ required = [
     "docs/PLANNED-FEATURES.md",
     "docs/SECURITY.md",
     "docs/PRIVACY.md",
+    "docs/BACKUP-AND-RECOVERY.md",
     "docs/GLAZE-ADOPTION.md",
     "docs/UPSTREAM.md",
     "docs/VALIDATION.md",

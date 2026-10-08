@@ -47,6 +47,7 @@ pnpm build
 - [Planned features](docs/PLANNED-FEATURES.md)
 - [Security](docs/SECURITY.md)
 - [Privacy](docs/PRIVACY.md)
+- [Backup and recovery](docs/BACKUP-AND-RECOVERY.md)
 - [Glaze adoption](docs/GLAZE-ADOPTION.md)
 - [Upstream maintenance](docs/UPSTREAM.md)
 - [Validation](docs/VALIDATION.md)
