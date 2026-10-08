@@ -12,7 +12,9 @@ describe("GoreeCloud Glaze presentation source contract", () => {
     expect(goreecloudCss).toContain(":focus-visible");
     expect(goreecloudCss).toContain("outline: 2px solid var(--ring);");
     expect(goreecloudCss).toContain("@media (max-width: 767px)");
-    expect(goreecloudCss).toMatch(/@media \(max-width: 767px\)[\s\S]*?\.goreecloud-composer,[\s\S]*?\.goreecloud-memo-card[\s\S]*?backdrop-filter: none;/);
+    expect(goreecloudCss).toMatch(
+      /@media \(max-width: 767px\)[\s\S]*?\.goreecloud-composer,[\s\S]*?\.goreecloud-memo-card[\s\S]*?backdrop-filter: none;/,
+    );
   });
 
   it("keeps reduced-motion and reduced-transparency safeguards", () => {
