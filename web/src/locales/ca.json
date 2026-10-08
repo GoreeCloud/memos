@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demostració",
     "distribution": "Distribució",
-    "documents-note": "Implementa, configura i utilitza Memos",
+    "documents-note": "Implementa, configura i utilitza {{productName}}",
     "github-repository-note": "Codi font, incidències i versions",
     "license": "Llicència",
     "official-website-note": "La pàgina d'inici del projecte",
-    "powered-by": "Amb tecnologia de Memos",
+    "powered-by": "Amb tecnologia de {{productName}}",
     "project": "Projecte",
     "project-links": "Enllaços del projecte",
     "web-clipper": "Web Clipper",
@@ -134,7 +134,7 @@
     "previous-month": "Mes anterior",
     "resize-panel": "Canvia la mida del panell",
     "resize-sidebar": "Canvia la mida de la barra lateral",
-    "sign-in-to-memos": "Inicia la sessió a Memos",
+    "sign-in-to-memos": "Inicia la sessió a {{productName}}",
     "view-all": "Veure-ho tot"
   },
   "locale-picker": {
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "Els canvis són temporals i es poden restablir.",
-    "banner-title": "Memos demostració",
-    "deploy-link": "Desplegueu el vostre Memos"
+    "banner-title": "{{productName}} demostració",
+    "deploy-link": "Desplegueu el vostre {{productName}}"
   },
   "attachment-library": {
     "actions": {

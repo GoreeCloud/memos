@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demo",
     "distribution": "Distribuție",
-    "documents-note": "Implementare, configurare și utilizare Memos",
+    "documents-note": "Implementare, configurare și utilizare {{productName}}",
     "github-repository-note": "Sursă, probleme și versiuni",
     "license": "Licență",
     "official-website-note": "Pagina principală a proiectului",
-    "powered-by": "Susținut de Memos",
+    "powered-by": "Susținut de {{productName}}",
     "project": "Proiect",
     "project-links": "Linkuri proiect",
     "web-clipper": "Web Clipper",
@@ -46,8 +46,8 @@
   },
   "demo": {
     "banner-description": "Modificările sunt temporare și pot fi resetate.",
-    "banner-title": "Demo Memos",
-    "deploy-link": "Implementați-vă Memos"
+    "banner-title": "Demo {{productName}}",
+    "deploy-link": "Implementați-vă {{productName}}"
   },
   "attachment-library": {
     "actions": {
@@ -172,7 +172,7 @@
     "previous-month": "Luna anterioară",
     "resize-panel": "Redimensionați panoul",
     "resize-sidebar": "Redimensionați bara laterală",
-    "sign-in-to-memos": "Conectați-vă la Memos",
+    "sign-in-to-memos": "Conectați-vă la {{productName}}",
     "view-all": "Vizualizați tot"
   },
   "locale-picker": {

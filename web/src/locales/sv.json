@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demo",
     "distribution": "Distribution",
-    "documents-note": "Distribuera, konfigurera och använd Memos",
+    "documents-note": "Distribuera, konfigurera och använd {{productName}}",
     "github-repository-note": "Källa, problem och utgåvor",
     "license": "Licens",
     "official-website-note": "Projektets hemsida",
-    "powered-by": "Drivs av Memos",
+    "powered-by": "Drivs av {{productName}}",
     "project": "Projekt",
     "project-links": "Projektlänkar",
     "web-clipper": "Web Clipper",
@@ -134,7 +134,7 @@
     "previous-month": "Föregående månad",
     "resize-panel": "Ändra storlek på panelen",
     "resize-sidebar": "Ändra storlek på sidofältet",
-    "sign-in-to-memos": "Logga in på Memos",
+    "sign-in-to-memos": "Logga in på {{productName}}",
     "view-all": "Visa alla"
   },
   "locale-picker": {
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "Ändringar är tillfälliga och kan återställas.",
-    "banner-title": "Memos demo",
-    "deploy-link": "Distribuera din Memos"
+    "banner-title": "{{productName}} demo",
+    "deploy-link": "Distribuera din {{productName}}"
   },
   "attachment-library": {
     "actions": {

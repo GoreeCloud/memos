@@ -9,11 +9,11 @@
     "commit": "کامیت",
     "demo": "نسخه آزمایشی",
     "distribution": "توزیع",
-    "documents-note": "استقرار، پیکربندی و استفاده از Memos",
+    "documents-note": "استقرار، پیکربندی و استفاده از {{productName}}",
     "github-repository-note": "منبع، مشکلات و نسخه‌های منتشر شده",
     "license": "مجوز",
     "official-website-note": "صفحه اصلی پروژه",
-    "powered-by": "طراحی شده توسط Memos",
+    "powered-by": "طراحی شده توسط {{productName}}",
     "project": "پروژه",
     "project-links": "لینک‌های پروژه",
     "web-clipper": "وب کلیپر",
@@ -132,7 +132,7 @@
     "previous-month": "ماه قبل",
     "resize-panel": "تغییر اندازه پنل",
     "resize-sidebar": "تغییر اندازه نوار کناری",
-    "sign-in-to-memos": "ورود به Memos",
+    "sign-in-to-memos": "ورود به {{productName}}",
     "tasks": "وظایف",
     "unlink": "لغو پیوند",
     "view-all": "مشاهده همه"
@@ -950,8 +950,8 @@
   },
   "demo": {
     "banner-description": "در صورت تمایل کاوش کنید! این نسخه آزمایشی به صورت دوره‌ای بازنشانی می‌شود.",
-    "banner-title": "نسخه آزمایشی Memos",
-    "deploy-link": "پیاده‌سازی Memos خودتان"
+    "banner-title": "نسخه آزمایشی {{productName}}",
+    "deploy-link": "پیاده‌سازی {{productName}} خودتان"
   },
   "profile": {
     "no-shared-memos": "@{{username}} هنوز هیچ یادداشتی را به اشتراک نگذاشته است.",

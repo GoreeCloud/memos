@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demo",
     "distribution": "Jakelu",
-    "documents-note": "Käyttöönotto, konfigurointi ja käyttö Memos",
+    "documents-note": "Käyttöönotto, konfigurointi ja käyttö {{productName}}",
     "github-repository-note": "Lähdekoodi, ongelmat ja julkaisut",
     "license": "Lisenssi",
     "official-website-note": "Projektin kotisivu",
-    "powered-by": "Toteutettu Memos -alustalla",
+    "powered-by": "Toteutettu {{productName}} -alustalla",
     "project": "Projekti",
     "project-links": "Projektilinkit",
     "web-clipper": "Web Clipper",
@@ -46,8 +46,8 @@
   },
   "demo": {
     "banner-description": "Muutokset ovat väliaikaisia ​​ja ne voidaan nollata.",
-    "banner-title": "Memos demo",
-    "deploy-link": "Ota Memos käyttöön"
+    "banner-title": "{{productName}} demo",
+    "deploy-link": "Ota {{productName}} käyttöön"
   },
   "attachment-library": {
     "actions": {
@@ -172,7 +172,7 @@
     "previous-month": "Edellinen kuukausi",
     "resize-panel": "Muuta paneelin kokoa",
     "resize-sidebar": "Muuta sivupalkin kokoa",
-    "sign-in-to-memos": "Kirjaudu sisään Memos",
+    "sign-in-to-memos": "Kirjaudu sisään {{productName}}",
     "view-all": "Näytä kaikki"
   },
   "locale-picker": {

@@ -7,13 +7,13 @@
     "demo": "הדגמה",
     "distribution": "הפצה",
     "documents": "מסמכים",
-    "documents-note": "פריסה, הגדרה ושימוש ב־Memos",
+    "documents-note": "פריסה, הגדרה ושימוש ב־{{productName}}",
     "github-repository": "מאגר GitHub",
     "github-repository-note": "קוד המקור, בעיות וגרסאות",
     "license": "רישיון",
     "official-website": "האתר הרשמי",
     "official-website-note": "דף הבית של הפרויקט",
-    "powered-by": "מופעל על ידי Memos",
+    "powered-by": "מופעל על ידי {{productName}}",
     "project": "פרויקט",
     "project-links": "קישורי הפרויקט",
     "web-clipper": "Web Clipper",
@@ -46,8 +46,8 @@
   },
   "demo": {
     "banner-description": "אתם מוזמנים לסייר! ההדגמה מתאפסת מעת לעת.",
-    "banner-title": "הדגמת Memos",
-    "deploy-link": "פרסו מופע Memos משלכם"
+    "banner-title": "הדגמת {{productName}}",
+    "deploy-link": "פרסו מופע {{productName}} משלכם"
   },
   "attachment-details": {
     "actions": {
@@ -184,7 +184,7 @@
     "settings": "הגדרות",
     "share": "שיתוף",
     "sign-in": "התחברות",
-    "sign-in-to-memos": "התחברו ל־Memos",
+    "sign-in-to-memos": "התחברו ל־{{productName}}",
     "sign-out": "התנתק",
     "sign-up": "הרשמה",
     "statistics": "סטטיסטיקה",

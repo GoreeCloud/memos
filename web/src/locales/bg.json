@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Демо",
     "distribution": "Разпространение",
-    "documents-note": "Разгръщане, конфигуриране и използване Memos",
+    "documents-note": "Разгръщане, конфигуриране и използване {{productName}}",
     "github-repository-note": "Източник, проблеми и издания",
     "license": "Лиценз",
     "official-website-note": "Начална страница на проекта",
-    "powered-by": "Задвижвано от Memos",
+    "powered-by": "Задвижвано от {{productName}}",
     "project": "Проект",
     "project-links": "Връзки към проекти",
     "web-clipper": "Web Clipper",
@@ -46,8 +46,8 @@
   },
   "demo": {
     "banner-description": "Промените са временни и могат да бъдат нулирани.",
-    "banner-title": "Memos демо",
-    "deploy-link": "Разположете своя Memos"
+    "banner-title": "{{productName}} демо",
+    "deploy-link": "Разположете своя {{productName}}"
   },
   "attachment-library": {
     "actions": {
@@ -172,7 +172,7 @@
     "previous-month": "Предишен месец",
     "resize-panel": "Панел за преоразмеряване",
     "resize-sidebar": "Преоразмеряване на страничната лента",
-    "sign-in-to-memos": "Влизане в Memos",
+    "sign-in-to-memos": "Влизане в {{productName}}",
     "view-all": "Вижте всички"
   },
   "locale-picker": {

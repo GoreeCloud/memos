@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demo",
     "distribution": "Dystrybucja",
-    "documents-note": "Wdrażanie, konfiguracja i używanie Memos",
+    "documents-note": "Wdrażanie, konfiguracja i używanie {{productName}}",
     "github-repository-note": "Źródło, problemy i wydania",
     "license": "Licencja",
     "official-website-note": "Strona główna projektu",
-    "powered-by": "Obsługiwane przez Memos",
+    "powered-by": "Obsługiwane przez {{productName}}",
     "project": "Projekt",
     "project-links": "Linki do projektu",
     "web-clipper": "Web Clipper",
@@ -134,7 +134,7 @@
     "previous-month": "Poprzedni miesiąc",
     "resize-panel": "Zmień rozmiar panelu",
     "resize-sidebar": "Zmień rozmiar paska bocznego",
-    "sign-in-to-memos": "Zaloguj się do Memos",
+    "sign-in-to-memos": "Zaloguj się do {{productName}}",
     "view-all": "Wyświetl wszystko"
   },
   "locale-picker": {
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "Zmiany mają charakter tymczasowy i mogą zostać zresetowane.",
-    "banner-title": "Demo Memos",
-    "deploy-link": "Wdróż swój Memos"
+    "banner-title": "Demo {{productName}}",
+    "deploy-link": "Wdróż swój {{productName}}"
   },
   "attachment-library": {
     "actions": {

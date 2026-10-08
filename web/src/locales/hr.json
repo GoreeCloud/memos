@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demo",
     "distribution": "Distribucija",
-    "documents-note": "Implementacija, konfiguriranje i korištenje Memos",
+    "documents-note": "Implementacija, konfiguriranje i korištenje {{productName}}",
     "github-repository-note": "Izvorni kod, problemi i izdanja",
     "license": "Licenca",
     "official-website-note": "Početna stranica projekta",
-    "powered-by": "Pokreće Memos",
+    "powered-by": "Pokreće {{productName}}",
     "project": "Projekt",
     "project-links": "Linkovi projekta",
     "web-clipper": "Web Clipper",
@@ -134,7 +134,7 @@
     "previous-month": "Prethodni mjesec",
     "resize-panel": "Promijeni veličinu ploče",
     "resize-sidebar": "Promijeni veličinu bočne trake",
-    "sign-in-to-memos": "Prijavi se na Memos",
+    "sign-in-to-memos": "Prijavi se na {{productName}}",
     "view-all": "Pogledaj sve"
   },
   "locale-picker": {
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "Promjene su privremene i mogu se poništiti.",
-    "banner-title": "Demo Memos",
-    "deploy-link": "Postavite svoj Memos"
+    "banner-title": "Demo {{productName}}",
+    "deploy-link": "Postavite svoj {{productName}}"
   },
   "attachment-library": {
     "actions": {

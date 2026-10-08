@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demó",
     "distribution": "Terjesztés",
-    "documents-note": "Telepítés, konfigurálás és használat Memos",
+    "documents-note": "Telepítés, konfigurálás és használat {{productName}}",
     "github-repository-note": "Forráskód, problémák és kiadások",
     "license": "Licenc",
     "official-website-note": "A projekt honlapja",
-    "powered-by": "A Memos működteti",
+    "powered-by": "A {{productName}} működteti",
     "project": "Projekt",
     "project-links": "Projekt linkek",
     "web-clipper": "Web Clipper",
@@ -134,7 +134,7 @@
     "previous-month": "Előző hónap",
     "resize-panel": "Panel átméretezése",
     "resize-sidebar": "Oldalsáv átméretezése",
-    "sign-in-to-memos": "Bejelentkezés a következőbe: Memos",
+    "sign-in-to-memos": "Bejelentkezés a következőbe: {{productName}}",
     "view-all": "Összes megtekintése"
   },
   "locale-picker": {
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "A változtatások ideiglenesek, és visszaállíthatók.",
-    "banner-title": "Memos demó",
-    "deploy-link": "Telepítse az Memos-et"
+    "banner-title": "{{productName}} demó",
+    "deploy-link": "Telepítse az {{productName}}-et"
   },
   "attachment-library": {
     "actions": {

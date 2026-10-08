@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "დემო ვერსია",
     "distribution": "დისტრიბუცია",
-    "documents-note": "Memos-ის განლაგება, კონფიგურაცია და გამოყენება",
+    "documents-note": "{{productName}}-ის განლაგება, კონფიგურაცია და გამოყენება",
     "github-repository-note": "წყარო, პრობლემები და გამოშვებები",
     "license": "ლიცენზია",
     "official-website-note": "პროექტის მთავარი გვერდი",
-    "powered-by": "მხარდაჭერილია Memos-ის მიერ",
+    "powered-by": "მხარდაჭერილია {{productName}}-ის მიერ",
     "project": "პროექტი",
     "project-links": "პროექტის ბმულები",
     "web-clipper": "Web Clipper",
@@ -134,7 +134,7 @@
     "previous-month": "წინა თვე",
     "resize-panel": "პანელის ზომის შეცვლა",
     "resize-sidebar": "გვერდითი ზოლის ზომის შეცვლა",
-    "sign-in-to-memos": "შესვლა Memos-ში",
+    "sign-in-to-memos": "შესვლა {{productName}}-ში",
     "view-all": "ყველას ნახვა"
   },
   "locale-picker": {
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "ცვლილებები დროებითია და შეიძლება გადაყენდეს.",
-    "banner-title": "Memos დემო",
-    "deploy-link": "განათავსეთ თქვენი Memos"
+    "banner-title": "{{productName}} დემო",
+    "deploy-link": "განათავსეთ თქვენი {{productName}}"
   },
   "attachment-library": {
     "actions": {

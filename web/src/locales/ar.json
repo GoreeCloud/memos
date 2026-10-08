@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "العرض التوضيحي",
     "distribution": "التوزيع",
-    "documents-note": "نشر وتكوين واستخدام Memos",
+    "documents-note": "نشر وتكوين واستخدام {{productName}}",
     "github-repository-note": "المصدر والمشاكل والإصدارات",
     "license": "الترخيص",
     "official-website-note": "الصفحة الرئيسية للمشروع",
-    "powered-by": "مدعوم من Memos",
+    "powered-by": "مدعوم من {{productName}}",
     "project": "المشروع",
     "project-links": "روابط المشروع",
     "web-clipper": "أداة قص الويب",
@@ -132,7 +132,7 @@
     "previous-month": "الشهر السابق",
     "resize-panel": "تغيير حجم اللوحة",
     "resize-sidebar": "تغيير حجم الشريط الجانبي",
-    "sign-in-to-memos": "تسجيل الدخول إلى Memos",
+    "sign-in-to-memos": "تسجيل الدخول إلى {{productName}}",
     "tasks": "المهام",
     "unlink": "إلغاء الارتباط",
     "view-all": "عرض الكل"
@@ -950,8 +950,8 @@
   },
   "demo": {
     "banner-description": "تفضل بالاستكشاف! تتم إعادة ضبط هذا العرض التوضيحي دوريًا.",
-    "banner-title": "عرض توضيحي Memos",
-    "deploy-link": "انشر Memos الخاص بك"
+    "banner-title": "عرض توضيحي {{productName}}",
+    "deploy-link": "انشر {{productName}} الخاص بك"
   },
   "profile": {
     "no-shared-memos": "لم يشارك المستخدم {{username}} أي مذكرات حتى الآن.",
