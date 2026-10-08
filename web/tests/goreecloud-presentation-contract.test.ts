@@ -1,5 +1,8 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import goreecloudCss from "@/themes/goreecloud.css?raw";
+
+const goreecloudCss = readFileSync(resolve(process.cwd(), "src/themes/goreecloud.css"), "utf8");
 
 describe("GoreeCloud Glaze presentation source contract", () => {
   it("keeps the branded shell and memo surfaces", () => {
