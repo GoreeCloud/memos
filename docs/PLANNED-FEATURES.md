@@ -4,7 +4,7 @@ Priority work remains:
 
 - complete Glaze V1.7 product-local rendered, accessibility, keyboard, screen-reader, responsive, performance, rollback, and human visual acceptance;
 - add GoreeCloud Manager registration and lifecycle visibility;
-- complete Privacy Shield central adapter registration, exact-runtime acceptance, minimized status/policy transport where actually required, optional-provider privacy validation, and production approval beyond the implemented repository-local source contract; integrate Wardveil runtime security controls where architecturally appropriate;
+- complete Privacy Shield exact-runtime acceptance, minimized status/policy transport where actually required, optional-provider privacy validation, and production approval beyond the centrally registered source contract; integrate Wardveil runtime security controls where architecturally appropriate;
 - complete live Everkeep provider connectivity and authenticated authority, full approved backup scope, clean-target full-instance restore including attachments/configuration, freshness delivery, rollback/disaster-recovery evidence, and target-runtime acceptance beyond the implemented source-level fail-closed adoption boundary;
 - evaluate and implement GoreeCloud Identity, Policy, Mesh, and Observability contracts;
 - harden deployment configuration, Content Security Policy, headers, session/cookie behavior, and optional-provider boundaries;
