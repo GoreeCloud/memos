@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Bản demo",
     "distribution": "Phân phối",
-    "documents-note": "Triển khai, cấu hình và sử dụng Memos",
+    "documents-note": "Triển khai, cấu hình và sử dụng {{productName}}",
     "github-repository-note": "Mã nguồn, sự cố và bản phát hành",
     "license": "Giấy phép",
     "official-website-note": "Trang chủ dự án",
-    "powered-by": "Được cung cấp bởi Memos",
+    "powered-by": "Được cung cấp bởi {{productName}}",
     "project": "Dự án",
     "project-links": "Liên kết dự án",
     "web-clipper": "Web Clipper",
@@ -132,7 +132,7 @@
     "previous-month": "Tháng trước",
     "resize-panel": "Thay đổi kích thước bảng điều khiển",
     "resize-sidebar": "Thay đổi kích thước thanh bên",
-    "sign-in-to-memos": "Đăng nhập vào Memos",
+    "sign-in-to-memos": "Đăng nhập vào {{productName}}",
     "tasks": "Nhiệm vụ",
     "unlink": "Hủy liên kết",
     "view-all": "Xem tất cả"
@@ -950,8 +950,8 @@
   },
   "demo": {
     "banner-description": "Hãy thoải mái khám phá! Bản demo này được đặt lại định kỳ.",
-    "banner-title": "Bản demo Memos",
-    "deploy-link": "Triển khai Memos của riêng bạn"
+    "banner-title": "Bản demo {{productName}}",
+    "deploy-link": "Triển khai {{productName}} của riêng bạn"
   },
   "profile": {
     "no-shared-memos": "@{{username}} chưa chia sẻ bất kỳ ghi chú nào.",

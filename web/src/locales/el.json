@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Επίδειξη",
     "distribution": "Διανομή",
-    "documents-note": "Ανάπτυξη, διαμόρφωση και χρήση του Memos",
+    "documents-note": "Ανάπτυξη, διαμόρφωση και χρήση του {{productName}}",
     "github-repository-note": "Πηγή, ζητήματα και εκδόσεις",
     "license": "Άδεια χρήσης",
     "official-website-note": "Η αρχική σελίδα του έργου",
-    "powered-by": "Με την υποστήριξη του Memos",
+    "powered-by": "Με την υποστήριξη του {{productName}}",
     "project": "Έργο",
     "project-links": "Σύνδεσμοι έργου",
     "web-clipper": "Web Clipper",
@@ -46,8 +46,8 @@
   },
   "demo": {
     "banner-description": "Οι αλλαγές είναι προσωρινές και ενδέχεται να επαναφερθούν.",
-    "banner-title": "Επίδειξη Memos",
-    "deploy-link": "Αναπτύξτε το Memos σας"
+    "banner-title": "Επίδειξη {{productName}}",
+    "deploy-link": "Αναπτύξτε το {{productName}} σας"
   },
   "attachment-library": {
     "actions": {
@@ -172,7 +172,7 @@
     "previous-month": "Προηγούμενος μήνας",
     "resize-panel": "Αλλαγή μεγέθους πίνακα",
     "resize-sidebar": "Αλλαγή μεγέθους πλευρικής γραμμής",
-    "sign-in-to-memos": "Σύνδεση στο Memos",
+    "sign-in-to-memos": "Σύνδεση στο {{productName}}",
     "view-all": "Προβολή όλων"
   },
   "locale-picker": {

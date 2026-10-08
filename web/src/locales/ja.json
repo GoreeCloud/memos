@@ -7,13 +7,13 @@
     "demo": "デモ",
     "distribution": "ディストリビューション",
     "documents": "ドキュメント",
-    "documents-note": "Memosのデプロイ・設定・使い方",
+    "documents-note": "{{productName}}のデプロイ・設定・使い方",
     "github-repository": "GitHubリポジトリ",
     "github-repository-note": "ソースコード・Issue・リリース",
     "license": "ライセンス",
     "official-website": "公式サイト",
     "official-website-note": "プロジェクトのホームページ",
-    "powered-by": "Powered by Memos",
+    "powered-by": "Powered by {{productName}}",
     "project": "プロジェクト",
     "project-links": "プロジェクトリンク",
     "web-clipper": "Web Clipper",
@@ -112,7 +112,7 @@
     "settings": "設定",
     "share": "共有する",
     "sign-in": "サインイン",
-    "sign-in-to-memos": "Memosにサインイン",
+    "sign-in-to-memos": "{{productName}}にサインイン",
     "sign-out": "サインアウト",
     "sign-up": "登録",
     "statistics": "統計",
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "変更は一時的なものであり、リセットされる場合があります。",
-    "banner-title": "Memos デモ",
-    "deploy-link": "Memos を導入する"
+    "banner-title": "{{productName}} デモ",
+    "deploy-link": "{{productName}} を導入する"
   },
   "attachment-library": {
     "actions": {

@@ -7,13 +7,13 @@
     "demo": "示範",
     "distribution": "發行版本",
     "documents": "文件",
-    "documents-note": "部署、設定及使用 Memos",
+    "documents-note": "部署、設定及使用 {{productName}}",
     "github-repository": "GitHub 儲存庫",
     "github-repository-note": "原始碼、問題與版本發佈",
     "license": "授權條款",
     "official-website": "官方網站",
     "official-website-note": "專案首頁",
-    "powered-by": "由 Memos 提供支援",
+    "powered-by": "由 {{productName}} 提供支援",
     "project": "專案",
     "project-links": "專案連結",
     "web-clipper": "網頁剪藏器",
@@ -53,8 +53,8 @@
   },
   "demo": {
     "banner-description": "這裡的改動是暫時的，可能會被重置。",
-    "banner-title": "Memos demo",
-    "deploy-link": "部署您的 Memos"
+    "banner-title": "{{productName}} demo",
+    "deploy-link": "部署您的 {{productName}}"
   },
   "attachment-details": {
     "actions": {
@@ -191,7 +191,7 @@
     "settings": "設定",
     "share": "分享",
     "sign-in": "登入",
-    "sign-in-to-memos": "登入 Memos",
+    "sign-in-to-memos": "登入 {{productName}}",
     "sign-out": "登出",
     "sign-up": "註冊",
     "statistics": "統計",

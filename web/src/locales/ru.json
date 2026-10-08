@@ -9,11 +9,11 @@
     "commit": "Коммит",
     "demo": "Демо",
     "distribution": "Дистрибутив",
-    "documents-note": "Развёртывание, настройка и использование Memos",
+    "documents-note": "Развёртывание, настройка и использование {{productName}}",
     "github-repository-note": "Исходный код, задачи и выпуски",
     "license": "Лицензия",
     "official-website-note": "Главная страница проекта",
-    "powered-by": "Работает на базе Memos",
+    "powered-by": "Работает на базе {{productName}}",
     "project": "Проект",
     "project-links": "Ссылки проекта",
     "web-clipper": "Веб-клиппер",
@@ -130,7 +130,7 @@
     "next-month": "Следующий месяц",
     "previous-month": "Предыдущий месяц",
     "resize-sidebar": "Изменить ширину боковой панели",
-    "sign-in-to-memos": "Войти в Memos",
+    "sign-in-to-memos": "Войти в {{productName}}",
     "tasks": "Задачи",
     "collapse-panel": "Свернуть панель",
     "expand-panel": "Развернуть панель",
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "Изменения носят временный характер и могут быть сброшены.",
-    "banner-title": "Memos демо",
-    "deploy-link": "Разверните свой Memos"
+    "banner-title": "{{productName}} демо",
+    "deploy-link": "Разверните свой {{productName}}"
   },
   "attachment-details": {
     "actions": {

@@ -145,6 +145,26 @@ describe("locale key usage", () => {
   });
 });
 
+const productNameKeys = [
+  "about.documents-note",
+  "about.powered-by",
+  "common.sign-in-to-memos",
+  "demo.banner-title",
+  "demo.deploy-link",
+] as const;
+
+describe("GoreeCloud product-name localization", () => {
+  it("uses a product-name slot only in the reviewed branding keys", () => {
+    for (const [path, module] of Object.entries(locales)) {
+      const messages = flatten(module.default);
+      for (const key of productNameKeys) {
+        expect(messages[key], `${path}:${key}`).toContain("{{productName}}");
+        expect(messages[key], `${path}:${key}`).not.toContain("Memos");
+      }
+    }
+  });
+});
+
 describe("locale resources", () => {
   it("allows extra plural categories only for existing plural messages", () => {
     expect(referenceFor("setting.sso.scope-count_few")).toBe(source["setting.sso.scope-count_other"]);

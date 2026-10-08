@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demo",
     "distribution": "Distribuce",
-    "documents-note": "Nasazení, konfigurace a použití Memos",
+    "documents-note": "Nasazení, konfigurace a použití {{productName}}",
     "github-repository-note": "Zdroj, problémy a verze",
     "license": "Licence",
     "official-website-note": "Domovská stránka projektu",
-    "powered-by": "Vytvořeno pomocí Memos",
+    "powered-by": "Vytvořeno pomocí {{productName}}",
     "project": "Projekt",
     "project-links": "Odkazy na projekty",
     "web-clipper": "Web Clipper",
@@ -134,7 +134,7 @@
     "previous-month": "Předchozí měsíc",
     "resize-panel": "Změnit velikost panelu",
     "resize-sidebar": "Změnit velikost postranního panelu",
-    "sign-in-to-memos": "Přihlásit se do Memos",
+    "sign-in-to-memos": "Přihlásit se do {{productName}}",
     "view-all": "Zobrazit vše"
   },
   "locale-picker": {
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "Změny jsou dočasné a lze je resetovat.",
-    "banner-title": "Memos demo",
-    "deploy-link": "Nasaďte svůj Memos"
+    "banner-title": "{{productName}} demo",
+    "deploy-link": "Nasaďte svůj {{productName}}"
   },
   "attachment-library": {
     "actions": {

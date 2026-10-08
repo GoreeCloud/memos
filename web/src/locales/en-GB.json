@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demo",
     "distribution": "Distribution",
-    "documents-note": "Deploy, configure, and use Memos",
+    "documents-note": "Deploy, configure, and use {{productName}}",
     "github-repository-note": "Source, issues, and releases",
     "license": "License",
     "official-website-note": "The project homepage",
-    "powered-by": "Powered by Memos",
+    "powered-by": "Powered by {{productName}}",
     "project": "Project",
     "project-links": "Project links",
     "web-clipper": "Web Clipper",
@@ -133,7 +133,7 @@
     "previous-month": "Previous month",
     "resize-panel": "Resize panel",
     "resize-sidebar": "Resize sidebar",
-    "sign-in-to-memos": "Sign in to Memos",
+    "sign-in-to-memos": "Sign in to {{productName}}",
     "tasks": "Tasks",
     "view-all": "View all"
   },
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "Feel free to explore! This demo is reset periodically.",
-    "banner-title": "Memos demo",
-    "deploy-link": "Deploy your own Memos"
+    "banner-title": "{{productName}} demo",
+    "deploy-link": "Deploy your own {{productName}}"
   },
   "attachment-library": {
     "actions": {

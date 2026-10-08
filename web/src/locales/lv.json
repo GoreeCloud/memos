@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demonstrācija",
     "distribution": "Izplatīšana",
-    "documents-note": "Izvietošana, konfigurēšana un lietošana Memos",
+    "documents-note": "Izvietošana, konfigurēšana un lietošana {{productName}}",
     "github-repository-note": "Avots, problēmas un laidieni",
     "license": "Licence",
     "official-website-note": "Projekta sākumlapa",
-    "powered-by": "Darbojas ar Memos",
+    "powered-by": "Darbojas ar {{productName}}",
     "project": "Projekts",
     "project-links": "Projekta saites",
     "web-clipper": "Web Clipper",
@@ -46,8 +46,8 @@
   },
   "demo": {
     "banner-description": "Izmaiņas ir īslaicīgas un var tikt atiestatītas.",
-    "banner-title": "Memos demonstrācija",
-    "deploy-link": "Izvietojiet savu Memos"
+    "banner-title": "{{productName}} demonstrācija",
+    "deploy-link": "Izvietojiet savu {{productName}}"
   },
   "attachment-library": {
     "actions": {
@@ -172,7 +172,7 @@
     "previous-month": "Iepriekšējais mēnesis",
     "resize-panel": "Mainīt paneļa izmērus",
     "resize-sidebar": "Mainīt sānu joslas izmērus",
-    "sign-in-to-memos": "Pierakstīties pakalpojumā Memos",
+    "sign-in-to-memos": "Pierakstīties pakalpojumā {{productName}}",
     "view-all": "Skatīt visu"
   },
   "locale-picker": {

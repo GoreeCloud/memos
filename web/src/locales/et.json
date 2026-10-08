@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demo",
     "distribution": "Levitamine",
-    "documents-note": "Juurutamine, seadistamine ja kasutamine Memos",
+    "documents-note": "Juurutamine, seadistamine ja kasutamine {{productName}}",
     "github-repository-note": "Lähtekood, probleemid ja versioonid",
     "license": "Litsents",
     "official-website-note": "Projekti avaleht",
-    "powered-by": "Põhineb Memosel",
+    "powered-by": "Põhineb {{productName}}el",
     "project": "Projekt",
     "project-links": "Projekti lingid",
     "web-clipper": "Web Clipper",
@@ -46,8 +46,8 @@
   },
   "demo": {
     "banner-description": "Muudatused on ajutised ja neid võidakse lähtestada.",
-    "banner-title": "Memos demo",
-    "deploy-link": "Juurutage oma Memos"
+    "banner-title": "{{productName}} demo",
+    "deploy-link": "Juurutage oma {{productName}}"
   },
   "attachment-library": {
     "actions": {
@@ -172,7 +172,7 @@
     "previous-month": "Eelmine kuu",
     "resize-panel": "Paneeli suuruse muutmine",
     "resize-sidebar": "Külgriba suuruse muutmine",
-    "sign-in-to-memos": "Logi sisse Memos",
+    "sign-in-to-memos": "Logi sisse {{productName}}",
     "view-all": "Kuva kõik"
   },
   "locale-picker": {

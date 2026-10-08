@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demo",
     "distribution": "Distributie",
-    "documents-note": "Implementeren, configureren en gebruiken van Memos",
+    "documents-note": "Implementeren, configureren en gebruiken van {{productName}}",
     "github-repository-note": "Broncode, problemen en releases",
     "license": "Licentie",
     "official-website-note": "De projecthomepage",
-    "powered-by": "Mogelijk gemaakt door Memos",
+    "powered-by": "Mogelijk gemaakt door {{productName}}",
     "project": "Project",
     "project-links": "Projectlinks",
     "web-clipper": "Web Clipper",
@@ -134,7 +134,7 @@
     "previous-month": "Vorige maand",
     "resize-panel": "Paneelgrootte aanpassen",
     "resize-sidebar": "Zijbalkgrootte aanpassen",
-    "sign-in-to-memos": "Aanmelden bij Memos",
+    "sign-in-to-memos": "Aanmelden bij {{productName}}",
     "view-all": "Alles bekijken"
   },
   "locale-picker": {
@@ -859,8 +859,8 @@
   },
   "demo": {
     "banner-description": "Wijzigingen zijn tijdelijk en kunnen worden gereset.",
-    "banner-title": "Memos-demo",
-    "deploy-link": "Implementeer uw Memos"
+    "banner-title": "{{productName}}-demo",
+    "deploy-link": "Implementeer uw {{productName}}"
   },
   "attachment-library": {
     "actions": {

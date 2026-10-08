@@ -9,11 +9,11 @@
     "commit": "Commit",
     "demo": "Demonstração",
     "distribution": "Distribuição",
-    "documents-note": "Implantação, configuração e uso do Memos",
+    "documents-note": "Implantação, configuração e uso do {{productName}}",
     "github-repository-note": "Código-fonte, problemas e versões",
     "license": "Licença",
     "official-website-note": "Página inicial do projeto",
-    "powered-by": "Desenvolvido por Memos",
+    "powered-by": "Desenvolvido por {{productName}}",
     "project": "Projeto",
     "project-links": "Links do projeto",
     "web-clipper": "Web Clipper",
@@ -132,7 +132,7 @@
     "previous-month": "Mês anterior",
     "resize-panel": "Redimensionar painel",
     "resize-sidebar": "Redimensionar barra lateral",
-    "sign-in-to-memos": "Entrar em Memos",
+    "sign-in-to-memos": "Entrar em {{productName}}",
     "tasks": "Tarefas",
     "unlink": "Desvincular",
     "view-all": "Ver tudo"
@@ -950,8 +950,8 @@
   },
   "demo": {
     "banner-description": "Sinta-se à vontade para explorar! Esta demonstração é reiniciada periodicamente.",
-    "banner-title": "Demonstração de Memos",
-    "deploy-link": "Implante seu próprio Memos"
+    "banner-title": "Demonstração de {{productName}}",
+    "deploy-link": "Implante seu próprio {{productName}}"
   },
   "profile": {
     "no-shared-memos": "@{{username}} ainda não compartilhou nenhum memorando.",
