@@ -38,3 +38,4 @@
 - Privacy Shield 2.0 application-adapter source contract for telemetry minimization, data minimization, deletion controls, and portable export, centrally registered through Privacy Shield PR #180 while exact-runtime acceptance and production approval remain explicitly false.
 
 - Source-level GoreeCloud Observability operational-signal producer boundary for process liveness and database readiness, pinned to reviewed v1 schemas with minimized/fail-closed state and no live collector or production-acceptance claim.
+\n- Source-level Wardveil 2.0 / Foundation 0.9 status-consumer boundary with strict schema decoding, fail-closed freshness and authority evaluation, sensitive-evidence rejection, and textual normalized-state labels; live Wardveil runtime protection remains unaccepted.\n

@@ -1,0 +1,23 @@
+{
+  "source": "GoreeCloud/wardveil",
+  "revision": "d3c54f47dcbd3b691ab2c98946b1e556985d8391",
+  "productVersion": "2.0.0",
+  "foundationVersion": "0.9.0",
+  "statusContractVersion": "0.1.0",
+  "statusSchema": {
+    "path": "contracts/wardveil.status.schema.json",
+    "blobSha": "d0f31bbbd2d7f7c059736433b25883e76301581e"
+  },
+  "capabilitiesContract": {
+    "path": "contracts/wardveil.capabilities.json",
+    "blobSha": "a32f81feb912f4e4929c2c06036995c73346b0e7"
+  },
+  "identityContract": {
+    "path": "contracts/wardveil.identity.json",
+    "blobSha": "1a26fd67a61215fa2428256714791973e4fc29b4"
+  },
+  "adoptionRequirements": {
+    "path": "docs/ADOPTION.md",
+    "blobSha": "a7e4a2cae402e6c88f0e63698e100d4d0fb9e417"
+  }
+}

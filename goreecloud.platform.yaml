@@ -70,10 +70,17 @@ platform_systems:
       - store/memo_delete_policy.go
     notes: The Memos application-privacy adapter is centrally registered in Privacy Shield through PR #180 / main 96213c9b415ba132ded7c65778be04b38da79ff4 for telemetry minimization, data minimization, deletion controls, and portable export. Exact-runtime acceptance, Privacy Shield policy/status transport, privacy-status production, production approval, and lifecycle promotion remain open.
   wardveil_security:
-    result: applicable-blocked
-    version: null
-    evidence: [docs/SECURITY.md]
-    notes: Source hardening is active; Wardveil runtime protection and production security acceptance remain open.
+    result: applicable-migration-required
+    version: "2.0.0"
+    evidence:
+      - docs/SECURITY.md
+      - docs/WARDVEIL-INTEGRATION.md
+      - integrations/wardveil/adoption.json
+      - integrations/wardveil/acceptance.json
+      - provenance/wardveil.json
+      - internal/wardveil/status.go
+      - internal/wardveil/status_test.go
+    notes: A source-level, read-only, fail-closed Wardveil 2.0 / Foundation 0.9 status consumer is implemented against status contract 0.1.0. Live status transport, producer authentication, Wardveil runtime controls and events, target-runtime acceptance, Protected by Wardveil authority, and production approval remain open.
   everkeep:
     result: applicable-migration-required
     version: "0.5.0"

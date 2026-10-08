@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "application": "GoreeCloud Memos",
+  "repository": "GoreeCloud/memos",
+  "wardveil": {
+    "repository": "GoreeCloud/wardveil",
+    "revision": "d3c54f47dcbd3b691ab2c98946b1e556985d8391",
+    "product_version": "2.0.0",
+    "foundation_version": "0.9.0",
+    "status_contract_version": "0.1.0",
+    "status_schema": {
+      "path": "contracts/wardveil.status.schema.json",
+      "blob_sha": "d0f31bbbd2d7f7c059736433b25883e76301581e"
+    }
+  },
+  "acceptance": {
+    "source_consumer_implemented": true,
+    "live_status_transport_active": false,
+    "producer_authentication_complete": false,
+    "runtime_acceptance_complete": false,
+    "production_approved": false,
+    "protected_by_wardveil_authorized": false
+  }
+}
