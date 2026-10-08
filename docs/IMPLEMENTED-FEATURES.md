@@ -31,3 +31,5 @@
 - Bounded SQLite database snapshot CLI (memos snapshot sqlite) using transactionally consistent VACUUM INTO, no-overwrite safeguards, and post-write integrity verification; this is explicitly not a full-instance backup.
 
 - Shared GoreeCloud Memos product-name interpolation for reviewed product-branding locale keys across all bundled locales, preserving each locale's surrounding grammar while leaving generic memo nouns, export-format terminology, companion-project names, and upstream provenance untouched.
+
+- Trusted-proxy-aware refresh-cookie transport inference shared by REST/gRPC-Gateway and Connect, preserving HttpOnly/SameSite behavior while ignoring untrusted forwarding and Origin spoofing.
