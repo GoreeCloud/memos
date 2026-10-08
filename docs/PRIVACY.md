@@ -9,6 +9,7 @@ The rebuild defaults new instances to private regardless of whether an external 
 User-owned notes and attachments remain exportable. Future backup integration must minimize metadata, exclude reusable secrets from ordinary backup bundles, and support clean-target restoration.
 
 Maps, webhooks, identity providers, object storage, AI providers, and other external integrations may disclose data to the configured provider; they are optional and must not be represented as local-only behavior.
+The maintained source-level inventory of product-managed external requests, activation conditions, and data boundaries is [Outbound Network Behavior](OUTBOUND-NETWORK.md).
 Demo mode is an explicit public demonstration exception intended for synthetic/demo content; it must not be used as the deployment mode for private user data.
 
 ## Privacy Shield source contract
