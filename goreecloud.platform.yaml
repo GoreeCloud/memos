@@ -107,7 +107,7 @@ platform_systems:
     result: applicable-blocked
     version: null
     evidence: [docs/SECURITY.md, docs/PLANNED-FEATURES.md]
-    notes: Existing local/OIDC account support is inherited; authoritative GoreeCloud Identity integration remains open.
+    notes: Existing local/OIDC account support is inherited; authoritative GoreeCloud Identity integration remains open. GoreeCloud/identity#3 tracks the missing first-party application session/user-context contract; Memos must not treat inherited local/OIDC accounts as authoritative GoreeCloud Identity integration.
   policy:
     result: applicable-blocked
     version: null
