@@ -79,16 +79,16 @@ func bootInstance(ctx context.Context, t *testing.T, opts instanceOptions) *inst
 	}
 
 	instanceProfile := &profile.Profile{
-		Demo:        opts.demo,
-		Addr:        "127.0.0.1",
-		Port:        unusedPort(t),
-		Data:        dataDir,
-		Driver:      "sqlite",
-		InstanceURL: opts.instanceURL,
+		Demo:           opts.demo,
+		Addr:           "127.0.0.1",
+		Port:           unusedPort(t),
+		Data:           dataDir,
+		Driver:         "sqlite",
+		InstanceURL:    opts.instanceURL,
 		RateLimit:      opts.rateLimit,
 		TrustedProxies: opts.trustedProxies,
 		Version:        version.GetCurrentVersion(),
-		Commit:      version.Commit,
+		Commit:         version.Commit,
 	}
 	require.NoError(t, instanceProfile.Validate(), "profile should validate")
 
