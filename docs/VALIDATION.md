@@ -45,3 +45,11 @@ The broader inherited upstream unit suite had already exposed baseline failures 
 The Development validation suite includes a clean-target round-trip test for the existing personal Memos archive: a user library is exported from one isolated instance, imported into a fresh isolated instance with the same user identity recreated, and exported again for verification. The test covers memo count/content, timestamps, pin state, archive state, comments, memo relations, location, tags, and attachment bytes.
 
 This is portable user-data evidence, not an operational instance-backup claim. Accounts, sessions, instance settings, identity providers, webhooks, and Spaces remain instance-owned state. When a personal archive references a Space that does not exist on the destination, import fails closed by dropping the Space association and making that memo private rather than fabricating authorization state.
+
+## Database migration and upgrade matrix
+
+The repository defines a dedicated Development acceptance runner at `scripts/run_database_upgrade_acceptance.sh` and a GitHub Actions matrix for `sqlite`, `mysql`, and `postgres`.
+
+The bounded matrix exercises critical migration behavior including minimum-supported-version handling, downgrade rejection, previous-stable upgrade, v0.26.2 legacy-data preservation, repeated/idempotent migration, and unique-email migration behavior. The container-backed lanes use the repository-pinned MySQL 8.4 and PostgreSQL 18 test engines plus pinned historical Memos release fixtures.
+
+This is source-defined Development coverage, not a production database certification. Exact candidate and exact merged-main workflow evidence remains required before claiming an integrated result, and representative production-sized datasets, deployment-specific backup/restore, rollback, and long-running upgrade acceptance remain separate gates.

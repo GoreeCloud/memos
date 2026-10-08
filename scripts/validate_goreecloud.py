@@ -26,12 +26,14 @@ required = [
     "docs/PRIVACY.md",
     "docs/BACKUP-AND-RECOVERY.md",
     "docs/PERFORMANCE.md",
+    "docs/DATABASE-COMPATIBILITY.md",
     "docs/GLAZE-ADOPTION.md",
     "docs/UPSTREAM.md",
     "docs/VALIDATION.md",
     "provenance/upstream.json",
     "provenance/glaze.json",
     "provenance/branding.json",
+    "scripts/run_database_upgrade_acceptance.sh",
     "web/public/goreecloud-memos.svg",
     "web/src/themes/goreecloud.css",
     "web/public/goreecloud/glaze/css/glaze-v1.4.1.css",
@@ -120,6 +122,21 @@ workflow_dir = ROOT / ".github/workflows"
 workflow_files = sorted(path.name for path in workflow_dir.glob("*.yml"))
 require(workflow_files == ["goreecloud-validate.yml"], f"unexpected active workflow set: {workflow_files}")
 workflow_text = (workflow_dir / "goreecloud-validate.yml").read_text()
+require("database-upgrade-matrix:" in workflow_text, "dedicated database upgrade matrix job missing")
+for driver in ("sqlite", "mysql", "postgres"):
+    require(f"          - {driver}" in workflow_text, f"database upgrade matrix missing driver: {driver}")
+require("./scripts/run_database_upgrade_acceptance.sh" in workflow_text, "database upgrade matrix must use the repository-local acceptance runner")
+
+database_acceptance = (ROOT / "scripts/run_database_upgrade_acceptance.sh").read_text()
+for driver in ("sqlite", "mysql", "postgres"):
+    require(driver in database_acceptance, f"database acceptance runner missing driver: {driver}")
+for test_name in (
+    "TestUpgradeFromPreviousStableRenamesShortcutsToMemoViews",
+    "TestMigrationFromV0262PreservesLegacyData",
+    "TestMigrationUniqueEmail",
+):
+    require(test_name in database_acceptance, f"database acceptance runner missing critical test: {test_name}")
+
 for line in workflow_text.splitlines():
     stripped = line.strip()
     if stripped.startswith("uses:"):
