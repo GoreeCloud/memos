@@ -89,7 +89,6 @@ platform_systems:
     version: "1.7.0"
     evidence:
       - docs/GLAZE-ADOPTION.md
-    - docs/OBSERVABILITY-INTEGRATION.md
       - provenance/glaze.json
       - web/src/themes/goreecloud.css
       - web/public/goreecloud/glaze/css/glaze-v1.4.1.css
@@ -99,7 +98,7 @@ platform_systems:
     result: applicable-blocked
     version: null
     evidence: [docs/PLANNED-FEATURES.md]
-    notes: Capability registration and authenticated Mesh integration remain open.
+    notes: Capability registration and authenticated Mesh integration remain open. GoreeCloud/mesh#51 tracks the missing canonical Observability evidence-producer path; Memos must not invent an unsupported producer or authority-domain mapping.
     capabilities: []
     dependencies: []
     published_events: []
@@ -108,12 +107,12 @@ platform_systems:
     result: applicable-blocked
     version: null
     evidence: [docs/SECURITY.md, docs/PLANNED-FEATURES.md]
-    notes: Existing local/OIDC account support is inherited; authoritative GoreeCloud Identity integration remains open.
+    notes: Existing local/OIDC account support is inherited; authoritative GoreeCloud Identity integration remains open. GoreeCloud/identity#3 tracks the missing first-party application session/user-context contract; Memos must not treat inherited local/OIDC accounts as authoritative GoreeCloud Identity integration.
   policy:
     result: applicable-blocked
     version: null
     evidence: [docs/PLANNED-FEATURES.md]
-    notes: GoreeCloud Policy runtime decisions and enforcement remain open.
+    notes: GoreeCloud Policy runtime decisions and enforcement remain open. GoreeCloud/policy#3 tracks the missing authenticated application evaluation/enforcement contract; Memos must not treat the unauthenticated Development reference endpoint as production policy authority.
   observability:
     result: applicable-migration-required
     version: "0.1.0-dev"
@@ -184,6 +183,7 @@ conformance:
     - docs/PRIVACY.md
     - docs/PRIVACY-SHIELD-INTEGRATION.md
     - docs/GLAZE-ADOPTION.md
+    - docs/OBSERVABILITY-INTEGRATION.md
   blockers:
     - Fresh Glaze V1.7 repository-local acceptance is incomplete.
     - Integral Platform System runtime integrations remain incomplete; Everkeep, Privacy Shield, and Observability currently have source-level adoption/producer boundaries only, without accepted live/runtime provider paths or production approval.
