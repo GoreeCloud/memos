@@ -266,8 +266,12 @@ func newProfileRateLimiter(profile *profile.Profile) ratelimit.Limiter {
 // gatewayIncomingHeaderMatcher forwards the challenge token to metadata on top
 // of the gateway's default set.
 func gatewayIncomingHeaderMatcher(key string) (string, bool) {
-	if http.CanonicalHeaderKey(key) == challengeTokenHeader {
+	canonicalKey := http.CanonicalHeaderKey(key)
+	if canonicalKey == challengeTokenHeader {
 		return challengeTokenMetadataKey, true
+	}
+	if canonicalKey == "Cookie" {
+		return "cookie", true
 	}
 	return runtime.DefaultHeaderMatcher(key)
 }
