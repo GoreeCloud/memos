@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -237,6 +238,16 @@ func (i *instance) createMemo(t *testing.T, token, memoID, content string) {
 func (i *instance) createDatabaseAttachment(t *testing.T, token, memoID, filename string, content []byte) string {
 	t.Helper()
 
+	_, err := i.server.Store.UpsertInstanceSetting(context.Background(), &storepb.InstanceSetting{
+		Key: storepb.InstanceSettingKey_STORAGE,
+		Value: &storepb.InstanceSetting_StorageSetting{
+			StorageSetting: &storepb.InstanceStorageSetting{
+				StorageType: storepb.InstanceStorageSetting_DATABASE,
+			},
+		},
+	})
+	require.NoError(t, err, "database attachment helper must explicitly select database storage")
+
 	status, body := i.do(t, http.MethodPost, "/api/v1/attachments", token, map[string]any{
 		"filename": filename,
 		"type":     "application/octet-stream",
@@ -422,6 +433,84 @@ func TestStartupSQLiteSnapshotBootsCleanTarget(t *testing.T) {
 	status, body := target.do(t, http.MethodGet, "/readyz", "", nil)
 	require.Equal(t, http.StatusOK, status)
 	require.Equal(t, "Service ready.", string(body))
+}
+
+// TestStartupSQLiteSnapshotAndManagedLocalAttachmentBootCleanTarget proves a
+// SQLite snapshot plus the referenced managed-local attachment file can be
+// restored into a different data-directory path. The attachment reference must
+// remain data-directory-relative so the clean target does not depend on the
+// source machine's absolute path.
+func TestStartupSQLiteSnapshotAndManagedLocalAttachmentBootCleanTarget(t *testing.T) {
+	ctx := context.Background()
+	source := bootInstance(ctx, t, instanceOptions{instanceURL: "http://localhost"})
+	source.createAdmin(t)
+	token := source.signIn(t)
+
+	_, err := source.server.Store.UpsertInstanceSetting(ctx, &storepb.InstanceSetting{
+		Key: storepb.InstanceSettingKey_STORAGE,
+		Value: &storepb.InstanceSetting_StorageSetting{
+			StorageSetting: &storepb.InstanceStorageSetting{
+				StorageType:      storepb.InstanceStorageSetting_LOCAL,
+				FilepathTemplate: "assets/{uuid}_{filename}",
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	source.createMemo(t, token, "snapshot-local", "managed local attachment restore")
+	attachmentBytes := []byte("managed-local attachment survives relocated recovery")
+	status, body := source.do(t, http.MethodPost, "/api/v1/attachments", token, map[string]any{
+		"filename": "local-snapshot.bin",
+		"type":     "application/octet-stream",
+		"content":  attachmentBytes,
+		"memo":     "memos/snapshot-local",
+	})
+	require.Equal(t, http.StatusOK, status, "creating a local attachment should succeed: %s", body)
+
+	created := map[string]any{}
+	require.NoError(t, json.Unmarshal(body, &created))
+	attachmentName, ok := created["name"].(string)
+	require.True(t, ok && strings.HasPrefix(attachmentName, "attachments/"), "attachment should have a resource name: %s", body)
+	attachmentUID := strings.TrimPrefix(attachmentName, "attachments/")
+
+	stored, err := source.server.Store.GetAttachment(ctx, &store.FindAttachment{UID: &attachmentUID})
+	require.NoError(t, err)
+	require.NotNil(t, stored)
+	require.Equal(t, storepb.AttachmentStorageType_LOCAL, stored.StorageType)
+	require.False(t, filepath.IsAbs(filepath.FromSlash(stored.Reference)), "managed local reference must be relocatable")
+
+	sourceAttachmentPath := filepath.Join(source.profile.Data, filepath.FromSlash(stored.Reference))
+	require.FileExists(t, sourceAttachmentPath)
+	sourceAttachmentBytes, err := os.ReadFile(sourceAttachmentPath)
+	require.NoError(t, err)
+	require.Equal(t, attachmentBytes, sourceAttachmentBytes)
+
+	targetDataDir := t.TempDir()
+	snapshotPath := filepath.Join(targetDataDir, "memos_prod.db")
+	createdSnapshot, err := sqlitedb.CreateSnapshot(ctx, source.server.Store.GetDriver().GetDB(), snapshotPath)
+	require.NoError(t, err)
+	require.Equal(t, snapshotPath, createdSnapshot)
+
+	targetAttachmentPath := filepath.Join(targetDataDir, filepath.FromSlash(stored.Reference))
+	require.NoError(t, os.MkdirAll(filepath.Dir(targetAttachmentPath), 0o770))
+	require.NoError(t, os.WriteFile(targetAttachmentPath, sourceAttachmentBytes, 0o600))
+
+	source.shutdown(ctx)
+
+	target := bootInstance(ctx, t, instanceOptions{
+		instanceURL: "http://localhost",
+		dataDir:     targetDataDir,
+	})
+	restoredToken := target.signIn(t)
+	target.requireMemo(t, restoredToken, "snapshot-local", "managed local attachment restore")
+
+	status, restoredBlob := target.do(t, http.MethodGet, "/file/attachments/"+attachmentUID, restoredToken, nil)
+	require.Equal(t, http.StatusOK, status, "restored managed-local attachment should be served")
+	require.Equal(t, attachmentBytes, restoredBlob)
+
+	status, readyBody := target.do(t, http.MethodGet, "/readyz", "", nil)
+	require.Equal(t, http.StatusOK, status)
+	require.Equal(t, "Service ready.", string(readyBody))
 }
 
 // TestStartupPrivateInstance verifies a private instance still exposes the auth

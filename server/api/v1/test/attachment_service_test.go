@@ -135,6 +135,10 @@ func TestCreateAttachment(t *testing.T) {
 		require.NotNil(t, secondStoreAttachment)
 
 		require.NotEqual(t, firstStoreAttachment.Reference, secondStoreAttachment.Reference)
+		require.False(t, filepath.IsAbs(filepath.FromSlash(firstStoreAttachment.Reference)),
+			"relative local-storage templates must persist relocatable references")
+		require.False(t, filepath.IsAbs(filepath.FromSlash(secondStoreAttachment.Reference)),
+			"relative local-storage templates must persist relocatable references")
 
 		firstBlob, err := ts.Service.GetAttachmentBlob(ctx, firstStoreAttachment)
 		require.NoError(t, err)
@@ -229,7 +233,8 @@ func TestCreateAttachmentCleansSavedBlobWhenStoreCreateFails(t *testing.T) {
 	persistedPostCommit, err := ts.Store.GetAttachment(ctx, &store.FindAttachment{UID: &postCommitUID})
 	require.NoError(t, err)
 	require.NotNil(t, persistedPostCommit)
-	require.Equal(t, postCommitPath, filepath.FromSlash(persistedPostCommit.Reference))
+	require.Equal(t, filepath.Join("assets", "post-commit.txt"), filepath.FromSlash(persistedPostCommit.Reference))
+	require.Equal(t, postCommitPath, filepath.Join(ts.Profile.Data, filepath.FromSlash(persistedPostCommit.Reference)))
 
 	cleanupFailurePath := filepath.Join(ts.Profile.Data, "assets", "cleanup-failure.txt")
 	t.Cleanup(func() { _ = os.Remove(cleanupFailurePath) })
