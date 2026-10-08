@@ -34,5 +34,9 @@ describe("ReactionSelector", () => {
 
     await waitFor(() => expect(trigger).toHaveAttribute("aria-expanded", "true"));
     expect(screen.getByRole("button", { name: "👍" })).toBeInTheDocument();
+
+    const popover = document.querySelector('[data-slot="popover-content"]');
+    expect(popover).not.toBeNull();
+    expect(popover).toHaveClass("transition-none");
   });
 });
