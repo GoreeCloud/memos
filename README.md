@@ -51,6 +51,7 @@ pnpm build
 - [Search and saved views](docs/SEARCH-AND-VIEWS.md)
 - [Webhooks](docs/WEBHOOKS.md)
 - [Privacy](docs/PRIVACY.md)
+- [Outbound network behavior](docs/OUTBOUND-NETWORK.md)
 - [Privacy Shield integration](docs/PRIVACY-SHIELD-INTEGRATION.md)
 - [Manager integration boundary](docs/MANAGER-INTEGRATION.md)
 - [Observability integration](docs/OBSERVABILITY-INTEGRATION.md)

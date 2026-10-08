@@ -28,6 +28,7 @@ required = [
     "docs/PLANNED-FEATURES.md",
     "docs/SECURITY.md",
     "docs/PRIVACY.md",
+    "docs/OUTBOUND-NETWORK.md",
     "docs/BACKUP-AND-RECOVERY.md",
     "docs/PERFORMANCE.md",
     "docs/DATABASE-COMPATIBILITY.md",
@@ -94,6 +95,8 @@ theme = (ROOT / "web/src/themes/goreecloud.css").read_text()
 readme = (ROOT / "README.md").read_text()
 license_text = (ROOT / "LICENSE").read_text()
 icon = (ROOT / "web/public/goreecloud-memos.svg").read_bytes()
+linkmeta_source = (ROOT / "internal/linkmeta/html_meta.go").read_text()
+outbound_network_doc = (ROOT / "docs/OUTBOUND-NETWORK.md").read_text()
 
 require(upstream["developmentPath"] == "maintained-fork", "development path must be maintained-fork")
 require(upstream["upstream"]["repository"] == "usememos/memos", "upstream repository mismatch")
@@ -125,6 +128,12 @@ require(init_block.count("INSTANCE_ACCESS_MODE_PUBLIC") == 1, "public startup ac
 require('document.createElement("script")' not in app, "browser client must not execute instance-provided arbitrary scripts")
 require('document.createElement("style")' not in app, "browser client must not execute instance-provided arbitrary CSS")
 require("GoreeCloud Memos" in readme, "README must identify GoreeCloud Memos")
+require("GoreeCloud-Memos-LinkPreview/0.1 (+https://github.com/GoreeCloud/memos)" in linkmeta_source, "link-preview User-Agent must identify GoreeCloud Memos")
+require("usememos.com" not in linkmeta_source, "live link-preview source must not advertise the upstream product URL")
+for marker in ("Link metadata preview", "User webhooks", "OAuth2/OIDC identity provider", "S3-compatible attachment storage", "OpenAI-compatible transcription", "Gemini audio transcription", "Map styles and tiles", "Reverse geocoding"):
+    require(marker in outbound_network_doc, f"outbound network inventory missing path: {marker}")
+require("Outbound Network Behavior](OUTBOUND-NETWORK.md)" in (ROOT / "docs/PRIVACY.md").read_text(), "privacy documentation must link the outbound network inventory")
+require("Outbound network behavior](docs/OUTBOUND-NETWORK.md)" in readme, "README documentation index must include outbound network behavior")
 manager_integration = (ROOT / "docs/MANAGER-INTEGRATION.md").read_text()
 require("GoreeCloud/manager#111" in manager_integration, "Manager integration boundary must pin the canonical contract issue")
 require("applicable-blocked" in manager_integration, "Manager integration boundary must remain fail-closed before contract acceptance")
