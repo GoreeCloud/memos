@@ -11,6 +11,7 @@ import { getFilterSearch, isSearchFilter, type MemoFilter, useMemoFilterContext 
 import { useSpaceContext } from "@/contexts/SpaceContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { useMemoViews } from "@/hooks/useUserQueries";
+import { MEMOS_SEARCH_DOCUMENTATION_URL } from "@/lib/constants";
 import { BUILTIN_TASKS_VIEW_ID, getMemoViewId, isMemoCollectionRoute } from "@/lib/memo-views";
 import { extractSpaceUidFromName, formatSpaceUidForDisplay } from "@/lib/space-display";
 import { cn } from "@/lib/utils";
@@ -189,7 +190,7 @@ const QuickFindDialog = () => {
                 <div className="min-w-0 space-y-1 text-xs text-muted-foreground">
                   <p id={hintId}>{t("search.keyboard-hint")}</p>
                   <a
-                    href="https://usememos.com/docs/usage/shortcuts#filter-expression-syntax"
+                    href={MEMOS_SEARCH_DOCUMENTATION_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block underline underline-offset-2 hover:text-foreground"

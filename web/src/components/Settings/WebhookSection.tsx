@@ -5,6 +5,7 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { userServiceClient } from "@/connect";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import { MEMOS_WEBHOOK_DOCUMENTATION_URL } from "@/lib/constants";
 import { UserWebhook } from "@/types/proto/api/v1/user_service_pb";
 import { useTranslate } from "@/utils/i18n";
 import CreateWebhookDialog from "../CreateWebhookDialog";
@@ -68,7 +69,7 @@ const WebhookSection = () => {
       title={
         <div className="flex items-center gap-2">
           <span>{t("setting.webhook.title")}</span>
-          <LearnMore url="https://usememos.com/docs/integrations/webhooks" />
+          <LearnMore url={MEMOS_WEBHOOK_DOCUMENTATION_URL} />
         </div>
       }
       actions={
