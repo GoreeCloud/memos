@@ -47,10 +47,10 @@
     }
   },
   "acceptance": {
-    "central_adapter_registered": false,
+    "central_adapter_registered": true,
     "runtime_acceptance_complete": false,
     "privacy_status_producer_active": false,
     "production_approved": false
   },
-  "notes": "This is a repository-local source-contract declaration only. It does not establish live Privacy Shield policy execution, centralized status delivery, target-runtime acceptance, production approval, or lifecycle promotion."
+  "notes": "The Privacy Shield source declaration is centrally registered through GoreeCloud/privacy-shield PR #180 at exact main 96213c9b415ba132ded7c65778be04b38da79ff4. Exact-runtime acceptance, privacy-status production, policy/status transport, production approval, and lifecycle promotion remain unaccepted."
 }

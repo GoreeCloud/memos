@@ -109,9 +109,9 @@ require("GoreeCloud Memos" in readme, "README must identify GoreeCloud Memos")
 
 # Privacy Shield source-contract boundary. This validates a repository-local
 # application adapter declaration against the reviewed canonical contract
-# identity; it does not establish central registration, target-runtime
-# acceptance, policy/status transport, production approval, or lifecycle
-# promotion.
+# identity. Central source registration is separately pinned below; this still
+# does not establish target-runtime acceptance, policy/status transport,
+# production approval, or lifecycle promotion.
 require(privacy_shield_provenance["source"] == "GoreeCloud/privacy-shield", "Privacy Shield provenance source mismatch")
 require(privacy_shield_provenance["revision"] == "0da3d1bea33272990375553891044f54b02fcfd4", "Privacy Shield provenance revision mismatch")
 require(privacy_shield_provenance["version"] == "2.0.0", "Privacy Shield provenance version mismatch")
@@ -119,6 +119,14 @@ require(privacy_shield_provenance["adapterSchema"]["path"] == "contracts/privacy
 require(privacy_shield_provenance["adapterSchema"]["blobSha"] == "cc0a50a3d0d5151d06ed34be2df30266a91c3bf9", "Privacy Shield adapter schema blob mismatch")
 require(privacy_shield_provenance["capabilityRegistry"]["path"] == "contracts/privacy-shield.capabilities.json", "Privacy Shield capability registry path mismatch")
 require(privacy_shield_provenance["capabilityRegistry"]["blobSha"] == "d9bb4e26cf7eb3b90034f763e885d47023df3664", "Privacy Shield capability registry blob mismatch")
+require(privacy_shield_provenance["centralRegistration"] == {
+    "repository": "GoreeCloud/privacy-shield",
+    "pullRequest": 180,
+    "revision": "96213c9b415ba132ded7c65778be04b38da79ff4",
+    "validationRun": 37757637020,
+    "adapterPath": "adapters/memos-application-privacy.json",
+    "productionApproved": False,
+}, "Privacy Shield central-registration provenance mismatch")
 
 expected_privacy_capabilities = [
     "telemetry-minimization",
@@ -151,11 +159,11 @@ require(privacy_shield_acceptance["repository"] == "GoreeCloud/memos", "Privacy 
 require(privacy_shield_acceptance["privacy_shield"]["revision"] == privacy_shield_provenance["revision"], "Privacy Shield acceptance/provenance revision mismatch")
 require(list(privacy_shield_acceptance["declared_capabilities"]) == expected_privacy_capabilities, "Privacy Shield acceptance capability set/order mismatch")
 require(privacy_shield_acceptance["acceptance"] == {
-    "central_adapter_registered": False,
+    "central_adapter_registered": True,
     "runtime_acceptance_complete": False,
     "privacy_status_producer_active": False,
     "production_approved": False,
-}, "Privacy Shield acceptance must remain unapproved before runtime acceptance")
+}, "Privacy Shield acceptance boundary drifted after central registration")
 for capability in expected_privacy_capabilities:
     for evidence_path in privacy_shield_acceptance["declared_capabilities"][capability]["evidence"]:
         require((ROOT / evidence_path).is_file(), f"Privacy Shield evidence path missing for {capability}: {evidence_path}")

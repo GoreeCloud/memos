@@ -64,7 +64,7 @@ platform_systems:
       - provenance/privacy-shield.json
       - core/memoexport/doc.go
       - store/memo_delete_policy.go
-    notes: A repository-local application-privacy adapter declaration is pinned to reviewed Privacy Shield 2.0 contracts for telemetry minimization, data minimization, deletion controls, and portable export. Central adapter registration, exact-runtime acceptance, Privacy Shield policy/status transport, production approval, and lifecycle promotion remain open.
+    notes: The Memos application-privacy adapter is centrally registered in Privacy Shield through PR #180 / main 96213c9b415ba132ded7c65778be04b38da79ff4 for telemetry minimization, data minimization, deletion controls, and portable export. Exact-runtime acceptance, Privacy Shield policy/status transport, privacy-status production, production approval, and lifecycle promotion remain open.
   wardveil_security:
     result: applicable-blocked
     version: null

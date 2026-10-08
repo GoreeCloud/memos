@@ -13,6 +13,6 @@ Demo mode is an explicit public demonstration exception intended for synthetic/d
 
 ## Privacy Shield source contract
 
-The repository carries a bounded Privacy Shield application-adapter declaration for telemetry minimization, data minimization, deletion controls, and portable export. This is Development source evidence only: central adapter registration, exact-runtime acceptance, Privacy Shield policy/status transport, and production approval remain open.
+The repository carries a bounded Privacy Shield application-adapter declaration for telemetry minimization, data minimization, deletion controls, and portable export. Central source registration is now verified through GoreeCloud/privacy-shield PR #180 at 96213c9b415ba132ded7c65778be04b38da79ff4. Exact-runtime acceptance, Privacy Shield policy/status transport, privacy-status production, and production approval remain open.
 
 See [Privacy Shield Integration Boundary](PRIVACY-SHIELD-INTEGRATION.md).
