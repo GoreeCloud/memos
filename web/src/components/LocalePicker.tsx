@@ -5,11 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { locales } from "@/i18n";
+import { MEMOS_LOCALIZATION_FEEDBACK_URL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { getLocaleDisplayName, localeMatchesSearch, useTranslate } from "@/utils/i18n";
-
-const MISSING_LANGUAGE_FEEDBACK_URL =
-  "https://github.com/usememos/memos/issues/new?title=Missing%20language%20support&body=Please%20add%20support%20for%20this%20language%3A%0A%0A-%20Language%3A%20";
 
 interface LocaleSearchListProps {
   value: Locale;
@@ -67,7 +65,7 @@ export const LocaleSearchList = (props: LocaleSearchListProps) => {
         {filteredLocales.length === 0 && (
           <div className="px-2 py-6 text-center text-sm">
             <a
-              href={MISSING_LANGUAGE_FEEDBACK_URL}
+              href={MEMOS_LOCALIZATION_FEEDBACK_URL}
               target="_blank"
               rel="noreferrer"
               className="text-primary underline-offset-4 hover:underline"
