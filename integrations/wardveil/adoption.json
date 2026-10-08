@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "application": "GoreeCloud Memos",
+  "repository": "GoreeCloud/memos",
+  "role": "status-consumer",
+  "status_contract_version": "0.1.0",
+  "read_only": true,
+  "fail_closed": true,
+  "accessible_text_state_required": true,
+  "high_impact_executor": false,
+  "notes": "Source-level Wardveil status consumption only. No live provider transport, runtime authorization, protection execution, security-event transport, or Protected by Wardveil claim is established."
+}

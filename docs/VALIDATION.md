@@ -59,3 +59,12 @@ This is source-defined Development coverage, not a production database certifica
 Repository validation pins the Memos operational-signal producer to GoreeCloud/observability revision a7f6a65f442d3e517baddbe7b6ce7c250d142c8c and its v1 operational-signal/component-health schemas. Focused Go tests verify healthy process/database signals, fail-closed database-unavailable/unknown states, timestamp ordering, and rejection of obvious secret-bearing telemetry attribute keys.
 
 This is source validation only. Collector connectivity, producer authentication, transport/retry behavior, durable telemetry, target-runtime acceptance, and production observability approval remain unverified.
+
+
+## Wardveil source-consumer boundary
+
+The Development repository includes a read-only Wardveil status consumer pinned to GoreeCloud/wardveil at d3c54f47dcbd3b691ab2c98946b1e556985d8391, product version 2.0.0 / Foundation 0.9.0, status contract 0.1.0.
+
+Focused tests prove strict decoding, canonical text state labels, rejection of non-authoritative protected state, stale and expired fail-closed behavior, and rejection of obvious sensitive evidence markers. This is source-level adoption evidence only. No live status transport, producer authentication, runtime protection, security-event transport, Protected by Wardveil claim, target-runtime acceptance, or production approval is established.
+
+The source consumer is also centrally registered in GoreeCloud/wardveil through PR #210. Wardveil main `96969fe80acec564ea509c0ae722e9b97e22f6b3` contains the Memos evidence record at `contracts/wardveil.memos.consumer-source-evidence.json` (blob `66d4dac9d0e5f6ad1df3522ddbbba6dc6deee2d1`) and its validator (blob `5f9e18caa3bd8ebbb59a7ef651a5857b1f030ee4`). Exact Wardveil merged-main runs 813 / 37769379314, 534 / 37769379284, and 425 / 37769379290 all succeeded. Central source registration still does not establish runtime or production acceptance.
