@@ -16,3 +16,9 @@ This is **not** a claim of completed Glaze consumer acceptance. The shared Glaze
 The GoreeCloud repository-boundary validator and frontend test suite now fail if the application-owned Memos presentation layer loses its GoreeCloud shell/sidebar/composer/memo-card surfaces, visible focus treatment, responsive mobile transparency fallback, reduced-motion suppression, reduced-transparency fallback, forced-colors semantic treatment, or transparency-disable fallback.
 
 This is source-level regression evidence only. It does not establish rendered conformance, screen-reader or other assistive-technology acceptance, responsive or representative-device acceptance, performance acceptance, rollback acceptance, human visual review, release acceptance, or product acceptance. Memos remains an adoption-required Glaze consumer until those separate gates are satisfied.
+
+## Authentication entry surface
+
+The sign-in, sign-up, first-run setup, and administrator sign-in pages share an application-owned GoreeCloud authentication shell layered on the current Glaze source authority. The shell provides product identity, responsive card geometry, visible hierarchy, reduced-transparency fallback, and forced-colors fallback without changing credential, session, challenge, redirect, or identity-provider semantics.
+
+This is source-level implementation evidence. Representative rendered review, keyboard/screen-reader acceptance, scaling/zoom, reduced-motion/contrast review, and authentication threat-model acceptance remain separate release gates.
