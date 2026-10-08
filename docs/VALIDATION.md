@@ -79,3 +79,11 @@ The storage regression coverage proves that relative LOCAL templates persist dat
 The database-backed attachment helper now explicitly selects DATABASE storage before creating its fixture, so the existing database-attachment recovery acceptance proves database blob recovery rather than accidentally following a LOCAL file path.
 
 This is bounded Development evidence only. It does not inventory all local files, capture explicitly absolute local references, preserve S3 objects, reconstruct deployment/user-managed configuration or governed secrets, schedule/retain/offload backup generations, or establish full-instance recovery.
+
+## Rendered browser acceptance
+
+CI runs Playwright Chromium against a clean private instance built from the exact source revision and exact embedded production frontend. The current bounded lane verifies the first-run authentication/setup shell across 1440x900 desktop light, 390x844 phone dark, and 820x1180 tablet forced-colors contexts with reduced motion enabled.
+
+The lane asserts the main landmark and heading structure, labeled credential inputs, visible keyboard focus, no horizontal overflow before and after 200% text scaling, serious/critical axe findings, expected media-query activation, and page-error absence. Full-page screenshots are retained as workflow artifacts for review.
+
+This establishes automated rendered Development evidence, not human visual approval, independent assistive-technology acceptance, broad application-flow coverage, physical-device qualification, or Glaze production acceptance.
