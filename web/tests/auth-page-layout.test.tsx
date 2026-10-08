@@ -31,6 +31,13 @@ describe("<AuthPageLayout> explore band", () => {
     instance.accessMode = InstanceAccessMode.PRIVATE;
   });
 
+  it("uses the GoreeCloud authentication shell and an accessible main landmark", () => {
+    renderLayout();
+
+    expect(screen.getByRole("main")).toHaveClass("goreecloud-auth-card");
+    expect(screen.getByRole("heading", { level: 1, name: "Sign in" })).toHaveAttribute("id", "auth-page-title");
+  });
+
   it("links to Explore on public instances", () => {
     instance.accessMode = InstanceAccessMode.PUBLIC;
     renderLayout();
