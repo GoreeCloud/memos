@@ -12,7 +12,7 @@ Current upstream baseline:
 - commit: `2b2192d4e153bd04f1d325b60fd880cf00d68b01`
 - license: MIT
 
-At assessment time, upstream `main` was `b1fa9aefcc22fde5774b7f6cf0b3e19fc67acc6e`; those unreleased changes are not silently included.
+The upstream assessment was refreshed on October 8, 2026: `main` was `a2ccca7a92cd97a3141e64be144f8509a690a394`, 40 commits beyond v0.31.0. Those unreleased changes are not silently included. The intervening `af38e75e2dfd0ddd5b685614bd9ec4aafd46306a` API refactor is explicitly treated as a breaking migration review rather than ordinary maintenance intake.
 
 Current architecture classification: **Maintained Fork**.
 

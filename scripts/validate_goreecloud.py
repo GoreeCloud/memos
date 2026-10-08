@@ -420,6 +420,8 @@ workflow_dir = ROOT / ".github/workflows"
 workflow_files = sorted(path.name for path in workflow_dir.glob("*.yml"))
 require(workflow_files == ["goreecloud-validate.yml"], f"unexpected active workflow set: {workflow_files}")
 workflow_text = (workflow_dir / "goreecloud-validate.yml").read_text()
+require((ROOT / "web/playwright.config.ts").is_file(), "rendered browser Playwright config is missing")
+require((ROOT / "web/tests/browser/auth-setup.spec.ts").is_file(), "rendered auth/setup browser acceptance is missing")
 require("database-upgrade-matrix:" in workflow_text, "dedicated database upgrade matrix job missing")
 for driver in ("sqlite", "mysql", "postgres"):
     require(f"          - {driver}" in workflow_text, f"database upgrade matrix missing driver: {driver}")
@@ -435,6 +437,9 @@ for test_name in (
 ):
     require(test_name in database_acceptance, f"database acceptance runner missing critical test: {test_name}")
 
+require("name: Rendered browser acceptance" in workflow_text, "rendered browser acceptance job is missing")
+require("pnpm test:browser" in workflow_text, "rendered browser acceptance command is not wired into CI")
+require("playwright install --with-deps chromium" in workflow_text, "Chromium installation is not wired into rendered acceptance")
 for line in workflow_text.splitlines():
     stripped = line.strip()
     if stripped.startswith("uses:"):

@@ -7,6 +7,7 @@ Current rebuild controls include:
 - new instances initialize **private** even when a canonical external URL is configured;
 - normal memo persistence already defaults to private at the database level;
 - authentication and authorization remain server-enforced;
+- dedicated cross-user acceptance proves core PRIVATE memo, attachment, personal-export, and saved-view boundaries fail closed for a second regular user while owner data remains intact;
 - upstream rate limiting and import validation are retained;
 - optional external AI integrations remain inactive until explicitly configured;
 - arbitrary instance-provided JavaScript injection is disabled in the GoreeCloud browser client;
@@ -35,3 +36,6 @@ A PAT does not create a new authorization role. Requests made with a PAT act wit
 
 Open gates include live Wardveil provider transport, authentication, runtime acceptance, security-event delivery, and production approval; dependency/security scanning; hostile-file validation; production deployment review; backup/restore validation; signing/provenance; and representative penetration/security acceptance.
 Demo mode is an explicit public demonstration exception intended for synthetic/demo content; it must not be used as the deployment mode for private user data.
+
+
+Current automated user-boundary evidence is consolidated in [Cross-User Isolation Acceptance](CROSS-USER-ISOLATION-ACCEPTANCE.md). It is Development evidence for implemented server surfaces and does not replace production penetration testing or acceptance for future synchronization/device/platform state.
