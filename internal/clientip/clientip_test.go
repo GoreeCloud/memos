@@ -75,6 +75,9 @@ func TestSecureRequest(t *testing.T) {
 		{name: "trusted proxy plain http remains insecure", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("X-Forwarded-Proto", "http"), want: false},
 		{name: "conflicting trusted forwarding schemes fail closed", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("X-Forwarded-Proto", "https", "Forwarded", "for=198.51.100.1;proto=http"), want: false},
 		{name: "malformed trusted forwarding scheme fails closed", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("X-Forwarded-Proto", "ftp"), want: false},
+		{name: "nearest X-Forwarded-Proto wins", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("X-Forwarded-Proto", "https, http"), want: false},
+		{name: "nearest X-Forwarded-Proto can report https", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("X-Forwarded-Proto", "http, https"), want: true},
+		{name: "nearest Forwarded element wins", trusted: []string{"203.0.113.0/24"}, remote: "203.0.113.9:80", header: headers("Forwarded", "for=198.51.100.1;proto=https, for=192.0.2.4;proto=http"), want: false},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
