@@ -45,7 +45,7 @@
     "welcome-back": "Ласкаво просимо назад."
   },
   "common": {
-    "about": "Про Memos",
+    "about": "Про {{productName}}",
     "add": "Додати",
     "admin": "Адмін",
     "all": "Усі",
