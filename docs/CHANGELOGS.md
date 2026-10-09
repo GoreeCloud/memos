@@ -9,3 +9,4 @@
 - Added private-first instance initialization.
 - Added Glaze-aligned GoreeCloud application styling and accessibility fallbacks.
 - Disabled arbitrary administrator-provided script execution in the GoreeCloud browser client.
+- Added a bounded `memos snapshot sqlite-local` recovery bundle that pairs the exact SQLite snapshot with all relative managed-local attachment files, per-file integrity metadata, fail-closed path containment, and atomic staged publication.
