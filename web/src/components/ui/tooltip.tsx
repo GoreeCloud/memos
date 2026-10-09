@@ -33,7 +33,7 @@ const TooltipContent = React.forwardRef<
           ref={ref}
           data-slot="tooltip-content"
           className={cn(
-            "bg-primary text-primary-foreground z-tooltip w-fit origin-(--transform-origin) rounded-md px-3 py-1.5 text-xs text-balance",
+            "bg-foreground text-background z-tooltip w-fit origin-(--transform-origin) rounded-md px-3 py-1.5 text-xs text-balance",
             popupMotionClasses,
             className,
           )}
@@ -42,7 +42,7 @@ const TooltipContent = React.forwardRef<
           {children}
           <TooltipPrimitive.Arrow
             className={cn(
-              "pointer-events-none bg-primary z-tooltip size-2.5 rotate-45 rounded-[2px]",
+              "pointer-events-none bg-foreground z-tooltip size-2.5 rotate-45 rounded-[2px]",
               "data-[side=top]:bottom-[-5px] data-[side=bottom]:top-[-5px] data-[side=left]:right-[-5px] data-[side=right]:left-[-5px]",
             )}
           />
