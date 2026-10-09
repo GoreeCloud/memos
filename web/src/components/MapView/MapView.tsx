@@ -204,6 +204,8 @@ export function MapView() {
                 type="button"
                 className={toolClass}
                 aria-label={t("map.zoom-in")}
+                data-goreecloud-icon-button=""
+                data-goreecloud-label={t("map.zoom-in")}
                 title={t("map.zoom-in")}
                 onClick={() => mapRef.current?.zoomIn()}
               >
@@ -213,6 +215,8 @@ export function MapView() {
                 type="button"
                 className={toolClass}
                 aria-label={t("map.zoom-out")}
+                data-goreecloud-icon-button=""
+                data-goreecloud-label={t("map.zoom-out")}
                 title={t("map.zoom-out")}
                 onClick={() => mapRef.current?.zoomOut()}
               >
@@ -225,6 +229,8 @@ export function MapView() {
             type="button"
             className={toolClass}
             aria-label={t("map.fit-all")}
+            data-goreecloud-icon-button=""
+            data-goreecloud-label={t("map.fit-all")}
             title={t("map.fit-all")}
             disabled={query.memos.length === 0}
             onClick={() => {
