@@ -102,3 +102,9 @@ The Development CLI now includes `memos snapshot sqlite-local`. Focused tests pr
 The fail-closed matrix covers missing files, database/file size mismatch, absolute references, path traversal, symlink escape outside the data directory, existing destination preservation, and duplicate database rows sharing one relative file reference. The bundle manifest does not record the source host data-directory path.
 
 This is bounded Development recovery evidence. It does not cover S3 objects, administrator-configured absolute LOCAL paths, deployment/runtime configuration, reusable secrets, scheduled generations, retention, off-device copies, complete restore orchestration, Everkeep runtime acceptance, Production Acceptance, Seal, or Anchor qualification.
+
+## SQLite + managed-local bundle integrity verification
+
+Focused Development tests create a real bounded `sqlite-local` bundle and verify it with the standalone verifier. The positive case rechecks the SQLite database artifact, embedded database manifest, exact LOCAL rows, file hashes/sizes, aggregate counts, and bundle layout. Negative cases prove fail-closed behavior for same-size attachment tampering, unexpected bundled files, database tampering, unknown manifest fields, and symbolic-link substitution where supported by the host.
+
+This is artifact-integrity evidence only. It does not establish S3 or absolute-LOCAL recovery, deployment/configuration/secret restoration, scheduled/multiple generations, retention/off-device replication, restore orchestration, Everkeep runtime acceptance, Production Acceptance, Seal, or Anchor qualification.
