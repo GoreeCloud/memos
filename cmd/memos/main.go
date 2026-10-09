@@ -106,6 +106,7 @@ func init() {
 
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(newSnapshotCommand())
+	rootCmd.AddCommand(newRestoreCommand())
 }
 
 func runServer() error {

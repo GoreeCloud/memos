@@ -26,9 +26,11 @@ The following upstream commits were reviewed and integrated independently throug
 - `0c53b775ce9a56a9fd2e67f03e364cbcd7ab017e` — make JSON boolean filter comparisons correctly match memos where a false flag is omitted; integrated through PR #14.
 - `200b4d0920afd0d4a9c2737c4c01ca43e47bddbe` — keep nested preference submenus on-screen under narrow viewport collision constraints; adapted to the GoreeCloud fork's current nested submenu layer and integrated through PR #23.
 - `631a7ef488998cb444c9a1acf4bd9964a96cdc8a` — prevent the reaction picker from flashing at the page origin when its hover anchor disappears during close; integrated through PR #24 with rendered regression coverage.
+- `e3d25e18dc4ddd957b7c94dc65ebcf3b33d32ad6` — use neutral Korean wording for hidden content rather than assuming every hidden memo is adult/sensitive content; integrated through PR #56.
+- `a2ccca7a92cd97a3141e64be144f8509a690a394` — allow bounded drag panning while an image preview is zoomed; integrated through PR #48.
 - `0b3b5a699906ded5ebdf6b2fd12c865add5527ca` — continue reading bounded response bytes when early link-preview metadata is incomplete; integrated through PR #58.
-- `d566184a45c5bd0e515aef1a32f45659c8bf44ae` — migration-test additions; GoreeCloud selectively adapted the non-duplicative direct v0.31.0 baseline-upgrade coverage through PR #59 without importing unrelated CalVer or broad Go-modernization assumptions.
-- `4eb6fb77e83af84a73c9433b0c68e6e0db61268a` — pinch-to-zoom and swipe-between-images behavior; integrated through PR #60 on top of the existing GoreeCloud image-preview accessibility/pan work.
+- `4eb6fb77e83af84a73c9433b0c68e6e0db61268a` — add mobile-oriented pinch-to-zoom and horizontal gallery swipe behavior while preserving bounded pan/keyboard/button behavior; integrated through PR #60.
+- `d566184a45c5bd0e515aef1a32f45659c8bf44ae` — upstream migration-test additions; GoreeCloud selectively adapted the non-duplicative direct v0.31.0 baseline-upgrade coverage through PR #59 without importing unrelated CalVer or broad Go-modernization assumptions.
 
 Each candidate was isolated, kept attributable to upstream, refreshed onto the then-current protected GoreeCloud `main` without rewriting shared history, and required the repository's exact-head validation path before integration.
 
@@ -42,6 +44,6 @@ The intervening `af38e75e2dfd0ddd5b685614bd9ec4aafd46306a` change, `refactor(api
 
 GitHub issue #10 remains the provider-native tracker for unreleased upstream drift beyond `v0.31.0`. Remaining commits must continue to be evaluated individually or in narrowly coherent groups.
 
-Potential later review candidates still include mixed-scope pinned-memo correctness and other unreleased changes tracked in issue #10. Their presence on upstream `main` is not an implementation claim for GoreeCloud Memos.
+Remaining drift tracked in issue #10 includes the separately governed breaking API-v1 removal and any later fixes that depend on it. Upstream `a316e7935b115e258c9914f8e04cca78bd5ea1a2` (Go source modernization / go-fix CI) is post-breaking-refactor work across broad `server/api/*` paths and is not a clean routine cherry-pick for GoreeCloud's retained v1 surface; narrow useful changes may be reimplemented independently if justified. Upstream sponsor metadata is outside GoreeCloud product-maintenance scope. The migration-test direction in `d566184a45c5bd0e515aef1a32f45659c8bf44ae` is materially covered by GoreeCloud's direct v0.31.0 SQLite/MySQL/PostgreSQL upgrade acceptance without adopting the breaking API migration.
 
 A future stable upstream release may justify a broader baseline review, but adopting a new baseline still requires explicit migration, divergence review, GoreeCloud policy checks, exact-head CI, and protected current-main integration.
