@@ -277,7 +277,7 @@ func resolveBundledLocalReference(dataDir, reference string) (string, string, er
 	}
 
 	normalized := path.Clean(strings.ReplaceAll(reference, "\\", "/"))
-	if normalized == "." || normalized == ".." || strings.HasPrefix(normalized, "../") || path.IsAbs(normalized) {
+	if normalized == "." || normalized == ".." || strings.HasPrefix(normalized, "../") || path.IsAbs(normalized) || looksLikeWindowsAbsolutePath(normalized) {
 		return "", "", errors.Errorf("absolute or escaping LOCAL attachment reference is not supported by this bounded bundle: %q", reference)
 	}
 	if normalized != strings.ReplaceAll(reference, "\\", "/") {
@@ -297,6 +297,13 @@ func resolveBundledLocalReference(dataDir, reference string) (string, string, er
 		return "", "", errors.Errorf("LOCAL attachment reference escapes the instance data directory: %q", reference)
 	}
 	return normalized, resolvedSource, nil
+}
+
+func looksLikeWindowsAbsolutePath(value string) bool {
+	return len(value) >= 3 &&
+		((value[0] >= 'A' && value[0] <= 'Z') || (value[0] >= 'a' && value[0] <= 'z')) &&
+		value[1] == ':' &&
+		value[2] == '/'
 }
 
 func pathWithinRoot(root, candidate string) (bool, error) {

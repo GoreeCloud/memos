@@ -133,6 +133,18 @@ func TestRunSQLiteLocalRecoveryBundleRejectsAbsoluteReference(t *testing.T) {
 	require.NoDirExists(t, output)
 }
 
+func TestRunSQLiteLocalRecoveryBundleRejectsWindowsDriveAbsoluteReference(t *testing.T) {
+	dataDir := t.TempDir()
+	sourcePath := createLocalBundleSourceDatabase(t, dataDir, []sqliteLocalAttachmentRecord{
+		{UID: "windows-absolute-attachment", Filename: "outside.txt", SizeBytes: 7, Reference: "C:/memos/outside.txt"},
+	})
+	output := filepath.Join(t.TempDir(), "recovery-bundle")
+
+	err := runSQLiteLocalRecoveryBundle(t.Context(), dataDir, sourcePath, output, &strings.Builder{})
+	require.ErrorContains(t, err, "absolute or escaping LOCAL attachment reference")
+	require.NoDirExists(t, output)
+}
+
 func TestRunSQLiteLocalRecoveryBundleRejectsTraversalReference(t *testing.T) {
 	parent := t.TempDir()
 	dataDir := filepath.Join(parent, "data")

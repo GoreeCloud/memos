@@ -94,6 +94,7 @@ for test_marker in (
     "FailsClosedOnMissingFile",
     "FailsClosedOnSizeMismatch",
     "RejectsAbsoluteReference",
+    "RejectsWindowsDriveAbsoluteReference",
     "RejectsTraversalReference",
     "RejectsSymlinkEscape",
     "RefusesExistingDestination",
