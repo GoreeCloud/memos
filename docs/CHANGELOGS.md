@@ -10,3 +10,4 @@
 - Added Glaze-aligned GoreeCloud application styling and accessibility fallbacks.
 - Disabled arbitrary administrator-provided script execution in the GoreeCloud browser client.
 - Added a bounded `memos snapshot sqlite-local` recovery bundle that pairs the exact SQLite snapshot with all relative managed-local attachment files, per-file integrity metadata, fail-closed path containment, and atomic staged publication.
+- Added standalone `memos snapshot verify-sqlite-local` integrity checks for bounded SQLite + managed-local recovery bundles, including strict manifests, SQLite quick-check, hashes, path safeguards, and aggregate verification.

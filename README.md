@@ -48,7 +48,11 @@ SQLite plus all relative managed-local attachment files referenced by that exact
 
     memos snapshot sqlite-local --data /path/to/memos-data --output /safe/location/memos-recovery
 
-The second command fails closed on missing/mismatched files, traversal, symlink escape, and absolute LOCAL references. S3 objects, deployment configuration, and reusable secrets still require separate recovery handling; see [Backup and recovery](docs/BACKUP-AND-RECOVERY.md).
+Verify an existing bounded SQLite + managed-local bundle without restoring it:
+
+    memos snapshot verify-sqlite-local --bundle /safe/location/memos-recovery
+
+Bundle creation and verification fail closed on missing/mismatched files, unsafe paths, manifest drift, database integrity failures, and unexpected bundled files. S3 objects, deployment configuration, absolute LOCAL references, reusable secrets, scheduling, retention, and restore orchestration still require separate recovery handling; see [Backup and recovery](docs/BACKUP-AND-RECOVERY.md).
 
 ## Documentation
 
