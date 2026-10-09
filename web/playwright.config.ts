@@ -4,6 +4,7 @@ const baseURL = process.env.MEMOS_BROWSER_BASE_URL || "http://127.0.0.1:18081";
 
 export default defineConfig({
   testDir: "./tests/browser",
+  testMatch: /auth-setup\.spec\.ts/,
   outputDir: "./test-results/browser",
   fullyParallel: false,
   retries: process.env.CI ? 1 : 0,
