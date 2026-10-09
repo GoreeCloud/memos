@@ -51,6 +51,8 @@ required = [
     "scripts/run_database_upgrade_acceptance.sh",
     "cmd/memos/snapshot_local_bundle.go",
     "cmd/memos/snapshot_local_bundle_test.go",
+    "cmd/memos/snapshot_local_bundle_verify.go",
+    "cmd/memos/snapshot_local_bundle_verify_test.go",
     "integrations/everkeep/adoption.json",
     "integrations/everkeep/acceptance.json",
     "integrations/privacy-shield/adapter.json",
@@ -80,8 +82,11 @@ for rel in required:
 snapshot_command = (ROOT / "cmd/memos/snapshot.go").read_text()
 snapshot_local_bundle = (ROOT / "cmd/memos/snapshot_local_bundle.go").read_text()
 snapshot_local_bundle_tests = (ROOT / "cmd/memos/snapshot_local_bundle_test.go").read_text()
+snapshot_local_bundle_verify = (ROOT / "cmd/memos/snapshot_local_bundle_verify.go").read_text()
+snapshot_local_bundle_verify_tests = (ROOT / "cmd/memos/snapshot_local_bundle_verify_test.go").read_text()
 backup_recovery_doc = (ROOT / "docs/BACKUP-AND-RECOVERY.md").read_text()
 require('Use:   "sqlite-local"' in snapshot_command, "sqlite-local recovery command is not wired into the CLI")
+require('Use:   "verify-sqlite-local"' in snapshot_command, "sqlite-local recovery verification command is not wired into the CLI")
 for source_marker in (
     "goreecloud-memos-sqlite-local-recovery-bundle",
     "filepath.EvalSymlinks",
@@ -101,6 +106,24 @@ for test_marker in (
 ):
     require(test_marker in snapshot_local_bundle_tests, f"sqlite-local recovery regression test missing: {test_marker}")
 require("SQLite + relative managed-local recovery bundle" in backup_recovery_doc, "recovery documentation is missing sqlite-local bundle scope")
+for verify_marker in (
+    "DisallowUnknownFields",
+    "PRAGMA quick_check",
+    "rejectSymlinkComponents",
+    "rejectUnexpectedBundleFiles",
+    "validateSHA256Hex",
+):
+    require(verify_marker in snapshot_local_bundle_verify, f"sqlite-local verifier safety marker missing: {verify_marker}")
+for verify_test in (
+    "AcceptsUntamperedBundle",
+    "RejectsTamperedAttachment",
+    "RejectsUnexpectedFile",
+    "RejectsTamperedDatabase",
+    "RejectsUnknownManifestFields",
+    "RejectsSymlinkedAttachment",
+):
+    require(verify_test in snapshot_local_bundle_verify_tests, f"sqlite-local verifier regression test missing: {verify_test}")
+require("Standalone bundle integrity verification" in backup_recovery_doc, "recovery documentation is missing standalone bundle verifier scope")
 for excluded_scope in ("S3 objects", "absolute LOCAL", "deployment", "secret"):
     require(excluded_scope in backup_recovery_doc, f"recovery documentation lost excluded scope: {excluded_scope}")
 
