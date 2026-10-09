@@ -87,3 +87,18 @@ CI runs Playwright Chromium against a clean private instance built from the exac
 The lane asserts the main landmark and heading structure, labeled credential inputs, visible keyboard focus, no horizontal overflow before and after 200% text scaling, serious/critical axe findings, expected media-query activation, and page-error absence. Full-page screenshots are retained as workflow artifacts for review.
 
 This establishes automated rendered Development evidence, not human visual approval, independent assistive-technology acceptance, broad application-flow coverage, physical-device qualification, or Glaze production acceptance.
+
+
+## Authenticated rendered Chromium lane
+
+The rendered-browser CI job uses a second clean private instance for authenticated application-flow acceptance. A one-time setup project creates the test administrator and persists browser storage state; serialized desktop-light, phone-dark, and tablet-forced-colors projects then verify the home/composer shell and save a real memo. This lane is deliberately separate from first-run setup acceptance so authentication state cannot weaken or invalidate the clean-install test.
+
+Acceptance is bounded to automated Chromium Development evidence: shell identity, core composer/memo rendering, visible keyboard focus, serious/critical axe checks, 200% reflow, horizontal-overflow absence, reduced motion, dark mode, forced colors, and page-error absence. Independent assistive-technology, human visual, representative physical-device/browser, full localization/RTL, performance, rollback, and production acceptance remain open.
+
+## SQLite + relative managed-local recovery bundle
+
+The Development CLI now includes `memos snapshot sqlite-local`. Focused tests prove that it creates an exact SQLite snapshot, inventories every relative `LOCAL` attachment row from that snapshot, copies the referenced files under a restore-preserving `local-files/` tree, records per-file SHA-256 and byte size, and publishes the destination only after the staged bundle is complete.
+
+The fail-closed matrix covers missing files, database/file size mismatch, absolute references, path traversal, symlink escape outside the data directory, existing destination preservation, and duplicate database rows sharing one relative file reference. The bundle manifest does not record the source host data-directory path.
+
+This is bounded Development recovery evidence. It does not cover S3 objects, administrator-configured absolute LOCAL paths, deployment/runtime configuration, reusable secrets, scheduled generations, retention, off-device copies, complete restore orchestration, Everkeep runtime acceptance, Production Acceptance, Seal, or Anchor qualification.

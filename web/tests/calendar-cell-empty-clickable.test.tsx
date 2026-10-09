@@ -83,9 +83,11 @@ describe("CalendarCell empty-day clickability", () => {
     expect(chipOf(button)).toHaveClass("aspect-square", "max-w-[30px]");
   });
 
-  it("does not render out-of-month days as interactive (no role=button)", () => {
+  it("does not render out-of-month days as interactive and keeps their date legible", () => {
     render(<CalendarCell day={makeDay({ isCurrentMonth: false })} maxCount={5} tooltipText="May 1, 2025" onClick={() => {}} />);
 
     expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.getByText("1")).toHaveClass("text-muted-foreground");
+    expect(screen.getByText("1")).not.toHaveClass("text-muted-foreground/25");
   });
 });

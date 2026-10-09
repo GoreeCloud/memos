@@ -23,7 +23,7 @@ const VisibilitySelector = (props: VisibilitySelectorProps) => {
 
   return (
     <DropdownMenu onOpenChange={props.onOpenChange}>
-      <DropdownMenuTrigger render={<Button variant="quiet" size="sm" />}>
+      <DropdownMenuTrigger render={<Button variant="quiet" size="sm" className="text-muted-foreground" />}>
         <VisibilityIcon visibility={value} className="text-current opacity-75" />
         <span className="truncate">{currentOption ? t(currentOption.labelKey) : ""}</span>
         <ChevronDownIcon className="size-3 opacity-55" strokeWidth={1.8} />

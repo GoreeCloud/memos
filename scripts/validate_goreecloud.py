@@ -49,6 +49,8 @@ required = [
     "provenance/wardveil.json",
     "provenance/observability.json",
     "scripts/run_database_upgrade_acceptance.sh",
+    "cmd/memos/snapshot_local_bundle.go",
+    "cmd/memos/snapshot_local_bundle_test.go",
     "integrations/everkeep/adoption.json",
     "integrations/everkeep/acceptance.json",
     "integrations/privacy-shield/adapter.json",
@@ -70,6 +72,37 @@ required = [
 ]
 for rel in required:
     require((ROOT / rel).is_file(), f"missing required file: {rel}")
+
+# Bounded SQLite + relative managed-local recovery bundle. These checks keep
+# the recovery surface fail-closed and prevent documentation from overstating
+# coverage. Runtime restore, S3, absolute LOCAL references, deployment
+# configuration, secrets, scheduling, and production acceptance remain separate.
+snapshot_command = (ROOT / "cmd/memos/snapshot.go").read_text()
+snapshot_local_bundle = (ROOT / "cmd/memos/snapshot_local_bundle.go").read_text()
+snapshot_local_bundle_tests = (ROOT / "cmd/memos/snapshot_local_bundle_test.go").read_text()
+backup_recovery_doc = (ROOT / "docs/BACKUP-AND-RECOVERY.md").read_text()
+require('Use:   "sqlite-local"' in snapshot_command, "sqlite-local recovery command is not wired into the CLI")
+for source_marker in (
+    "goreecloud-memos-sqlite-local-recovery-bundle",
+    "filepath.EvalSymlinks",
+    "absoluteLocalAttachments",
+    "s3Attachments",
+    "os.O_WRONLY|os.O_CREATE|os.O_EXCL",
+):
+    require(source_marker in snapshot_local_bundle, f"sqlite-local recovery safety marker missing: {source_marker}")
+for test_marker in (
+    "FailsClosedOnMissingFile",
+    "FailsClosedOnSizeMismatch",
+    "RejectsAbsoluteReference",
+    "RejectsWindowsDriveAbsoluteReference",
+    "RejectsTraversalReference",
+    "RejectsSymlinkEscape",
+    "RefusesExistingDestination",
+):
+    require(test_marker in snapshot_local_bundle_tests, f"sqlite-local recovery regression test missing: {test_marker}")
+require("SQLite + relative managed-local recovery bundle" in backup_recovery_doc, "recovery documentation is missing sqlite-local bundle scope")
+for excluded_scope in ("S3 objects", "absolute LOCAL", "deployment", "secret"):
+    require(excluded_scope in backup_recovery_doc, f"recovery documentation lost excluded scope: {excluded_scope}")
 
 if errors:
     print("\n".join(f"ERROR: {e}" for e in errors))
@@ -422,6 +455,10 @@ require(workflow_files == ["goreecloud-validate.yml"], f"unexpected active workf
 workflow_text = (workflow_dir / "goreecloud-validate.yml").read_text()
 require((ROOT / "web/playwright.config.ts").is_file(), "rendered browser Playwright config is missing")
 require((ROOT / "web/tests/browser/auth-setup.spec.ts").is_file(), "rendered auth/setup browser acceptance is missing")
+require((ROOT / "web/playwright.authenticated.config.ts").is_file(), "authenticated rendered browser Playwright config is missing")
+require((ROOT / "web/tests/browser/authenticated.setup.ts").is_file(), "authenticated rendered browser setup is missing")
+require((ROOT / "web/tests/browser/authenticated-home.spec.ts").is_file(), "authenticated home rendered browser acceptance is missing")
+require("Run authenticated Chromium acceptance" in workflow_text, "authenticated rendered browser CI step is missing")
 require("database-upgrade-matrix:" in workflow_text, "dedicated database upgrade matrix job missing")
 for driver in ("sqlite", "mysql", "postgres"):
     require(f"          - {driver}" in workflow_text, f"database upgrade matrix missing driver: {driver}")

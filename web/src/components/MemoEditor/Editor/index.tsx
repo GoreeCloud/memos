@@ -6,7 +6,13 @@ import { cn } from "@/lib/utils";
 import type { EditorController } from "../types/editorController";
 import { createController } from "./controller";
 import "./editor.css";
-import { buildEditorExtensions, type EditorFileOrigin, placeholderCompartment } from "./extensions";
+import {
+  buildEditorExtensions,
+  contentAttributesCompartment,
+  type EditorFileOrigin,
+  memoEditorContentAttributes,
+  placeholderCompartment,
+} from "./extensions";
 import { createFormattingController } from "./formatting";
 
 interface EditorProps {
@@ -120,7 +126,12 @@ const Editor = forwardRef(function Editor(props: EditorProps, ref: React.Forward
   useLayoutEffect(() => {
     if (placeholderRef.current === placeholder) return;
     placeholderRef.current = placeholder;
-    viewRef.current?.dispatch({ effects: placeholderCompartment.reconfigure(cmPlaceholder(placeholder)) });
+    viewRef.current?.dispatch({
+      effects: [
+        placeholderCompartment.reconfigure(cmPlaceholder(placeholder)),
+        contentAttributesCompartment.reconfigure(memoEditorContentAttributes(placeholder)),
+      ],
+    });
   }, [placeholder]);
 
   useLayoutEffect(() => {

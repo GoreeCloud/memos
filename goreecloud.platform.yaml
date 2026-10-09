@@ -145,6 +145,7 @@ continuity:
       - Protect the database, attachments, and required durable deployment configuration.
       - Exclude reusable secrets from ordinary portable backup bundles.
       - Validate restore in a clean target before recovery claims.
+      - Preserve the bounded SQLite + relative managed-local bundle path without implying coverage of S3, absolute LOCAL references, deployment configuration, or secrets.
   restore:
     required: true
     requirements:

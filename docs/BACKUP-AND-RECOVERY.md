@@ -6,7 +6,7 @@ The personal Memos export/import archive is useful for user-owned memo portabili
 
 ## Current operational state
 
-Automated full-instance backup, restore orchestration, retention, off-device replication, encryption-at-rest for backup artifacts, integrity scheduling, and clean-target operational restore are **not yet implemented or accepted** in this rebuild line. A bounded SQLite database-snapshot command is available as a recovery building block; it is not a complete instance backup.
+Automated full-instance backup, restore orchestration, retention, off-device replication, encryption-at-rest for backup artifacts, integrity scheduling, and complete clean-target operational restore are **not yet implemented or accepted** in this rebuild line. A bounded SQLite database-snapshot command is available, and a separate bounded SQLite + relative managed-local attachment bundle now captures every relative `LOCAL` attachment referenced by the exact snapshot. Neither artifact is a complete instance backup because S3 objects, deployment configuration, reusable secrets, and absolute-path LOCAL attachments remain outside their scope.
 
 GoreeCloud Memos therefore remains Development/nonconformant for operational recovery.
 
@@ -59,6 +59,30 @@ Safety properties:
 
 The snapshot includes database-backed attachments because their bytes live in database rows. It does **not** capture managed local attachment files, S3 objects, deployment configuration, or runtime secret material. Those remain required for full-instance recovery.
 
+## SQLite + relative managed-local recovery bundle
+
+`memos snapshot sqlite-local --data <data-dir> --output <new-bundle-dir>` creates a bounded recovery bundle for SQLite deployments whose managed LOCAL attachment references are relative to the instance data directory. An explicit `--dsn` may be supplied when the SQLite database itself is not at the default data-directory path.
+
+The bundle is staged in a temporary sibling directory and is published only after all required files and manifests succeed. It contains:
+
+- `memos.db`, created with the same transactionally consistent SQLite snapshot primitive;
+- `memos.db.manifest.json`, preserving the database-only artifact identity and integrity record;
+- `local-files/`, containing the exact relative file tree required by every `LOCAL` attachment row in that snapshot; and
+- `bundle-manifest.json`, recording exact application version/commit, database artifact identity, every attachment UID, filename, normalized relative reference, bundle path, byte size, and SHA-256 digest, plus distinct referenced-byte and physically stored-byte totals.
+
+Safety properties:
+
+- every relative LOCAL reference is read from the completed snapshot rather than from a separate live query;
+- missing files fail the entire staged bundle;
+- a database/file size mismatch fails the bundle;
+- non-canonical, traversal, absolute, or data-directory-escaping references fail closed;
+- symlink resolution is checked so a reference cannot silently escape the instance data directory;
+- copied files and manifests are owner-only (`0600`) where POSIX modes apply;
+- duplicate attachment rows that reference the same file reuse one bundled copy while preserving per-attachment manifest entries; and
+- the final destination must not already exist.
+
+The bundle deliberately does not copy administrator-configured absolute LOCAL paths because their recovery mapping is deployment-specific and cannot be safely inferred. It also excludes S3 objects, deployment/runtime configuration, and reusable secret material. Those exclusions remain mandatory recovery work.
+
 ## S3 boundary
 
 S3-backed attachment bytes are not contained in the Memos database. Operational recovery for an S3-backed instance therefore requires coordinated object preservation and restore evidence in addition to database recovery.
@@ -103,7 +127,8 @@ The current repository establishes only these bounded pieces:
 - separate process liveness (/healthz) and database-backed readiness (/readyz);
 - personal memo archive clean-target portability, including attachment bytes carried by that archive;
 - a bounded SQLite database snapshot primitive plus automated clean-target boot/readiness/data-preservation acceptance for that database artifact, including explicitly database-backed attachment bytes;
-- clean-target recovery acceptance for a representative managed-local attachment when its reference is data-directory-relative and the referenced file is restored alongside the SQLite snapshot; and
-- explicit source/documentation boundaries that keep S3, external absolute local paths, complete local-file inventory/manifests, deployment configuration, secret authority, scheduling, retention, off-device copies, and full operational backup/recovery unclaimed.
+- a bounded SQLite + relative managed-local recovery bundle that inventories, copies, size-checks, and SHA-256 records every relative LOCAL file referenced by the exact snapshot;
+- clean-target recovery acceptance for the relative managed-local storage model, including representative served bytes after relocation; and
+- explicit source/documentation boundaries that keep S3, external absolute local paths, deployment configuration, secret authority, scheduling, retention, off-device copies, and full operational backup/recovery unclaimed.
 
 These pieces are recovery foundations. They do not constitute automated backup, full-instance restore, disaster-recovery acceptance, Everkeep acceptance, Production Acceptance, Seal, or Anchor qualification.

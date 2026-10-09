@@ -152,24 +152,58 @@ jobs:
           MEMOS_BROWSER_BASE_URL: http://127.0.0.1:18081
         run: pnpm test:browser
 
+      - name: Start clean authenticated acceptance instance
+        run: |
+          mkdir -p "$RUNNER_TEMP/memos-rendered-authenticated"
+          "$RUNNER_TEMP/goreecloud-memos" \
+            --addr 127.0.0.1 \
+            --port 18082 \
+            --data "$RUNNER_TEMP/memos-rendered-authenticated" \
+            --trusted-proxies none \
+            > "$RUNNER_TEMP/memos-rendered-authenticated.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/memos-rendered-authenticated.pid"
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent --show-error http://127.0.0.1:18082/readyz >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/memos-rendered-authenticated.log"
+          exit 1
+
+      - name: Run authenticated Chromium acceptance
+        working-directory: web
+        env:
+          MEMOS_BROWSER_AUTHENTICATED_BASE_URL: http://127.0.0.1:18082
+        run: pnpm test:browser:authenticated
+
       - name: Upload rendered acceptance evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: rendered-browser-${{ github.sha }}
-          path: web/test-results/browser
+          path: |
+            web/test-results/browser
+            web/test-results/browser-authenticated
           if-no-files-found: error
           retention-days: 14
 
-      - name: Show server log on failure
+      - name: Show server logs on failure
         if: failure()
-        run: cat "$RUNNER_TEMP/memos-rendered.log"
+        run: |
+          cat "$RUNNER_TEMP/memos-rendered.log"
+          if test -f "$RUNNER_TEMP/memos-rendered-authenticated.log"; then
+            cat "$RUNNER_TEMP/memos-rendered-authenticated.log"
+          fi
 
       - name: Stop rendered acceptance server
         if: always()
         run: |
           if test -f "$RUNNER_TEMP/memos-rendered.pid"; then
             kill "$(cat "$RUNNER_TEMP/memos-rendered.pid")" 2>/dev/null || true
+          fi
+          if test -f "$RUNNER_TEMP/memos-rendered-authenticated.pid"; then
+            kill "$(cat "$RUNNER_TEMP/memos-rendered-authenticated.pid")" 2>/dev/null || true
           fi
 
   database-upgrade-matrix:
