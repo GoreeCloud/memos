@@ -3,7 +3,9 @@ import { useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
+import useButtonStyle from "@/hooks/useButtonStyle";
 import { useUpdateUserGeneralSetting } from "@/hooks/useUserQueries";
+import { GOREECLOUD_BUTTON_STYLES, type GoreeCloudButtonStyle } from "@/lib/button-style";
 import { UserSetting_GeneralSetting, UserSetting_GeneralSettingSchema } from "@/types/proto/api/v1/user_service_pb";
 import { loadLocale, useTranslate } from "@/utils/i18n";
 import { convertVisibilityFromString, DEFAULT_VISIBILITY_OPTIONS } from "@/utils/memo";
@@ -19,6 +21,17 @@ const PreferencesSection = () => {
   const t = useTranslate();
   const { currentUser, userGeneralSetting: generalSetting, refetchSettings } = useAuth();
   const { mutate: updateUserGeneralSetting, isPending: isUpdatingGeneralSetting } = useUpdateUserGeneralSetting(currentUser?.name);
+
+  const { buttonStyle, setButtonStyle } = useButtonStyle();
+
+  const buttonStyleOptions = useMemo(
+    () => [
+      { value: GOREECLOUD_BUTTON_STYLES[0], label: t("setting.preference.button-style-icons") },
+      { value: GOREECLOUD_BUTTON_STYLES[1], label: t("setting.preference.button-style-icons-text") },
+      { value: GOREECLOUD_BUTTON_STYLES[2], label: t("setting.preference.button-style-text") },
+    ],
+    [t],
+  );
 
   const handleLocaleSelectChange = (locale: Locale) => {
     // Apply locale immediately for instant UI feedback and persist to localStorage
@@ -95,6 +108,25 @@ const PreferencesSection = () => {
 
           <SettingListItem label={t("setting.preference.theme")} description={t("setting.preference.theme-description")}>
             <ThemeSelect value={setting.theme} onValueChange={handleThemeChange} />
+          </SettingListItem>
+
+          <SettingListItem label={t("setting.preference.button-style")} description={t("setting.preference.button-style-description")}>
+            <Select
+              value={buttonStyle}
+              items={buttonStyleOptions}
+              onValueChange={(value) => setButtonStyle(value as GoreeCloudButtonStyle)}
+            >
+              <SelectTrigger className="min-w-40" aria-label={t("setting.preference.button-style")}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {buttonStyleOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </SettingListItem>
         </SettingList>
       </SettingGroup>

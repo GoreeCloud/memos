@@ -587,7 +587,12 @@
       "save-media-metadata": "Tallenna median metatiedot",
       "save-media-metadata-description": "Tallenna käytettävissä oleva kamera, kuvausaika, sijainti, kuvan mitat ja videon perustiedot tulevia latauksia varten. Kuka tahansa, joka voi tarkastella liitettä, voi vastaanottaa nämä metatiedot. Olemassa olevat liitteet pysyvät muuttumattomina.",
       "uploads-privacy-description": "Hallitse ladatun median mukana lähetettyjä yksityisyyttä suojaavia tietoja.",
-      "uploads-privacy-title": "Lataukset ja tietosuoja"
+      "uploads-privacy-title": "Lataukset ja tietosuoja",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Haluatko varmasti poistaa näkymän `{{title}}`?",

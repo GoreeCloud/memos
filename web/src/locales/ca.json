@@ -471,7 +471,12 @@
       "save-media-metadata": "Desa les metadades dels continguts multimèdia",
       "save-media-metadata-description": "Per a futures càrregues, desa la càmera disponible, l'hora de captura, la ubicació, les dimensions de la imatge i els detalls bàsics del vídeo. Qualsevol persona que pugui veure el fitxer adjunt pot rebre aquestes metadades. Els fitxers adjunts existents no canvien.",
       "uploads-privacy-description": "Controla la informació sensible a la privadesa enviada amb els continguts multimèdia carregats.",
-      "uploads-privacy-title": "Càrregues i privadesa"
+      "uploads-privacy-title": "Càrregues i privadesa",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Estàs segur que vols eliminar la vista `{{title}}`?",

@@ -471,7 +471,12 @@
       "save-media-metadata": "メディアメタデータの保存",
       "save-media-metadata-description": "今後のアップロードのために、使用可能なカメラ、撮影時間、場所、画像サイズ、および基本的なビデオの詳細を保存します。添付ファイルを閲覧できるユーザーは誰でもこのメタデータを受け取ることができます。既存の添付ファイルは変更されません。",
       "uploads-privacy-description": "アップロードされたメディアとともに送信されるプライバシーに配慮した情報を管理します。",
-      "uploads-privacy-title": "アップロードとプライバシー"
+      "uploads-privacy-title": "アップロードとプライバシー",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "ビュー `{{title}}` を削除してもよろしいですか？",

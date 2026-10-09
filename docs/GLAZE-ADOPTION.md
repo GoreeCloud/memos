@@ -36,3 +36,9 @@ This is automated rendered evidence only. It does not replace required human vis
 A separate clean private instance and Playwright setup project exercise the authenticated GoreeCloud home/composer shell without contaminating first-run acceptance. The lane provisions one test administrator, reuses browser storage state across serialized desktop-light, phone-dark, and tablet-forced-colors projects, creates a real memo through the CodeMirror composer, and checks the Glaze consumer/version markers, main landmark, composer visibility, memo-card rendering, visible keyboard focus, 200% text reflow, horizontal overflow, reduced-motion media state, dark/forced-colors media state, page errors, and serious/critical axe findings.
 
 This remains automated Chromium Development evidence. It does not replace human visual review, independent screen-reader/assistive-technology review, representative physical-device/browser testing, full RTL/localization review, performance acceptance, rollback evidence, or production acceptance.
+
+## Control presentation preference
+
+Memos now exposes the GoreeCloud Button Style preference for the shared icon-button primitive. The default is **Icons & Glyphs**, with **Icons + Text** and **Text** alternatives that reuse each control's existing accessible name rather than introducing a second semantic label. The preference is browser-local in this Development slice and is applied through a root presentation contract so shared toolbar/navigation icon buttons can adapt without duplicating per-screen state.
+
+This is not yet whole-application control-presentation acceptance. Components outside the shared icon-button primitive, human translation of the new control terminology beyond the English fallback entries required by the locale-parity contract, localization/human review, compact-layout edge cases, independent assistive-technology validation, and any future account/device synchronization remain open.
