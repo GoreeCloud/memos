@@ -77,7 +77,7 @@ const MemoHeader: React.FC<MemoHeaderProps> = ({ timeDisplay = "relative", showC
           {spaceMetadata}
         </div>
         {memo.name === newMemoName && (
-          <span className="shrink-0 rounded-full bg-primary/10 px-1.5 py-0.5 text-2xs font-medium leading-none text-primary">
+          <span className="shrink-0 rounded-full bg-accent px-1.5 py-0.5 text-2xs font-medium leading-none text-accent-foreground">
             {t("memo.new-badge")}
           </span>
         )}

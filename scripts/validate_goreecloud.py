@@ -455,6 +455,10 @@ require(workflow_files == ["goreecloud-validate.yml"], f"unexpected active workf
 workflow_text = (workflow_dir / "goreecloud-validate.yml").read_text()
 require((ROOT / "web/playwright.config.ts").is_file(), "rendered browser Playwright config is missing")
 require((ROOT / "web/tests/browser/auth-setup.spec.ts").is_file(), "rendered auth/setup browser acceptance is missing")
+require((ROOT / "web/playwright.authenticated.config.ts").is_file(), "authenticated rendered browser Playwright config is missing")
+require((ROOT / "web/tests/browser/authenticated.setup.ts").is_file(), "authenticated rendered browser setup is missing")
+require((ROOT / "web/tests/browser/authenticated-home.spec.ts").is_file(), "authenticated home rendered browser acceptance is missing")
+require("Run authenticated Chromium acceptance" in workflow_text, "authenticated rendered browser CI step is missing")
 require("database-upgrade-matrix:" in workflow_text, "dedicated database upgrade matrix job missing")
 for driver in ("sqlite", "mysql", "postgres"):
     require(f"          - {driver}" in workflow_text, f"database upgrade matrix missing driver: {driver}")

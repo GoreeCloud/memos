@@ -14,7 +14,7 @@ const CHIP_BASE =
 const INTERACTIVE_CHIP =
   "group-hover/day:brightness-[0.97] group-focus-visible/day:ring-2 group-focus-visible/day:ring-ring/40 group-focus-visible/day:ring-inset";
 
-const OUTSIDE_MONTH_CHIP = "bg-transparent text-muted-foreground/25";
+const OUTSIDE_MONTH_CHIP = "bg-transparent text-muted-foreground";
 const EMPTY_CHIP = "bg-transparent text-foreground/75 group-hover/day:bg-muted/40";
 /** A picked day is a checked filter like a view or tag row: it takes the accent, not a ring. */
 const SELECTED_CHIP = "z-10 bg-primary font-medium text-primary-foreground";

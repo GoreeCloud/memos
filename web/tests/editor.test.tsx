@@ -117,6 +117,7 @@ describe("Editor", () => {
     const { container } = render(<Editor {...props} />);
 
     const content = container.querySelector(".cm-content");
+    expect(content).toHaveAttribute("aria-label", "memo");
     expect(content).toHaveAttribute("autocorrect", "on");
     expect(content).toHaveAttribute("autocapitalize", "on");
     expect(content).toHaveAttribute("spellcheck", "true");
@@ -132,11 +133,13 @@ describe("Editor", () => {
     };
     const { container, rerender } = render(<Editor {...props} placeholder="Any thoughts?" />);
 
+    expect(container.querySelector(".cm-content")).toHaveAttribute("aria-label", "Any thoughts?");
     expect(container.querySelector(".cm-content")).toHaveAttribute("aria-placeholder", "Any thoughts?");
     expect(container.querySelector(".cm-placeholder")).toHaveTextContent("Any thoughts?");
 
     rerender(<Editor {...props} placeholder="有什么想法？" />);
 
+    expect(container.querySelector(".cm-content")).toHaveAttribute("aria-label", "有什么想法？");
     expect(container.querySelector(".cm-content")).toHaveAttribute("aria-placeholder", "有什么想法？");
     expect(container.querySelector(".cm-placeholder")).toHaveTextContent("有什么想法？");
   });

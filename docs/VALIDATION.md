@@ -88,6 +88,13 @@ The lane asserts the main landmark and heading structure, labeled credential inp
 
 This establishes automated rendered Development evidence, not human visual approval, independent assistive-technology acceptance, broad application-flow coverage, physical-device qualification, or Glaze production acceptance.
 
+
+## Authenticated rendered Chromium lane
+
+The rendered-browser CI job uses a second clean private instance for authenticated application-flow acceptance. A one-time setup project creates the test administrator and persists browser storage state; serialized desktop-light, phone-dark, and tablet-forced-colors projects then verify the home/composer shell and save a real memo. This lane is deliberately separate from first-run setup acceptance so authentication state cannot weaken or invalidate the clean-install test.
+
+Acceptance is bounded to automated Chromium Development evidence: shell identity, core composer/memo rendering, visible keyboard focus, serious/critical axe checks, 200% reflow, horizontal-overflow absence, reduced motion, dark mode, forced colors, and page-error absence. Independent assistive-technology, human visual, representative physical-device/browser, full localization/RTL, performance, rollback, and production acceptance remain open.
+
 ## SQLite + relative managed-local recovery bundle
 
 The Development CLI now includes `memos snapshot sqlite-local`. Focused tests prove that it creates an exact SQLite snapshot, inventories every relative `LOCAL` attachment row from that snapshot, copies the referenced files under a restore-preserving `local-files/` tree, records per-file SHA-256 and byte size, and publishes the destination only after the staged bundle is complete.

@@ -32,6 +32,7 @@ describe("MemoEditor CodeMirror extensions", () => {
     expect(view.state.facet(EditorState.allowMultipleSelections)).toBe(false);
     expect(view.dom.querySelector(".cm-selectionLayer")).toBeNull();
     expect(view.dom.querySelector(".cm-cursorLayer")).toBeNull();
+    expect(view.contentDOM).toHaveAttribute("aria-label", "Any thoughts...");
     expect(view.contentDOM).toHaveAttribute("aria-placeholder", "Any thoughts...");
     expect(view.dom.querySelector(".cm-placeholder")).toHaveTextContent("Any thoughts...");
   });

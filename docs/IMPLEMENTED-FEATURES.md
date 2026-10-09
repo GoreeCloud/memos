@@ -49,3 +49,5 @@
 - Dedicated cross-user core-isolation acceptance proving a second regular user cannot read, mutate, delete, rebind attachments for, export, or read saved-view state belonging to a PRIVATE owner, with owner-state integrity rechecked after denied operations.
 
 - Real Chromium Development acceptance for the clean-instance GoreeCloud/Glaze setup shell across desktop/phone/tablet contexts, including keyboard focus, 200% text scaling, forced-colors, reduced motion, dark appearance, overflow checks, axe serious/critical checks, and retained screenshots; human visual and independent assistive-technology acceptance remain separate.
+
+- Separate authenticated rendered Chromium acceptance for the GoreeCloud home/composer shell across desktop-light, phone-dark, and tablet-forced-colors contexts, including real memo creation, focus, axe, 200% reflow, overflow, reduced-motion, and page-error checks; human/assistive-technology/physical-device acceptance remains separate.
