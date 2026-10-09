@@ -34,6 +34,9 @@ func runVerifySQLiteLocalRecoveryBundle(ctx context.Context, bundleDir string, o
 		return errors.Errorf("recovery bundle path must be a real directory: %s", absoluteBundle)
 	}
 
+	if err := verifyBundleMetadataFile(absoluteBundle, sqliteLocalBundleManifestName); err != nil {
+		return errors.Wrap(err, "verify recovery bundle manifest file")
+	}
 	var manifest sqliteLocalBundleManifest
 	if err := decodeStrictJSONFile(filepath.Join(absoluteBundle, sqliteLocalBundleManifestName), &manifest); err != nil {
 		return errors.Wrap(err, "read recovery bundle manifest")
@@ -63,7 +66,7 @@ func runVerifySQLiteLocalRecoveryBundle(ctx context.Context, bundleDir string, o
 
 	fmt.Fprintf(out, "SQLite + managed-local recovery bundle verified: %s\n", absoluteBundle)
 	fmt.Fprintf(out, "Verified managed-local attachment rows: %d\n", manifest.LocalAttachments.Count)
-	fmt.Fprintln(out, "Verification covers this bounded bundle only. S3 objects, absolute LOCAL references, deployment configuration, reusable secrets, scheduling, retention, and full restore orchestration remain separate recovery requirements.")
+	fmt.Fprintln(out, "Verification proves bounded artifact integrity and internal consistency, not cryptographic authenticity or trusted origin. S3 objects, absolute LOCAL references, deployment configuration, reusable secrets, scheduling, retention, and full restore orchestration remain separate recovery requirements.")
 	return nil
 }
 
@@ -115,6 +118,9 @@ func validateSQLiteLocalBundleManifest(manifest sqliteLocalBundleManifest) error
 		"deploymentConfiguration":   "excluded",
 		"secretMaterial":            "excluded",
 	}
+	if len(manifest.Scope) != len(requiredScope) {
+		return errors.Errorf("recovery bundle scope contains unexpected entries: got %d expected %d", len(manifest.Scope), len(requiredScope))
+	}
 	for key, state := range requiredScope {
 		entry, ok := manifest.Scope[key]
 		if !ok {
@@ -128,7 +134,11 @@ func validateSQLiteLocalBundleManifest(manifest sqliteLocalBundleManifest) error
 }
 
 func verifyBundledSQLiteManifest(bundleRoot string, bundleManifest sqliteLocalBundleManifest) error {
-	manifestPath := filepath.Join(bundleRoot, sqliteLocalBundleDatabaseName+".manifest.json")
+	manifestName := sqliteLocalBundleDatabaseName + ".manifest.json"
+	if err := verifyBundleMetadataFile(bundleRoot, manifestName); err != nil {
+		return errors.Wrap(err, "verify bundled SQLite snapshot manifest file")
+	}
+	manifestPath := filepath.Join(bundleRoot, manifestName)
 	var databaseManifest sqliteSnapshotManifest
 	if err := decodeStrictJSONFile(manifestPath, &databaseManifest); err != nil {
 		return errors.Wrap(err, "read bundled SQLite snapshot manifest")
@@ -198,7 +208,11 @@ func verifySQLiteLocalAttachmentManifest(bundleRoot string, summary sqliteLocalB
 		if !ok {
 			return errors.Errorf("recovery bundle attachment %q is not present in the SQLite snapshot", entry.AttachmentUID)
 		}
-		if entry.Filename != record.Filename || entry.SizeBytes != record.SizeBytes || entry.Reference != record.Reference {
+		normalizedRecordReference, err := validatePortableBundlePath(record.Reference)
+		if err != nil {
+			return errors.Wrapf(err, "SQLite snapshot attachment %q reference", entry.AttachmentUID)
+		}
+		if entry.Filename != record.Filename || entry.SizeBytes != record.SizeBytes || entry.Reference != normalizedRecordReference {
 			return errors.Errorf("recovery bundle attachment %q does not match the SQLite snapshot row", entry.AttachmentUID)
 		}
 		if entry.SizeBytes < 0 {
@@ -258,6 +272,24 @@ func validatePortableBundlePath(value string) (string, error) {
 		return "", errors.Errorf("path is not canonical: %q", value)
 	}
 	return normalized, nil
+}
+
+func verifyBundleMetadataFile(bundleRoot, relativePath string) error {
+	normalized, err := validatePortableBundlePath(relativePath)
+	if err != nil {
+		return err
+	}
+	if err := rejectSymlinkComponents(bundleRoot, filepath.FromSlash(normalized)); err != nil {
+		return err
+	}
+	info, err := os.Stat(filepath.Join(bundleRoot, filepath.FromSlash(normalized)))
+	if err != nil {
+		return err
+	}
+	if !info.Mode().IsRegular() {
+		return errors.Errorf("bundle metadata path is not a regular file: %s", relativePath)
+	}
+	return nil
 }
 
 func verifyBundleRegularFile(bundleRoot, relativePath string, expectedSize int64, expectedSHA string) error {
