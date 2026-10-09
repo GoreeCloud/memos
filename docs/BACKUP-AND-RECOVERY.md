@@ -97,7 +97,7 @@ The verifier fails closed unless all of the following remain internally consiste
 - attachment count, unique-file count, referenced bytes, and physically stored bytes recompute to the manifest values; and
 - `local-files/` contains no unexpected regular files beyond those represented by the manifest.
 
-JSON decoding rejects unknown fields and trailing data. Verification does not reconstruct a data directory, restore S3 objects, map absolute LOCAL references, apply deployment configuration, recover reusable secrets, schedule generations, enforce retention, or constitute a full restore workflow.
+JSON decoding rejects unknown fields and trailing data. Verification establishes artifact integrity and internal consistency only; it does not cryptographically authenticate bundle origin, because a writer who can replace the bundle and recompute its unsigned manifests can produce a different internally consistent artifact. Verification also does not reconstruct a data directory, restore S3 objects, map absolute LOCAL references, apply deployment configuration, recover reusable secrets, schedule generations, enforce retention, or constitute a full restore workflow.
 
 ## S3 boundary
 
