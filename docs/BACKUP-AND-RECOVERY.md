@@ -6,7 +6,7 @@ The personal Memos export/import archive is useful for user-owned memo portabili
 
 ## Current operational state
 
-Automated full-instance backup, restore orchestration, retention, off-device replication, encryption-at-rest for backup artifacts, integrity scheduling, and complete clean-target operational restore are **not yet implemented or accepted** in this rebuild line. A bounded SQLite database-snapshot command is available, and a separate bounded SQLite + relative managed-local attachment bundle now captures every relative `LOCAL` attachment referenced by the exact snapshot. Neither artifact is a complete instance backup because S3 objects, deployment configuration, reusable secrets, and absolute-path LOCAL attachments remain outside their scope.
+Automated full-instance backup, scheduled restore orchestration, retention, off-device replication, encryption-at-rest for backup artifacts, integrity scheduling, and complete all-backend clean-target operational recovery are **not yet implemented or accepted** in this rebuild line. A bounded SQLite database-snapshot command is available, and a separate bounded SQLite + relative managed-local attachment bundle now captures every relative `LOCAL` attachment referenced by the exact snapshot. Neither artifact is a complete instance backup because S3 objects, deployment configuration, reusable secrets, and absolute-path LOCAL attachments remain outside their scope.
 
 GoreeCloud Memos therefore remains Development/nonconformant for operational recovery.
 
@@ -82,6 +82,23 @@ Safety properties:
 - the final destination must not already exist.
 
 The bundle deliberately does not copy administrator-configured absolute LOCAL paths because their recovery mapping is deployment-specific and cannot be safely inferred. It also excludes S3 objects, deployment/runtime configuration, and reusable secret material. Those exclusions remain mandatory recovery work.
+
+
+## SQLite + relative managed-local clean-target restore
+
+`memos restore sqlite-local --bundle <bundle-dir> --data <new-data-dir>` restores an existing verified bounded bundle into a target data directory that must not already exist.
+
+The command:
+
+- runs the existing strict `verify-sqlite-local` checks before any restore staging;
+- rejects a target inside the source bundle and rejects any existing target file or directory;
+- stages the restore in a private sibling directory and atomically publishes only after every required artifact succeeds;
+- copies the verified SQLite artifact to the default `memos_prod.db` path with owner-only file permissions;
+- restores each unique relative managed-local file to its recorded data-directory-relative path;
+- rechecks copied byte counts and SHA-256 digests and runs a fresh SQLite `PRAGMA quick_check` on the staged database; and
+- leaves the target absent when verification or staged restore fails.
+
+This is bounded restore tooling for the default SQLite + relative managed-local path. It does **not** restore S3 objects, administrator-configured absolute LOCAL references, deployment/runtime configuration, reusable secrets, scheduled generations, or off-device copies. Operators must restore those separately before making a full-instance recovery claim.
 
 ## Standalone bundle integrity verification
 

@@ -108,3 +108,12 @@ This is bounded Development recovery evidence. It does not cover S3 objects, adm
 Focused Development tests create a real bounded `sqlite-local` bundle and verify it with the standalone verifier. The positive case rechecks the SQLite database artifact, embedded database manifest, exact LOCAL rows, file hashes/sizes, aggregate counts, and bundle layout. Negative cases prove fail-closed behavior for same-size attachment tampering, unexpected bundled files, database tampering, unknown manifest fields, and symbolic-link substitution where supported by the host.
 
 This is artifact-integrity/internal-consistency evidence only. It does not cryptographically authenticate bundle origin, and it does not establish S3 or absolute-LOCAL recovery, deployment/configuration/secret restoration, scheduled/multiple generations, retention/off-device replication, restore orchestration, Everkeep runtime acceptance, Production Acceptance, Seal, or Anchor qualification.
+
+
+## SQLite + managed-local clean-target restore command
+
+Focused Development tests exercise `memos restore sqlite-local` against a real bundle created by the existing bounded snapshot path. The positive case verifies pre-restore bundle validation, publication into a brand-new data directory, placement of the SQLite database at the default `memos_prod.db` path, preservation of the database-recorded relative LOCAL reference, exact restored attachment bytes, and owner-only restored file permissions where POSIX modes apply.
+
+Negative cases prove fail-closed behavior when the target already exists, when an attachment in the source bundle is tampered before restore, and when the requested target is inside the recovery bundle. The implementation stages into a private sibling directory, rechecks copied byte counts/SHA-256 plus SQLite quick-check, rechecks target nonexistence immediately before publication, and leaves the final target absent on pre-publication failure.
+
+This is bounded SQLite + relative managed-local restore-tool evidence only. It does not establish S3 or administrator-configured absolute-LOCAL recovery, deployment/runtime configuration or reusable-secret restoration, scheduled/multiple generations, retention, off-device replication, all-backend restore orchestration, Everkeep runtime acceptance, Production Acceptance, Seal, or Anchor qualification.
