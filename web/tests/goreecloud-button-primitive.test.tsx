@@ -13,8 +13,8 @@ describe("GoreeCloud shared icon button presentation", () => {
 
     const button = screen.getByRole("button", { name: "Search" });
     expect(button).toHaveAttribute("data-goreecloud-icon-button");
-    expect(button.querySelector(".goreecloud-icon-button-label")).toHaveTextContent("Search");
-    expect(button.querySelector(".goreecloud-icon-button-label")).toHaveAttribute("aria-hidden", "true");
+    expect(button).toHaveAttribute("data-goreecloud-label", "Search");
+    expect(button).toHaveTextContent("");
   });
 
   it("does not invent a visual label when no accessible label exists", () => {
@@ -25,6 +25,6 @@ describe("GoreeCloud shared icon button presentation", () => {
     );
 
     expect(container.querySelector("[data-goreecloud-icon-button]")).toBeNull();
-    expect(container.querySelector(".goreecloud-icon-button-label")).toBeNull();
+    expect(container.querySelector("[data-goreecloud-label]")).toBeNull();
   });
 });

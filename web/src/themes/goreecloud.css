@@ -244,15 +244,6 @@
  * the aria-label already owned by shared icon buttons without changing the
  * accessible name or manufacturing labels for unlabeled controls.
  */
-.goreecloud-icon-button-label {
-  display: none;
-  min-width: 0;
-  max-width: 14rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 :root[data-goreecloud-button-style="icons-text"] [data-goreecloud-icon-button],
 :root[data-goreecloud-button-style="text"] [data-goreecloud-icon-button] {
   width: auto;
@@ -260,9 +251,15 @@
   padding-inline: 0.625rem;
 }
 
-:root[data-goreecloud-button-style="icons-text"] [data-goreecloud-icon-button] .goreecloud-icon-button-label,
-:root[data-goreecloud-button-style="text"] [data-goreecloud-icon-button] .goreecloud-icon-button-label {
-  display: inline;
+:root[data-goreecloud-button-style="icons-text"] [data-goreecloud-icon-button]::after,
+:root[data-goreecloud-button-style="text"] [data-goreecloud-icon-button]::after {
+  content: attr(data-goreecloud-label);
+  display: inline-block;
+  min-width: 0;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 :root[data-goreecloud-button-style="text"] [data-goreecloud-icon-button] > svg {

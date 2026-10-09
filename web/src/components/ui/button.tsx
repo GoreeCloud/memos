@@ -57,15 +57,11 @@ const Button = React.forwardRef<HTMLElement, ButtonPrimitive.Props & VariantProp
         ref={ref}
         data-slot="button"
         data-goreecloud-icon-button={exposesButtonStyle ? "" : undefined}
+        data-goreecloud-label={exposesButtonStyle ? ariaLabel : undefined}
         className={cn(buttonVariants({ variant, size, className }))}
         {...props}
       >
         {children}
-        {exposesButtonStyle && (
-          <span className="goreecloud-icon-button-label" aria-hidden="true">
-            {ariaLabel}
-          </span>
-        )}
       </ButtonPrimitive>
     );
   },
