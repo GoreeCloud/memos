@@ -53,4 +53,7 @@
 
 - Separate authenticated rendered Chromium acceptance for the GoreeCloud home/composer shell across desktop-light, phone-dark, and tablet-forced-colors contexts, including real memo creation, focus, axe, 200% reflow, overflow, reduced-motion, and page-error checks; human/assistive-technology/physical-device acceptance remains separate.
 
+- Image preview supports bounded drag panning while zoomed, two-pointer pinch-to-zoom anchored around the gesture midpoint, and horizontal swipe navigation between gallery images at fit zoom while preserving keyboard/buttons/wheel/double-click behavior.
+- Link-preview metadata extraction can continue beyond the initial 512 KiB window only when title/image metadata is still incomplete, with a hard 2 MiB cap while retaining existing SSRF/internal-IP, timeout, concurrency, cache, and GoreeCloud crawler-identity boundaries.
+- Direct maintained-fork v0.31.0 baseline upgrade acceptance across SQLite, MySQL, and PostgreSQL complements the migration matrix without adopting upstream's breaking API-v1 removal or unreleased release-version model.
 - Bounded `memos restore sqlite-local` clean-target restore tooling that verifies an existing sqlite-local bundle before staging, refuses existing or bundle-contained targets, rechecks copied hashes/sizes plus SQLite quick-check, restores the database to `memos_prod.db` and relative managed-local files under a new data directory, and atomically publishes only after the staged target succeeds; S3/configuration/secrets/absolute-LOCAL recovery remain outside the claim.
