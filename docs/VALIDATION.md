@@ -87,3 +87,11 @@ CI runs Playwright Chromium against a clean private instance built from the exac
 The lane asserts the main landmark and heading structure, labeled credential inputs, visible keyboard focus, no horizontal overflow before and after 200% text scaling, serious/critical axe findings, expected media-query activation, and page-error absence. Full-page screenshots are retained as workflow artifacts for review.
 
 This establishes automated rendered Development evidence, not human visual approval, independent assistive-technology acceptance, broad application-flow coverage, physical-device qualification, or Glaze production acceptance.
+
+## SQLite + relative managed-local recovery bundle
+
+The Development CLI now includes `memos snapshot sqlite-local`. Focused tests prove that it creates an exact SQLite snapshot, inventories every relative `LOCAL` attachment row from that snapshot, copies the referenced files under a restore-preserving `local-files/` tree, records per-file SHA-256 and byte size, and publishes the destination only after the staged bundle is complete.
+
+The fail-closed matrix covers missing files, database/file size mismatch, absolute references, path traversal, symlink escape outside the data directory, existing destination preservation, and duplicate database rows sharing one relative file reference. The bundle manifest does not record the source host data-directory path.
+
+This is bounded Development recovery evidence. It does not cover S3 objects, administrator-configured absolute LOCAL paths, deployment/runtime configuration, reusable secrets, scheduled generations, retention, off-device copies, complete restore orchestration, Everkeep runtime acceptance, Production Acceptance, Seal, or Anchor qualification.
