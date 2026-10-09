@@ -28,8 +28,9 @@ The following upstream commits were reviewed and integrated independently throug
 - `631a7ef488998cb444c9a1acf4bd9964a96cdc8a` — prevent the reaction picker from flashing at the page origin when its hover anchor disappears during close; integrated through PR #24 with rendered regression coverage.
 - `e3d25e18dc4ddd957b7c94dc65ebcf3b33d32ad6` — use neutral Korean wording for hidden content rather than assuming every hidden memo is adult/sensitive content; integrated through PR #56.
 - `a2ccca7a92cd97a3141e64be144f8509a690a394` — allow bounded drag panning while an image preview is zoomed; integrated through PR #48.
-- `0b3b5a699906ded5ebdf6b2fd12c865add5527ca` — read further for late link-preview title/image metadata only when the initial bounded parse is incomplete; integrated through PR #58.
+- `0b3b5a699906ded5ebdf6b2fd12c865add5527ca` — continue reading bounded response bytes when early link-preview metadata is incomplete; integrated through PR #58.
 - `4eb6fb77e83af84a73c9433b0c68e6e0db61268a` — add mobile-oriented pinch-to-zoom and horizontal gallery swipe behavior while preserving bounded pan/keyboard/button behavior; integrated through PR #60.
+- `d566184a45c5bd0e515aef1a32f45659c8bf44ae` — upstream migration-test additions; GoreeCloud selectively adapted the non-duplicative direct v0.31.0 baseline-upgrade coverage through PR #59 without importing unrelated CalVer or broad Go-modernization assumptions.
 
 Each candidate was isolated, kept attributable to upstream, refreshed onto the then-current protected GoreeCloud `main` without rewriting shared history, and required the repository's exact-head validation path before integration.
 

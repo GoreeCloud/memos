@@ -8,7 +8,7 @@ This repository is a **GoreeCloud-maintained fork** of the MIT-licensed [Memos](
 
 **Lifecycle: Forge / Development — not production-approved, not Seal-qualified, and not Anchor-qualified.**
 
-The current rebuild line starts from upstream **Memos v0.31.0** at commit `2b2192d4e153bd04f1d325b60fd880cf00d68b01`. At the October 8, 2026 assessment, upstream `main` had advanced to `a2ccca7a92cd97a3141e64be144f8509a690a394`, 40 commits beyond the stable baseline; unreleased upstream changes are reviewed separately instead of silently entering GoreeCloud.
+The current rebuild line starts from upstream **Memos v0.31.0** at commit `2b2192d4e153bd04f1d325b60fd880cf00d68b01`. At the October 9, 2026 assessment, upstream `main` had advanced to `d566184a45c5bd0e515aef1a32f45659c8bf44ae`, 45 commits beyond the stable baseline; unreleased upstream changes are reviewed separately instead of silently entering GoreeCloud.
 
 ## GoreeCloud direction
 
