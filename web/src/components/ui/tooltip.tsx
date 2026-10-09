@@ -33,7 +33,7 @@ const TooltipContent = React.forwardRef<
           ref={ref}
           data-slot="tooltip-content"
           className={cn(
-            "bg-popover text-popover-foreground border-border z-tooltip w-fit origin-(--transform-origin) rounded-md border px-3 py-1.5 text-xs text-balance",
+            "bg-popover text-popover-foreground border-border z-tooltip w-fit max-w-[calc(100vw-1rem)] break-words origin-(--transform-origin) rounded-md border px-3 py-1.5 text-xs text-balance",
             popupMotionClasses,
             className,
           )}
