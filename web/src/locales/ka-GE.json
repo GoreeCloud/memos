@@ -471,7 +471,12 @@
       "save-media-metadata": "შეინახეთ მედია მეტამონაცემები",
       "save-media-metadata-description": "მომავალი ატვირთვებისთვის შეინახეთ ხელმისაწვდომი კამერა, გადაღების დრო, ადგილმდებარეობა, სურათის ზომები და ვიდეოს ძირითადი დეტალები. ყველას, ვისაც შეუძლია დანართის ნახვა, შეუძლია მიიღოს ეს მეტამონაცემები. არსებული დანართები უცვლელია.",
       "uploads-privacy-description": "ატვირთულ მედიასთან ერთად წარდგენილი კონფიდენციალურობისადმი მგრძნობიარე ინფორმაციის კონტროლი.",
-      "uploads-privacy-title": "ატვირთვები და კონფიდენციალურობა"
+      "uploads-privacy-title": "ატვირთვები და კონფიდენციალურობა",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "დარწმუნებული ხართ, რომ გინდათ ხედის `{{title}}` წაშლა?",

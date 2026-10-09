@@ -45,10 +45,30 @@ const buttonVariants = cva(
   },
 );
 
+const ICON_BUTTON_SIZES = new Set(["icon", "icon-compact", "icon-sm"]);
+
 const Button = React.forwardRef<HTMLElement, ButtonPrimitive.Props & VariantProps<typeof buttonVariants>>(
-  ({ className, variant, size, ...props }, ref) => (
-    <ButtonPrimitive ref={ref} data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props} />
-  ),
+  ({ className, variant, size, children, ...props }, ref) => {
+    const ariaLabel = typeof props["aria-label"] === "string" ? props["aria-label"] : undefined;
+    const exposesButtonStyle = Boolean(ariaLabel && size && ICON_BUTTON_SIZES.has(size));
+
+    return (
+      <ButtonPrimitive
+        ref={ref}
+        data-slot="button"
+        data-goreecloud-icon-button={exposesButtonStyle ? "" : undefined}
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      >
+        {children}
+        {exposesButtonStyle && (
+          <span className="goreecloud-icon-button-label" aria-hidden="true">
+            {ariaLabel}
+          </span>
+        )}
+      </ButtonPrimitive>
+    );
+  },
 );
 Button.displayName = "Button";
 

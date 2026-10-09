@@ -471,7 +471,12 @@
       "save-media-metadata": "Зберегти метадані медіа",
       "save-media-metadata-description": "Для майбутніх завантажень зберігати доступну камеру, час зйомки, місцезнаходження, розміри зображення та основні відомості про відео. Будь-хто, хто може переглядати вкладення, може отримати ці метадані. Існуючі вкладення залишаються незмінними.",
       "uploads-privacy-description": "Контролювати конфіденційну інформацію, що надсилається разом із завантаженими медіафайлами.",
-      "uploads-privacy-title": "Завантаження та конфіденційність"
+      "uploads-privacy-title": "Завантаження та конфіденційність",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Ви впевнені, що хочете видалити подання `{{title}}`?",

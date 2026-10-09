@@ -785,7 +785,12 @@
       "theme-description": "Seçilmiş mövzunu bu cihazda dərhal tətbiq edir.",
       "theme": "Mövzu",
       "uploads-privacy-description": "Yüklənən media ilə birlikdə göndərilən, məxfiliyə həssas məlumatları idarə edin.",
-      "uploads-privacy-title": "Yükləmələr və məxfilik"
+      "uploads-privacy-title": "Yükləmələr və məxfilik",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "change-icon": "Görünüş ikonunu dəyiş",

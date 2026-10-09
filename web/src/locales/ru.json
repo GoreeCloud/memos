@@ -471,7 +471,12 @@
       "save-media-metadata": "Сохранять метаданные медиафайлов",
       "save-media-metadata-description": "Для будущих загрузок сохранять доступные сведения о камере, времени и месте съёмки, размерах изображения и основные сведения о видео. Эти метаданные доступны всем, кто может просматривать вложение. Существующие вложения не изменяются.",
       "uploads-privacy-description": "Управляйте конфиденциальными сведениями, отправляемыми вместе с загружаемыми медиафайлами.",
-      "uploads-privacy-title": "Загрузки и конфиденциальность"
+      "uploads-privacy-title": "Загрузки и конфиденциальность",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Вы уверены, что хотите удалить представление `{{title}}`?",

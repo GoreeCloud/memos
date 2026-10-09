@@ -381,7 +381,12 @@
       "save-media-metadata-description": "برای آپلودهای بعدی، دوربین موجود، زمان ضبط، مکان، ابعاد تصویر و جزئیات اولیه ویدیو را ذخیره می‌کند. هر کسی که بتواند پیوست را مشاهده کند، می‌تواند این فراداده را دریافت کند. پیوست‌های موجود بدون تغییر هستند.",
       "theme-description": "تم انتخاب شده را فوراً در این دستگاه اعمال می‌کند.",
       "uploads-privacy-description": "اطلاعات حساس به حریم خصوصی ارسال شده با رسانه آپلود شده را کنترل می‌کند.",
-      "uploads-privacy-title": "آپلودها و حریم خصوصی"
+      "uploads-privacy-title": "آپلودها و حریم خصوصی",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "آیا مطمئن هستید که می‌خواهید نمای «{{title}}» را حذف کنید؟",
