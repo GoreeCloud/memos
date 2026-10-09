@@ -8,6 +8,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/usememos/memos/internal/profile"
+	"github.com/usememos/memos/internal/version"
 	storepb "github.com/usememos/memos/proto/gen/store"
 	"github.com/usememos/memos/store"
 	storedb "github.com/usememos/memos/store/db"
@@ -39,7 +40,7 @@ func TestUpgradeFromBaselineRelease(t *testing.T) {
 	require.Equal(t, "0.31.8", baseline.SchemaVersion)
 
 	requireUpgradePreservesData(ctx, t, previous, &profile.Profile{
-		Data: t.TempDir(), DSN: hostDSN, Driver: driver, Version: "26.10",
+		Data: t.TempDir(), DSN: hostDSN, Driver: driver, Version: version.GetCurrentVersion(),
 	})
 }
 
