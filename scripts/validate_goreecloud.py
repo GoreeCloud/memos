@@ -49,6 +49,8 @@ required = [
     "provenance/wardveil.json",
     "provenance/observability.json",
     "scripts/run_database_upgrade_acceptance.sh",
+    "cmd/memos/snapshot_local_bundle.go",
+    "cmd/memos/snapshot_local_bundle_test.go",
     "integrations/everkeep/adoption.json",
     "integrations/everkeep/acceptance.json",
     "integrations/privacy-shield/adapter.json",
@@ -70,6 +72,36 @@ required = [
 ]
 for rel in required:
     require((ROOT / rel).is_file(), f"missing required file: {rel}")
+
+# Bounded SQLite + relative managed-local recovery bundle. These checks keep
+# the recovery surface fail-closed and prevent documentation from overstating
+# coverage. Runtime restore, S3, absolute LOCAL references, deployment
+# configuration, secrets, scheduling, and production acceptance remain separate.
+snapshot_command = (ROOT / "cmd/memos/snapshot.go").read_text()
+snapshot_local_bundle = (ROOT / "cmd/memos/snapshot_local_bundle.go").read_text()
+snapshot_local_bundle_tests = (ROOT / "cmd/memos/snapshot_local_bundle_test.go").read_text()
+backup_recovery_doc = (ROOT / "docs/BACKUP-AND-RECOVERY.md").read_text()
+require('Use:   "sqlite-local"' in snapshot_command, "sqlite-local recovery command is not wired into the CLI")
+for source_marker in (
+    "goreecloud-memos-sqlite-local-recovery-bundle",
+    "filepath.EvalSymlinks",
+    "absoluteLocalAttachments",
+    "s3Attachments",
+    "os.O_WRONLY|os.O_CREATE|os.O_EXCL",
+):
+    require(source_marker in snapshot_local_bundle, f"sqlite-local recovery safety marker missing: {source_marker}")
+for test_marker in (
+    "FailsClosedOnMissingFile",
+    "FailsClosedOnSizeMismatch",
+    "RejectsAbsoluteReference",
+    "RejectsTraversalReference",
+    "RejectsSymlinkEscape",
+    "RefusesExistingDestination",
+):
+    require(test_marker in snapshot_local_bundle_tests, f"sqlite-local recovery regression test missing: {test_marker}")
+require("SQLite + relative managed-local recovery bundle" in backup_recovery_doc, "recovery documentation is missing sqlite-local bundle scope")
+for excluded_scope in ("S3 objects", "absolute LOCAL", "deployment", "secret"):
+    require(excluded_scope in backup_recovery_doc, f"recovery documentation lost excluded scope: {excluded_scope}")
 
 if errors:
     print("\n".join(f"ERROR: {e}" for e in errors))
