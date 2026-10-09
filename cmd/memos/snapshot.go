@@ -59,7 +59,22 @@ func newSnapshotCommand() *cobra.Command {
 		panic(err)
 	}
 
-	snapshotCmd.AddCommand(sqliteCmd, localBundleCmd)
+	var verifyBundle string
+	verifyLocalBundleCmd := &cobra.Command{
+		Use:   "verify-sqlite-local",
+		Short: "Verify a SQLite + relative managed-local recovery bundle",
+		Long: "Verify the integrity and internal consistency of an existing bounded SQLite + relative managed-local recovery bundle without restoring or mutating it. " +
+			"S3 objects, deployment configuration, absolute LOCAL references, reusable secrets, scheduling, retention, and full restore orchestration remain separate recovery requirements.",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return runVerifySQLiteLocalRecoveryBundle(cmd.Context(), verifyBundle, cmd.OutOrStdout())
+		},
+	}
+	verifyLocalBundleCmd.Flags().StringVarP(&verifyBundle, "bundle", "b", "", "existing recovery bundle directory to verify")
+	if err := verifyLocalBundleCmd.MarkFlagRequired("bundle"); err != nil {
+		panic(err)
+	}
+
+	snapshotCmd.AddCommand(sqliteCmd, localBundleCmd, verifyLocalBundleCmd)
 	return snapshotCmd
 }
 
