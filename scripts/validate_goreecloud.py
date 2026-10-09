@@ -121,9 +121,12 @@ for verify_test in (
     "RejectsTamperedDatabase",
     "RejectsUnknownManifestFields",
     "RejectsSymlinkedAttachment",
+    "RejectsSymlinkedManifest",
+    "AcceptsNormalizedBackslashReference",
 ):
     require(verify_test in snapshot_local_bundle_verify_tests, f"sqlite-local verifier regression test missing: {verify_test}")
 require("Standalone bundle integrity verification" in backup_recovery_doc, "recovery documentation is missing standalone bundle verifier scope")
+require("does not cryptographically authenticate bundle origin" in backup_recovery_doc, "recovery verifier authenticity boundary is missing")
 for excluded_scope in ("S3 objects", "absolute LOCAL", "deployment", "secret"):
     require(excluded_scope in backup_recovery_doc, f"recovery documentation lost excluded scope: {excluded_scope}")
 
