@@ -627,7 +627,12 @@
       "theme-description": "立即在此裝置上套入選定的主題。",
       "theme": "主題",
       "uploads-privacy-description": "控制上傳媒體時提交的隱私敏感資訊。",
-      "uploads-privacy-title": "上傳與隱私"
+      "uploads-privacy-title": "上傳與隱私",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "您確定要刪除檢視 `{{title}}` 嗎？",

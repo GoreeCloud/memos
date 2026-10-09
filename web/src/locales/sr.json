@@ -587,7 +587,12 @@
       "save-media-metadata": "Сачувајте метаподатке медија",
       "save-media-metadata-description": "За будућа отпремања, сачувајте доступну камеру, време снимања, локацију, димензије слике и основне детаље видеа. Свако ко може да види прилог може да прими ове метаподатке. Постојећи прилози се не мењају.",
       "uploads-privacy-description": "Контролишите информације које су осетљиве на приватност и које се достављају уз отпремљене медије.",
-      "uploads-privacy-title": "Отпремања и приватност"
+      "uploads-privacy-title": "Отпремања и приватност",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Да ли сте сигурни да желите да избришете приказ `{{title}}`?",

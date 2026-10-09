@@ -381,7 +381,12 @@
       "save-media-metadata-description": "आगे के अपलोड के लिए, उपलब्ध कैमरा, कैप्चर टाइम, लोकेशन, इमेज डाइमेंशन और बेसिक वीडियो डिटेल्स सेव करें। जो कोई भी अटैचमेंट देख सकता है, उसे यह मेटाडेटा मिल सकता है। मौजूदा अटैचमेंट में कोई बदलाव नहीं होता है।",
       "theme-description": "चुनी गई थीम को तुरंत इस डिवाइस पर लागू करता है।",
       "uploads-privacy-description": "अपलोड किए गए मीडिया के साथ सबमिट की गई प्राइवेसी-सेंसिटिव जानकारी को कंट्रोल करें।",
-      "uploads-privacy-title": "अपलोड और प्राइवेसी"
+      "uploads-privacy-title": "अपलोड और प्राइवेसी",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "क्या आप वाकई दृश्य `{{title}}` हटाना चाहते हैं?",

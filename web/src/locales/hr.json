@@ -471,7 +471,12 @@
       "save-media-metadata": "Spremite metapodatke medija",
       "save-media-metadata-description": "Za buduće prijenose spremite dostupnu kameru, vrijeme snimanja, lokaciju, dimenzije slike i osnovne detalje videa. Svatko tko može pregledati privitak može primiti ove metapodatke. Postojeći privitci ostaju nepromijenjeni.",
       "uploads-privacy-description": "Kontrolirajte podatke osjetljive na privatnost koji se šalju s prenesenim medijima.",
-      "uploads-privacy-title": "Prijenosi i privatnost"
+      "uploads-privacy-title": "Prijenosi i privatnost",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Jesi li siguran da želiš obrisati prikaz `{{title}}`?",

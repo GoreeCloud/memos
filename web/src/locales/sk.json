@@ -587,7 +587,12 @@
       "save-media-metadata": "Uložiť metadáta médií",
       "save-media-metadata-description": "Pre budúce nahrávania uložiť dostupnú kameru, čas snímania, miesto, rozmery obrázka a základné podrobnosti o videu. Tieto metadáta môže dostať ktokoľvek, kto si môže zobraziť prílohu. Existujúce prílohy zostávajú nezmenené.",
       "uploads-privacy-description": "Ovládať informácie citlivé na ochranu súkromia odoslané s nahranými médiami.",
-      "uploads-privacy-title": "Nahrávanie a súkromie"
+      "uploads-privacy-title": "Nahrávanie a súkromie",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Naozaj chcete odstrániť zobrazenie `{{title}}`?",

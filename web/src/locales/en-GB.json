@@ -471,7 +471,12 @@
       "save-media-metadata": "Save media metadata",
       "save-media-metadata-description": "For future uploads, save available camera, capture time, location, image dimensions, and basic video details. Anyone who can view the attachment can receive this metadata. Existing attachments are unchanged.",
       "uploads-privacy-description": "Control privacy-sensitive information submitted with uploaded media.",
-      "uploads-privacy-title": "Uploads & privacy"
+      "uploads-privacy-title": "Uploads & privacy",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Are you sure you want to delete view `{{title}}`?",

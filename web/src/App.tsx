@@ -2,6 +2,7 @@ import { DirectionProvider } from "@base-ui/react/direction-provider";
 import { useEffect } from "react";
 import { Outlet, ScrollRestoration } from "react-router-dom";
 import { useInstance } from "./contexts/InstanceContext";
+import useButtonStyle from "./hooks/useButtonStyle";
 import useNavigateTo from "./hooks/useNavigateTo";
 import { useUserLocale } from "./hooks/useUserLocale";
 import { useUserTheme } from "./hooks/useUserTheme";
@@ -14,6 +15,7 @@ const App = () => {
   // Apply user preferences reactively
   const direction = useUserLocale();
   useUserTheme();
+  useButtonStyle();
 
   // Clean up expired OAuth states on app initialization
   useEffect(() => {

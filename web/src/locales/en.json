@@ -785,7 +785,12 @@
       "theme-description": "Applies the selected theme immediately on this device.",
       "theme": "Theme",
       "uploads-privacy-description": "Control privacy-sensitive information submitted with uploaded media.",
-      "uploads-privacy-title": "Uploads & privacy"
+      "uploads-privacy-title": "Uploads & privacy",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "change-icon": "Change view icon",

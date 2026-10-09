@@ -454,7 +454,12 @@
       "theme": "主题",
       "label": "偏好设置",
       "uploads-privacy-description": "控制上传媒体时提交的隐私敏感信息。",
-      "uploads-privacy-title": "上传与隐私"
+      "uploads-privacy-title": "上传与隐私",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "您确定要删除视图 `{{title}}` 吗？",
