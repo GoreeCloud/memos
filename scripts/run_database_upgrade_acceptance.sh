@@ -14,7 +14,7 @@ esac
 
 export DRIVER="$driver"
 
-tests='^(TestMigrationRejectsDowngrade|TestMigrationRejectsPreV022Installation|TestMigrationAcceptsMinimumSupportedVersion|TestUpgradeFromPreviousStableRenamesShortcutsToMemoViews|TestMigrationFromStableVersion|TestMigrationFromV0262PreservesLegacyData|TestMigrationMultipleReRuns|TestMigrationUniqueEmail)$'
+tests='^(TestMigrationRejectsDowngrade|TestMigrationRejectsPreV022Installation|TestMigrationAcceptsMinimumSupportedVersion|TestUpgradeFromPreviousStableRenamesShortcutsToMemoViews|TestUpgradeFromBaselineRelease|TestMigrationFromStableVersion|TestMigrationFromV0262PreservesLegacyData|TestMigrationMultipleReRuns|TestMigrationUniqueEmail)$'
 
 echo "Running GoreeCloud database upgrade acceptance for DRIVER=$DRIVER"
 go test -v ./store/test -run "$tests" -count=1
