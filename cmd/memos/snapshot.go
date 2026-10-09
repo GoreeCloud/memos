@@ -39,7 +39,27 @@ func newSnapshotCommand() *cobra.Command {
 		panic(err)
 	}
 
-	snapshotCmd.AddCommand(sqliteCmd)
+	var localDataDir, localDSN, localOutput string
+	localBundleCmd := &cobra.Command{
+		Use:   "sqlite-local",
+		Short: "Create a SQLite + relative managed-local attachment recovery bundle",
+		Long: "Create a bounded recovery bundle containing a transactionally consistent SQLite snapshot and every relative LOCAL attachment file referenced by that exact snapshot. " +
+			"Bundle creation fails closed on missing, mismatched, absolute, non-canonical, or data-directory-escaping LOCAL references. S3 objects, deployment configuration, and reusable secrets remain separate recovery requirements.",
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return runSQLiteLocalRecoveryBundle(cmd.Context(), localDataDir, localDSN, localOutput, cmd.OutOrStdout())
+		},
+	}
+	localBundleCmd.Flags().StringVar(&localDataDir, "data", "", "Memos data directory used to resolve relative LOCAL attachment references")
+	localBundleCmd.Flags().StringVar(&localDSN, "dsn", "", "explicit SQLite database path; overrides the default path derived from --data")
+	localBundleCmd.Flags().StringVarP(&localOutput, "output", "o", "", "new recovery bundle directory (must not already exist)")
+	if err := localBundleCmd.MarkFlagRequired("data"); err != nil {
+		panic(err)
+	}
+	if err := localBundleCmd.MarkFlagRequired("output"); err != nil {
+		panic(err)
+	}
+
+	snapshotCmd.AddCommand(sqliteCmd, localBundleCmd)
 	return snapshotCmd
 }
 

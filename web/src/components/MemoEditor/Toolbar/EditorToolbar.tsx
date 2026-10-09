@@ -89,8 +89,8 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
 
   return (
     // Every control on this rail is 28px, the same box as the sidebar's compose control and nav pills.
-    <div className="flex w-full flex-row items-center justify-between">
-      <div className="flex flex-row items-center justify-start gap-1">
+    <div className="flex w-full flex-row flex-wrap items-center gap-1">
+      <div className="flex min-w-0 flex-row items-center justify-start gap-1">
         <InsertMenu
           isUploading={isUploading}
           isSaving={committing}
@@ -104,7 +104,7 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
         <VisibilitySelector value={visibility} space={space} onChange={handleVisibilityChange} />
       </div>
 
-      <div className="flex flex-row items-center justify-end gap-1">
+      <div className="ms-auto flex flex-row items-center justify-end gap-1">
         {onCancel && (
           <Button variant="quiet" size="sm" onClick={onCancel} disabled={committing}>
             {t("common.cancel")}

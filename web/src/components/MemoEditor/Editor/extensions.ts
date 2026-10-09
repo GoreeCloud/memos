@@ -68,6 +68,15 @@ export interface EditorExtensionsOptions {
 }
 
 export const placeholderCompartment = new Compartment();
+export const contentAttributesCompartment = new Compartment();
+
+export const memoEditorContentAttributes = (accessibleName: string) =>
+  EditorView.contentAttributes.of({
+    "aria-label": accessibleName,
+    autocorrect: "on",
+    autocapitalize: "on",
+    spellcheck: "true",
+  });
 
 function clipboardFiles(event: ClipboardEvent): File[] {
   const clipboard = event.clipboardData;
@@ -116,11 +125,7 @@ export function buildEditorExtensions({
     // the textarea editor before v0.30. Autocorrect also keeps Windows TSF input
     // out of Chrome's autocorrect-suppression path, which has dropped committed
     // text from the emoji picker.
-    EditorView.contentAttributes.of({
-      autocorrect: "on",
-      autocapitalize: "on",
-      spellcheck: "true",
-    }),
+    contentAttributesCompartment.of(memoEditorContentAttributes(placeholder)),
     placeholderCompartment.of(cmPlaceholder(placeholder)),
     EditorView.domEventHandlers({
       paste: (event) => {

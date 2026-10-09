@@ -29,3 +29,10 @@ This is source-level implementation evidence. Representative rendered review, ke
 The Development validation matrix now includes a real Chromium lane against a clean private GoreeCloud Memos instance with the exact embedded production frontend. It exercises the first-run GoreeCloud/Glaze setup shell at representative desktop, phone, and tablet viewport sizes; light and dark appearance; forced-colors; reduced motion; keyboard focus visibility; 200% text scaling/reflow; horizontal-overflow detection; programmatic credential labels; and serious/critical axe accessibility violations. Passing runs retain rendered screenshots as CI evidence.
 
 This is automated rendered evidence only. It does not replace required human visual review, independent screen-reader acceptance, representative physical-device/browser review, reduced-transparency rendered review, full RTL/localization review, performance acceptance, rollback evidence, or production acceptance.
+
+
+## Authenticated rendered browser acceptance
+
+A separate clean private instance and Playwright setup project exercise the authenticated GoreeCloud home/composer shell without contaminating first-run acceptance. The lane provisions one test administrator, reuses browser storage state across serialized desktop-light, phone-dark, and tablet-forced-colors projects, creates a real memo through the CodeMirror composer, and checks the Glaze consumer/version markers, main landmark, composer visibility, memo-card rendering, visible keyboard focus, 200% text reflow, horizontal overflow, reduced-motion media state, dark/forced-colors media state, page errors, and serious/critical axe findings.
+
+This remains automated Chromium Development evidence. It does not replace human visual review, independent screen-reader/assistive-technology review, representative physical-device/browser testing, full RTL/localization review, performance acceptance, rollback evidence, or production acceptance.
