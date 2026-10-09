@@ -83,6 +83,22 @@ Safety properties:
 
 The bundle deliberately does not copy administrator-configured absolute LOCAL paths because their recovery mapping is deployment-specific and cannot be safely inferred. It also excludes S3 objects, deployment/runtime configuration, and reusable secret material. Those exclusions remain mandatory recovery work.
 
+## Standalone bundle integrity verification
+
+`memos snapshot verify-sqlite-local --bundle <bundle-dir>` verifies an existing bounded SQLite + relative managed-local recovery bundle without restoring or mutating it. This is intended for post-copy/off-host integrity checks and pre-restore evidence.
+
+The verifier fails closed unless all of the following remain internally consistent:
+
+- `bundle-manifest.json` uses the supported schema/artifact identity and retains the explicit included/excluded scope boundary;
+- `memos.db` matches the manifest byte size and SHA-256 and passes a fresh SQLite `PRAGMA quick_check`;
+- `memos.db.manifest.json` matches the bundle's database and application identity and records a successful quick-check;
+- every manifest attachment UID, filename, size, and relative reference matches the exact SQLite snapshot row;
+- every bundled attachment path is canonical, relative, free of symbolic-link components, present as a regular file, and matches the recorded size and SHA-256;
+- attachment count, unique-file count, referenced bytes, and physically stored bytes recompute to the manifest values; and
+- `local-files/` contains no unexpected regular files beyond those represented by the manifest.
+
+JSON decoding rejects unknown fields and trailing data. Verification establishes artifact integrity and internal consistency only; it does not cryptographically authenticate bundle origin, because a writer who can replace the bundle and recompute its unsigned manifests can produce a different internally consistent artifact. Verification also does not reconstruct a data directory, restore S3 objects, map absolute LOCAL references, apply deployment configuration, recover reusable secrets, schedule generations, enforce retention, or constitute a full restore workflow.
+
 ## S3 boundary
 
 S3-backed attachment bytes are not contained in the Memos database. Operational recovery for an S3-backed instance therefore requires coordinated object preservation and restore evidence in addition to database recovery.
@@ -110,7 +126,7 @@ Operational backup work remains incomplete until GoreeCloud defines and validate
 
 - scheduled execution;
 - multiple recoverable generations;
-- integrity verification beyond the implemented per-SQLite-snapshot SHA-256 plus SQLite quick-check manifest evidence;
+- scheduled and multi-generation integrity verification beyond the implemented SQLite snapshot manifests and standalone bounded sqlite-local bundle verifier;
 - encryption and protected key handling where applicable;
 - retention policy;
 - off-device or failure-domain-separated copies;
@@ -128,6 +144,7 @@ The current repository establishes only these bounded pieces:
 - personal memo archive clean-target portability, including attachment bytes carried by that archive;
 - a bounded SQLite database snapshot primitive plus automated clean-target boot/readiness/data-preservation acceptance for that database artifact, including explicitly database-backed attachment bytes;
 - a bounded SQLite + relative managed-local recovery bundle that inventories, copies, size-checks, and SHA-256 records every relative LOCAL file referenced by the exact snapshot;
+- a standalone fail-closed verifier for that bundle, rechecking manifest/schema boundaries, database SHA-256 and SQLite quick-check state, exact attachment-row correspondence, per-file hashes/sizes/path containment, aggregate counts/bytes, and unexpected-file absence;
 - clean-target recovery acceptance for the relative managed-local storage model, including representative served bytes after relocation; and
 - explicit source/documentation boundaries that keep S3, external absolute local paths, deployment configuration, secret authority, scheduling, retention, off-device copies, and full operational backup/recovery unclaimed.
 
