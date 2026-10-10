@@ -10,11 +10,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/contexts/AuthContext";
 import { useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { useLocalStorage, useOverflowTitle } from "@/hooks";
+import { isLiteralLabelName } from "@/lib/label-name";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "@/utils/i18n";
 import TagTree, { tagRowAriaLabel } from "../TagTree";
+import SidebarCreateLabel from "./SidebarCreateLabel";
 import {
   SIDEBAR_ROW_CLASSES,
   SIDEBAR_ROW_COUNT_RAIL_CLASSES,
@@ -81,10 +84,18 @@ const FlatTagRow = ({ tag, amount, active, ariaLabel, onClick }: FlatTagRowProps
 const TagsSection = ({ tagCount, onSelect, scope }: Props) => {
   const t = useTranslate();
   const { getFiltersByFactor, addFilter, removeFilter } = useMemoFilterContext();
+  const { userTagsSetting } = useAuth();
   const [treeMode, setTreeMode] = useLocalStorage<boolean>("tag-view-as-tree", false);
   const activeTags = new Set(getFiltersByFactor("tagSearch").map((filter) => filter.value));
   const activeTag = activeTags.values().next().value as string | undefined;
-  const tags = useMemo(() => Object.entries(tagCount).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), [tagCount]);
+  // Persisted exact-name label metadata appears in the sidebar even before a memo uses it.
+  // Regex metadata rules are not literal labels and must not be shown as selectable names.
+  const tags = useMemo(() => {
+    const names = new Set([...Object.keys(tagCount), ...Object.keys(userTagsSetting?.tags ?? {}).filter(isLiteralLabelName)]);
+    return Array.from(names)
+      .map((name) => [name, tagCount[name] ?? 0] as [string, number])
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  }, [tagCount, userTagsSetting]);
 
   const handleTagClick = (tag: string) => {
     const active = activeTags.has(tag);
@@ -101,33 +112,36 @@ const TagsSection = ({ tagCount, onSelect, scope }: Props) => {
     <SidebarSection
       label={t("common.labels")}
       action={
-        <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger render={<span className="inline-flex" />}>
-              <DropdownMenuTrigger
-                aria-label={`${t("common.labels")}: ${t("common.more")}`}
-                render={<Button variant="quiet" size="icon-sm" />}
-              >
-                <MoreHorizontalIcon className={SIDEBAR_SECTION_ACTION_ICON_CLASSES} strokeWidth={1.8} />
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent side="top">{t("common.more")}</TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent align="end" sideOffset={4} size="sm" className="w-44">
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-muted-foreground">{t("common.labels")}</DropdownMenuLabel>
-              <DropdownMenuCheckboxItem
-                checked={treeMode}
-                onCheckedChange={setTreeMode}
-                closeOnClick
-                className="ps-2 pe-7 [&>span]:start-auto [&>span]:end-2"
-              >
-                <ListTreeIcon className="text-muted-foreground" strokeWidth={1.8} />
-                {t("common.tree-mode")}
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-1">
+          <SidebarCreateLabel />
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger render={<span className="inline-flex" />}>
+                <DropdownMenuTrigger
+                  aria-label={`${t("common.labels")}: ${t("common.more")}`}
+                  render={<Button variant="quiet" size="icon-sm" />}
+                >
+                  <MoreHorizontalIcon className={SIDEBAR_SECTION_ACTION_ICON_CLASSES} strokeWidth={1.8} />
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="top">{t("common.more")}</TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="end" sideOffset={4} size="sm" className="w-44">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-muted-foreground">{t("common.labels")}</DropdownMenuLabel>
+                <DropdownMenuCheckboxItem
+                  checked={treeMode}
+                  onCheckedChange={setTreeMode}
+                  closeOnClick
+                  className="ps-2 pe-7 [&>span]:start-auto [&>span]:end-2"
+                >
+                  <ListTreeIcon className="text-muted-foreground" strokeWidth={1.8} />
+                  {t("common.tree-mode")}
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       }
     >
       {tags.length === 0 ? (
