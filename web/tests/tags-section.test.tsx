@@ -68,6 +68,28 @@ describe("TagsSection", () => {
     expect(mocks.refetchSettings).toHaveBeenCalledOnce();
   });
 
+  it("persists the selected pastel color when creating a sidebar label", async () => {
+    mocks.tags = { existing: { blurContent: false } };
+    render(
+      <MemoryRouter>
+        <MemoFilterProvider>
+          <TagsSection tagCount={{}} scope="home" />
+        </MemoFilterProvider>
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "common.add common.labels" }));
+    const dialog = screen.getByRole("dialog");
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "common.labels" }), { target: { value: "design" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Lavender" }));
+    expect(within(dialog).getByRole("button", { name: "Lavender" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(within(dialog).getByRole("button", { name: "common.add" }));
+    await waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledOnce());
+    const tags = mocks.mutateAsync.mock.calls[0][0].setting.value.value.tags;
+    expect(tags).toHaveProperty("existing");
+    expect(tags.design.backgroundColor).toMatchObject({ red: 238 / 255, green: 229 / 255, blue: 1 });
+    expect(mocks.refetchSettings).toHaveBeenCalledOnce();
+  });
+
   it("keeps the title count-free and uses the shared section action grammar", () => {
     render(
       <MemoryRouter>
