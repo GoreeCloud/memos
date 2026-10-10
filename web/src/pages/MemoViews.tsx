@@ -40,7 +40,7 @@ import useLoading from "@/hooks/useLoading";
 import { useMemoViews, userKeys } from "@/hooks/useUserQueries";
 import { MEMOS_SEARCH_DOCUMENTATION_URL } from "@/lib/constants";
 import { handleError } from "@/lib/error";
-import { getMemoViewId } from "@/lib/memo-views";
+import { getMemoViewId, hasMemoViewDraftContent } from "@/lib/memo-views";
 import { cn } from "@/lib/utils";
 import { MemoView, MemoView_IconSchema, MemoViewSchema } from "@/types/proto/api/v1/user_service_pb";
 import { useTranslate } from "@/utils/i18n";
@@ -342,7 +342,7 @@ const MemoViews = () => {
   };
 
   const validateDraft = async () => {
-    if (!draft.title || !draft.filter) {
+    if (!hasMemoViewDraftContent(draft.title, draft.filter)) {
       toast.error("Title and filter cannot be empty");
       return false;
     }
@@ -371,7 +371,7 @@ const MemoViews = () => {
   };
 
   const handleCreateMemoView = async () => {
-    if (!draft.title || !draft.filter) {
+    if (!hasMemoViewDraftContent(draft.title, draft.filter)) {
       toast.error("Title and filter cannot be empty");
       return;
     }
@@ -400,7 +400,7 @@ const MemoViews = () => {
   };
 
   const handleUpdateMemoView = async () => {
-    if (!draft.title || !draft.filter) {
+    if (!hasMemoViewDraftContent(draft.title, draft.filter)) {
       toast.error("Title and filter cannot be empty");
       return;
     }
