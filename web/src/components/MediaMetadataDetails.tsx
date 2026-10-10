@@ -129,14 +129,16 @@ const MediaMetadataDetails = ({ id, item, onClose, className }: MediaMetadataDet
           <h2 className="text-sm font-medium text-white/92">{t("attachment-details.title")}</h2>
           <p className="mt-0.5 max-w-[16rem] truncate text-xs text-white/42">{item.filename}</p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon"
           onClick={onClose}
-          className="inline-flex size-8 items-center justify-center rounded-full text-white/55 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 lg:hidden"
+          className="size-8 rounded-full text-white/55 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 lg:hidden"
           aria-label={t("attachment-details.actions.hide")}
         >
           <XIcon className="size-4" aria-hidden="true" />
-        </button>
+        </Button>
       </header>
 
       <div className="overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">

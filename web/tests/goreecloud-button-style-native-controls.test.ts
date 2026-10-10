@@ -8,6 +8,7 @@ const memoViewsSource = readFileSync(resolve(process.cwd(), "src/pages/MemoViews
 const calendarHeaderSource = readFileSync(resolve(process.cwd(), "src/components/CalendarView/CalendarHeader.tsx"), "utf8");
 const monthPickerSource = readFileSync(resolve(process.cwd(), "src/components/CalendarView/MonthPicker.tsx"), "utf8");
 const statisticsMonthNavigatorSource = readFileSync(resolve(process.cwd(), "src/components/StatisticsView/MonthNavigator.tsx"), "utf8");
+const mediaMetadataDetailsSource = readFileSync(resolve(process.cwd(), "src/components/MediaMetadataDetails.tsx"), "utf8");
 const inboxNotificationSources = [
   readFileSync(resolve(process.cwd(), "src/components/Inbox/MemoCommentMessage.tsx"), "utf8"),
   readFileSync(resolve(process.cwd(), "src/components/Inbox/MemoMentionMessage.tsx"), "utf8"),
@@ -49,6 +50,13 @@ describe("GoreeCloud Button Style native-control coverage", () => {
       expect(statisticsMonthNavigatorSource).toContain('data-goreecloud-label={t("' + key + '")}');
     }
     expect(statisticsMonthNavigatorSource.match(/data-goreecloud-icon-button=""/g)).toHaveLength(2);
+  });
+
+  it("covers the media-details close icon through the shared Button Style primitive", () => {
+    expect(mediaMetadataDetailsSource).toContain('aria-label={t("attachment-details.actions.hide")}');
+    expect(mediaMetadataDetailsSource).toContain('variant="ghost"');
+    expect(mediaMetadataDetailsSource).toContain('size="icon"');
+    expect(mediaMetadataDetailsSource).toContain("onClick={onClose}");
   });
 
   it("covers Inbox archive/delete icon actions with accessible keyboard-visible controls", () => {
