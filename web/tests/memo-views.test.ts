@@ -25,6 +25,16 @@ describe("memo scopes", () => {
     expect(resolveMemoScope("/settings", { fallback: "explore" })).toBe("explore");
   });
 
+  it("ignores malformed profile URL escape sequences without crashing the filter or scope guards", () => {
+    for (const path of ["/u/%", "/u/%GG", "/u/%E0%A4%A"]) {
+      expect(getProfileUsername(path)).toBeUndefined();
+      expect(isMemoCollectionRoute(path)).toBe(false);
+      expect(resolveMemoScope(path, { fallback: "explore" })).toBe("explore");
+    }
+    expect(getProfileUsername("/u/j%C3%BAlia")).toBe("júlia");
+    expect(isMemoCollectionRoute("/u/j%C3%BAlia")).toBe(true);
+  });
+
   it("maps collection routes while limiting primary scope paths to Home and Explore", () => {
     expect(isMemoScopeRoute("/")).toBe(true);
     expect(isMemoScopeRoute("/explore")).toBe(true);
