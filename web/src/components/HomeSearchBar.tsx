@@ -1,6 +1,7 @@
 import { ArrowRightIcon, SearchIcon, XIcon } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import MemoDisplaySettingMenu from "@/components/MemoDisplaySettingMenu";
 import { getFilterSearch, isSearchFilter, type MemoFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { useSpaceContext } from "@/contexts/SpaceContext";
 import { ROUTES } from "@/router/routes";
@@ -39,46 +40,49 @@ const HomeSearchBar = () => {
   };
 
   return (
-    <form
-      role="search"
-      aria-label={t("home.search-all")}
-      onSubmit={submit}
-      className="group mx-auto mb-5 flex w-full max-w-2xl items-center gap-3 rounded-2xl border border-border/70 bg-card/90 px-4 py-3 shadow-[0_12px_42px_-32px_rgba(0,0,0,.4)] transition-[border-color,box-shadow] focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15 motion-reduce:transition-none"
-    >
-      <SearchIcon aria-hidden="true" className="size-5 shrink-0 text-primary/80" strokeWidth={1.9} />
-      <label htmlFor="goreecloud-home-search" className="sr-only">
-        {t("home.search-all")}
-      </label>
-      <input
-        id="goreecloud-home-search"
-        type="search"
-        enterKeyHint="search"
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder={t("home.search-placeholder")}
-        className="min-w-0 flex-1 bg-transparent py-1 text-sm text-foreground outline-none placeholder:text-muted-foreground/75"
-      />
-      {query && (
-        <button
-          type="button"
-          onClick={() => {
-            setQuery("");
-            applySearch("");
-          }}
-          aria-label={t("common.clear")}
-          className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-        >
-          <XIcon className="size-4" aria-hidden="true" />
-        </button>
-      )}
-      <button
-        type="submit"
+    <div className="mx-auto mb-5 flex w-full max-w-2xl min-w-0 items-stretch gap-2">
+      <form
+        role="search"
         aria-label={t("home.search-all")}
-        className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        onSubmit={submit}
+        className="group flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-border/70 bg-card/90 px-4 py-3 shadow-[0_12px_42px_-32px_rgba(0,0,0,.4)] transition-[border-color,box-shadow] focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15 motion-reduce:transition-none"
       >
-        <ArrowRightIcon className="size-4" aria-hidden="true" />
-      </button>
-    </form>
+        <SearchIcon aria-hidden="true" className="size-5 shrink-0 text-primary/80" strokeWidth={1.9} />
+        <label htmlFor="goreecloud-home-search" className="sr-only">
+          {t("home.search-all")}
+        </label>
+        <input
+          id="goreecloud-home-search"
+          type="search"
+          enterKeyHint="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={t("home.search-placeholder")}
+          className="min-w-0 flex-1 bg-transparent py-1 text-sm text-foreground outline-none placeholder:text-muted-foreground/75"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              applySearch("");
+            }}
+            aria-label={t("common.clear")}
+            className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
+            <XIcon className="size-4" aria-hidden="true" />
+          </button>
+        )}
+        <button
+          type="submit"
+          aria-label={t("home.search-all")}
+          className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          <ArrowRightIcon className="size-4" aria-hidden="true" />
+        </button>
+      </form>
+      <MemoDisplaySettingMenu className="h-auto w-11 shrink-0 rounded-2xl border border-border/70 bg-card/90 text-foreground shadow-[0_12px_42px_-32px_rgba(0,0,0,.4)] hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" />
+    </div>
   );
 };
 
