@@ -68,6 +68,7 @@
 - A focus-visible, localized skip-to-main navigation link now helps keyboard users bypass the persistent desktop/mobile shell on authenticated collection routes; the main landmark can receive programmatic focus without changing route or session behavior.
 - Search and filter chips now name their removal action using each filter’s label rather than sharing an ambiguous generic accessible name. Focus/navigation and distinct filter controls have regression test coverage; independent assistive-technology and rendered-browser acceptance remain open.
 - Saved-view Validate/Create/Update forms reject empty or whitespace-only names and expressions locally before submission, with shared guard and unit regression coverage; server-side filter semantics and authorization remain authoritative.
+- Calendar view/filter scope recognition now follows the registered month/day route grammar, including valid Space-scoped calendar URLs, instead of treating unsupported extra path segments as collections.
 
 ## Bounded Glaze interaction performance regression
 
