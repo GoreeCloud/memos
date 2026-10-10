@@ -42,5 +42,15 @@ export default defineConfig({
         hasTouch: true,
       },
     },
+    {
+      name: "phone-ar-rtl-reduced-transparency",
+      use: {
+        viewport: { width: 390, height: 844 },
+        colorScheme: "light",
+        locale: "ar",
+        hasTouch: true,
+        isMobile: true,
+      },
+    },
   ],
 });
