@@ -7,7 +7,7 @@ import TagsSection from "@/components/AppSidebar/TagsSection";
 import { MemoFilterProvider } from "@/contexts/MemoFilterContext";
 
 const mocks = vi.hoisted(() => ({
-  tags: {} as Record<string, { blurContent: boolean }>,
+  tags: {} as Record<string, { blurContent: boolean; backgroundColor?: { red: number; green: number; blue: number } }>,
   mutateAsync: vi.fn().mockResolvedValue(undefined),
   refetchSettings: vi.fn().mockResolvedValue(undefined),
 }));
@@ -48,6 +48,25 @@ describe("TagsSection", () => {
     );
     expect(screen.getByRole("button", { name: "#work, setting.tags.used-count" })).toBeInTheDocument();
     expect(screen.queryByText("project/.*")).not.toBeInTheDocument();
+  });
+
+  it("displays a configured label color in both flat and tree sidebar modes", async () => {
+    mocks.tags = { design: { blurContent: false, backgroundColor: { red: 238 / 255, green: 229 / 255, blue: 1 } } };
+    render(
+      <MemoryRouter>
+        <MemoFilterProvider>
+          <TagsSection tagCount={{ design: 3 }} scope="home" />
+        </MemoFilterProvider>
+      </MemoryRouter>,
+    );
+    const marker = screen.getByTestId("label-color-marker");
+    expect(marker).toHaveStyle({ backgroundColor: "#eee5ff" });
+    expect(screen.getByRole("button", { name: "#design, setting.tags.used-count" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "common.labels: common.more" }));
+    fireEvent.click(await screen.findByRole("menuitemcheckbox", { name: "common.tree-mode" }));
+    const tree = screen.getByRole("tree");
+    expect(within(tree).getByTestId("label-color-marker")).toHaveStyle({ backgroundColor: "#eee5ff" });
+    expect(within(tree).getByRole("button", { name: "#design, setting.tags.used-count" })).toBeInTheDocument();
   });
 
   it("creates an exact-name label from the sidebar without leaving the memo list", async () => {
