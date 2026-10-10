@@ -24,6 +24,14 @@ describe("findSearchMatches", () => {
     expect(matches("memo", "  ")).toEqual([]);
   });
 
+  it("ignores empty prepared terms without stalling the search", () => {
+    expect(findSearchMatches("memo", [""])).toEqual([]);
+    expect(findSearchMatches("Memo memo", ["", "memo"])).toEqual([
+      { start: 0, end: 4 },
+      { start: 5, end: 9 },
+    ]);
+  });
+
   it("matches several terms and sorts the hits", () => {
     expect(matches("bravo alpha charlie", "charlie", "alpha")).toEqual([
       { start: 6, end: 11 },
