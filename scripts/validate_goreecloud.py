@@ -15,6 +15,7 @@ def require(condition: bool, message: str) -> None:
 
 required = [
     "LICENSE",
+    "COMPETITIVE-OBJECTIVES.md",
     "NOTICE.md",
     "goreecloud.platform.yaml",
     "docs/PROJECT-SPECIFICATIONS.md",
@@ -199,6 +200,22 @@ require(init_block.count("INSTANCE_ACCESS_MODE_PUBLIC") == 1, "public startup ac
 require('document.createElement("script")' not in app, "browser client must not execute instance-provided arbitrary scripts")
 require('document.createElement("style")' not in app, "browser client must not execute instance-provided arbitrary CSS")
 require("GoreeCloud Memos" in readme, "README must identify GoreeCloud Memos")
+competitive = (ROOT / "COMPETITIVE-OBJECTIVES.md").read_text()
+for heading in (
+    "# GoreeCloud Memos Competitive Objectives",
+    "## Product Scope",
+    "## Direct Competitors",
+    "## Alternatives and Substitutes",
+    "## GoreeCloud Competitive Objectives",
+    "## GoreeCloud Differentiators",
+    "## Deliberate Non-Objectives",
+    "## Research Sources",
+    "## Review Status",
+):
+    require(heading in competitive, f"competitive objectives missing required section: {heading}")
+require("docs/PLANNED-FEATURES.md" in competitive, "competitive objectives must cross-reference planned feature authority")
+require("Last comprehensive review: 2026-10-09" in competitive, "competitive objectives review metadata is stale or missing")
+require("Competitive objectives](COMPETITIVE-OBJECTIVES.md)" in readme, "README documentation index must include competitive objectives")
 require("GoreeCloud-Memos-LinkPreview/0.1 (+https://github.com/GoreeCloud/memos)" in linkmeta_source, "link-preview User-Agent must identify GoreeCloud Memos")
 require("usememos.com" not in linkmeta_source, "live link-preview source must not advertise the upstream product URL")
 for marker in ("Link metadata preview", "User webhooks", "OAuth2/OIDC identity provider", "S3-compatible attachment storage", "OpenAI-compatible transcription", "Gemini audio transcription", "Map styles and tiles", "Reverse geocoding"):
