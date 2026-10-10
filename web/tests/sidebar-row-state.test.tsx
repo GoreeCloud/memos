@@ -16,8 +16,12 @@ vi.mock("@/utils/i18n", () => ({
     key === "memo.filters.remove-filter" ? `Remove ${params?.label} filter` : key,
 }));
 vi.mock("@/hooks/useCurrentUser", () => ({ default: () => ({ name: "users/1" }) }));
+vi.mock("@/contexts/AuthContext", () => ({
+  useAuth: () => ({ currentUser: { name: "users/1" }, userTagsSetting: { tags: {} }, refetchSettings: vi.fn() }),
+}));
 vi.mock("@/hooks/useUserQueries", () => ({
   useMemoViews: () => ({ data: [{ name: "users/1/memoViews/abc", title: "Last week", filter: "pinned" }] }),
+  useUpdateUserSetting: () => ({ mutateAsync: vi.fn() }),
 }));
 
 const tokens = (classes: string) => classes.split(" ");
