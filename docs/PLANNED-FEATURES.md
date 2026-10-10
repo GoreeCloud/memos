@@ -1,7 +1,7 @@
 # Planned Features and Acceptance Work
 
 Priority work remains:
-- Complete the owner-requested responsive sticky-note/pinterest masonry redesign: persistent top search, collapsible desktop and mobile navigation, dedicated pinned section, saved grid/list view, context actions, quick composer expansion, reminders, keyboard and touch acceptance.
+- Complete the owner-requested responsive sticky-note/pinterest masonry redesign: persistent top search, collapsible desktop and mobile navigation, dedicated pinned section, expanded and device-tested grid/list presentation (basic persisted layout options exposed beside search), context actions, quick composer expansion, reminders, keyboard and touch acceptance.
 - Design and validate **server-backed** managed label identities and memo color metadata, including creation, rename, deletion without deleting notes, complete bidirectional sidebar and composer assignment/removal (the additive composer selector is implemented separately), per-memo color persistence, export/sync/restore coverage, and safe migrations. Existing tags/regex-metadata settings and this light/dark palette do not provide those guarantees.
 - Add an idempotent and opt-in-compatible new-account sample-memo onboarding flow after validating privacy, repeated logins, fresh/returning-user states and rollback; never insert samples into existing user libraries.
 

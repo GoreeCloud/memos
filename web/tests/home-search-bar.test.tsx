@@ -11,6 +11,13 @@ const state = vi.hoisted(() => ({
 }));
 
 vi.mock("react-router-dom", () => ({ useNavigate: () => state.navigate }));
+vi.mock("@/components/MemoDisplaySettingMenu", () => ({
+  default: () => (
+    <button type="button" aria-label="memo.view-options">
+      Layout options
+    </button>
+  ),
+}));
 vi.mock("@/contexts/MemoFilterContext", () => ({
   useMemoFilterContext: () => ({ filters: state.filters, setFilters: state.setFilters, setMemoView: state.setMemoView }),
   getFilterSearch: (filters: Array<{ factor: string; value: string }>) =>
@@ -27,6 +34,14 @@ describe("HomeSearchBar", () => {
     state.setFilters.mockReset();
     state.setMemoView.mockReset();
     state.navigate.mockReset();
+  });
+
+  it("keeps searchable content and persistent layout controls as separate actions", () => {
+    render(<HomeSearchBar />);
+    expect(screen.getByRole("search", { name: "home.search-all" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "memo.view-options" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "memo.view-options" }));
+    expect(state.setFilters).not.toHaveBeenCalled();
   });
 
   it("prepares a unique content search rather than an inert visual input", () => {
