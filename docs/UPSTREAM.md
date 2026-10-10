@@ -36,13 +36,16 @@ Each candidate was isolated, kept attributable to upstream, refreshed onto the t
 
 ## October 9, 2026 upstream assessment
 
-Upstream `main` is `d566184a45c5bd0e515aef1a32f45659c8bf44ae`, 45 commits beyond the v0.31.0 stable baseline. GoreeCloud continues to assess this drift selectively; the assessed head is provenance, not the fork baseline.
+Upstream `main` is `d5df8915f70a108971f9bf01151ecd3de3e0c91f`, 46 commits beyond the v0.31.0 stable baseline. GoreeCloud continues to assess this drift selectively; the assessed head is provenance, not the fork baseline.
 
 The intervening `af38e75e2dfd0ddd5b685614bd9ec4aafd46306a` change, `refactor(api)!: drop the v1 version marker (#6447)`, is a breaking migration and is **not** a routine cherry-pick candidate. It changes REST paths, SSE paths, the proto package identity, Connect/gRPC procedure names, resource types, numerous request/response fields, and protobuf field numbering. Before any adoption, GoreeCloud must inventory all API consumers and proxy/integration contracts, define compatibility and rollback behavior, regenerate clients, validate all supported databases and representative clients, and explicitly approve the migration boundary. GitHub issue #10 is the provider-native tracker for that review.
 
 ## Remaining unreleased drift
 
-GitHub issue #10 remains the provider-native tracker for unreleased upstream drift beyond `v0.31.0`. Remaining commits must continue to be evaluated individually or in narrowly coherent groups.
+GitHub issue #10 remains the provider-native tracker for unreleased upstream drift beyond `v0.31.0`.
+
+Current upstream head `d5df8915f70a108971f9bf01151ecd3de3e0c91f` adds automatic SSO initiation when exactly one identity provider is available and password authentication is disabled. That behavior is useful in tightly managed private deployments, but the upstream commit is based on the post-`af38e75e...` API line. GoreeCloud must therefore review or independently adapt the behavior against its retained v1 API/authentication surface, preserve explicit manual-sign-in recovery, redirect validation, PKCE/CSRF handling, accessibility feedback, and private-first setup semantics, and run authentication/security acceptance before intake. It is not a routine cherry-pick candidate.
+Remaining commits must continue to be evaluated individually or in narrowly coherent groups.
 
 Remaining drift tracked in issue #10 includes the separately governed breaking API-v1 removal and any later fixes that depend on it. Upstream `a316e7935b115e258c9914f8e04cca78bd5ea1a2` (Go source modernization / go-fix CI) is post-breaking-refactor work across broad `server/api/*` paths and is not a clean routine cherry-pick for GoreeCloud's retained v1 surface; narrow useful changes may be reimplemented independently if justified. Upstream sponsor metadata is outside GoreeCloud product-maintenance scope. The migration-test direction in `d566184a45c5bd0e515aef1a32f45659c8bf44ae` is materially covered by GoreeCloud's direct v0.31.0 SQLite/MySQL/PostgreSQL upgrade acceptance without adopting the breaking API migration.
 
