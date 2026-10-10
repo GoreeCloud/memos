@@ -95,6 +95,90 @@ func (r *Resolver) Trusts(addr netip.Addr) bool {
 	return false
 }
 
+// IsSecureRequest determines whether the browser-facing request used HTTPS.
+// Direct TLS is authoritative. Forwarded scheme headers are considered only
+// when the immediate peer is inside the configured trusted-proxy boundary.
+func (r *Resolver) IsSecureRequest(remoteAddr string, header http.Header, directTLS bool) bool {
+	if directTLS {
+		return true
+	}
+
+	peer, ok := parseAddr(remoteAddr)
+	if !ok || !r.Trusts(peer) {
+		return false
+	}
+
+	proto, ok := trustedForwardedProto(header)
+	return ok && proto == "https"
+}
+
+func trustedForwardedProto(header http.Header) (string, bool) {
+	var selected string
+	for _, candidate := range []string{
+		lastForwardedProto(header.Values("Forwarded")),
+		lastXForwardedProto(header.Values("X-Forwarded-Proto")),
+	} {
+		if candidate == "" {
+			continue
+		}
+		if candidate != "http" && candidate != "https" {
+			return "", false
+		}
+		if selected != "" && selected != candidate {
+			return "", false
+		}
+		selected = candidate
+	}
+	return selected, selected != ""
+}
+
+func lastXForwardedProto(values []string) string {
+	entries := []string{}
+	for _, value := range values {
+		for entry := range strings.SplitSeq(value, ",") {
+			if entry = strings.TrimSpace(entry); entry != "" {
+				entries = append(entries, strings.ToLower(entry))
+			}
+		}
+	}
+	if len(entries) == 0 {
+		return ""
+	}
+	return entries[len(entries)-1]
+}
+
+func lastForwardedProto(values []string) string {
+	elements := []string{}
+	for _, value := range values {
+		for element := range strings.SplitSeq(value, ",") {
+			if element = strings.TrimSpace(element); element != "" {
+				elements = append(elements, element)
+			}
+		}
+	}
+	if len(elements) == 0 {
+		return ""
+	}
+
+	for parameter := range strings.SplitSeq(elements[len(elements)-1], ";") {
+		key, rawValue, ok := strings.Cut(parameter, "=")
+		if !ok || !strings.EqualFold(strings.TrimSpace(key), "proto") {
+			continue
+		}
+		value := strings.TrimSpace(rawValue)
+		if strings.HasPrefix(value, "\"") || strings.HasSuffix(value, "\"") {
+			if len(value) < 2 || !strings.HasPrefix(value, "\"") || !strings.HasSuffix(value, "\"") {
+				// Preserve malformed quote syntax so the caller rejects it as
+				// something other than the allowed http/https tokens.
+				return strings.ToLower(value)
+			}
+			value = value[1 : len(value)-1]
+		}
+		return strings.ToLower(value)
+	}
+	return ""
+}
+
 // Resolve returns the client address for a request with the given peer
 // address (host:port or bare host) and headers. It always returns a usable
 // string: an unparseable peer is returned as-is so that the limiter still
@@ -154,6 +238,7 @@ func parseAddr(value string) (netip.Addr, bool) {
 }
 
 type contextKey struct{}
+type secureTransportContextKey struct{}
 
 // WithClientIP stores the resolved client address in ctx.
 func WithClientIP(ctx context.Context, ip string) context.Context {
@@ -169,6 +254,18 @@ func FromContext(ctx context.Context) string {
 	return ""
 }
 
+// WithSecureTransport stores the trusted browser-facing transport decision.
+func WithSecureTransport(ctx context.Context, secure bool) context.Context {
+	return context.WithValue(ctx, secureTransportContextKey{}, secure)
+}
+
+// SecureTransportFromContext reports whether the browser-facing request was
+// established as HTTPS by direct TLS or a configured trusted proxy.
+func SecureTransportFromContext(ctx context.Context) bool {
+	secure, _ := ctx.Value(secureTransportContextKey{}).(bool)
+	return secure
+}
+
 // Middleware resolves the client address once per request and stores it in
 // the request context, where both API transports and the file server read it.
 func Middleware(resolver *Resolver) echo.MiddlewareFunc {
@@ -176,7 +273,9 @@ func Middleware(resolver *Resolver) echo.MiddlewareFunc {
 		return func(c *echo.Context) error {
 			request := c.Request()
 			ip := resolver.Resolve(request.RemoteAddr, request.Header)
-			c.SetRequest(request.WithContext(WithClientIP(request.Context(), ip)))
+			ctx := WithClientIP(request.Context(), ip)
+			ctx = WithSecureTransport(ctx, resolver.IsSecureRequest(request.RemoteAddr, request.Header, request.TLS != nil))
+			c.SetRequest(request.WithContext(ctx))
 			return next(c)
 		}
 	}
