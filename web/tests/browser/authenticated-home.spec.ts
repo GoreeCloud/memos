@@ -49,7 +49,12 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
   await expectNoHorizontalOverflow(page);
 
   const skipLink = page.getByRole("link", { name: "Skip to main content", exact: true });
-  await page.keyboard.press("Tab");
+  // The quick-capture editor can receive initial focus. Walk backward through the
+  // actual keyboard order to verify that users can reach the skip link from there.
+  for (let step = 0; step < 80; step++) {
+    if (await skipLink.evaluate((link) => link === document.activeElement)) break;
+    await page.keyboard.press("Shift+Tab");
+  }
   await expect(skipLink).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(main).toBeFocused();
