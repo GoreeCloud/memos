@@ -45,6 +45,11 @@ test("first-run GoreeCloud setup shell renders accessibly across representative 
   await expect(submit).toBeVisible();
   await expect(page.locator('img[src*="goreecloud-memos"]')).toBeVisible();
 
+  const glazeStableCSS = await page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue("--glz141-semantic-surface-strength").trim(),
+  );
+  expect(glazeStableCSS, "pinned Glaze stable stylesheet should be loaded in the rendered application").not.toBe("");
+
   const labeledInputs = await page
     .locator('input[autocomplete="username"], input[type="password"]')
     .evaluateAll((inputs) =>

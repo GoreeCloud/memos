@@ -37,6 +37,10 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
   const save = composer.getByRole("button", { name: "Save", exact: true });
 
   await expect(shell).toBeVisible();
+  const glazeStableCSS = await page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue("--glz141-semantic-surface-strength").trim(),
+  );
+  expect(glazeStableCSS, "pinned Glaze stable stylesheet should be loaded in the rendered application").not.toBe("");
   await expect(main).toHaveCount(1);
   await expect(main).toBeVisible();
   await expect(composer).toBeVisible();

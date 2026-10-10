@@ -178,6 +178,14 @@ require(hashlib.sha256((ROOT / "web/public/goreecloud/glaze/js/glaze-v1.7.0.mjs"
 require('"1.7.0"' in platform and "nonconformant" in platform, "platform manifest must preserve Glaze 1.7.0/nonconformant boundary")
 require("data-glaze-version=\"1.7.0\"" in shell, "root shell must expose the Glaze consumer version")
 index_html = (ROOT / "web/index.html").read_text()
+require(
+    '<link rel="stylesheet" href="/goreecloud/glaze/css/glaze-v1.4.1.css" />' in index_html,
+    "production HTML must load the pinned Glaze stable stylesheet directly",
+)
+require(
+    '/goreecloud/glaze/css/glaze-v1.4.1.css' not in (ROOT / "web/src/index.css").read_text(),
+    "Glaze stable CSS must not be loaded through a late CSS import that production optimization can drop",
+)
 require('src="/goreecloud/glaze/js/glaze-v1.7.0.mjs"' in index_html, "stable Glaze runtime must load locally")
 
 require("INSTANCE_ACCESS_MODE_PRIVATE" in migrator, "private access initialization missing")

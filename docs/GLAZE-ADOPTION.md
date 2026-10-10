@@ -8,6 +8,8 @@ Current shared authority: **Glaze V1.7 / 1.7.0**.
 
 This rebuild vendors the exact governed Stable Glaze web/runtime source from the V1.7 release integration and layers an application-owned GoreeCloud presentation treatment on top, including: semantic surfaces, restrained translucency, accessibility-first fallbacks, clear focus, responsive layout, reduced-motion/reduced-transparency handling, high-contrast compatibility, and canonical product identity.
 
+The pinned stable Glaze stylesheet is loaded directly from production HTML instead of through a late CSS import. Repository validation requires that direct stylesheet link, and rendered-browser acceptance verifies a Glaze V1.4.1 semantic custom property is present at runtime so production optimization cannot silently drop the shared stylesheet.
+
 This is **not** a claim of completed Glaze consumer acceptance. The shared Glaze release does not automatically grant downstream acceptance. Fresh Memos-local rendered, accessibility, keyboard, screen-reader, responsive, performance, rollback, and human visual review remain required.
 
 
