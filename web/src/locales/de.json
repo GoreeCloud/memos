@@ -45,14 +45,14 @@
     "welcome-back": "Willkommen zurück."
   },
   "home": {
-    "empty-title": "A fresh page for your ideas",
-    "empty-description": "Every great thought starts somewhere. Write your first memo above whenever inspiration strikes.",
-    "no-results-title": "Nothing matches just yet",
-    "no-results-description": "Try different search words, or clear your search to see your memos again.",
-    "labels-empty": "Add a #label to a memo to organize it here.",
-    "pinned-memos": "Pinned memos",
-    "search-all": "Search all memos",
-    "search-placeholder": "Search across your memos..."
+    "empty-title": "Ein neuer Platz für deine Ideen",
+    "empty-description": "Jede gute Idee fängt irgendwo an. Schreibe oben deine erste Notiz, wenn dich die Inspiration packt.",
+    "no-results-title": "Noch keine Treffer",
+    "no-results-description": "Versuche andere Suchbegriffe oder lösche die Suche, um deine Notizen wiederzusehen.",
+    "labels-empty": "Füge einer Notiz ein #Label hinzu, um sie hier zu organisieren.",
+    "pinned-memos": "Angepinnte Notizen",
+    "search-all": "Alle Notizen durchsuchen",
+    "search-placeholder": "Notizen durchsuchen …"
   },
   "common": {
     "labels": "Labels",
