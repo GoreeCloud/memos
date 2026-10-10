@@ -44,7 +44,17 @@
     "sso-signup-tip": "Inicie sessão com um fornecedor abaixo para criar a sua conta.",
     "welcome-back": "Bem-vindo(a) de volta."
   },
+  "home": {
+    "empty-title": "A fresh page for your ideas",
+    "empty-description": "Every great thought starts somewhere. Write your first memo above whenever inspiration strikes.",
+    "no-results-title": "Nothing matches just yet",
+    "no-results-description": "Try different search words, or clear your search to see your memos again.",
+    "labels-empty": "Add a #label to a memo to organize it here.",
+    "search-all": "Search all memos",
+    "search-placeholder": "Search across your memos..."
+  },
   "common": {
+    "labels": "Labels",
     "about": "Sobre",
     "add": "Adicionar",
     "admin": "Administrador",

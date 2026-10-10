@@ -1,11 +1,12 @@
 import { useMemo } from "react";
+import HomeSearchBar from "@/components/HomeSearchBar";
 import MemoEditor from "@/components/MemoEditor";
 import { deriveDefaultCreateTimeFromFilters } from "@/components/MemoEditor/utils/deriveDefaultCreateTime";
 import MemoView from "@/components/MemoView";
 import PagedMemoList, { getMemoKey } from "@/components/PagedMemoList";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGlobalMemoEditor } from "@/contexts/GlobalMemoEditorContext";
-import { useMemoFilterContext } from "@/contexts/MemoFilterContext";
+import { isSearchFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { NewMemoProvider } from "@/contexts/NewMemoContext";
 import { useSpaceContext } from "@/contexts/SpaceContext";
 import { useMemoFilters, useMemoSorting } from "@/hooks";
@@ -28,7 +29,7 @@ const Home = () => {
   const editorCacheKey = spaceScopedCacheKey("home-memo-editor", selectedSpaceName);
 
   const memoFilter = useMemoFilters({
-    creatorName: user?.name,
+    creatorName: filters.some(isSearchFilter) ? undefined : user?.name,
     includeMemoViews: true,
     includePinned: true,
   });
@@ -49,6 +50,7 @@ const Home = () => {
           orderBy={orderBy}
           filter={memoFilter}
           contextFilter={contextFilter}
+          renderHeader={() => isUserSettingsInitialized && <HomeSearchBar />}
           renderLeading={({ useGrid }) => {
             if (!isUserSettingsInitialized) return null;
 

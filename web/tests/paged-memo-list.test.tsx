@@ -54,7 +54,7 @@ vi.mock("@/contexts/ViewContext", () => ({
 }));
 
 vi.mock("@/utils/i18n", () => ({
-  useTranslate: () => (key: string) => (key === "message.no-data" ? "No data found." : key),
+  useTranslate: () => (key: string) => key,
 }));
 
 vi.mock("@/components/MemoContent/MentionResolutionContext", () => ({
@@ -104,7 +104,7 @@ describe("<PagedMemoList>", () => {
       expect(alert).toHaveTextContent("search.invalid-expression");
       expect(alert).toHaveTextContent("unknown identifier <script>bad</script>");
       expect(alert.querySelector("script")).toBeNull();
-      expect(screen.queryByText("No data found.")).not.toBeInTheDocument();
+      expect(screen.queryByText("home.no-results-title")).not.toBeInTheDocument();
       expect(screen.getByTestId("memo-filters")).toBeInTheDocument();
       if (columns === 0) expect(alert.closest(".absolute")).not.toBeNull();
       fireEvent.click(screen.getByRole("button", { name: "search.edit-query" }));
@@ -232,11 +232,11 @@ describe("<PagedMemoList>", () => {
     expect(screen.getByTestId("leading-content")).toBeInTheDocument();
   });
 
-  it("uses the tile sprite Placeholder for the empty state", () => {
+  it("shows the redesigned memo welcome panel instead of the old illustration", () => {
     renderList();
 
-    expect(screen.getByText("No data found.")).toBeInTheDocument();
-    expect(screen.getByTestId("placeholder-sprite")).toBeInTheDocument();
+    expect(screen.getByText("home.no-results-title")).toBeInTheDocument();
+    expect(screen.getByTestId("memos-empty-state")).toBeInTheDocument();
   });
 
   it("combines the selected Space filter with the memo list filter", () => {
@@ -255,8 +255,8 @@ describe("<PagedMemoList>", () => {
     renderList(undefined, { leading: <div data-testid="leading-content" /> });
 
     expect(screen.getByTestId("leading-content")).toBeInTheDocument();
-    expect(screen.getByText("No data found.")).toBeInTheDocument();
-    expect(screen.getByTestId("placeholder-sprite")).toBeInTheDocument();
+    expect(screen.getByText("home.no-results-title")).toBeInTheDocument();
+    expect(screen.getByTestId("memos-empty-state")).toBeInTheDocument();
   });
 
   it("places leading content and the empty state in the first grid column", () => {
@@ -265,7 +265,7 @@ describe("<PagedMemoList>", () => {
     try {
       renderList(undefined, { leading: <div data-testid="leading-content" /> });
 
-      const leadingTile = screen.getByText("No data found.").closest(".absolute");
+      const leadingTile = screen.getByText("home.no-results-title").closest(".absolute");
       expect(leadingTile).not.toBeNull();
       expect(leadingTile).toContainElement(screen.getByTestId("leading-content"));
     } finally {

@@ -69,6 +69,7 @@
 - Search and filter chips now name their removal action using each filter’s label rather than sharing an ambiguous generic accessible name. Focus/navigation and distinct filter controls have regression test coverage; independent assistive-technology and rendered-browser acceptance remain open.
 - Saved-view Validate/Create/Update forms reject empty or whitespace-only names and expressions locally before submission, with shared guard and unit regression coverage; server-side filter semantics and authorization remain authoritative.
 - Calendar view/filter scope recognition now follows the registered month/day route grammar, including valid Space-scoped calendar URLs, instead of treating unsupported extra path segments as collections.
+- Home library UX now provides a dedicated content search above the composer; searches clear prior label/view/Space restrictions and query all authorized normal memos, while private data remains backend-authorized. A new Glaze-styled welcome/no-results panel replaces the retro empty-list sprite. The sidebar shows a persistent Labels section backed by existing memo tags and no longer shows either the calendar heatmap or calendar shortcut; the standalone calendar route remains available.
 
 ## Bounded Glaze interaction performance regression
 

@@ -8,6 +8,10 @@ const state = vi.hoisted(() => ({
   listProps: undefined as Record<string, unknown> | undefined,
 }));
 
+vi.mock("@/components/HomeSearchBar", () => ({
+  default: () => <div data-testid="home-search-bar" />,
+}));
+
 vi.mock("@/components/MemoEditor", () => ({
   default: (props: Record<string, unknown>) => {
     state.editorProps = props;
@@ -23,14 +27,17 @@ vi.mock("@/components/PagedMemoList", () => ({
   default: ({
     renderer,
     renderLeading,
+    renderHeader,
     ...props
   }: {
     renderer: (memo: { name: string }, options: { compact: boolean }) => React.ReactNode;
     renderLeading: (options: { useGrid: boolean }) => React.ReactNode;
+    renderHeader?: (options: { useGrid: boolean }) => React.ReactNode;
   } & Record<string, unknown>) => {
     state.listProps = props;
     return (
       <>
+        {renderHeader?.({ useGrid: false })}
         {renderLeading({ useGrid: false })}
         {renderer({ name: "memos/1" }, { compact: false })}
       </>
@@ -48,6 +55,7 @@ vi.mock("@/contexts/GlobalMemoEditorContext", () => ({
 }));
 
 vi.mock("@/contexts/MemoFilterContext", () => ({
+  isSearchFilter: (filter: { factor: string }) => filter.factor === "contentSearch" || filter.factor === "celSearch",
   useMemoFilterContext: () => ({ filters: [] }),
 }));
 
@@ -80,6 +88,9 @@ describe("<Home>", () => {
     state.selectedSpaceName = undefined;
     render(<Home />);
 
+    const search = screen.getByTestId("home-search-bar");
+    const editor = screen.getByTestId("memo-editor");
+    expect(search.compareDocumentPosition(editor) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByTestId("memo-editor")).toBeInTheDocument();
     expect(screen.getByTestId("memo-view")).toBeInTheDocument();
     expect(state.listProps).toMatchObject({ contextFilter: undefined });

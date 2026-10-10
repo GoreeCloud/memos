@@ -128,6 +128,7 @@ export const CalendarView = ({ month, date }: CalendarViewProps) => {
           the open panel's width so the card floats beside the grid rather than over it. The
           padding reads the panel's own custom property, so it follows a resize drag live. */}
       <section
+        aria-label={t("common.calendar")}
         className="flex w-full min-w-0 flex-col gap-1 xl:h-[calc(100dvh-3.5rem)]"
         style={{ paddingInlineEnd: xl && panelOpen ? `calc(${MEMO_PANEL_WIDTH_CSS} + ${MEMO_PANEL_INSET}px)` : undefined }}
       >
