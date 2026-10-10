@@ -9,6 +9,7 @@ vi.mock("@/utils/i18n", async (importOriginal) => ({
   useTranslate: () => (key: string) => key,
 }));
 vi.mock("@/hooks/useUserQueries", () => ({ useTagCounts: () => ({ data: {} }) }));
+vi.mock("@/components/MemoEditor/Toolbar/ComposerLabelSelector", () => ({ default: () => null }));
 vi.mock("@/hooks/useCurrentUser", () => ({ default: () => ({ name: "users/1" }) }));
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ userGeneralSetting: {} }) }));
 vi.mock("@/contexts/InstanceContext", () => ({

@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useInstance } from "@/contexts/InstanceContext";
 import { useLocalStorage } from "@/hooks";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import { getMissingLabels } from "@/lib/memo-labels";
 import { cn } from "@/lib/utils";
 import { InstanceSetting_Key } from "@/types/proto/api/v1/instance_service_pb";
 import { useTranslate } from "@/utils/i18n";
@@ -137,6 +138,14 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
 
     void fetchSetting(InstanceSetting_Key.AI).catch(() => undefined);
   }, [currentUser, fetchSetting]);
+
+  const handleInsertLabels = useCallback((labels: string[]) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const missing = getMissingLabels(editor.getMarkdown(), labels);
+    if (missing.length === 0) return;
+    editor.insertMarkdown(missing.map((label) => "#" + label).join(" "));
+  }, []);
 
   const insertTranscribedText = useCallback((text: string) => {
     const editor = editorRef.current;
@@ -397,6 +406,7 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
             onAudioRecorderClick={handleAudioRecorderClick}
             viewToggles={viewToggles}
             onInsertImages={handleInsertImages}
+            onInsertLabels={handleInsertLabels}
           />
         </div>
       </div>

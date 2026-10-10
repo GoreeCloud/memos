@@ -9,6 +9,7 @@ vi.mock("@/utils/i18n", async (importOriginal) => ({
   useTranslate: () => (key: string) => key,
 }));
 vi.mock("@/hooks/useCurrentUser", () => ({ default: () => undefined }));
+vi.mock("@/components/MemoEditor/Toolbar/ComposerLabelSelector", () => ({ default: () => null }));
 vi.mock("@/contexts/AuthContext", () => ({ useAuth: () => ({ userGeneralSetting: undefined }) }));
 vi.mock("@/contexts/SpaceContext", () => ({ useSpaceContext: () => ({ selectedSpaceName: undefined }) }));
 vi.mock("@/components/map/useReverseGeocoding", () => ({ useReverseGeocoding: () => ({ data: undefined }) }));
@@ -103,7 +104,13 @@ describe("InsertMenu", () => {
 
     render(
       <EditorProvider initialEditorState={state}>
-        <EditorToolbar onSave={vi.fn()} onAudioRecorderClick={vi.fn()} viewToggles={viewToggles} onInsertImages={vi.fn()} />
+        <EditorToolbar
+          onSave={vi.fn()}
+          onAudioRecorderClick={vi.fn()}
+          viewToggles={viewToggles}
+          onInsertImages={vi.fn()}
+          onInsertLabels={vi.fn()}
+        />
       </EditorProvider>,
     );
 
