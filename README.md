@@ -57,6 +57,7 @@ Bundle creation and verification fail closed on missing/mismatched files, unsafe
 ## Documentation
 
 - [Project specifications](docs/PROJECT-SPECIFICATIONS.md)
+- [Competitive objectives](COMPETITIVE-OBJECTIVES.md)
 - [Project record](docs/PROJECT-RECORD.md)
 - [API](docs/API.md)
 - [Architecture](docs/ARCHITECTURE.md)
