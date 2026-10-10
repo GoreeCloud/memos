@@ -8,6 +8,7 @@ import {
   getMemoViewId,
   getProfileUsername,
   hasMemoViewDraftContent,
+  isCalendarRoute,
   isMemoCollectionRoute,
   isMemoScopeRoute,
   resolveMemoScope,
@@ -33,6 +34,32 @@ describe("memo scopes", () => {
     }
     expect(getProfileUsername("/u/j%C3%BAlia")).toBe("júlia");
     expect(isMemoCollectionRoute("/u/j%C3%BAlia")).toBe(true);
+  });
+
+  it("recognizes only registered calendar routes when applying collection filters", () => {
+    for (const path of [
+      "/calendar",
+      "/calendar/2026",
+      "/calendar/2026/08",
+      "/calendar/2026/08/02",
+      "/Calendar/2026/08/02/",
+      "/spaces/a/calendar",
+      "/spaces/a/calendar/2026/08/02",
+    ]) {
+      expect(isCalendarRoute(path), path).toBe(true);
+      expect(isMemoCollectionRoute(path), path).toBe(true);
+    }
+
+    for (const path of [
+      "/calendar/2026/08/02/extra",
+      "/calendar/2026/08/02/extra/more",
+      "/spaces/a/calendar/2026/08/02/extra",
+      "/calendar/2026/08/02extra/segment",
+      "/calendars/2026/08",
+    ]) {
+      expect(isCalendarRoute(path), path).toBe(false);
+      expect(isMemoCollectionRoute(path), path).toBe(false);
+    }
   });
 
   it("maps collection routes while limiting primary scope paths to Home and Explore", () => {
