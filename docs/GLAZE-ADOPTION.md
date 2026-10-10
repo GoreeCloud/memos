@@ -37,7 +37,9 @@ This is automated rendered evidence only. It does not replace required human vis
 
 A separate clean private instance and Playwright setup project exercise the authenticated GoreeCloud home/composer shell without contaminating first-run acceptance. The lane provisions one test administrator, reuses browser storage state across serialized desktop-light, phone-dark, and tablet-forced-colors projects, creates a real memo through the CodeMirror composer, and checks the Glaze consumer/version markers, main landmark, composer visibility, memo-card rendering, visible keyboard focus, 200% text reflow, horizontal overflow, reduced-motion media state, dark/forced-colors media state, page errors, and serious/critical axe findings.
 
-This remains automated Chromium Development evidence. It does not replace human visual review, independent screen-reader/assistive-technology review, representative physical-device/browser testing, full RTL/localization review, performance acceptance, rollback evidence, or production acceptance.
+The rendered-browser matrix also exercises an Arabic phone context with right-to-left document direction and Chromium-emulated prefers-reduced-transparency: reduce on both first-run and authenticated core surfaces. Those contexts verify RTL direction, no horizontal overflow, serious/critical axe results, and the application-owned opaque fallbacks for the auth card, composer, and memo card.
+
+This remains automated Chromium Development evidence. It does not replace human visual review, independent screen-reader/assistive-technology review, representative physical-device/browser testing, broader locale/localization review, performance acceptance, rollback evidence, or production acceptance.
 
 ## Control presentation preference
 
