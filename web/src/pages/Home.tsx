@@ -47,6 +47,7 @@ const Home = () => {
             <MemoView key={getMemoKey(memo)} memo={memo} showVisibility showPinned showSpace={!selectedSpaceName} compact={compact} />
           )}
           listSort={listSort}
+          groupPinned
           orderBy={orderBy}
           filter={memoFilter}
           contextFilter={contextFilter}

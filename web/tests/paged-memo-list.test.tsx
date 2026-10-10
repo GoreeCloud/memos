@@ -69,11 +69,15 @@ const memo = { name: "memos/1", content: "hello", updateTime: undefined } as unk
 
 const renderList = (
   renderer: (memo: Memo, options: { compact: boolean }) => React.ReactElement = () => <div />,
-  options: { leading?: React.ReactNode } = {},
+  options: { leading?: React.ReactNode; groupPinned?: boolean } = {},
 ) =>
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <PagedMemoList renderer={renderer} renderLeading={options.leading ? () => options.leading : undefined} />
+      <PagedMemoList
+        renderer={renderer}
+        groupPinned={options.groupPinned}
+        renderLeading={options.leading ? () => options.leading : undefined}
+      />
     </QueryClientProvider>,
   );
 
@@ -92,6 +96,69 @@ describe("<PagedMemoList>", () => {
     filterContext.removeFilter.mockClear();
     readiness.userSettings = true;
     memoQuery.request = undefined;
+  });
+
+  it.each([1, 0] as const)("separates loaded pinned notes from the ordinary feed in layout %i", (columns) => {
+    view.maxColumns = columns;
+    const spy = vi.spyOn(Element.prototype, "clientWidth", "get").mockReturnValue(1200);
+    try {
+      feed.memos = [
+        { name: "memos/pin", content: "#work", pinned: true },
+        { name: "memos/other", content: "other", pinned: false },
+      ];
+      renderList(
+        (memo) => (
+          <div key={memo.name} data-testid={"memo-" + memo.name}>
+            {memo.content}
+          </div>
+        ),
+        {
+          groupPinned: true,
+          leading: <div data-testid="composer">Editor</div>,
+        },
+      );
+      const section = screen.getByRole("region", { name: "home.pinned-memos" });
+      expect(section).toContainElement(screen.getByTestId("memo-memos/pin"));
+      expect(screen.getAllByTestId("memo-memos/pin")).toHaveLength(1);
+      expect(screen.getAllByTestId("memo-memos/other")).toHaveLength(1);
+      expect(screen.getByTestId("composer")).toBeInTheDocument();
+      expect(screen.getByTestId("composer").compareDocumentPosition(section) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it("keeps the Home composer mounted when the first memo is pinned or unpinned", () => {
+    view.maxColumns = 0;
+    const widthSpy = vi.spyOn(Element.prototype, "clientWidth", "get").mockReturnValue(1200);
+    try {
+      const client = new QueryClient();
+      const renderHomeList = () => (
+        <QueryClientProvider client={client}>
+          <PagedMemoList
+            groupPinned
+            renderer={(memo) => <div key={memo.name}>{memo.content}</div>}
+            renderLeading={() => <div data-testid="persistent-composer">Writing a draft</div>}
+          />
+        </QueryClientProvider>
+      );
+      feed.memos = [{ name: "memos/regular", content: "Regular", pinned: false }];
+      const { rerender } = render(renderHomeList());
+      const composer = screen.getByTestId("persistent-composer");
+      feed.memos = [
+        { name: "memos/pin", content: "Pinned", pinned: true },
+        { name: "memos/regular", content: "Regular", pinned: false },
+      ];
+      rerender(renderHomeList());
+      expect(screen.getByRole("region", { name: "home.pinned-memos" })).toBeInTheDocument();
+      expect(screen.getByTestId("persistent-composer")).toBe(composer);
+      feed.memos = [{ name: "memos/regular", content: "Regular", pinned: false }];
+      rerender(renderHomeList());
+      expect(screen.queryByRole("region", { name: "home.pinned-memos" })).not.toBeInTheDocument();
+      expect(screen.getByTestId("persistent-composer")).toBe(composer);
+    } finally {
+      widthSpy.mockRestore();
+    }
   });
 
   it.each([1, 0] as const)("shows recoverable validation errors in layout %i instead of an empty state", (columns) => {

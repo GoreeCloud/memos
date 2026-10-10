@@ -21,6 +21,8 @@ import MemoFilters from "../MemoFilters";
 import MemoListEmptyState from "./MemoListEmptyState";
 import MemoListError from "./MemoListError";
 import { estimateMemoCardHeight } from "./memoCardHeight";
+import PinnedMemoSection from "./PinnedMemoSection";
+import { partitionPinnedMemos } from "./pinnedMemos";
 
 // Memo identity for React keys and grid planning. The pages use it for their renderer keys too,
 // so flow-list and grid identity can never drift apart. Deliberately name-only: content updates
@@ -47,6 +49,8 @@ interface Props {
   pageSize?: number;
   showCreator?: boolean;
   enabled?: boolean;
+  /** On Home, group loaded pinned memos separately above the ordinary masonry feed. */
+  groupPinned?: boolean;
   /** Route-owned content rendered before the list and inside column one in grid mode. */
   renderLeading?: (options: { useGrid: boolean }) => ReactNode;
   /** Route-owned content spanning the full list width above every column (e.g. a page identity block). */
@@ -211,7 +215,12 @@ const PagedMemoList = (props: Props) => {
   // A freshly created memo is hoisted to the front; pin it to the top of column one so it
   // appears right under the composer instead of dropping into a random (shortest) column.
   const displayMemoList = isDisplayPending || isInitialError ? [] : sortedMemoList;
-  const firstMemo = displayMemoList[0];
+  const {
+    pinned: pinnedMemos,
+    regular: ordinaryMemos,
+    recent: newlyCreatedMemo,
+  } = partitionPinnedMemos(displayMemoList, props.groupPinned ?? false, newMemoName ?? undefined);
+  const firstMemo = ordinaryMemos[0];
   const priorityKey = newMemoName && firstMemo?.name === newMemoName ? getMemoKey(firstMemo) : undefined;
 
   // Stable reference so MentionResolutionProvider's memo (keyed on the array) actually holds.
@@ -255,7 +264,7 @@ const PagedMemoList = (props: Props) => {
   // grid's x-spacing exactly.
   const hasFilters = filters.length > 0 || memoView !== undefined;
   const gridLeading =
-    leadingContent || hasFilters || initialLoader || emptyPlaceholder || initialError ? (
+    !props.groupPinned && (leadingContent || hasFilters || initialLoader || emptyPlaceholder || initialError) ? (
       <div className="flex w-full flex-col" style={{ gap: GRID_GAP }}>
         {leadingContent}
         <MemoFilters />
@@ -264,6 +273,29 @@ const PagedMemoList = (props: Props) => {
         {emptyPlaceholder}
       </div>
     ) : undefined;
+
+  const pinnedSection = <PinnedMemoSection memos={pinnedMemos} renderer={props.renderer} compact={effectiveCompact} useGrid={useGrid} />;
+  const newlyCreatedCard = newlyCreatedMemo ? (
+    <div className="mx-auto w-full max-w-2xl">{props.renderer(newlyCreatedMemo, { compact: effectiveCompact })}</div>
+  ) : null;
+  // The Home composer stays in the same full-width header whether a pin exists or not.
+  // Moving it into/out of the masonry leading tile on pin changes would remount an active draft.
+  const gridHeader = props.groupPinned ? (
+    <div className="flex w-full min-w-0 flex-col gap-4">
+      {headerContent}
+      <div className="mx-auto w-full max-w-2xl">
+        {leadingContent}
+        <MemoFilters />
+      </div>
+      {initialLoader}
+      {initialError}
+      {emptyPlaceholder}
+      {newlyCreatedCard}
+      {pinnedSection}
+    </div>
+  ) : (
+    headerContent
+  );
 
   // Pagination controls are identical across both layouts.
   const footer = (
@@ -282,11 +314,11 @@ const PagedMemoList = (props: Props) => {
             <>
               <ColumnGridUntrappedProvider>
                 <ColumnGrid
-                  items={displayMemoList}
+                  items={ordinaryMemos}
                   getKey={getMemoKey}
                   renderItem={(memo) => props.renderer(memo, { compact: effectiveCompact })}
                   estimateHeight={estimateMemoCardHeight}
-                  header={headerContent}
+                  header={gridHeader}
                   leading={gridLeading}
                   priorityKey={priorityKey}
                   maxColumns={maxColumns}
@@ -302,7 +334,9 @@ const PagedMemoList = (props: Props) => {
               <MemoFilters className="mb-2" />
               {initialLoader}
               {initialError}
-              {displayMemoList.map((memo) => props.renderer(memo, { compact: effectiveCompact }))}
+              {newlyCreatedCard}
+              {pinnedSection}
+              {ordinaryMemos.map((memo) => props.renderer(memo, { compact: effectiveCompact }))}
               {emptyPlaceholder}
               {!isDisplayPending && footer}
             </>
