@@ -42,6 +42,7 @@ const DemoBanner = () => {
 
 const RootLayoutContent = () => {
   const location = useLocation();
+  const t = useTranslate();
   const [searchParams] = useSearchParams();
   const currentUser = useCurrentUser();
   const md = useMediaQuery("md");
@@ -87,6 +88,12 @@ const RootLayoutContent = () => {
       data-glaze-optical-v14="adaptive-optical"
       style={{ [SIDEBAR_WIDTH_VAR]: `${sidebarWidth}px` } as CSSProperties}
     >
+      <a
+        href="#goreecloud-main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50 focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-lg focus:outline-2 focus:outline-offset-2 focus:outline-ring"
+      >
+        {t("common.skip-to-content")}
+      </a>
       {md && (
         <div className="fixed inset-y-0 start-0 z-30 w-(--app-sidebar-width) border-e border-border/70">
           <AppSidebar />
@@ -101,6 +108,8 @@ const RootLayoutContent = () => {
       )}
       <MobileAppSidebar />
       <main
+        id="goreecloud-main-content"
+        tabIndex={-1}
         className={cn(
           "goreecloud-main-surface flex w-full min-w-0 flex-col items-center md:ps-(--app-sidebar-width)",
           fullBleed ? "h-full min-h-0" : "min-h-full",
