@@ -15,6 +15,8 @@ const LocationStateProbe = () => {
 
 describe("<AttachmentMediaGrid>", () => {
   it("links a media attachment to its source memo without replacing the direct file action", () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     const attachment = create(AttachmentSchema, {
       name: "attachments/photo",
       filename: "photo.jpg",
@@ -64,6 +66,14 @@ describe("<AttachmentMediaGrid>", () => {
     const fileLink = screen.getByRole("link", { name: "attachment-library.actions.open" });
     expect(fileLink).toHaveAttribute("href", "/file/attachments/photo/photo.jpg");
     expect(fileLink).toHaveAttribute("target", "_blank");
+    expect(fileLink.tagName).toBe("A");
+    expect(fileLink).not.toHaveAttribute("role", "button");
+    expect(
+      [...consoleError.mock.calls, ...consoleWarn.mock.calls].flat().some((value) => String(value).includes("expected a native <button>")),
+    ).toBe(false);
+
+    consoleError.mockRestore();
+    consoleWarn.mockRestore();
 
     fireEvent.click(memoLink);
     expect(onPreview).not.toHaveBeenCalled();
