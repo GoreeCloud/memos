@@ -7,10 +7,6 @@ export type PrimaryMemoScope = Exclude<MemoScope, "archived">;
 export const BUILTIN_TASKS_VIEW_ID = "__built_in_tasks__";
 export const BUILTIN_TASKS_VIEW_FILTER = "has_task_list && has_incomplete_tasks";
 
-/** Reject visually empty names or expressions before submitting a saved-view mutation. */
-export const hasMemoViewDraftContent = (title: string, filter: string): boolean =>
-  title.trim().length > 0 && filter.trim().length > 0;
-
 export const getMemoViewId = (name: string): string => {
   const parts = name.split("/");
   return parts.length === 4 ? parts[3] : name;
