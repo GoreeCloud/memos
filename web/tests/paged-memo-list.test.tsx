@@ -54,7 +54,7 @@ vi.mock("@/contexts/ViewContext", () => ({
 }));
 
 vi.mock("@/utils/i18n", () => ({
-  useTranslate: () => (key: string) => (key === "message.no-data" ? "No data found." : key),
+  useTranslate: () => (key: string) => key,
 }));
 
 vi.mock("@/components/MemoContent/MentionResolutionContext", () => ({
@@ -69,11 +69,15 @@ const memo = { name: "memos/1", content: "hello", updateTime: undefined } as unk
 
 const renderList = (
   renderer: (memo: Memo, options: { compact: boolean }) => React.ReactElement = () => <div />,
-  options: { leading?: React.ReactNode } = {},
+  options: { leading?: React.ReactNode; groupPinned?: boolean } = {},
 ) =>
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <PagedMemoList renderer={renderer} renderLeading={options.leading ? () => options.leading : undefined} />
+      <PagedMemoList
+        renderer={renderer}
+        groupPinned={options.groupPinned}
+        renderLeading={options.leading ? () => options.leading : undefined}
+      />
     </QueryClientProvider>,
   );
 
@@ -94,6 +98,69 @@ describe("<PagedMemoList>", () => {
     memoQuery.request = undefined;
   });
 
+  it.each([1, 0] as const)("separates loaded pinned notes from the ordinary feed in layout %i", (columns) => {
+    view.maxColumns = columns;
+    const spy = vi.spyOn(Element.prototype, "clientWidth", "get").mockReturnValue(1200);
+    try {
+      feed.memos = [
+        { name: "memos/pin", content: "#work", pinned: true },
+        { name: "memos/other", content: "other", pinned: false },
+      ];
+      renderList(
+        (memo) => (
+          <div key={memo.name} data-testid={"memo-" + memo.name}>
+            {memo.content}
+          </div>
+        ),
+        {
+          groupPinned: true,
+          leading: <div data-testid="composer">Editor</div>,
+        },
+      );
+      const section = screen.getByRole("region", { name: "home.pinned-memos" });
+      expect(section).toContainElement(screen.getByTestId("memo-memos/pin"));
+      expect(screen.getAllByTestId("memo-memos/pin")).toHaveLength(1);
+      expect(screen.getAllByTestId("memo-memos/other")).toHaveLength(1);
+      expect(screen.getByTestId("composer")).toBeInTheDocument();
+      expect(screen.getByTestId("composer").compareDocumentPosition(section) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it("keeps the Home composer mounted when the first memo is pinned or unpinned", () => {
+    view.maxColumns = 0;
+    const widthSpy = vi.spyOn(Element.prototype, "clientWidth", "get").mockReturnValue(1200);
+    try {
+      const client = new QueryClient();
+      const renderHomeList = () => (
+        <QueryClientProvider client={client}>
+          <PagedMemoList
+            groupPinned
+            renderer={(memo) => <div key={memo.name}>{memo.content}</div>}
+            renderLeading={() => <div data-testid="persistent-composer">Writing a draft</div>}
+          />
+        </QueryClientProvider>
+      );
+      feed.memos = [{ name: "memos/regular", content: "Regular", pinned: false }];
+      const { rerender } = render(renderHomeList());
+      const composer = screen.getByTestId("persistent-composer");
+      feed.memos = [
+        { name: "memos/pin", content: "Pinned", pinned: true },
+        { name: "memos/regular", content: "Regular", pinned: false },
+      ];
+      rerender(renderHomeList());
+      expect(screen.getByRole("region", { name: "home.pinned-memos" })).toBeInTheDocument();
+      expect(screen.getByTestId("persistent-composer")).toBe(composer);
+      feed.memos = [{ name: "memos/regular", content: "Regular", pinned: false }];
+      rerender(renderHomeList());
+      expect(screen.queryByRole("region", { name: "home.pinned-memos" })).not.toBeInTheDocument();
+      expect(screen.getByTestId("persistent-composer")).toBe(composer);
+    } finally {
+      widthSpy.mockRestore();
+    }
+  });
+
   it.each([1, 0] as const)("shows recoverable validation errors in layout %i instead of an empty state", (columns) => {
     view.maxColumns = columns;
     const widthSpy = vi.spyOn(Element.prototype, "clientWidth", "get").mockReturnValue(1200);
@@ -104,7 +171,7 @@ describe("<PagedMemoList>", () => {
       expect(alert).toHaveTextContent("search.invalid-expression");
       expect(alert).toHaveTextContent("unknown identifier <script>bad</script>");
       expect(alert.querySelector("script")).toBeNull();
-      expect(screen.queryByText("No data found.")).not.toBeInTheDocument();
+      expect(screen.queryByText("home.no-results-title")).not.toBeInTheDocument();
       expect(screen.getByTestId("memo-filters")).toBeInTheDocument();
       if (columns === 0) expect(alert.closest(".absolute")).not.toBeNull();
       fireEvent.click(screen.getByRole("button", { name: "search.edit-query" }));
@@ -232,11 +299,11 @@ describe("<PagedMemoList>", () => {
     expect(screen.getByTestId("leading-content")).toBeInTheDocument();
   });
 
-  it("uses the tile sprite Placeholder for the empty state", () => {
+  it("shows the redesigned memo welcome panel instead of the old illustration", () => {
     renderList();
 
-    expect(screen.getByText("No data found.")).toBeInTheDocument();
-    expect(screen.getByTestId("placeholder-sprite")).toBeInTheDocument();
+    expect(screen.getByText("home.no-results-title")).toBeInTheDocument();
+    expect(screen.getByTestId("memos-empty-state")).toBeInTheDocument();
   });
 
   it("combines the selected Space filter with the memo list filter", () => {
@@ -255,8 +322,8 @@ describe("<PagedMemoList>", () => {
     renderList(undefined, { leading: <div data-testid="leading-content" /> });
 
     expect(screen.getByTestId("leading-content")).toBeInTheDocument();
-    expect(screen.getByText("No data found.")).toBeInTheDocument();
-    expect(screen.getByTestId("placeholder-sprite")).toBeInTheDocument();
+    expect(screen.getByText("home.no-results-title")).toBeInTheDocument();
+    expect(screen.getByTestId("memos-empty-state")).toBeInTheDocument();
   });
 
   it("places leading content and the empty state in the first grid column", () => {
@@ -265,7 +332,7 @@ describe("<PagedMemoList>", () => {
     try {
       renderList(undefined, { leading: <div data-testid="leading-content" /> });
 
-      const leadingTile = screen.getByText("No data found.").closest(".absolute");
+      const leadingTile = screen.getByText("home.no-results-title").closest(".absolute");
       expect(leadingTile).not.toBeNull();
       expect(leadingTile).toContainElement(screen.getByTestId("leading-content"));
     } finally {

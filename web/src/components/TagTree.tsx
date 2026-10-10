@@ -1,5 +1,6 @@
 import { ChevronRightIcon, HashIcon } from "lucide-react";
 import { useEffect, useMemo } from "react";
+import LabelColorIcon from "@/components/AppSidebar/LabelColorIcon";
 import {
   SIDEBAR_ROW_BOX_CLASSES,
   SIDEBAR_ROW_COUNT_RAIL_CLASSES,
@@ -7,7 +8,6 @@ import {
   SIDEBAR_ROW_LABEL_CLASSES,
   SIDEBAR_ROW_SLOT_BUTTON_CLASSES,
   SIDEBAR_ROW_SLOT_CLASSES,
-  SidebarRowIconSlot,
   sidebarRowStateAttributes,
   sidebarRowStateClasses,
 } from "@/components/AppSidebar/SidebarRow";
@@ -27,6 +27,7 @@ interface TagTreeNode {
 
 interface Props {
   tagAmounts: [tag: string, amount: number][];
+  tagColors?: Readonly<Record<string, string>>;
   activeTag?: string;
   /** Identifies whose tags these are, so expansion persists per tenant rather than per browser. */
   scope: string;
@@ -88,9 +89,16 @@ const parentPathsOf = (tag: string): string[] => {
   return segments.slice(0, -1).map((_, index) => segments.slice(0, index + 1).join("/"));
 };
 
-const TagMark = ({ className }: { className?: string }) => (
-  <HashIcon aria-hidden="true" className={cn(SIDEBAR_ROW_ICON_CLASSES, className)} strokeWidth={1.8} />
-);
+const TagMark = ({ className, color }: { className?: string; color?: string }) =>
+  color ? (
+    <span
+      aria-hidden="true"
+      className={cn("size-3.5 shrink-0 rounded-[5px] border border-black/10 shadow-sm dark:border-white/20", className)}
+      style={{ backgroundColor: color }}
+    />
+  ) : (
+    <HashIcon aria-hidden="true" className={cn(SIDEBAR_ROW_ICON_CLASSES, className)} strokeWidth={1.8} />
+  );
 
 const Chevron = ({ open, className }: { open: boolean; className?: string }) => (
   <ChevronRightIcon
@@ -108,12 +116,13 @@ interface TagItemProps {
   tag: TagTreeNode;
   depth: number;
   activeTag?: string;
+  tagColors: Readonly<Record<string, string>>;
   expanded: ReadonlySet<string>;
   onTagClick: (tag: string) => void;
   onToggle: (path: string) => void;
 }
 
-const TagItem = ({ tag, depth, activeTag, expanded, onTagClick, onToggle }: TagItemProps) => {
+const TagItem = ({ tag, depth, activeTag, tagColors, expanded, onTagClick, onToggle }: TagItemProps) => {
   const t = useTranslate();
   const isTag = tag.amount !== undefined;
   const isActive = activeTag === tag.text;
@@ -152,7 +161,7 @@ const TagItem = ({ tag, depth, activeTag, expanded, onTagClick, onToggle }: TagI
             className={SIDEBAR_ROW_SLOT_BUTTON_CLASSES}
             onClick={() => onToggle(tag.text)}
           >
-            <TagMark className="group-hover:hidden group-has-[:focus-visible]:hidden" />
+            <TagMark color={tagColors[tag.text]} className="group-hover:hidden group-has-[:focus-visible]:hidden" />
             <Chevron open={open} className="hidden group-hover:block group-has-[:focus-visible]:block" />
           </button>
         )}
@@ -165,7 +174,7 @@ const TagItem = ({ tag, depth, activeTag, expanded, onTagClick, onToggle }: TagI
             className={SIDEBAR_ROW_LABEL_CLASSES}
             onClick={() => onTagClick(tag.text)}
           >
-            {!hasSubTags && <SidebarRowIconSlot icon={HashIcon} />}
+            {!hasSubTags && <LabelColorIcon color={tagColors[tag.text]} />}
             <span ref={labelRef} className="min-w-0 flex-1 truncate">
               {tag.key}
             </span>
@@ -201,6 +210,7 @@ const TagItem = ({ tag, depth, activeTag, expanded, onTagClick, onToggle }: TagI
               tag={subTag}
               depth={depth + 1}
               activeTag={activeTag}
+              tagColors={tagColors}
               expanded={expanded}
               onTagClick={onTagClick}
               onToggle={onToggle}
@@ -212,7 +222,7 @@ const TagItem = ({ tag, depth, activeTag, expanded, onTagClick, onToggle }: TagI
   );
 };
 
-const TagTree = ({ tagAmounts, activeTag, scope, onTagClick }: Props) => {
+const TagTree = ({ tagAmounts, tagColors = {}, activeTag, scope, onTagClick }: Props) => {
   const t = useTranslate();
   const tags = useMemo(() => buildTagTree(tagAmounts), [tagAmounts]);
   // Scoped per tenant: the paths are one account's tag names, so another user's profile tree
@@ -251,6 +261,7 @@ const TagTree = ({ tagAmounts, activeTag, scope, onTagClick }: Props) => {
           tag={tag}
           depth={0}
           activeTag={activeTag}
+          tagColors={tagColors}
           expanded={expanded}
           onTagClick={onTagClick}
           onToggle={handleToggle}

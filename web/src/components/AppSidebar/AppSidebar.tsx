@@ -3,7 +3,6 @@ import {
   ArchiveIcon,
   ArrowRightIcon,
   BellIcon,
-  CalendarDaysIcon,
   ChevronDownIcon,
   EarthIcon,
   FileAudioIcon,
@@ -27,7 +26,6 @@ import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { MAP_MEMO_FILTER } from "@/components/MapView/useMapMemos";
 import { MemoDetailSidebar } from "@/components/MemoDetailSidebar";
 import { DEFAULT_SETTING_SECTION, SETTINGS_SECTIONS } from "@/components/Settings/settingSections";
-import StatisticsView from "@/components/StatisticsView";
 import UserMenu from "@/components/UserMenu";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -92,18 +90,15 @@ const ProfileNavigation = () => {
   );
 };
 
-/** The calendar is its own month view, so its sidebar narrows by view and tag but skips the heatmap. */
+/** Collection navigation stays focused on views and labels; the calendar remains a standalone page. */
 const CollectionSidebarContent = ({
   context,
-  showStatistics = true,
   scopeFilter,
 }: {
   context: MemoStatsContext;
-  showStatistics?: boolean;
   /** A page that can only show part of the collection counts that part, so a tag never promises memos the page cannot show. */
   scopeFilter?: string;
 }) => {
-  const t = useTranslate();
   const location = useLocation();
   const currentUser = useCurrentUser();
   const { memoFilter, selectedSpaceName } = useSpaceContext();
@@ -120,7 +115,7 @@ const CollectionSidebarContent = ({
   const isUserLevelCollection = context === "profile" || context === "archived";
   const collectionFilter = isUserLevelCollection ? undefined : memoFilter;
   const statsFilter = scopeFilter ? combineCELFilters(collectionFilter, scopeFilter) : collectionFilter;
-  const { statistics, tags } = useFilteredMemoStats({
+  const { tags } = useFilteredMemoStats({
     context,
     userName: statsUserName,
     filter: statsFilter,
@@ -134,12 +129,7 @@ const CollectionSidebarContent = ({
   return (
     <div className={SIDEBAR_SECTION_STACK_CLASSES}>
       {context === "profile" && <ProfileNavigation />}
-      {showStatistics && (
-        <SidebarSection ariaLabel={t("common.statistics")}>
-          <StatisticsView statisticsData={statistics} onDateSelect={() => setMobileOpen(false)} />
-        </SidebarSection>
-      )}
-      {/* Every collection route narrows the same way: views (yours, so signed-in only), days, tags. */}
+      {/* Every collection route narrows by saved views and memo labels. */}
       {currentUser && <ViewsSection />}
       <TagsSection tagCount={tags} scope={tagStateScope} onSelect={() => setMobileOpen(false)} />
     </div>
@@ -288,8 +278,8 @@ const RouteSidebarContent = () => {
     return <CollectionSidebarContent context={kind} />;
   }
   if (kind === "views") return <ViewsSection manageActive />;
-  if (kind === "calendar") return <CollectionSidebarContent context="home" showStatistics={false} />;
-  if (kind === "map") return <CollectionSidebarContent context="home" showStatistics={false} scopeFilter={MAP_MEMO_FILTER} />;
+  if (kind === "calendar") return <CollectionSidebarContent context="home" />;
+  if (kind === "map") return <CollectionSidebarContent context="home" scopeFilter={MAP_MEMO_FILTER} />;
   if (kind === "attachments") return <AttachmentsSidebarContent />;
   if (kind === "inbox") return <InboxSidebarContent />;
   if (kind === "settings") return <SettingsSidebarContent />;
@@ -379,13 +369,6 @@ const GlobalNavigation = () => {
 
   const items: GlobalNavItem[] = currentUser
     ? [
-        {
-          id: "calendar",
-          label: t("common.calendar"),
-          path: collectionPathForLocation(ROUTES.CALENDAR, location.pathname),
-          icon: CalendarDaysIcon,
-          active: routeKind === "calendar",
-        },
         {
           id: "map",
           label: t("common.map"),
