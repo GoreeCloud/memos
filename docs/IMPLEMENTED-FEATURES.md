@@ -62,3 +62,10 @@
 - Button Style coverage for existing localized native icon controls used by map zoom/fit, memo-panel close, and calendar previous/next month/year navigation, preserving their accessible names while allowing Icons + Text and Text presentation modes.
 
 - Saved-view management action menus now expose a localized accessible name through the shared GoreeCloud icon-button primitive and reserve max-content space so Icons + Text/Text presentation modes do not collide with view content.
+
+## Bounded Glaze interaction performance regression
+
+- The authenticated Chromium matrix includes an exact-revision desktop measurement for 30 Search text/expression mode transitions.
+- The test measures from the captured browser click event through the following confirmed painted update and stores the exact metrics as Playwright evidence.
+- The Development gate enforces the approved Glaze interaction ceilings of p95 <= 100 ms and p99 <= 200 ms.
+- This is bounded regression evidence only; the full representative transition mix, frame-continuity budget, physical-device/browser performance, Web Vitals, service latency, and production performance acceptance remain open.

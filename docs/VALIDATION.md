@@ -117,3 +117,9 @@ Focused Development tests exercise `memos restore sqlite-local` against a real b
 Negative cases prove fail-closed behavior when the target already exists, when an attachment in the source bundle is tampered before restore, and when the requested target is inside the recovery bundle. The implementation stages into a private sibling directory, rechecks copied byte counts/SHA-256 plus SQLite quick-check, rechecks target nonexistence immediately before publication, and leaves the final target absent on pre-publication failure.
 
 This is bounded SQLite + relative managed-local restore-tool evidence only. It does not establish S3 or administrator-configured absolute-LOCAL recovery, deployment/runtime configuration or reusable-secret restoration, scheduled/multiple generations, retention, off-device replication, all-backend restore orchestration, Everkeep runtime acceptance, Production Acceptance, Seal, or Anchor qualification.
+
+## Bounded Glaze interaction performance regression
+
+The authenticated Chromium matrix includes a desktop-only Development test that samples 30 Search text/expression mode transitions from the captured click event to the following confirmed painted update. Exact metrics are attached to the Playwright result for the tested revision. The bounded lane fails when sampled interaction p95 exceeds 100 ms or p99 exceeds 200 ms, matching the approved Glaze interaction-to-painted-update ceilings.
+
+This does not satisfy the complete Glaze performance standard by itself: representative mixed-state coverage, idle/active frame-continuity measurements, physical-device/browser evidence, product Web Vitals, backend/service latency, and production acceptance remain open.

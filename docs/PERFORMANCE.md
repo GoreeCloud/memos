@@ -31,6 +31,12 @@ The frontend validation job builds the production Vite output and runs `scripts/
 
 The measurement is written into the exact GitHub Actions job summary for the validated revision. Gzip uses a fixed timestamp so repeated runs over identical bytes remain comparable.
 
+## Bounded Glaze interaction performance gate
+
+The authenticated Chromium lane now includes a dedicated desktop Development measurement for 30 real Search text/expression mode transitions. The test captures the browser click event timestamp, waits for the following painted update through two `requestAnimationFrame` callbacks, records exact-revision metrics as a Playwright attachment, and enforces the approved Glaze interaction-to-painted-update ceilings of **p95 <= 100 ms** and **p99 <= 200 ms**.
+
+This is a deliberately bounded regression gate. It does not establish the complete Glaze performance budget because it does not yet satisfy the required representative transition mix or frame-continuity sample set, and it does not establish website LCP/INP/CLS, physical-device, cross-browser, concurrency, backend latency, or production performance acceptance.
+
 ## Acceptance boundary
 
 These measurements are **baseline and regression-observation mechanisms**, not performance qualification results and not pass/fail production budgets.

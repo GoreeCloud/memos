@@ -54,9 +54,25 @@ export default defineConfig({
       },
     },
     {
+      name: "authenticated-performance-desktop",
+      testMatch: /authenticated-performance\.spec\.ts/,
+      dependencies: ["authenticated-setup"],
+      use: {
+        storageState,
+        viewport: { width: 1440, height: 900 },
+        colorScheme: "light",
+        reducedMotion: "no-preference",
+      },
+    },
+    {
       name: "authenticated-phone-ar-rtl-reduced-transparency",
       testMatch: /authenticated-home\.spec\.ts/,
-      dependencies: ["authenticated-desktop-light", "authenticated-phone-dark", "authenticated-tablet-forced-colors"],
+      dependencies: [
+        "authenticated-desktop-light",
+        "authenticated-phone-dark",
+        "authenticated-tablet-forced-colors",
+        "authenticated-performance-desktop",
+      ],
       use: {
         storageState,
         viewport: { width: 390, height: 844 },
