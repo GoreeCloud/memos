@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SIDEBAR_ROW_BOX_CLASSES, SIDEBAR_ROW_COUNT_RAIL_CLASSES, SIDEBAR_ROW_SLOT_CLASSES } from "@/components/AppSidebar/SidebarRow";
@@ -6,11 +6,23 @@ import { SIDEBAR_SECTION_ACTION_ICON_CLASSES } from "@/components/AppSidebar/Sid
 import TagsSection from "@/components/AppSidebar/TagsSection";
 import { MemoFilterProvider } from "@/contexts/MemoFilterContext";
 
+const mocks = vi.hoisted(() => ({
+  tags: {} as Record<string, { blurContent: boolean }>,
+  mutateAsync: vi.fn().mockResolvedValue(undefined),
+  refetchSettings: vi.fn().mockResolvedValue(undefined),
+}));
+vi.mock("@/contexts/AuthContext", () => ({
+  useAuth: () => ({ currentUser: { name: "users/owner" }, userTagsSetting: { tags: mocks.tags }, refetchSettings: mocks.refetchSettings }),
+}));
+vi.mock("@/hooks/useUserQueries", () => ({ useUpdateUserSetting: () => ({ mutateAsync: mocks.mutateAsync }) }));
 vi.mock("@/utils/i18n", () => ({ useTranslate: () => (key: string) => key }));
 
 describe("TagsSection", () => {
   beforeEach(() => {
     localStorage.clear();
+    mocks.tags = {};
+    mocks.mutateAsync.mockClear();
+    mocks.refetchSettings.mockClear();
   });
 
   it("keeps the Labels section visible before a user has added any labels", () => {
@@ -23,6 +35,37 @@ describe("TagsSection", () => {
     );
     expect(screen.getByRole("heading", { name: "common.labels" })).toBeInTheDocument();
     expect(screen.getByText("home.labels-empty")).toBeInTheDocument();
+  });
+
+  it("shows a configured unused label but never offers regex metadata as a literal label", () => {
+    mocks.tags = { work: { blurContent: false }, "project/.*": { blurContent: false } };
+    render(
+      <MemoryRouter>
+        <MemoFilterProvider>
+          <TagsSection tagCount={{}} scope="home" />
+        </MemoFilterProvider>
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("button", { name: "#work, setting.tags.used-count" })).toBeInTheDocument();
+    expect(screen.queryByText("project/.*")).not.toBeInTheDocument();
+  });
+
+  it("creates an exact-name label from the sidebar without leaving the memo list", async () => {
+    render(
+      <MemoryRouter>
+        <MemoFilterProvider>
+          <TagsSection tagCount={{}} scope="home" />
+        </MemoFilterProvider>
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "common.add common.labels" }));
+    const dialog = screen.getByRole("dialog");
+    const name = within(dialog).getByRole("textbox", { name: "common.labels" });
+    fireEvent.change(name, { target: { value: "project/notes" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: "common.add" }));
+    await waitFor(() => expect(mocks.mutateAsync).toHaveBeenCalledOnce());
+    expect(mocks.mutateAsync.mock.calls[0][0].setting.value.value.tags).toHaveProperty("project/notes");
+    expect(mocks.refetchSettings).toHaveBeenCalledOnce();
   });
 
   it("keeps the title count-free and uses the shared section action grammar", () => {
