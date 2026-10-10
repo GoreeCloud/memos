@@ -7,6 +7,7 @@ const memoPanelSource = readFileSync(resolve(process.cwd(), "src/components/Memo
 const memoViewsSource = readFileSync(resolve(process.cwd(), "src/pages/MemoViews.tsx"), "utf8");
 const calendarHeaderSource = readFileSync(resolve(process.cwd(), "src/components/CalendarView/CalendarHeader.tsx"), "utf8");
 const monthPickerSource = readFileSync(resolve(process.cwd(), "src/components/CalendarView/MonthPicker.tsx"), "utf8");
+const statisticsMonthNavigatorSource = readFileSync(resolve(process.cwd(), "src/components/StatisticsView/MonthNavigator.tsx"), "utf8");
 
 describe("GoreeCloud Button Style native-control coverage", () => {
   it("covers labeled map zoom and fit icon controls", () => {
@@ -35,6 +36,14 @@ describe("GoreeCloud Button Style native-control coverage", () => {
       expect(monthPickerSource).toContain('data-goreecloud-label={t("' + key + '")}');
     }
     expect(monthPickerSource.match(/data-goreecloud-icon-button=""/g)).toHaveLength(2);
+  });
+
+  it("covers labeled statistics month navigation controls", () => {
+    for (const key of ["common.previous-month", "common.next-month"]) {
+      expect(statisticsMonthNavigatorSource).toContain('aria-label={t("' + key + '")}');
+      expect(statisticsMonthNavigatorSource).toContain('data-goreecloud-label={t("' + key + '")}');
+    }
+    expect(statisticsMonthNavigatorSource.match(/data-goreecloud-icon-button=""/g)).toHaveLength(2);
   });
 
   it("keeps saved-view action controls named and text-mode safe", () => {
