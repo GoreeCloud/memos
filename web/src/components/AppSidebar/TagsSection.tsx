@@ -86,10 +86,6 @@ const TagsSection = ({ tagCount, onSelect, scope }: Props) => {
   const activeTag = activeTags.values().next().value as string | undefined;
   const tags = useMemo(() => Object.entries(tagCount).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), [tagCount]);
 
-  if (tags.length === 0) {
-    return null;
-  }
-
   const handleTagClick = (tag: string) => {
     const active = activeTags.has(tag);
     if (active) {
@@ -103,13 +99,13 @@ const TagsSection = ({ tagCount, onSelect, scope }: Props) => {
 
   return (
     <SidebarSection
-      label={t("common.tags")}
+      label={t("common.labels")}
       action={
         <DropdownMenu>
           <Tooltip>
             <TooltipTrigger render={<span className="inline-flex" />}>
               <DropdownMenuTrigger
-                aria-label={`${t("common.tags")}: ${t("common.more")}`}
+                aria-label={`${t("common.labels")}: ${t("common.more")}`}
                 render={<Button variant="quiet" size="icon-sm" />}
               >
                 <MoreHorizontalIcon className={SIDEBAR_SECTION_ACTION_ICON_CLASSES} strokeWidth={1.8} />
@@ -119,7 +115,7 @@ const TagsSection = ({ tagCount, onSelect, scope }: Props) => {
           </Tooltip>
           <DropdownMenuContent align="end" sideOffset={4} size="sm" className="w-44">
             <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-muted-foreground">{t("common.tags")}</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-muted-foreground">{t("common.labels")}</DropdownMenuLabel>
               <DropdownMenuCheckboxItem
                 checked={treeMode}
                 onCheckedChange={setTreeMode}
@@ -134,7 +130,9 @@ const TagsSection = ({ tagCount, onSelect, scope }: Props) => {
         </DropdownMenu>
       }
     >
-      {treeMode ? (
+      {tags.length === 0 ? (
+        <p className="px-2 py-2 text-xs leading-relaxed text-muted-foreground">{t("home.labels-empty")}</p>
+      ) : treeMode ? (
         <TagTree key={scope} tagAmounts={tags} activeTag={activeTag} scope={scope} onTagClick={handleTagClick} />
       ) : (
         <>

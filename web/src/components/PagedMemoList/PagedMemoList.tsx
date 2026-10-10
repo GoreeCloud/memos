@@ -18,7 +18,7 @@ import type { Memo } from "@/types/proto/api/v1/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
 import ColumnGrid, { ColumnGridUntrappedProvider, columnCountForWidth, GRID_GAP } from "../ColumnGrid";
 import MemoFilters from "../MemoFilters";
-import Placeholder from "../Placeholder";
+import MemoListEmptyState from "./MemoListEmptyState";
 import MemoListError from "./MemoListError";
 import { estimateMemoCardHeight } from "./memoCardHeight";
 
@@ -120,7 +120,6 @@ function useAutoFetchWhenNotScrollable({
 }
 
 const PagedMemoList = (props: Props) => {
-  const t = useTranslate();
   const { isUserSettingsInitialized } = useAuth();
   const { filters, memoView, removeFilter } = useMemoFilterContext();
   const { setQuickFindOpen } = useAppSidebar();
@@ -232,7 +231,7 @@ const PagedMemoList = (props: Props) => {
 
   const emptyPlaceholder =
     !isDisplayPending && !isError && !isFetchingNextPage && !hasNextPage && displayMemoList.length === 0 ? (
-      <Placeholder variant="empty" message={props.emptyMessage ?? t("message.no-data")} className="w-full" />
+      <MemoListEmptyState filtered={filters.length > 0 || memoView !== undefined} message={props.emptyMessage} />
     ) : null;
   const initialLoader = isDisplayPending && showLoader ? <Loader /> : null;
   // Only a query the user typed can be edited or cleared from the error; facet and scope

@@ -44,7 +44,17 @@
     "sso-signup-tip": "आपले खाते तयार करण्यासाठी खालीलपैकी एका प्रदात्याद्वारे साइन इन करा.",
     "welcome-back": "आपले पुन्हा स्वागत आहे."
   },
+  "home": {
+    "empty-title": "A fresh page for your ideas",
+    "empty-description": "Every great thought starts somewhere. Write your first memo above whenever inspiration strikes.",
+    "no-results-title": "Nothing matches just yet",
+    "no-results-description": "Try different search words, or clear your search to see your memos again.",
+    "labels-empty": "Add a #label to a memo to organize it here.",
+    "search-all": "Search all memos",
+    "search-placeholder": "Search across your memos..."
+  },
   "common": {
+    "labels": "Labels",
     "about": "बद्दल",
     "add": "जोडा",
     "admin": "ॲडमिन",
