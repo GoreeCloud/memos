@@ -2,7 +2,7 @@ import { ExternalLinkIcon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { createMemoNavigationState } from "@/components/MemoView/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "@/utils/i18n";
 
@@ -75,14 +75,18 @@ export const AttachmentOpenButton = ({ className, href }: AttachmentOpenButtonPr
   const t = useTranslate();
 
   return (
-    <Button
-      render={<a href={href} target="_blank" rel="noreferrer" />}
-      variant="ghost"
-      size="icon"
-      className={cn("size-7 shrink-0 rounded-full text-muted-foreground hover:text-foreground", className)}
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className={cn(
+        buttonVariants({ variant: "ghost", size: "icon" }),
+        "size-7 shrink-0 rounded-full text-muted-foreground hover:text-foreground",
+        className,
+      )}
     >
       <ExternalLinkIcon className="h-3.5 w-3.5" />
       <span className="sr-only">{t("attachment-library.actions.open")}</span>
-    </Button>
+    </a>
   );
 };
