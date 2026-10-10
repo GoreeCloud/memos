@@ -54,6 +54,7 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 
 	echoServer := echo.New()
 	echoServer.Use(middleware.Recover())
+	echoServer.Use(newSecurityHeadersMiddleware())
 	echoServer.Use(newCORSMiddleware(profile))
 	// Resolve the client address once per request, before anything that keys
 	// on it: rate limits, session records, and the file server.
