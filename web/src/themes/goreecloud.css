@@ -238,3 +238,43 @@
     forced-color-adjust: none;
   }
 }
+
+/* GoreeCloud control-presentation preference.
+ * The default remains compact icon/glyph actions. Text-capable modes expose
+ * the aria-label already owned by shared icon buttons without changing the
+ * accessible name or manufacturing labels for unlabeled controls.
+ */
+:root[data-goreecloud-button-style="icons-text"] [data-goreecloud-icon-button],
+:root[data-goreecloud-button-style="text"] [data-goreecloud-icon-button] {
+  width: auto;
+  min-width: 2rem;
+  padding-inline: 0.625rem;
+}
+
+:root[data-goreecloud-button-style="icons-text"] [data-goreecloud-icon-button]::after,
+:root[data-goreecloud-button-style="text"] [data-goreecloud-icon-button]::after {
+  content: attr(data-goreecloud-label);
+  display: inline-block;
+  min-width: 0;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:root[data-goreecloud-button-style="text"] [data-goreecloud-icon-button] > svg {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  :root[data-goreecloud-button-style="icons-text"] [data-goreecloud-icon-button],
+  :root[data-goreecloud-button-style="text"] [data-goreecloud-icon-button] {
+    max-width: min(14rem, 58vw);
+  }
+}
+
+@media (forced-colors: active) {
+  :root[data-goreecloud-button-style] [data-goreecloud-icon-button] {
+    forced-color-adjust: auto;
+  }
+}

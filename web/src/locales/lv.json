@@ -587,7 +587,12 @@
       "save-media-metadata": "Saglabāt multivides metadatus",
       "save-media-metadata-description": "Turpmākām augšupielādēm saglabājiet pieejamo kameru, uzņemšanas laiku, atrašanās vietu, attēla izmērus un pamata video informāciju. Ikviens, kurš var skatīt pielikumu, var saņemt šos metadatus. Esošie pielikumi netiek mainīti.",
       "uploads-privacy-description": "Kontrolējiet konfidenciālu informāciju, kas iesniegta kopā ar augšupielādēto multividi.",
-      "uploads-privacy-title": "Augšupielādes un konfidencialitāte"
+      "uploads-privacy-title": "Augšupielādes un konfidencialitāte",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Vai tiešām vēlaties dzēst skatu `{{title}}`?",

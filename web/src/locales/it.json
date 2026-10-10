@@ -471,7 +471,12 @@
       "save-media-metadata": "Salva i metadati dei media",
       "save-media-metadata-description": "Per i caricamenti futuri, salva la fotocamera disponibile, l'ora di acquisizione, la posizione, le dimensioni dell'immagine e i dettagli video di base. Chiunque possa visualizzare l'allegato può ricevere questi metadati. Gli allegati esistenti rimangono invariati.",
       "uploads-privacy-description": "Controlla le informazioni sensibili alla privacy inviate con i media caricati.",
-      "uploads-privacy-title": "Caricamenti e privacy"
+      "uploads-privacy-title": "Caricamenti e privacy",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Confermi di voler eliminare la vista `{{title}}`?",

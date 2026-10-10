@@ -587,7 +587,12 @@
       "save-media-metadata": "Αποθήκευση μεταδεδομένων πολυμέσων",
       "save-media-metadata-description": "Για μελλοντικές μεταφορτώσεις, αποθηκεύστε τη διαθέσιμη κάμερα, την ώρα λήψης, την τοποθεσία, τις διαστάσεις της εικόνας και τις βασικές λεπτομέρειες του βίντεο. Όποιος μπορεί να δει το συνημμένο μπορεί να λάβει αυτά τα μεταδεδομένα. Τα υπάρχοντα συνημμένα παραμένουν αμετάβλητα.",
       "uploads-privacy-description": "Έλεγχος πληροφοριών που είναι ευαίσθητες στην προστασία της ιδιωτικής ζωής και υποβάλλονται με τα μεταφορτωμένα μέσα.",
-      "uploads-privacy-title": "Μεταφορτώσεις & απόρρητο"
+      "uploads-privacy-title": "Μεταφορτώσεις & απόρρητο",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Είστε βέβαιοι ότι θέλετε να διαγράψετε την προβολή `{{title}}`;",

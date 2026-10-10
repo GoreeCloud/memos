@@ -471,7 +471,12 @@
       "save-media-metadata": "Medienmetadaten speichern",
       "save-media-metadata-description": "Für zukünftige Uploads werden die verfügbare Kamera, Aufnahmezeitpunkt, Ort, Bildabmessungen und grundlegende Videodetails gespeichert. Jeder, der den Anhang ansehen kann, erhält diese Metadaten. Vorhandene Anhänge bleiben unverändert.",
       "uploads-privacy-description": "Kontrolle über datenschutzrelevante Informationen, die mit hochgeladenen Medien übermittelt werden.",
-      "uploads-privacy-title": "Uploads & Datenschutz"
+      "uploads-privacy-title": "Uploads & Datenschutz",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Bist du sicher, dass du die Ansicht `{{title}}` löschen möchtest?",

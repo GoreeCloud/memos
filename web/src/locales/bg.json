@@ -587,7 +587,12 @@
       "save-media-metadata": "Запазване на медийни метаданни",
       "save-media-metadata-description": "За бъдещи качвания, запазете наличната камера, времето на заснемане, местоположението, размерите на изображението и основните подробности за видеото. Всеки, който може да преглежда прикачения файл, може да получи тези метаданни. Съществуващите прикачени файлове остават непроменени.",
       "uploads-privacy-description": "Контролирайте поверителната информация, изпратена с качените медийни файлове.",
-      "uploads-privacy-title": "Качвания и поверителност"
+      "uploads-privacy-title": "Качвания и поверителност",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Сигурни ли сте, че искате да изтриете изгледа `{{title}}`?",

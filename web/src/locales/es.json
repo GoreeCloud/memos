@@ -471,7 +471,12 @@
       "save-media-metadata": "Guardar metadatos multimedia",
       "save-media-metadata-description": "Para futuras cargas, se guarda la cámara disponible, la hora de captura, la ubicación, las dimensiones de la imagen y los detalles básicos del vídeo. Cualquier persona que pueda ver el archivo adjunto puede recibir estos metadatos. Los archivos adjuntos existentes no se modifican.",
       "uploads-privacy-description": "Controlar la información confidencial enviada con los archivos multimedia cargados.",
-      "uploads-privacy-title": "Cargas y privacidad"
+      "uploads-privacy-title": "Cargas y privacidad",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "¿Estás seguro de que quieres eliminar la vista `{{title}}`?",

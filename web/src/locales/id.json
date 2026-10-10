@@ -381,7 +381,12 @@
       "save-media-metadata-description": "Untuk unggahan di masa mendatang, simpan kamera yang tersedia, waktu pengambilan gambar, lokasi, dimensi gambar, dan detail video dasar. Siapa pun yang dapat melihat lampiran dapat menerima metadata ini. Lampiran yang sudah ada tidak berubah.",
       "theme-description": "Menerapkan tema yang dipilih secara instan pada perangkat ini.",
       "uploads-privacy-description": "Mengontrol informasi sensitif privasi yang dikirimkan dengan media yang diunggah.",
-      "uploads-privacy-title": "Unggahan & privasi"
+      "uploads-privacy-title": "Unggahan & privasi",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Apakah Anda yakin ingin menghapus tampilan `{{title}}`?",
