@@ -59,7 +59,7 @@
 - Direct maintained-fork v0.31.0 baseline upgrade acceptance across SQLite, MySQL, and PostgreSQL complements the migration matrix without adopting upstream's breaking API-v1 removal or unreleased release-version model.
 - Bounded `memos restore sqlite-local` clean-target restore tooling that verifies an existing sqlite-local bundle before staging, refuses existing or bundle-contained targets, rechecks copied hashes/sizes plus SQLite quick-check, restores the database to `memos_prod.db` and relative managed-local files under a new data directory, and atomically publishes only after the staged target succeeds; S3/configuration/secrets/absolute-LOCAL recovery remain outside the claim.
 
-- Button Style coverage for the existing localized native icon controls used by map zoom/fit and memo-panel close, preserving their accessible names while allowing Icons + Text and Text presentation modes.
+- Button Style coverage for existing localized native icon controls used by map zoom/fit, memo-panel close, and calendar previous/next month/year navigation, preserving their accessible names while allowing Icons + Text and Text presentation modes.
 
 - Saved-view management action menus now expose a localized accessible name through the shared GoreeCloud icon-button primitive and reserve max-content space so Icons + Text/Text presentation modes do not collide with view content.
 

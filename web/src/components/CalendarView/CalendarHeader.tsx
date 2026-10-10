@@ -44,10 +44,22 @@ export const CalendarHeader = ({ month, monthLabel, today, activeDate, closable 
     <header className="flex h-9 shrink-0 items-center ps-px">
       <MonthPicker month={month} monthLabel={monthLabel} today={today} />
       <div className="ms-auto flex items-center gap-0.5">
-        <CalendarLink to={buildCalendarPath(addMonths(month, -1))} aria-label={t("common.previous-month")} className={iconControlClassName}>
+        <CalendarLink
+          to={buildCalendarPath(addMonths(month, -1))}
+          aria-label={t("common.previous-month")}
+          data-goreecloud-icon-button=""
+          data-goreecloud-label={t("common.previous-month")}
+          className={iconControlClassName}
+        >
           <ChevronLeftIcon className="rtl:rotate-180" strokeWidth={1.75} />
         </CalendarLink>
-        <CalendarLink to={buildCalendarPath(addMonths(month, 1))} aria-label={t("common.next-month")} className={iconControlClassName}>
+        <CalendarLink
+          to={buildCalendarPath(addMonths(month, 1))}
+          aria-label={t("common.next-month")}
+          data-goreecloud-icon-button=""
+          data-goreecloud-label={t("common.next-month")}
+          className={iconControlClassName}
+        >
           <ChevronRightIcon className="rtl:rotate-180" strokeWidth={1.75} />
         </CalendarLink>
         {/* Today is a toggle, so it is a button that navigates; the search keeps the filter query.

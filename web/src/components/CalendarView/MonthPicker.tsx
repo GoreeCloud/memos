@@ -57,6 +57,8 @@ export const MonthPicker = ({ month, monthLabel, today }: MonthPickerProps) => {
           <button
             type="button"
             aria-label={t("calendar.previous-year")}
+            data-goreecloud-icon-button=""
+            data-goreecloud-label={t("calendar.previous-year")}
             className={ICON_CONTROL_CLASSES}
             onClick={() => setYear((value) => value - 1)}
           >
@@ -66,6 +68,8 @@ export const MonthPicker = ({ month, monthLabel, today }: MonthPickerProps) => {
           <button
             type="button"
             aria-label={t("calendar.next-year")}
+            data-goreecloud-icon-button=""
+            data-goreecloud-label={t("calendar.next-year")}
             className={ICON_CONTROL_CLASSES}
             onClick={() => setYear((value) => value + 1)}
           >
