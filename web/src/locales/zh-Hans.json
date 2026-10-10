@@ -80,6 +80,7 @@
     "no-results-title": "Nothing matches just yet",
     "no-results-description": "Try different search words, or clear your search to see your memos again.",
     "labels-empty": "Add a #label to a memo to organize it here.",
+    "pinned-memos": "Pinned memos",
     "search-all": "Search all memos",
     "search-placeholder": "Search across your memos..."
   },
