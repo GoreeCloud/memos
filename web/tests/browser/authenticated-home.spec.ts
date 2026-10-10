@@ -48,6 +48,12 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
   await expect(save).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
+  const skipLink = page.getByRole("link", { name: "Skip to main content", exact: true });
+  await page.keyboard.press("Tab");
+  await expect(skipLink).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(main).toBeFocused();
+
   const memoText = "Rendered authenticated acceptance — " + testInfo.project.name;
   await editor.fill(memoText);
   await expect(save).toBeEnabled();
