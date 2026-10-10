@@ -8,6 +8,11 @@ const memoViewsSource = readFileSync(resolve(process.cwd(), "src/pages/MemoViews
 const calendarHeaderSource = readFileSync(resolve(process.cwd(), "src/components/CalendarView/CalendarHeader.tsx"), "utf8");
 const monthPickerSource = readFileSync(resolve(process.cwd(), "src/components/CalendarView/MonthPicker.tsx"), "utf8");
 const statisticsMonthNavigatorSource = readFileSync(resolve(process.cwd(), "src/components/StatisticsView/MonthNavigator.tsx"), "utf8");
+const inboxNotificationSources = [
+  readFileSync(resolve(process.cwd(), "src/components/Inbox/MemoCommentMessage.tsx"), "utf8"),
+  readFileSync(resolve(process.cwd(), "src/components/Inbox/MemoMentionMessage.tsx"), "utf8"),
+  readFileSync(resolve(process.cwd(), "src/components/Inbox/SpaceInvitationMessage.tsx"), "utf8"),
+];
 
 describe("GoreeCloud Button Style native-control coverage", () => {
   it("covers labeled map zoom and fit icon controls", () => {
@@ -44,6 +49,19 @@ describe("GoreeCloud Button Style native-control coverage", () => {
       expect(statisticsMonthNavigatorSource).toContain('data-goreecloud-label={t("' + key + '")}');
     }
     expect(statisticsMonthNavigatorSource.match(/data-goreecloud-icon-button=""/g)).toHaveLength(2);
+  });
+
+  it("covers Inbox archive/delete icon actions with accessible keyboard-visible controls", () => {
+    for (const source of inboxNotificationSources) {
+      expect(source.match(/data-goreecloud-icon-button=""/g)).toHaveLength(3);
+      expect(source).toContain('const archiveActionLabel = t("common.archive");');
+      expect(source).toContain('const deleteActionLabel = t("common.delete");');
+      expect(source).toContain("aria-label={archiveActionLabel}");
+      expect(source).toContain("data-goreecloud-label={archiveActionLabel}");
+      expect(source.match(/aria-label={deleteActionLabel}/g)).toHaveLength(2);
+      expect(source.match(/data-goreecloud-label={deleteActionLabel}/g)).toHaveLength(2);
+      expect(source.match(/focus-visible:opacity-100/g)).toHaveLength(3);
+    }
   });
 
   it("keeps saved-view action controls named and text-mode safe", () => {

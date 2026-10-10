@@ -69,3 +69,4 @@
 - The test measures from the captured browser click event through the following confirmed painted update and stores the exact metrics as Playwright evidence.
 - The Development gate enforces the approved Glaze interaction ceilings of p95 <= 100 ms and p99 <= 200 ms.
 - This is bounded regression evidence only; the full representative transition mix, frame-continuity budget, physical-device/browser performance, Web Vitals, service latency, and production performance acceptance remain open.
+- Button Style and accessibility coverage for Inbox comment/mention/Space-invitation archive/delete icon actions, including localized accessible names and keyboard-visible focus without changing notification behavior.

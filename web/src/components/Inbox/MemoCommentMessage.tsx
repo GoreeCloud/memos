@@ -15,6 +15,8 @@ interface Props {
 
 function MemoCommentMessage({ notification }: Props) {
   const t = useTranslate();
+  const archiveActionLabel = t("common.archive");
+  const deleteActionLabel = t("common.delete");
   const archiveNotification = useArchiveNotification();
   const deleteNotification = useDeleteNotification();
   const navigateTo = useNavigateTo();
@@ -52,9 +54,13 @@ function MemoCommentMessage({ notification }: Props) {
             <span className="text-sm text-destructive/80 font-medium">{t("inbox.failed-to-load")}</span>
           </div>
           <button
+            type="button"
             onClick={handleDeleteMessage}
-            className="p-1.5 hover:bg-destructive/15 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100"
-            title={t("common.delete")}
+            className="p-1.5 hover:bg-destructive/15 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            aria-label={deleteActionLabel}
+            data-goreecloud-icon-button=""
+            data-goreecloud-label={deleteActionLabel}
+            title={deleteActionLabel}
           >
             <TrashIcon className="w-4 h-4 text-destructive/70 hover:text-destructive transition-colors" strokeWidth={2} />
           </button>
@@ -110,17 +116,25 @@ function MemoCommentMessage({ notification }: Props) {
             <div className="flex items-center gap-1 shrink-0">
               {isUnread ? (
                 <button
+                  type="button"
                   onClick={() => handleArchiveMessage()}
-                  className="p-1.5 hover:bg-primary/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100"
-                  title={t("common.archive")}
+                  className="p-1.5 hover:bg-primary/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                  aria-label={archiveActionLabel}
+                  data-goreecloud-icon-button=""
+                  data-goreecloud-label={archiveActionLabel}
+                  title={archiveActionLabel}
                 >
                   <CheckIcon className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" strokeWidth={2} />
                 </button>
               ) : (
                 <button
+                  type="button"
                   onClick={handleDeleteMessage}
-                  className="p-1.5 hover:bg-destructive/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100"
-                  title={t("common.delete")}
+                  className="p-1.5 hover:bg-destructive/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                  aria-label={deleteActionLabel}
+                  data-goreecloud-icon-button=""
+                  data-goreecloud-label={deleteActionLabel}
+                  title={deleteActionLabel}
                 >
                   <TrashIcon className="w-4 h-4 text-muted-foreground hover:text-destructive transition-colors" strokeWidth={2} />
                 </button>
