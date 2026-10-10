@@ -30,10 +30,15 @@ export const isMemoScopeRoute = (pathname: string): boolean => {
 
 const PROFILE_ROUTE_PATTERN = /^\/u\/([^/]+)$/i;
 
-/** The decoded username when `pathname` is a user profile (`/u/:username`), else undefined. */
+/** The decoded username for a valid profile route; malformed URI escapes are not a profile. */
 export const getProfileUsername = (pathname: string): string | undefined => {
   const match = cleanPathname(pathname).match(PROFILE_ROUTE_PATTERN);
-  return match ? decodeURIComponent(match[1]) : undefined;
+  if (!match) return undefined;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return undefined;
+  }
 };
 
 /** `/calendar` and any month or day beneath it. */
