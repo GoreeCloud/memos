@@ -123,6 +123,7 @@
     "visibility": "Visibilità",
     "views": "Viste",
     "yourself": "Te stesso",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Vuota",
     "unlink": "Scollega",
     "tasks": "Compiti",
@@ -236,7 +237,8 @@
       "has-code": "haCodice",
       "has-link": "haLink",
       "has-location": "ha una posizione",
-      "has-task-list": "haListaCompiti"
+      "has-task-list": "haListaCompiti",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Modalità compatta",
     "link-preview": "Anteprima dei link",

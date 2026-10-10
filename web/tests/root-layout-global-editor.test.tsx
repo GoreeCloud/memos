@@ -77,6 +77,12 @@ describe("RootLayout global editor shell", () => {
       </MemoryRouter>,
     );
 
+    const skipLink = screen.getByRole("link", { name: "common.skip-to-content" });
+    const main = screen.getByRole("main");
+    expect(skipLink).toHaveAttribute("href", "#goreecloud-main-content");
+    expect(main).toHaveAttribute("id", "goreecloud-main-content");
+    expect(main).toHaveAttribute("tabindex", "-1");
+
     for (const testId of SHELL_TEST_IDS) {
       expect(screen.getByTestId(testId)).toBeInTheDocument();
     }
@@ -107,5 +113,6 @@ describe("RootLayout global editor shell", () => {
     );
 
     expect(screen.getByTestId("route")).toHaveTextContent("/auth");
+    expect(screen.queryByRole("link", { name: "common.skip-to-content" })).not.toBeInTheDocument();
   });
 });

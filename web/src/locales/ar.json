@@ -123,6 +123,7 @@
     "visibility": "الرؤية",
     "views": "طرق العرض",
     "yourself": "نفسك",
+    "skip-to-content": "Skip to main content",
     "actions": "الإجراءات",
     "collapse-panel": "طي اللوحة",
     "empty-placeholder": "فارغ",
@@ -231,7 +232,8 @@
       "has-code": "يحتوي على كود",
       "has-link": "يحتوي على رابط",
       "has-location": "يحتوي على موقع",
-      "has-task-list": "يحتوي على قائمة مهام"
+      "has-task-list": "يحتوي على قائمة مهام",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "الوضع المضغوط",
     "link-preview": "معاينة الرابط",

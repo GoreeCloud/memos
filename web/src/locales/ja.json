@@ -130,6 +130,7 @@
     "visibility": "公開範囲",
     "views": "ビュー",
     "yourself": "あなた自身の",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "空の",
     "unlink": "リンクを解除する",
     "collapse-panel": "パネルを折りたたむ",
@@ -236,7 +237,8 @@
       "has-code": "コードあり",
       "has-link": "リンクあり",
       "has-location": "位置情報あり",
-      "has-task-list": "タスクリストあり"
+      "has-task-list": "タスクリストあり",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "コンパクト表示",
     "grid-compact-hint": "グリッドレイアウトでは常にコンパクトなカードで表示されます。",

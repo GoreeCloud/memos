@@ -163,6 +163,7 @@
     "visibility": "Видимост",
     "views": "Изгледи",
     "yourself": "Себе си",
+    "skip-to-content": "Skip to main content",
     "tasks": "Задачи",
     "actions": "Действия",
     "collapse-panel": "Свиване на панела",
@@ -275,7 +276,8 @@
       "has-code": "hasCode",
       "has-link": "hasLink",
       "has-location": "има местоположение",
-      "has-task-list": "hasTaskList"
+      "has-task-list": "hasTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Компактен режим",
     "link-preview": "Преглед на връзка",

@@ -163,6 +163,7 @@
     "visibility": "Sigtbarhed",
     "views": "Visninger",
     "yourself": "Dig selv",
+    "skip-to-content": "Skip to main content",
     "tasks": "Opgaver",
     "actions": "Handlinger",
     "collapse-panel": "Skjul panel",
@@ -275,7 +276,8 @@
       "has-code": "hasCode",
       "has-link": "harLink",
       "has-location": "har placering",
-      "has-task-list": "har Opgaveliste"
+      "has-task-list": "har Opgaveliste",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompakt tilstand",
     "link-preview": "Linkforhåndsvisning",

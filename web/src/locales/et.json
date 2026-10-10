@@ -163,6 +163,7 @@
     "visibility": "Nähtavus",
     "views": "Vaated",
     "yourself": "iseennast",
+    "skip-to-content": "Skip to main content",
     "tasks": "Ülesanded",
     "actions": "Toimingud",
     "collapse-panel": "Paneeli ahenda",
@@ -275,7 +276,8 @@
       "has-code": "hasCode",
       "has-link": "hasLink",
       "has-location": "on asukoht",
-      "has-task-list": "hasTaskList"
+      "has-task-list": "hasTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompaktne režiim",
     "link-preview": "Lingi eelvaade",

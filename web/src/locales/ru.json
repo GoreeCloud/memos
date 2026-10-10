@@ -123,6 +123,7 @@
     "visibility": "Видимость",
     "views": "Представления",
     "yourself": "Вы",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Пустой",
     "unlink": "Отсоединить",
     "actions": "Действия",
@@ -236,7 +237,8 @@
       "has-code": "hasCode",
       "has-link": "hasLink",
       "has-location": "есть местоположение",
-      "has-task-list": "hasTaskList"
+      "has-task-list": "hasTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Компактный режим",
     "link-preview": "Предпросмотр ссылок",

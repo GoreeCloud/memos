@@ -123,6 +123,7 @@
     "visibility": "Visibility",
     "views": "Views",
     "yourself": "Yourself",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Empty",
     "unlink": "Unlink",
     "actions": "Actions",
@@ -236,7 +237,8 @@
       "has-code": "hasCode",
       "has-link": "hasLink",
       "has-location": "hasLocation",
-      "has-task-list": "hasTaskList"
+      "has-task-list": "hasTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Compact mode",
     "link-preview": "Link preview",

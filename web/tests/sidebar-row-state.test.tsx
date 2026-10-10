@@ -11,7 +11,10 @@ import { AppSidebarProvider } from "@/contexts/AppSidebarContext";
 import { MemoFilterProvider, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { BUILTIN_TASKS_VIEW_ID } from "@/lib/memo-views";
 
-vi.mock("@/utils/i18n", () => ({ useTranslate: () => (key: string) => key }));
+vi.mock("@/utils/i18n", () => ({
+  useTranslate: () => (key: string, params?: Record<string, unknown>) =>
+    key === "memo.filters.remove-filter" ? `Remove ${params?.label} filter` : key,
+}));
 vi.mock("@/hooks/useCurrentUser", () => ({ default: () => ({ name: "users/1" }) }));
 vi.mock("@/hooks/useUserQueries", () => ({
   useMemoViews: () => ({ data: [{ name: "users/1/memoViews/abc", title: "Last week", filter: "pinned" }] }),
@@ -85,7 +88,7 @@ describe("MemoFilters", () => {
     renderChips("/", BUILTIN_TASKS_VIEW_ID);
 
     expect(screen.getByText("common.tasks")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Remove filter" }));
+    fireEvent.click(screen.getByRole("button", { name: "Remove common.tasks filter" }));
     expect(screen.queryByText("common.tasks")).not.toBeInTheDocument();
   });
 

@@ -123,6 +123,7 @@
     "visibility": "Vidnost",
     "views": "Pogledi",
     "yourself": "Ti",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "prazno",
     "unlink": "Prekini povezavo",
     "tasks": "Naloge",
@@ -236,7 +237,8 @@
       "has-code": "imaKodo",
       "has-link": "imaPovezavo",
       "has-location": "imaLokacijo",
-      "has-task-list": "imaSeznamOpravil"
+      "has-task-list": "imaSeznamOpravil",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Strnjeni način",
     "link-preview": "Predogled povezave",

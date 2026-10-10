@@ -93,6 +93,7 @@ interface FilterChipProps {
 
 /** One chip for anything narrowing the list, so a view, a tag and a day are announced the same way. */
 const FilterChip = ({ icon: Icon, customIcon, label, onRemove, onEdit }: FilterChipProps) => {
+  const t = useTranslate();
   const body = (
     <>
       {customIcon ?? (Icon && <Icon className="w-3.5 h-3.5 text-muted-foreground shrink-0" />)}
@@ -120,7 +121,7 @@ const FilterChip = ({ icon: Icon, customIcon, label, onRemove, onEdit }: FilterC
         body
       )}
       <span className="ml-0.5 -mr-1">
-        <Button variant="ghost" size="icon-sm" onClick={onRemove} aria-label="Remove filter">
+        <Button variant="ghost" size="icon-sm" onClick={onRemove} aria-label={t("memo.filters.remove-filter", { label })}>
           <XIcon className="w-3 h-3" />
         </Button>
       </span>

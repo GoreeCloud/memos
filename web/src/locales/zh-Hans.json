@@ -164,6 +164,7 @@
     "visibility": "可见性",
     "views": "视图",
     "yourself": "您自己",
+    "skip-to-content": "Skip to main content",
     "resize-sidebar": "调整侧边栏大小",
     "view-all": "查看全部"
   },
@@ -262,7 +263,8 @@
       "has-code": "有代码",
       "has-link": "有链接",
       "has-location": "有位置",
-      "has-task-list": "有待办"
+      "has-task-list": "有待办",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "紧凑模式",
     "connections": "关联",

@@ -123,6 +123,7 @@
     "visibility": "ხილვადობა",
     "views": "ხედები",
     "yourself": "თქვენ",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "ცარიელი",
     "unlink": "გაუქმება",
     "tasks": "ამოცანები",
@@ -236,7 +237,8 @@
       "has-code": "კოდიარის",
       "has-link": "ლინკიარის",
       "has-location": "აქვს მდებარეობა",
-      "has-task-list": "სიისამოცანებია"
+      "has-task-list": "სიისამოცანებია",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "კომპაქტური რეჟიმი",
     "link-preview": "ბმულის გადახედვა",

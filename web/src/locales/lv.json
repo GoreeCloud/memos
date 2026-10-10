@@ -163,6 +163,7 @@
     "visibility": "Redzamība",
     "views": "Skati",
     "yourself": "sevi",
+    "skip-to-content": "Skip to main content",
     "tasks": "Uzdevumi",
     "actions": "Darbības",
     "collapse-panel": "Sakļaut paneli",
@@ -275,7 +276,8 @@
       "has-code": "hasCode",
       "has-link": "hasLink",
       "has-location": "ir atrašanās vieta",
-      "has-task-list": "hasTaskList"
+      "has-task-list": "hasTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompaktais režīms",
     "link-preview": "Saites priekšskatījums",

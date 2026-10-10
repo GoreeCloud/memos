@@ -231,7 +231,8 @@
     "visibility": "Visibility",
     "view-all": "View all",
     "views": "Views",
-    "yourself": "Yourself"
+    "yourself": "Yourself",
+    "skip-to-content": "Skip to main content"
   },
   "locale-picker": {
     "no-language-feedback": "Language not found? Submit feedback"
@@ -347,7 +348,8 @@
       "has-code": "hasCode",
       "has-link": "hasLink",
       "has-location": "hasLocation",
-      "has-task-list": "hasTaskList"
+      "has-task-list": "hasTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Compact mode",
     "connections": "Connections",

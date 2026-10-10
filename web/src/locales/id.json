@@ -123,6 +123,7 @@
     "visibility": "Visibilitas",
     "views": "Tampilan",
     "yourself": "Anda sendiri",
+    "skip-to-content": "Skip to main content",
     "actions": "Tindakan",
     "collapse-panel": "Ciutkan panel",
     "empty-placeholder": "Kosong",
@@ -231,7 +232,8 @@
       "has-code": "Memiliki kode",
       "has-link": "Memiliki tautan",
       "has-location": "Memiliki lokasi",
-      "has-task-list": "Memiliki daftar tugas"
+      "has-task-list": "Memiliki daftar tugas",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Mode ringkas",
     "link-preview": "Pratinjau tautan",
