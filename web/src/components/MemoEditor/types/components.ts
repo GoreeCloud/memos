@@ -74,6 +74,7 @@ export interface EditorToolbarProps {
   onAudioRecorderClick: () => void;
   viewToggles?: EditorViewToggles;
   onInsertImages: (files: File[]) => void;
+  onInsertLabels: (labels: string[]) => void;
 }
 
 export interface EditorMetadataProps {

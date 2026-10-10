@@ -9,6 +9,7 @@ import { primaryModifierGlyph } from "@/utils/platform";
 import { validationService } from "../services";
 import { useEditorContext, useEditorSelector } from "../state";
 import type { EditorToolbarProps } from "../types";
+import ComposerLabelSelector from "./ComposerLabelSelector";
 import InsertMenu from "./InsertMenu";
 import VisibilitySelector from "./VisibilitySelector";
 
@@ -39,6 +40,7 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
   onAudioRecorderClick,
   viewToggles,
   onInsertImages,
+  onInsertLabels,
 }) => {
   const t = useTranslate();
   const { actions, dispatch } = useEditorContext();
@@ -102,6 +104,7 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
           onInsertImages={onInsertImages}
         />
         <VisibilitySelector value={visibility} space={space} onChange={handleVisibilityChange} />
+        <ComposerLabelSelector onInsert={onInsertLabels} disabled={committing} />
       </div>
 
       <div className="ms-auto flex flex-row items-center justify-end gap-1">
