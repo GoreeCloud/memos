@@ -62,6 +62,8 @@ export const findSearchMatches = (text: string, preparedTerms: readonly string[]
   const { folded, offsets } = foldText(text);
   const hits: TextRange[] = [];
   for (const term of preparedTerms) {
+    // indexOf("") clamps to the text's end, so advancing the cursor would loop forever.
+    if (!term) continue;
     let from = folded.indexOf(term);
     while (from !== -1) {
       // A hit may end partway through a code point that folded to several units (`ß` → `ss`);
