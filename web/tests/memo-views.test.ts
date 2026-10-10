@@ -6,6 +6,7 @@ import {
   BUILTIN_TASKS_VIEW_ID,
   getMemoScopePath,
   getMemoViewId,
+  hasMemoViewDraftContent,
   getProfileUsername,
   isMemoCollectionRoute,
   isMemoScopeRoute,
@@ -50,6 +51,15 @@ describe("memo scopes", () => {
 });
 
 describe("memo views", () => {
+  it("rejects empty and whitespace-only names and expressions", () => {
+    expect(hasMemoViewDraftContent("", "pinned")).toBe(false);
+    expect(hasMemoViewDraftContent("  ", "pinned")).toBe(false);
+    expect(hasMemoViewDraftContent("Pinned", " \t\n")).toBe(false);
+    expect(hasMemoViewDraftContent(" \t ", "")).toBe(false);
+    expect(hasMemoViewDraftContent(" Pinned ", "  pinned && has_link  ")).toBe(true);
+    expect(hasMemoViewDraftContent("Work", 'tag in ["work"]')).toBe(true);
+  });
+
   it("keeps OR expressions inside the author, Space, view, and facet constraints", () => {
     const query = 'content.contains("plan") || pinned';
     const filter = buildMemoFilter({
