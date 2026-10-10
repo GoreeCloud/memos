@@ -123,6 +123,7 @@
     "visibility": "Sichtbarkeit",
     "views": "Ansichten",
     "yourself": "Du selbst",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Leer",
     "unlink": "Verknüpfung aufheben",
     "tasks": "Aufgaben",
@@ -236,7 +237,8 @@
       "has-code": "hatCode",
       "has-link": "hatLink",
       "has-location": "hat Standort",
-      "has-task-list": "hatAufgabenliste"
+      "has-task-list": "hatAufgabenliste",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompaktmodus",
     "link-preview": "Linkvorschau",

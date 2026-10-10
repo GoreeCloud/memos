@@ -123,6 +123,7 @@
     "visibility": "Zichtbaarheid",
     "views": "Weergaven",
     "yourself": "Jijzelf",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Leeg",
     "unlink": "Ontkoppelen",
     "tasks": "Taken",
@@ -236,7 +237,8 @@
       "has-code": "heeftCode",
       "has-link": "heeftLink",
       "has-location": "heeft locatie",
-      "has-task-list": "heeftTakenlijst"
+      "has-task-list": "heeftTakenlijst",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Compacte modus",
     "link-preview": "Linkvoorbeeld",

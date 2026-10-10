@@ -163,6 +163,7 @@
     "visibility": "Matomumas",
     "views": "Rodiniai",
     "yourself": "save",
+    "skip-to-content": "Skip to main content",
     "tasks": "Užduotys",
     "actions": "Veiksmai",
     "collapse-panel": "Sutraukti skydelį",
@@ -275,7 +276,8 @@
       "has-code": "hasCode",
       "has-link": "hasLink",
       "has-location": "turi vietą",
-      "has-task-list": "turiTaskList"
+      "has-task-list": "turiTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompaktiškas režimas",
     "link-preview": "Nuorodos peržiūra",

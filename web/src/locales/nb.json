@@ -123,6 +123,7 @@
     "visibility": "Synlighet",
     "views": "Visninger",
     "yourself": "Deg selv",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Tømme",
     "unlink": "Fjern tilknytningen",
     "tasks": "Oppgaver",
@@ -236,7 +237,8 @@
       "has-code": "harKode",
       "has-link": "harLink",
       "has-location": "har posisjon",
-      "has-task-list": "harGjøremålsListe"
+      "has-task-list": "harGjøremålsListe",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompakt modus",
     "link-preview": "Forhåndsvisning av lenke",

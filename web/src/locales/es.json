@@ -123,6 +123,7 @@
     "visibility": "Visibilidad",
     "views": "Vistas",
     "yourself": "Tú mismo",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Vacía",
     "unlink": "Desconectar",
     "tasks": "Tareas",
@@ -236,7 +237,8 @@
       "has-code": "tieneCódigo",
       "has-link": "tieneEnlace",
       "has-location": "tiene ubicación",
-      "has-task-list": "tieneListaTareas"
+      "has-task-list": "tieneListaTareas",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Modo compacto",
     "link-preview": "Vista previa de enlaces",

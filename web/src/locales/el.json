@@ -163,6 +163,7 @@
     "visibility": "Ορατότητα",
     "views": "Προβολές",
     "yourself": "Σύ ο ίδιος",
+    "skip-to-content": "Skip to main content",
     "tasks": "Καθήκοντα",
     "actions": "Ενέργειες",
     "collapse-panel": "Σύμπτυξη πίνακα",
@@ -275,7 +276,8 @@
       "has-code": "έχει Κώδικα",
       "has-link": "έχει Σύνδεσμο",
       "has-location": "έχει τοποθεσία",
-      "has-task-list": "hasTaskList"
+      "has-task-list": "hasTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Συμπαγής λειτουργία",
     "link-preview": "Προεπισκόπηση συνδέσμου",

@@ -123,6 +123,7 @@
     "visibility": "दृश्यता",
     "views": "दृश्य",
     "yourself": "खुद",
+    "skip-to-content": "Skip to main content",
     "actions": "एक्शन",
     "collapse-panel": "पैनल छोटा करें",
     "empty-placeholder": "खाली करें",
@@ -231,7 +232,8 @@
       "has-code": "कोड है",
       "has-link": "लिंक है",
       "has-location": "स्थान है",
-      "has-task-list": "टास्क लिस्ट है"
+      "has-task-list": "टास्क लिस्ट है",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "कॉम्पैक्ट मोड",
     "link-preview": "लिंक पूर्वावलोकन",

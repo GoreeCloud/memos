@@ -123,6 +123,7 @@
     "visibility": "Widoczność",
     "views": "Widoki",
     "yourself": "Ty sam",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Pusty",
     "unlink": "Odczepić",
     "tasks": "Zadania",
@@ -236,7 +237,8 @@
       "has-code": "ma kod",
       "has-link": "ma link",
       "has-location": "ma lokalizację",
-      "has-task-list": "ma listę zadań"
+      "has-task-list": "ma listę zadań",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Tryb kompaktowy",
     "link-preview": "Podgląd linków",

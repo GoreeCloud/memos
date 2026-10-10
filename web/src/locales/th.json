@@ -123,6 +123,7 @@
     "visibility": "การมองเห็น",
     "views": "มุมมอง",
     "yourself": "ตัวคุณ",
+    "skip-to-content": "Skip to main content",
     "actions": "การดำเนินการ",
     "collapse-panel": "ยุบแผง",
     "empty-placeholder": "ว่างเปล่า",
@@ -231,7 +232,8 @@
       "has-code": "มีโค้ด",
       "has-link": "มีลิงก์",
       "has-location": "มีตำแหน่ง",
-      "has-task-list": "มีรายการที่ต้องทำ"
+      "has-task-list": "มีรายการที่ต้องทำ",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "โหมดกะทัดรัด",
     "link-preview": "ตัวอย่างลิงก์",

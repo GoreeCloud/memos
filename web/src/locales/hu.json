@@ -123,6 +123,7 @@
     "visibility": "Láthatóság",
     "views": "Nézetek",
     "yourself": "Magad",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Üres",
     "unlink": "Leválasztás",
     "tasks": "Feladatok",
@@ -236,7 +237,8 @@
       "has-code": "vanKód",
       "has-link": "vanLink",
       "has-location": "van helyadat",
-      "has-task-list": "vanFeladatLista"
+      "has-task-list": "vanFeladatLista",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompakt mód",
     "link-preview": "Hivatkozás előnézete",

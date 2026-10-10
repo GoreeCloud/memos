@@ -231,7 +231,8 @@
     "visibility": "Görünürlük",
     "view-all": "Hamısına bax",
     "views": "Görünüşlər",
-    "yourself": "Özünüz"
+    "yourself": "Özünüz",
+    "skip-to-content": "Skip to main content"
   },
   "locale-picker": {
     "no-language-feedback": "Dil tapılmadı? Rəy göndərin"
@@ -347,7 +348,8 @@
       "has-code": "Kod var",
       "has-link": "Keçid var",
       "has-location": "Məkan var",
-      "has-task-list": "Tapşırıq siyahısı var"
+      "has-task-list": "Tapşırıq siyahısı var",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Yığcam rejim",
     "connections": "Bağlantılar",

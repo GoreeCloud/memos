@@ -123,6 +123,7 @@
     "visibility": "공개 범위",
     "views": "보기",
     "yourself": "자기 자신",
+    "skip-to-content": "Skip to main content",
     "actions": "작업",
     "collapse-panel": "패널 접기",
     "empty-placeholder": "비어 있음",
@@ -231,7 +232,8 @@
       "has-code": "코드있음",
       "has-link": "링크있음",
       "has-location": "위치 있음",
-      "has-task-list": "할일목록있음"
+      "has-task-list": "할일목록있음",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "간략 보기",
     "link-preview": "링크 미리보기",

@@ -123,6 +123,7 @@
     "visibility": "दृश्यमानता",
     "views": "दृश्ये",
     "yourself": "स्वतः",
+    "skip-to-content": "Skip to main content",
     "actions": "क्रिया",
     "collapse-panel": "पॅनल संकुचित करा",
     "empty-placeholder": "रिक्त",
@@ -231,7 +232,8 @@
       "has-code": "कोड आहे",
       "has-link": "लिंक आहे",
       "has-location": "स्थान आहे",
-      "has-task-list": "कार्यसूची आहे"
+      "has-task-list": "कार्यसूची आहे",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "संक्षिप्त मोड",
     "link-preview": "दुवा पूर्वावलोकन",

@@ -123,6 +123,7 @@
     "visibility": "Visibilitat",
     "views": "Vistes",
     "yourself": "Tu mateix",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Buit",
     "unlink": "Desenllaça",
     "tasks": "Tasques",
@@ -236,7 +237,8 @@
       "has-code": "téCodi",
       "has-link": "téEnllaç",
       "has-location": "té ubicació",
-      "has-task-list": "téLlistaTasques"
+      "has-task-list": "téLlistaTasques",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Mode compacte",
     "link-preview": "Previsualització d'enllaços",

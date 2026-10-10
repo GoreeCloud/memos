@@ -123,6 +123,7 @@
     "visibility": "Vidljivost",
     "views": "Prikazi",
     "yourself": "Ti",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Prazan",
     "unlink": "Prekini vezu",
     "tasks": "Zadaci",
@@ -236,7 +237,8 @@
       "has-code": "imaKod",
       "has-link": "imaLink",
       "has-location": "ima lokaciju",
-      "has-task-list": "imaZadatke"
+      "has-task-list": "imaZadatke",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompaktni način",
     "link-preview": "Pregled poveznice",

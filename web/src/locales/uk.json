@@ -123,6 +123,7 @@
     "visibility": "Видимість",
     "views": "Подання",
     "yourself": "Ви",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Порожній",
     "unlink": "Від’єднати",
     "tasks": "завдання",
@@ -236,7 +237,8 @@
       "has-code": "єКод",
       "has-link": "єПосилання",
       "has-location": "є розташування",
-      "has-task-list": "єСписокЗавдань"
+      "has-task-list": "єСписокЗавдань",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Компактний режим",
     "link-preview": "Попередній перегляд посилань",

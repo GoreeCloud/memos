@@ -159,6 +159,7 @@
     "view-all": "Tümünü gör",
     "views": "Görünümler",
     "yourself": "Kendiniz",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Boş",
     "unlink": "Bağlantıyı kaldır"
   },
@@ -275,7 +276,8 @@
       "has-code": "Kod içerir",
       "has-link": "Bağlantı içerir",
       "has-location": "Konum içerir",
-      "has-task-list": "Yapılacaklar listesi içerir"
+      "has-task-list": "Yapılacaklar listesi içerir",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompakt mod",
     "connections": "Bağlantılar",
