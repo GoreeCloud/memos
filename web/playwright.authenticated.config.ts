@@ -53,5 +53,18 @@ export default defineConfig({
         hasTouch: true,
       },
     },
+    {
+      name: "authenticated-phone-ar-rtl-reduced-transparency",
+      testMatch: /authenticated-home\.spec\.ts/,
+      dependencies: ["authenticated-desktop-light", "authenticated-phone-dark", "authenticated-tablet-forced-colors"],
+      use: {
+        storageState,
+        viewport: { width: 390, height: 844 },
+        colorScheme: "light",
+        locale: "ar",
+        hasTouch: true,
+        isMobile: true,
+      },
+    },
   ],
 });
