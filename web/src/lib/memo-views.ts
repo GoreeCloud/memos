@@ -1,5 +1,5 @@
 import { matchPath } from "react-router-dom";
-import { ROUTES, resolveCollectionRoute } from "@/router/routes";
+import { CALENDAR_ROUTE_PATTERN, ROUTES, resolveCollectionRoute } from "@/router/routes";
 
 export type MemoScope = "home" | "explore" | "archived";
 export type PrimaryMemoScope = Exclude<MemoScope, "archived">;
@@ -41,11 +41,9 @@ export const getProfileUsername = (pathname: string): string | undefined => {
   }
 };
 
-/** `/calendar` and any month or day beneath it. */
-export const isCalendarRoute = (pathname: string): boolean => {
-  const comparablePath = comparablePathname(pathname);
-  return comparablePath === ROUTES.CALENDAR || comparablePath.startsWith(`${ROUTES.CALENDAR}/`);
-};
+/** Only registered calendar collection routes, including month/day and Space-scoped paths. */
+export const isCalendarRoute = (pathname: string): boolean =>
+  matchPath({ path: CALENDAR_ROUTE_PATTERN, caseSensitive: false, end: true }, comparablePathname(pathname)) !== null;
 
 /**
  * Routes that render a memo collection the sidebar can narrow: the scope routes, a user
