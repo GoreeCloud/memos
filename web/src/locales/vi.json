@@ -381,7 +381,12 @@
       "save-media-metadata-description": "Đối với các lần tải lên trong tương lai, hãy lưu thông tin về máy ảnh, thời gian chụp, vị trí, kích thước hình ảnh và chi tiết video cơ bản. Bất kỳ ai có thể xem tệp đính kèm đều có thể nhận được siêu dữ liệu này. Các tệp đính kèm hiện có không thay đổi.",
       "theme-description": "Áp dụng chủ đề đã chọn ngay lập tức trên thiết bị này.",
       "uploads-privacy-description": "Kiểm soát thông tin nhạy cảm về quyền riêng tư được gửi kèm theo phương tiện đã tải lên.",
-      "uploads-privacy-title": "Tải lên & quyền riêng tư"
+      "uploads-privacy-title": "Tải lên & quyền riêng tư",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Bạn có chắc chắn muốn xóa chế độ xem `{{title}}`?",

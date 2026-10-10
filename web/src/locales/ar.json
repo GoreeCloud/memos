@@ -381,7 +381,12 @@
       "save-media-metadata-description": "لحفظ بيانات الكاميرا المتاحة، ووقت الالتقاط، والموقع، وأبعاد الصورة، وتفاصيل الفيديو الأساسية، وذلك لتسهيل عمليات التحميل المستقبلية. يمكن لأي شخص لديه إمكانية عرض المرفق استلام هذه البيانات الوصفية. تبقى المرفقات الموجودة دون تغيير.",
       "theme-description": "يُطبّق المظهر المُختار فورًا على هذا الجهاز.",
       "uploads-privacy-description": "التحكم في المعلومات الحساسة المتعلقة بالخصوصية المُرسلة مع الوسائط المُحمّلة.",
-      "uploads-privacy-title": "التحميلات والخصوصية"
+      "uploads-privacy-title": "التحميلات والخصوصية",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "هل أنت متأكد من حذف طريقة العرض `{{title}}`؟",

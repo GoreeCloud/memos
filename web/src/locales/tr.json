@@ -636,7 +636,12 @@
       "memo-defaults-title": "Not varsayılanları",
       "save-media-metadata": "Medya meta verilerini kaydet",
       "save-media-metadata-description": "Sonraki yüklemelerde mevcut kamera, çekim zamanı, konum, görsel boyutları ve temel video bilgilerini kaydeder. Eki görüntüleyebilen herkes bu meta verilere ulaşabilir. Mevcut ekler değişmez.",
-      "theme-description": "Seçilen temayı bu cihaza hemen uygular."
+      "theme-description": "Seçilen temayı bu cihaza hemen uygular.",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "change-icon": "Görünüm simgesini değiştir",

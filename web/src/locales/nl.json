@@ -471,7 +471,12 @@
       "save-media-metadata": "Mediametadata opslaan",
       "save-media-metadata-description": "Voor toekomstige uploads, sla beschikbare camera, opnametijd, locatie, afmetingen van de afbeelding en basisvideogegevens op. Iedereen die de bijlage kan bekijken, kan deze metadata ontvangen. Bestaande bijlagen blijven ongewijzigd.",
       "uploads-privacy-description": "Beheer privacygevoelige informatie die met geüploade media wordt verzonden.",
-      "uploads-privacy-title": "Uploads en privacy"
+      "uploads-privacy-title": "Uploads en privacy",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Weet je zeker dat je weergave `{{title}}` wilt verwijderen?",

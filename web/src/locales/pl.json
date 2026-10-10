@@ -471,7 +471,12 @@
       "save-media-metadata": "Zapisz metadane multimediów",
       "save-media-metadata-description": "Na potrzeby przyszłych przesyłów zapisz dostępne ustawienia aparatu, czas przechwytywania, lokalizację, wymiary obrazu i podstawowe szczegóły wideo. Każdy, kto może wyświetlić załącznik, może otrzymać te metadane. Istniejące załączniki pozostają niezmienione.",
       "uploads-privacy-description": "Kontroluj informacje wrażliwe dotyczące prywatności przesyłane wraz z przesłanymi multimediami.",
-      "uploads-privacy-title": "Przesyłanie i prywatność"
+      "uploads-privacy-title": "Przesyłanie i prywatność",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Czy na pewno chcesz usunąć widok `{{title}}`?",

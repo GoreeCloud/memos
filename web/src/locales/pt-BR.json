@@ -381,7 +381,12 @@
       "save-media-metadata-description": "Para uploads futuros, salve a câmera disponível, a hora da captura, a localização, as dimensões da imagem e detalhes básicos do vídeo. Qualquer pessoa que possa visualizar o anexo poderá receber esses metadados. Os anexos existentes permanecem inalterados.",
       "theme-description": "Aplica o tema selecionado imediatamente neste dispositivo.",
       "uploads-privacy-description": "Controle as informações confidenciais de privacidade enviadas com a mídia carregada.",
-      "uploads-privacy-title": "Uploads e privacidade"
+      "uploads-privacy-title": "Uploads e privacidade",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Tem certeza de que deseja excluir a vista `{{title}}`?",

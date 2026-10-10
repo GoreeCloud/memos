@@ -471,7 +471,12 @@
       "save-media-metadata": "Lagre mediemetadata",
       "save-media-metadata-description": "Lagre tilgjengelig kamera, opptakstidspunkt, sted, bildedimensjoner og grunnleggende videodetaljer for fremtidige opplastinger. Alle som kan se vedlegget kan motta disse metadataene. Eksisterende vedlegg endres ikke.",
       "uploads-privacy-description": "Kontroller personvernsensitiv informasjon som sendes inn med opplastede medier.",
-      "uploads-privacy-title": "Opplastinger og personvern"
+      "uploads-privacy-title": "Opplastinger og personvern",
+      "button-style": "Button Style",
+      "button-style-description": "Choose how common icon actions are presented on this browser.",
+      "button-style-icons": "Icons & Glyphs",
+      "button-style-icons-text": "Icons + Text",
+      "button-style-text": "Text"
     },
     "memo-view": {
       "delete-confirm": "Er du sikker på at du vil slette visningen `{{title}}`?",

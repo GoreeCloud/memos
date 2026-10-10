@@ -167,7 +167,18 @@ export function MemoPanel({ open, title, subtitle, reservedWidth, busy = false, 
               <Dialog.Title className={MEMO_PANEL_TITLE_CLASS}>{shown.title}</Dialog.Title>
               {shown.subtitle && <p className="truncate text-xs text-muted-foreground">{shown.subtitle}</p>}
             </div>
-            <Dialog.Close disabled={busy} render={<button type="button" className={ICON_CONTROL_CLASS} aria-label={t("common.close")} />}>
+            <Dialog.Close
+              disabled={busy}
+              render={
+                <button
+                  type="button"
+                  className={ICON_CONTROL_CLASS}
+                  aria-label={t("common.close")}
+                  data-goreecloud-icon-button=""
+                  data-goreecloud-label={t("common.close")}
+                />
+              }
+            >
               <XIcon strokeWidth={1.8} />
             </Dialog.Close>
           </header>
