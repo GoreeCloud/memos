@@ -65,6 +65,9 @@
 
 - Memo-share Copy/Revoke and focus-mode Exit icon controls now expose explicit accessible names, bringing those existing shared-Button actions under the Button Style presentation contract without changing their behavior.
 
+- A focus-visible, localized skip-to-main navigation link now helps keyboard users bypass the persistent desktop/mobile shell on authenticated collection routes; the main landmark can receive programmatic focus without changing route or session behavior.
+- Search and filter chips now name their removal action using each filter’s label rather than sharing an ambiguous generic accessible name. Focus/navigation and distinct filter controls have regression test coverage; independent assistive-technology and rendered-browser acceptance remain open.
+
 ## Bounded Glaze interaction performance regression
 
 - The authenticated Chromium matrix includes an exact-revision desktop measurement for 30 Search text/expression mode transitions.
