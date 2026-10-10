@@ -123,6 +123,7 @@
     "visibility": "Visibilidade",
     "views": "Vistas",
     "yourself": "Você mesmo",
+    "skip-to-content": "Skip to main content",
     "actions": "Ações",
     "collapse-panel": "Recolher painel",
     "empty-placeholder": "Vazio",
@@ -231,7 +232,8 @@
       "has-code": "temCódigo",
       "has-link": "temLink",
       "has-location": "tem localização",
-      "has-task-list": "temListaDeTarefas"
+      "has-task-list": "temListaDeTarefas",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Modo compacto",
     "link-preview": "Pré-visualização de links",

@@ -123,6 +123,7 @@
     "visibility": "Viditelnost",
     "views": "Zobrazení",
     "yourself": "Vy sami",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Prázdný",
     "unlink": "Odpojit",
     "tasks": "Úkoly",
@@ -236,7 +237,8 @@
       "has-code": "maKod",
       "has-link": "maOdkaz",
       "has-location": "má polohu",
-      "has-task-list": "maSeznamUkolu"
+      "has-task-list": "maSeznamUkolu",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompaktní režim",
     "link-preview": "Náhled odkazu",

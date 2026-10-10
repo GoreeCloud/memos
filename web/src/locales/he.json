@@ -203,6 +203,7 @@
     "visibility": "נראות",
     "views": "תצוגות",
     "yourself": "עצמך",
+    "skip-to-content": "Skip to main content",
     "collapse-panel": "כווץ את הפאנל",
     "expand-panel": "הרחב את הפאנל",
     "resize-panel": "שינוי גודל הפאנל",
@@ -308,7 +309,8 @@
       "has-code": "מכיל קוד",
       "has-link": "מכיל קישור",
       "has-location": "מכיל מיקום",
-      "has-task-list": "מכיל רשימת משימות"
+      "has-task-list": "מכיל רשימת משימות",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "מצב קומפקטי",
     "grid-compact-hint": "פריסות רשת משתמשות תמיד בכרטיסים קומפקטיים.",

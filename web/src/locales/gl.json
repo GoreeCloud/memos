@@ -123,6 +123,7 @@
     "visibility": "Visibilidade",
     "views": "Vistas",
     "yourself": "Ti",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Baleiro",
     "unlink": "Desvincular",
     "tasks": "Tarefas",
@@ -236,7 +237,8 @@
       "has-code": "hasCode",
       "has-link": "hasLink",
       "has-location": "ten localización",
-      "has-task-list": "hasTaskList"
+      "has-task-list": "hasTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Modo compacto",
     "link-preview": "Vista previa de ligazóns",

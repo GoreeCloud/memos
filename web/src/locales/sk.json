@@ -163,6 +163,7 @@
     "visibility": "Viditeľnosť",
     "views": "Zobrazenia",
     "yourself": "seba",
+    "skip-to-content": "Skip to main content",
     "tasks": "Úlohy",
     "actions": "Akcie",
     "collapse-panel": "Zbaliť panel",
@@ -275,7 +276,8 @@
       "has-code": "hasCode",
       "has-link": "hasLink",
       "has-location": "má polohu",
-      "has-task-list": "hasTaskList"
+      "has-task-list": "hasTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompaktný režim",
     "link-preview": "Náhľad odkazu",

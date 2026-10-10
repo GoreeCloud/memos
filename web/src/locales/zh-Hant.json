@@ -210,6 +210,7 @@
     "visibility": "瀏覽權限",
     "views": "檢視",
     "yourself": "您自己",
+    "skip-to-content": "Skip to main content",
     "collapse-panel": "折疊面板",
     "expand-panel": "展開面板",
     "resize-panel": "調整面板大小",
@@ -315,7 +316,8 @@
       "has-code": "有程式碼",
       "has-link": "有連結",
       "has-location": "有位置",
-      "has-task-list": "有待辦事項"
+      "has-task-list": "有待辦事項",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "精簡模式",
     "grid-compact-hint": "網格版面一律使用精簡卡片。",

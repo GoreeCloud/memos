@@ -48,7 +48,8 @@ vi.mock("@/hooks/useUserQueries", () => ({
 }));
 
 vi.mock("@/utils/i18n", () => ({
-  useTranslate: () => (key: string) => key,
+  useTranslate: () => (key: string, params?: Record<string, unknown>) =>
+    key === "memo.filters.remove-filter" ? `Remove ${params?.label} filter` : key,
 }));
 
 const Harness = () => {
@@ -163,7 +164,8 @@ describe("Quick Find navigation", () => {
     openQuickFind();
     fireEvent.keyDown(await screen.findByRole("textbox"), { key: "Escape" });
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-    const [removeCel] = screen.getAllByRole("button", { name: "Remove filter" });
+    const removeCel = screen.getByRole("button", { name: "Remove pinned filter" });
+    expect(screen.getByRole("button", { name: "Remove work filter" })).toBeInTheDocument();
     fireEvent.click(removeCel);
     const predicate = state.removeFilter.mock.calls[0][0];
     expect(state.filters.filter((filter) => !predicate(filter))).toEqual([{ factor: "tagSearch", value: "work" }]);

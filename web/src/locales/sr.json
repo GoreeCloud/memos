@@ -163,6 +163,7 @@
     "visibility": "Видљивост",
     "views": "Прикази",
     "yourself": "Себе",
+    "skip-to-content": "Skip to main content",
     "tasks": "Задаци",
     "actions": "Акције",
     "collapse-panel": "Сакриј панел",
@@ -275,7 +276,8 @@
       "has-code": "хасЦоде",
       "has-link": "хасЛинк",
       "has-location": "има локацију",
-      "has-task-list": "хасТаскЛист"
+      "has-task-list": "хасТаскЛист",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Компактни режим",
     "link-preview": "Преглед везе",

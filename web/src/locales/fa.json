@@ -123,6 +123,7 @@
     "visibility": "قابل مشاهده توسط",
     "views": "نماها",
     "yourself": "خودتان",
+    "skip-to-content": "Skip to main content",
     "actions": "اقدامات",
     "collapse-panel": "پنل جمع شونده",
     "empty-placeholder": "خالی",
@@ -231,7 +232,8 @@
       "has-code": "دارای کد",
       "has-link": "دارای پیوند",
       "has-location": "دارای موقعیت",
-      "has-task-list": "دارای لیست کارها"
+      "has-task-list": "دارای لیست کارها",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "حالت فشرده",
     "link-preview": "پیش‌نمایش پیوند",

@@ -123,6 +123,7 @@
     "visibility": "Visibilité",
     "views": "Vues",
     "yourself": "Vous-même",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Vide",
     "unlink": "Dissocier",
     "tasks": "Tâches",
@@ -236,7 +237,8 @@
       "has-code": "aCode",
       "has-link": "aLien",
       "has-location": "a une localisation",
-      "has-task-list": "aListeTâches"
+      "has-task-list": "aListeTâches",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Mode compact",
     "link-preview": "Aperçu des liens",

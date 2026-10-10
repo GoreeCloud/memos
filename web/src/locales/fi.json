@@ -163,6 +163,7 @@
     "visibility": "Näkyvyys",
     "views": "Näkymät",
     "yourself": "itseäsi",
+    "skip-to-content": "Skip to main content",
     "tasks": "Tehtävät",
     "actions": "Toiminnot",
     "collapse-panel": "Pienennä paneeli",
@@ -275,7 +276,8 @@
       "has-code": "hasCode",
       "has-link": "hasLink",
       "has-location": "on sijainti",
-      "has-task-list": "hasTaskList"
+      "has-task-list": "hasTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Tiivis tila",
     "link-preview": "Linkin esikatselu",

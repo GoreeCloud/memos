@@ -123,6 +123,7 @@
     "visibility": "Synlighet",
     "views": "Vyer",
     "yourself": "Själv",
+    "skip-to-content": "Skip to main content",
     "empty-placeholder": "Tömma",
     "unlink": "Ta bort länken",
     "tasks": "Uppgifter",
@@ -236,7 +237,8 @@
       "has-code": "harKod",
       "has-link": "harLänk",
       "has-location": "har plats",
-      "has-task-list": "harAttGöraLista"
+      "has-task-list": "harAttGöraLista",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Kompakt läge",
     "link-preview": "Förhandsvisning av länk",

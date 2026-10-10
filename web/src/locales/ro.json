@@ -163,6 +163,7 @@
     "visibility": "Vizibilitate",
     "views": "Vizualizări",
     "yourself": "Te",
+    "skip-to-content": "Skip to main content",
     "tasks": "Sarcini",
     "actions": "Acțiuni",
     "collapse-panel": "Restrângeți panoul",
@@ -275,7 +276,8 @@
       "has-code": "areCode",
       "has-link": "areLink",
       "has-location": "are locație",
-      "has-task-list": "areTaskList"
+      "has-task-list": "areTaskList",
+      "remove-filter": "Remove {{label}} filter"
     },
     "compact-mode": "Mod compact",
     "link-preview": "Previzualizare link",
