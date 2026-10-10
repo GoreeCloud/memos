@@ -63,6 +63,8 @@
 
 - Saved-view management action menus now expose a localized accessible name through the shared GoreeCloud icon-button primitive and reserve max-content space so Icons + Text/Text presentation modes do not collide with view content.
 
+- Memo-share Copy/Revoke and focus-mode Exit icon controls now expose explicit accessible names, bringing those existing shared-Button actions under the Button Style presentation contract without changing their behavior.
+
 ## Bounded Glaze interaction performance regression
 
 - The authenticated Chromium matrix includes an exact-revision desktop measurement for 30 Search text/expression mode transitions.
