@@ -45,6 +45,8 @@ This remains automated Chromium Development evidence. It does not replace human 
 
 Memos now exposes the GoreeCloud Button Style preference for the shared icon-button primitive. The default is **Icons & Glyphs**, with **Icons + Text** and **Text** alternatives that reuse each control's existing accessible name rather than introducing a second semantic label. The preference is browser-local in this Development slice and is applied through a root presentation contract so shared toolbar/navigation icon buttons can adapt without duplicating per-screen state.
 
+The shared icon-button primitive now also reaches the memo-share Copy/Revoke actions and the focus-mode Exit action because those icon-only controls expose explicit accessible names. That keeps their existing behavior and visible icon treatment while allowing Icons + Text and Text modes to reuse the same owned labels.
+
 This is not yet whole-application control-presentation acceptance. Components outside the shared icon-button primitive, human translation of the new control terminology beyond the English fallback entries required by the locale-parity contract, localization/human review, compact-layout edge cases, independent assistive-technology validation, and any future account/device synchronization remain open.
 
 

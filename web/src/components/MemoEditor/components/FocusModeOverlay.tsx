@@ -13,7 +13,7 @@ export function FocusModeExitButton({ isActive, onToggle, title }: FocusModeExit
   if (!isActive) return null;
 
   return (
-    <Button variant="ghost" size="icon" className={FOCUS_MODE_STYLES.exitButton} onClick={onToggle} title={title}>
+    <Button variant="ghost" size="icon" className={FOCUS_MODE_STYLES.exitButton} onClick={onToggle} title={title} aria-label={title}>
       <Minimize2Icon className="w-4 h-4" />
     </Button>
   );

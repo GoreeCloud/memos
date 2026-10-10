@@ -58,7 +58,14 @@ function ShareLinkRow({ share, memoName }: ShareLinkRowProps) {
       <div className="flex items-center justify-between gap-2">
         <span className="truncate font-mono text-xs text-muted-foreground">{url}</span>
         <div className="flex shrink-0 items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCopy} title={t("memo.share.copy")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={handleCopy}
+            title={t("memo.share.copy")}
+            aria-label={t("memo.share.copy")}
+          >
             {copied ? <CheckIcon className="h-3.5 w-3.5 text-success" /> : <CopyIcon className="h-3.5 w-3.5" />}
           </Button>
           <Button
@@ -68,6 +75,7 @@ function ShareLinkRow({ share, memoName }: ShareLinkRowProps) {
             onClick={handleRevoke}
             disabled={deleteShare.isPending}
             title={t("memo.share.revoke")}
+            aria-label={t("memo.share.revoke")}
           >
             <Trash2Icon className="h-3.5 w-3.5" />
           </Button>
