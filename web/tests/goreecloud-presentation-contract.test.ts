@@ -18,6 +18,14 @@ describe("GoreeCloud Glaze presentation source contract", () => {
     }
   });
 
+  it("retains a neutral light and dark canvas with rounded memo cards", () => {
+    expect(goreecloudCss).toContain("--background: oklch(0.985 0.004 255)");
+    expect(goreecloudCss).toContain("--background: oklch(0.155 0.014 257)");
+    expect(goreecloudCss).toContain("--gc-memos-accent-strong: oklch(0.48 0.15 257)");
+    expect(goreecloudCss).toContain("--gc-memos-accent-strong: oklch(0.76 0.13 254)");
+    expect(goreecloudCss).toMatch(/\.goreecloud-memo-card \{\s*border-radius: 1\.2rem;/);
+  });
+
   it("keeps visible focus and mobile transparency fallbacks", () => {
     expect(goreecloudCss).toContain(":focus-visible");
     expect(goreecloudCss).toContain("outline: 2px solid var(--ring);");

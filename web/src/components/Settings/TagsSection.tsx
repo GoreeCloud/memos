@@ -3,6 +3,7 @@ import { isEqual } from "lodash-es";
 import { EyeOffIcon, PaletteIcon, PlusIcon, TagIcon, TrashIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import LabelColorSwatches from "@/components/LabelColorSwatches";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -205,6 +206,10 @@ const TagsSection = () => {
                 </Button>
               </div>
 
+              <div className="col-span-full">
+                <LabelColorSwatches label={t("setting.tags.background-color")} value={newTagColor} onChange={setNewTagColor} />
+              </div>
+
               <label className="flex h-8 items-center gap-2 rounded-md border border-border bg-background px-2 text-sm text-muted-foreground">
                 <EyeOffIcon className="size-4" />
                 <span>{t("setting.tags.blur-content")}</span>
@@ -259,6 +264,14 @@ const TagsSection = () => {
                     <Button variant="ghost" size="sm" onClick={() => handleClearColor(row.name)} disabled={!localTags[row.name].color}>
                       {localTags[row.name].color ?? t("setting.tags.default-color")}
                     </Button>
+                  </div>
+
+                  <div className="col-span-full">
+                    <LabelColorSwatches
+                      label={row.name + ": " + t("setting.tags.background-color")}
+                      value={localTags[row.name].color}
+                      onChange={(color) => (color ? handleColorChange(row.name, color) : handleClearColor(row.name))}
+                    />
                   </div>
 
                   <label className="flex items-center gap-2 text-sm text-muted-foreground">
