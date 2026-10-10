@@ -74,10 +74,19 @@ const ComposerLabelSelector = ({ onInsert, disabled }: { onInsert: (labels: stri
       }}
     >
       <PopoverTrigger
-        render={<Button type="button" variant="quiet" size="sm" disabled={disabled} className="gap-1.5 text-muted-foreground" />}
+        render={
+          <Button
+            type="button"
+            variant="quiet"
+            size="sm"
+            disabled={disabled}
+            aria-label={t("common.labels")}
+            className="gap-1.5 text-muted-foreground"
+          />
+        }
       >
         <TagsIcon className="size-4 opacity-75" strokeWidth={1.8} aria-hidden="true" />
-        <span>{t("common.labels")}</span>
+        <span className="hidden sm:inline">{t("common.labels")}</span>
       </PopoverTrigger>
       <PopoverContent side="bottom" align="start" className="w-[min(19rem,calc(100vw-2rem))] space-y-3 rounded-xl p-3">
         <h3 className="text-sm font-medium">{t("common.labels")}</h3>

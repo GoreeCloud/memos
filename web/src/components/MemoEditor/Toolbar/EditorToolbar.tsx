@@ -92,7 +92,7 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
   return (
     // Every control on this rail is 28px, the same box as the sidebar's compose control and nav pills.
     <div className="flex w-full flex-row flex-wrap items-center gap-1">
-      <div className="flex min-w-0 flex-row items-center justify-start gap-1">
+      <div className="flex w-full min-w-0 flex-row flex-wrap items-center justify-start gap-1 sm:w-auto">
         <InsertMenu
           isUploading={isUploading}
           isSaving={committing}
