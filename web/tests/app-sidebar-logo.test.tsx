@@ -264,8 +264,8 @@ describe("App sidebar logo", () => {
 
     fireEvent.click(compose);
     expect(globalEditorState.openEditor).toHaveBeenCalledOnce();
-    // The Calendar destination is a nav pill; the statistics calendar stays off this route.
-    expect(within(primaryNavigation).getByRole("link", { name: "common.calendar" })).toHaveAttribute("href", "/calendar");
+    // The Calendar has no sidebar shortcut; the standalone calendar URL remains available.
+    expect(within(primaryNavigation).queryByRole("link", { name: "common.calendar" })).not.toBeInTheDocument();
     expect(screen.queryByText("Calendar")).not.toBeInTheDocument();
   });
 
@@ -522,18 +522,17 @@ describe("App sidebar logo", () => {
     expect(screen.queryByText("Calendar")).not.toBeInTheDocument();
   });
 
-  it("uses a compact scope menu and places views below the calendar", async () => {
+  it("keeps the views and labels sidebar without a calendar heatmap", async () => {
     render(
       <MemoryRouter initialEntries={["/"]}>
         <AppSidebar />
       </MemoryRouter>,
     );
 
-    const calendar = screen.getByText("Calendar");
-    const views = screen.getByText("common.views");
-    expect(screen.getByRole("region", { name: "common.statistics" })).toBeInTheDocument();
+    expect(screen.queryByText("Calendar")).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "common.statistics" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "common.views", level: 2 })).toBeInTheDocument();
-    expect(calendar.compareDocumentPosition(views) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByText("Tags")).toBeInTheDocument();
     const viewOptions = screen.getByRole("button", { name: "memo.view-options" });
     const createView = screen.getByRole("button", { name: "common.create" });
     expect(viewOptions.compareDocumentPosition(createView) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -592,7 +591,7 @@ describe("App sidebar logo", () => {
     expectActiveNavPill(attachments, "common.attachments");
 
     fireEvent.click(scopeTrigger);
-    expect(await screen.findByText("Calendar")).toBeInTheDocument();
+    expect(screen.queryByText("Calendar")).not.toBeInTheDocument();
     expectActiveNavPill(screen.getByRole("button", { name: "common.home" }), "common.home");
     expect(screen.queryByRole("menuitem", { name: "common.explore" })).not.toBeInTheDocument();
   });

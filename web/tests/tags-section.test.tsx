@@ -13,6 +13,18 @@ describe("TagsSection", () => {
     localStorage.clear();
   });
 
+  it("keeps the Labels section visible before a user has added any labels", () => {
+    render(
+      <MemoryRouter>
+        <MemoFilterProvider>
+          <TagsSection tagCount={{}} scope="home" />
+        </MemoFilterProvider>
+      </MemoryRouter>,
+    );
+    expect(screen.getByRole("heading", { name: "common.labels" })).toBeInTheDocument();
+    expect(screen.getByText("home.labels-empty")).toBeInTheDocument();
+  });
+
   it("keeps the title count-free and uses the shared section action grammar", () => {
     render(
       <MemoryRouter>
@@ -22,10 +34,10 @@ describe("TagsSection", () => {
       </MemoryRouter>,
     );
 
-    const heading = screen.getByRole("heading", { name: "common.tags", level: 2 });
-    expect(heading.parentElement).toHaveTextContent(/^common.tags$/);
+    const heading = screen.getByRole("heading", { name: "common.labels", level: 2 });
+    expect(heading.parentElement).toHaveTextContent(/^common.labels$/);
 
-    const trigger = screen.getByRole("button", { name: "common.tags: common.more" });
+    const trigger = screen.getByRole("button", { name: "common.labels: common.more" });
     expect(trigger).toHaveClass("size-6", "rounded-md", "text-muted-foreground/70", "hover:bg-muted/60", "hover:text-foreground");
     expect(trigger.querySelector("svg")).toHaveClass(SIDEBAR_SECTION_ACTION_ICON_CLASSES);
     expect(screen.queryByRole("button", { name: "common.tags: memo.layout-list" })).not.toBeInTheDocument();
@@ -42,7 +54,7 @@ describe("TagsSection", () => {
       </MemoryRouter>,
     );
 
-    const trigger = screen.getByRole("button", { name: "common.tags: common.more" });
+    const trigger = screen.getByRole("button", { name: "common.labels: common.more" });
     fireEvent.click(trigger);
     const treeMode = await screen.findByRole("menuitemcheckbox", { name: "common.tree-mode" });
     expect(treeMode).toHaveAttribute("aria-checked", "false");
@@ -75,7 +87,7 @@ describe("TagsSection", () => {
     );
 
     expect(screen.getByRole("tree")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "common.tags: common.more" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.labels: common.more" }));
     expect(await screen.findByRole("menuitemcheckbox", { name: "common.tree-mode" })).toHaveAttribute("aria-checked", "true");
   });
 
