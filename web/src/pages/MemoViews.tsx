@@ -564,7 +564,7 @@ const MemoViews = () => {
                 {memoViews.map((memoView) => (
                   <div
                     key={memoView.name}
-                    className="grid gap-3 bg-background px-4 py-3 sm:grid-cols-[minmax(10rem,14rem)_minmax(0,1fr)_2rem]"
+                    className="grid gap-3 bg-background px-4 py-3 sm:grid-cols-[minmax(10rem,14rem)_minmax(0,1fr)_max-content]"
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -577,7 +577,16 @@ const MemoViews = () => {
                       {memoView.filter}
                     </pre>
                     <DropdownMenu>
-                      <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="justify-self-end" />}>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="justify-self-end"
+                            aria-label={`${t("common.edit")} ${memoView.title}`}
+                          />
+                        }
+                      >
                         <MoreVerticalIcon className="h-4 w-4" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
