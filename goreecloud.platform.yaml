@@ -102,7 +102,7 @@ platform_systems:
       - web/src/themes/goreecloud.css
       - web/public/goreecloud/glaze/css/glaze-v1.4.1.css
       - web/public/goreecloud/glaze/js/glaze-v1.7.0.mjs
-    notes: Current main includes Glaze V1.7 source-contract coverage plus automated real-Chromium Development acceptance for first-run and authenticated core surfaces across representative desktop/phone/tablet viewports, keyboard focus, 200% reflow, dark mode, forced colors, reduced motion, Arabic RTL, reduced transparency, overflow checks, and serious/critical axe findings. Independent assistive-technology and human visual review, broader product-flow/locale/device/browser coverage, approved performance budgets, rollback evidence, and production visual/product acceptance remain open.
+    notes: Current main includes Glaze V1.7 source-contract coverage plus automated real-Chromium Development acceptance for first-run and authenticated core surfaces across representative desktop/phone/tablet viewports, keyboard focus, 200% reflow, dark mode, forced colors, reduced motion, Arabic RTL, reduced transparency, overflow checks, and serious/critical axe findings. Independent assistive-technology and human visual review, broader product-flow/locale/device/browser coverage, the full approved performance budget beyond the bounded automated interaction p95/p99 gate, rollback evidence, and production visual/product acceptance remain open.
   mesh:
     result: applicable-blocked
     version: null
@@ -196,7 +196,7 @@ conformance:
     - docs/GLAZE-ADOPTION.md
     - docs/OBSERVABILITY-INTEGRATION.md
   blockers:
-    - Glaze V1.7 source and automated Chromium Development acceptance exist, including bounded Arabic RTL and reduced-transparency rendered coverage, but independent assistive-technology/human visual review, broader representative locale/device/browser/product-flow coverage, approved performance budgets, rollback evidence, and production visual/product acceptance remain incomplete.
+    - Glaze V1.7 source and automated Chromium Development acceptance exist, including bounded Arabic RTL and reduced-transparency rendered coverage, but independent assistive-technology/human visual review, broader representative locale/device/browser/product-flow coverage, the full approved performance budget beyond the bounded automated interaction p95/p99 gate, rollback evidence, and production visual/product acceptance remain incomplete.
     - Integral Platform System runtime integrations remain incomplete; Everkeep, Privacy Shield, Wardveil Security, and Observability currently have source-level adoption/producer boundaries only, without accepted live/runtime provider paths or production approval.
     - Automated Chromium, bounded SQLite/local recovery, and multi-database upgrade Development evidence exist, but independent representative physical-device/browser and assistive-technology acceptance, full S3/configuration/secret recovery, deployment-specific upgrade/rollback evidence, and production acceptance remain incomplete.
     - Production signing, release, Seal, and Anchor qualification are incomplete.
