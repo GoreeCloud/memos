@@ -74,6 +74,7 @@ const IconAction = ({ label, onClick, children }: { label: string; onClick: () =
 
 const MediaMetadataDetails = ({ id, item, onClose, className }: MediaMetadataDetailsProps) => {
   const t = useTranslate();
+  const hideDetailsLabel = t("attachment-details.actions.hide");
   const [showMap, setShowMap] = useState(false);
   const [coordinatesCopied, setCoordinatesCopied] = useState(false);
   const copyResetTimer = useRef<number | undefined>(undefined);
@@ -133,7 +134,10 @@ const MediaMetadataDetails = ({ id, item, onClose, className }: MediaMetadataDet
           type="button"
           onClick={onClose}
           className="inline-flex size-8 items-center justify-center rounded-full text-white/55 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/45 lg:hidden"
-          aria-label={t("attachment-details.actions.hide")}
+          aria-label={hideDetailsLabel}
+          data-goreecloud-icon-button=""
+          data-goreecloud-label={hideDetailsLabel}
+          title={hideDetailsLabel}
         >
           <XIcon className="size-4" aria-hidden="true" />
         </button>

@@ -13,6 +13,7 @@ const inboxNotificationSources = [
   readFileSync(resolve(process.cwd(), "src/components/Inbox/MemoMentionMessage.tsx"), "utf8"),
   readFileSync(resolve(process.cwd(), "src/components/Inbox/SpaceInvitationMessage.tsx"), "utf8"),
 ];
+const mediaMetadataDetailsSource = readFileSync(resolve(process.cwd(), "src/components/MediaMetadataDetails.tsx"), "utf8");
 
 describe("GoreeCloud Button Style native-control coverage", () => {
   it("covers labeled map zoom and fit icon controls", () => {
@@ -49,6 +50,13 @@ describe("GoreeCloud Button Style native-control coverage", () => {
       expect(statisticsMonthNavigatorSource).toContain('data-goreecloud-label={t("' + key + '")}');
     }
     expect(statisticsMonthNavigatorSource.match(/data-goreecloud-icon-button=""/g)).toHaveLength(2);
+  });
+
+  it("covers the mobile attachment-details close action with a localized Button Style label", () => {
+    expect(mediaMetadataDetailsSource).toContain('const hideDetailsLabel = t("attachment-details.actions.hide");');
+    expect(mediaMetadataDetailsSource).toContain("aria-label={hideDetailsLabel}");
+    expect(mediaMetadataDetailsSource).toContain('data-goreecloud-icon-button=""');
+    expect(mediaMetadataDetailsSource).toContain("data-goreecloud-label={hideDetailsLabel}");
   });
 
   it("covers Inbox archive/delete icon actions with accessible keyboard-visible controls", () => {

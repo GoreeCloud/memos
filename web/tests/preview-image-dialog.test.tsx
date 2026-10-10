@@ -1,5 +1,5 @@
 import { create } from "@bufbuild/protobuf";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import PreviewImageDialog from "@/components/PreviewImageDialog";
 import {
@@ -594,6 +594,11 @@ describe("<PreviewImageDialog>", () => {
 
     expect(screen.queryByText("4032 × 3024 px")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Show attachment details" }));
+
+    const detailsPanel = screen.getByLabelText("Details");
+    const mobileClose = within(detailsPanel).getByRole("button", { name: "Hide attachment details" });
+    expect(mobileClose).toHaveAttribute("data-goreecloud-icon-button", "");
+    expect(mobileClose).toHaveAttribute("data-goreecloud-label", "Hide attachment details");
 
     expect(screen.getByText("4032 × 3024 px")).toBeInTheDocument();
     expect(screen.getByText("Apple iPhone")).toBeInTheDocument();
