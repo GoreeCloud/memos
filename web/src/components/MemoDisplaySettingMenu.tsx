@@ -55,10 +55,12 @@ function MemoDisplaySettingsContent() {
     setCompactMode,
     setLinkPreview,
     setMaxColumns,
+    resetViewSettings,
   } = useView();
   // Multi-column grids always render compact tiles, so the toggle is shown as on and locked
   // there; it only becomes a real choice at a single column.
   const compactLocked = maxColumns !== 1;
+  const hasCustomViewSettings = orderByTimeAsc || timeBasis !== "create_time" || compactMode || !linkPreview || maxColumns !== 1;
 
   const timeBasisOptions = [
     { value: "create_time", label: t("common.created-at") },
@@ -180,6 +182,17 @@ function MemoDisplaySettingsContent() {
         <SettingRow label={t("memo.link-preview")}>
           <Switch aria-label={t("memo.link-preview")} checked={linkPreview} onCheckedChange={setLinkPreview} />
         </SettingRow>
+      </section>
+      <section className="border-t border-border/60 px-3 py-2">
+        <button
+          type="button"
+          onClick={resetViewSettings}
+          disabled={!hasCustomViewSettings}
+          aria-label={`${t("common.restore")} ${t("memo.view-options")}`}
+          className="w-full rounded-md px-2 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-default disabled:opacity-50 motion-reduce:transition-none"
+        >
+          {t("common.restore")} {t("memo.view-options")}
+        </button>
       </section>
     </div>
   );

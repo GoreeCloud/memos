@@ -26,6 +26,7 @@ interface ViewContextValue {
   setCompactMode: (value: boolean) => void;
   setLinkPreview: (value: boolean) => void;
   setMaxColumns: (value: MemoMaxColumns) => void;
+  resetViewSettings: () => void;
 }
 
 const ViewContext = createContext<ViewContextValue | null>(null);
@@ -83,6 +84,13 @@ export function ViewProvider({ children }: { children: ReactNode }) {
   const setCompactMode = (value: boolean) => updateState({ compactMode: value });
   const setLinkPreview = (value: boolean) => updateState({ linkPreview: value });
   const setMaxColumns = (value: MemoMaxColumns) => updateState({ maxColumns: value });
+  const resetViewSettings = () => {
+    // Reset in one state/storage write so legacy sort aliases and stale values
+    // cannot survive a sequence of partial setter updates.
+    const defaults = { ...DEFAULT_VIEW_STATE };
+    setViewState(defaults);
+    persistToStorage(defaults);
+  };
 
   return (
     <ViewContext.Provider
@@ -97,6 +105,7 @@ export function ViewProvider({ children }: { children: ReactNode }) {
         setCompactMode,
         setLinkPreview,
         setMaxColumns,
+        resetViewSettings,
       }}
     >
       {children}

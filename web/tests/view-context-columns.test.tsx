@@ -45,6 +45,39 @@ describe("ViewContext maxColumns setting", () => {
     expect(result.current.maxColumns).toBe(2);
   });
 
+  it("restores all view defaults in one persisted state and discards stale sort aliases", () => {
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY,
+      JSON.stringify({
+        orderByTimeAsc: true,
+        timeBasis: "update_time",
+        sortTimeField: "update_time",
+        compactMode: true,
+        linkPreview: false,
+        maxColumns: 3,
+      }),
+    );
+    const { result } = renderHook(() => useView(), { wrapper });
+    expect(result.current.timeBasis).toBe("update_time");
+    expect(result.current.maxColumns).toBe(3);
+
+    act(() => result.current.resetViewSettings());
+
+    expect(result.current).toMatchObject({
+      orderByTimeAsc: false,
+      timeBasis: "create_time",
+      compactMode: false,
+      linkPreview: true,
+      maxColumns: 1,
+    });
+    expect(persisted()).toEqual({
+      orderByTimeAsc: false,
+      compactMode: false,
+      linkPreview: true,
+      maxColumns: 1,
+    });
+  });
+
   it("falls back to a single column for an invalid persisted value", () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ maxColumns: 7 }));
 
