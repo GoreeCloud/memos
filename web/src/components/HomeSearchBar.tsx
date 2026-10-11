@@ -25,6 +25,40 @@ const HomeSearchBar = () => {
 
   useEffect(() => setQuery(activeQuery), [activeQuery]);
 
+  // "/" is a Home-only shortcut. Do not intercept typing, IME input, or
+  // keyboard interactions inside dialogs and other composite controls.
+  useEffect(() => {
+    const focusHomeSearch = (event: globalThis.KeyboardEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.key !== "/" ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        event.isComposing ||
+        event.keyCode === 229 ||
+        !searchInputRef.current
+      ) {
+        return;
+      }
+      const target = event.target;
+      if (
+        (target instanceof Element &&
+          target.closest(
+            'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"], [role="combobox"], [role="dialog"], [role="menu"], [role="listbox"]',
+          )) ||
+        document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')
+      ) {
+        return;
+      }
+      event.preventDefault();
+      searchInputRef.current.focus();
+    };
+    window.addEventListener("keydown", focusHomeSearch);
+    return () => window.removeEventListener("keydown", focusHomeSearch);
+  }, []);
+
   const applySearch = (value: string) => {
     // Re-submitting a visible, unchanged Expression query must keep its CEL
     // semantics. Editing it instead starts a new plain-text Home search.
@@ -69,6 +103,7 @@ const HomeSearchBar = () => {
         <input
           ref={searchInputRef}
           id="goreecloud-home-search"
+          aria-keyshortcuts="/"
           type="search"
           enterKeyHint="search"
           value={query}
@@ -77,6 +112,14 @@ const HomeSearchBar = () => {
           placeholder={t("home.search-placeholder")}
           className="min-w-0 flex-1 bg-transparent py-1 text-sm text-foreground outline-none placeholder:text-muted-foreground/75"
         />
+        {!query && (
+          <kbd
+            aria-hidden="true"
+            className="hidden shrink-0 rounded-md border border-border/70 bg-muted px-1.5 py-0.5 text-xs text-muted-foreground sm:inline-flex"
+          >
+            /
+          </kbd>
+        )}
         {query && (
           <button
             type="button"
