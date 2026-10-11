@@ -36,6 +36,15 @@ describe("memo scopes", () => {
     expect(isMemoCollectionRoute("/u/j%C3%BAlia")).toBe(true);
   });
 
+  it("rejects encoded path separators in otherwise single-segment profile usernames", () => {
+    for (const path of ["/u/alex%2Fteam", "/u/alex%2fteam", "/u/%2F"]) {
+      expect(getProfileUsername(path)).toBeUndefined();
+      expect(isMemoCollectionRoute(path)).toBe(false);
+      expect(resolveMemoScope(path, { fallback: "explore" })).toBe("explore");
+    }
+    expect(getProfileUsername("/u/j%C3%BAlia")).toBe("júlia");
+  });
+
   it("recognizes only registered calendar routes when applying collection filters", () => {
     for (const path of [
       "/calendar",
