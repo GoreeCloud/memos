@@ -155,6 +155,52 @@ describe("Quick Find navigation", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
+  it.each(["text", "cel"] as const)("clears the unsaved %s draft without changing active search filters", async (mode) => {
+    state.filters = [
+      { factor: "contentSearch", value: "meeting notes" },
+      { factor: "tagSearch", value: "work" },
+    ];
+    renderSearch();
+    openQuickFind();
+
+    if (mode === "cel") fireEvent.click(screen.getByRole("tab", { name: "search.expression-mode" }));
+    const input = await screen.findByRole("textbox");
+    fireEvent.change(input, { target: { value: mode === "cel" ? 'content.contains("urgent")' : "new draft" } });
+
+    const clear = screen.getByRole("button", { name: "common.clear" });
+    expect(clear).toHaveAttribute("type", "button");
+    fireEvent.click(clear);
+    expect(input).toHaveValue("");
+    expect(input).toHaveFocus();
+    expect(screen.queryByRole("button", { name: "common.clear" })).not.toBeInTheDocument();
+    expect(state.setFilters).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(input, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    openQuickFind();
+    const restored = await screen.findByRole("textbox");
+    expect(restored).toHaveValue('"meeting notes"');
+    expect(state.setFilters).not.toHaveBeenCalled();
+  });
+
+  it.each(["text", "cel"] as const)("applies scoped non-search filters after clearing and submitting %s", async (mode) => {
+    state.filters = [
+      { factor: "tagSearch", value: "work" },
+      { factor: "contentSearch", value: "obsolete" },
+    ];
+    renderSearch();
+    openQuickFind();
+    if (mode === "cel") fireEvent.click(screen.getByRole("tab", { name: "search.expression-mode" }));
+
+    const input = await screen.findByRole("textbox");
+    fireEvent.change(input, { target: { value: "draft" } });
+    fireEvent.click(screen.getByRole("button", { name: "common.clear" }));
+    expect(state.setFilters).not.toHaveBeenCalled();
+    fireEvent.submit(input.closest("form")!);
+    expect(state.setFilters).toHaveBeenCalledWith([{ factor: "tagSearch", value: "work" }]);
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  });
+
   it("removes only CEL using the chip remove button", async () => {
     state.filters = [
       { factor: "celSearch", value: "pinned" },
