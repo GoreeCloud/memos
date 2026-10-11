@@ -2,23 +2,21 @@ import { ArrowRightIcon, SearchIcon, XIcon } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MemoDisplaySettingMenu from "@/components/MemoDisplaySettingMenu";
-import { getFilterSearch, isSearchFilter, type MemoFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
+import { getFilterSearch, type MemoFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { useSpaceContext } from "@/contexts/SpaceContext";
+import { formatTextSearchTerms, parseTextSearchTerms } from "@/lib/text-search-terms";
 import { ROUTES } from "@/router/routes";
 import { useTranslate } from "@/utils/i18n";
 
 export const buildHomeSearchFilters = (value: string): MemoFilter[] =>
-  Array.from(new Set(value.trim().split(/\s+/).filter(Boolean))).map((term) => ({ factor: "contentSearch", value: term }));
+  parseTextSearchTerms(value).map((term) => ({ factor: "contentSearch", value: term }));
 
 const HomeSearchBar = () => {
   const t = useTranslate();
   const navigate = useNavigate();
   const { filters, setFilters, setMemoView } = useMemoFilterContext();
   const { selectedSpaceName } = useSpaceContext();
-  const activeQuery = filters
-    .filter(isSearchFilter)
-    .map((filter) => filter.value)
-    .join(" ");
+  const activeQuery = formatTextSearchTerms(filters.filter((filter) => filter.factor === "contentSearch").map((filter) => filter.value));
   const [query, setQuery] = useState(activeQuery);
 
   useEffect(() => setQuery(activeQuery), [activeQuery]);
