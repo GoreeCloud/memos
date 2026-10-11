@@ -8,6 +8,16 @@ The repository currently has exact-revision validation and release-versioning me
 
 Production release remains blocked until the applicable GoreeCloud lifecycle, security, privacy, accessibility, Glaze, recovery, platform-integration, artifact-signing/provenance, deployment, and production-acceptance gates are satisfied.
 
+## Development-only update visibility
+
+The Memos web client has an opt-in Development update notice to make a tested Development rollout recognizable on both the sign-in screen and the signed-in app. Default builds do not display it. A Development build may enable it **at frontend compile time only**:
+
+```sh
+VITE_GOREECLOUD_DEVELOPMENT_PREVIEW=true VITE_GOREECLOUD_SOURCE_REVISION=<exact-40-character-commit-sha> pnpm release
+```
+
+The notice shows the abbreviated exact commit and a concise summary of shipped search interactions. It is collapsible, contains no user content, and does not authorize production publication. The flag is never set for general-release/production builds. Verify the served hashed entrypoint asset against the exact compiled distribution, plus the rendered notice and revision on the isolated Development URL. Keep existing private data, backup, rollback, and provider gates intact.
+
 ## State model
 
 Keep these states separate:
