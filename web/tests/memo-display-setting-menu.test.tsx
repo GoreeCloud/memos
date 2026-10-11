@@ -90,6 +90,28 @@ describe("MemoDisplaySettingMenu", () => {
     });
   });
 
+  it("jumps to the first and last layout choices with Home and End", () => {
+    render(
+      <ViewProvider>
+        <MemoDisplaySettingMenu />
+      </ViewProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "View options" }));
+    const choices = screen.getByRole("radiogroup", { name: "Layout" });
+
+    fireEvent.keyDown(choices, { key: "End" });
+    const last = screen.getByRole("radio", { name: "Auto" });
+    expect(last).toBeChecked();
+    expect(last).toHaveFocus();
+    expect(last).toHaveAttribute("tabindex", "0");
+
+    fireEvent.keyDown(choices, { key: "Home" });
+    const first = screen.getByRole("radio", { name: "List" });
+    expect(first).toBeChecked();
+    expect(first).toHaveFocus();
+    expect(last).toHaveAttribute("tabindex", "-1");
+  });
+
   it("moves horizontally in the visual direction for RTL layouts", () => {
     render(
       <DirectionProvider direction="rtl">
