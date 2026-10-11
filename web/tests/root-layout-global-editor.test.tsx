@@ -202,5 +202,4 @@ describe("RootLayout global editor shell", () => {
     expect(status).toHaveTextContent("closed");
     modal.remove();
   });
-
 });
