@@ -1,5 +1,5 @@
-import { CornerDownLeftIcon, SearchIcon } from "lucide-react";
-import { type ChangeEvent, type FormEvent, type KeyboardEvent, useEffect, useId, useState } from "react";
+import { CornerDownLeftIcon, SearchIcon, XIcon } from "lucide-react";
+import { type ChangeEvent, type FormEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -85,6 +85,8 @@ const QuickFindDialog = () => {
   const { quickFindOpen, setQuickFindOpen } = useAppSidebar();
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState<QuickFindMode>("text");
+  const textInputRef = useRef<HTMLInputElement>(null);
+  const expressionInputRef = useRef<HTMLTextAreaElement>(null);
   const hintId = useId();
   const viewApplies = isMemoCollectionRoute(location.pathname);
   const selectedMemoView = viewApplies ? memoViews.find((item) => getMemoViewId(item.name) === memoView) : undefined;
@@ -120,6 +122,14 @@ const QuickFindDialog = () => {
     }
 
     setQuickFindOpen(false);
+  };
+
+  // Clear only the unsaved query. Existing active filters and scope stay intact
+  // until Search is submitted, and focus returns to the query field.
+  const clearDraft = () => {
+    setQuery("");
+    if (mode === "cel") expressionInputRef.current?.focus();
+    else textInputRef.current?.focus();
   };
 
   const handleSubmit = (event: FormEvent) => {
@@ -178,6 +188,7 @@ const QuickFindDialog = () => {
             <div className="space-y-3 p-4">
               <Textarea
                 {...fieldProps}
+                ref={expressionInputRef}
                 rows={3}
                 className="field-sizing-fixed max-h-[40dvh] resize-y font-mono text-sm leading-6"
                 placeholder={'"work" in tags && !content.contains("GitHub")'}
@@ -196,9 +207,16 @@ const QuickFindDialog = () => {
                     {t("search.syntax-help")}
                   </a>
                 </div>
-                <Button type="submit" size="sm" className="shrink-0">
-                  {t("common.search")}
-                </Button>
+                <div className="flex shrink-0 items-center gap-1">
+                  {query && (
+                    <Button type="button" variant="ghost" size="icon-sm" onClick={clearDraft} aria-label={t("common.clear")}>
+                      <XIcon className="size-4" aria-hidden="true" />
+                    </Button>
+                  )}
+                  <Button type="submit" size="sm" className="shrink-0">
+                    {t("common.search")}
+                  </Button>
+                </div>
               </div>
             </div>
           ) : (
@@ -206,10 +224,16 @@ const QuickFindDialog = () => {
               <SearchIcon className="size-[17px] shrink-0 text-muted-foreground" strokeWidth={1.8} />
               <Input
                 {...fieldProps}
+                ref={textInputRef}
                 className="h-10 border-0 bg-transparent px-0 !text-[14px] shadow-none focus-visible:ring-0"
                 placeholder={`${t("common.search")} ${compactScopeLabel}`}
                 aria-label={`${t("common.search")} ${scopeLabel}`}
               />
+              {query && (
+                <Button type="button" variant="ghost" size="icon-sm" onClick={clearDraft} aria-label={t("common.clear")}>
+                  <XIcon className="size-4" aria-hidden="true" />
+                </Button>
+              )}
               <Button
                 type="submit"
                 variant="ghost"
