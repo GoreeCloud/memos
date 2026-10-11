@@ -70,6 +70,8 @@ describe("useMemoSave", () => {
 
     expect(discardDraft).toHaveBeenCalledOnce();
     expect(mocks.markNewMemo).toHaveBeenCalledOnce();
+    // The next distinct save is eligible after the first request settles.
+    mocks.memoSave.mockResolvedValueOnce({ hasChanges: true, memoName: "memos/next" });
     await act(async () => result.current());
     expect(mocks.memoSave).toHaveBeenCalledTimes(2);
   });
