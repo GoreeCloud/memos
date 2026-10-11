@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { createEvent, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import HomeSearchBar, { buildHomeSearchFilters } from "@/components/HomeSearchBar";
 
@@ -73,6 +73,77 @@ describe("HomeSearchBar", () => {
     state.filters = [{ factor: "celSearch", value: "pinned && has_link" }];
     render(<HomeSearchBar />);
     expect(screen.getByRole("searchbox")).toHaveValue("pinned && has_link");
+  });
+
+  it("preserves the active advanced expression when submitting it unchanged", () => {
+    state.filters = [
+      { factor: "celSearch", value: "pinned && has_link" },
+      { factor: "tagSearch", value: "old" },
+    ];
+    render(<HomeSearchBar />);
+
+    expect(screen.getByRole("searchbox")).toHaveValue("pinned && has_link");
+    fireEvent.submit(screen.getByRole("search"));
+    expect(state.setFilters).toHaveBeenCalledWith([{ factor: "celSearch", value: "pinned && has_link" }]);
+    expect(state.setMemoView).toHaveBeenCalledWith(undefined);
+  });
+
+  it("treats an edited advanced expression as an explicit new text search", () => {
+    state.filters = [{ factor: "celSearch", value: "pinned && has_link" }];
+    render(<HomeSearchBar />);
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "meeting agenda" } });
+    fireEvent.submit(screen.getByRole("search"));
+    expect(state.setFilters).toHaveBeenCalledWith([
+      { factor: "contentSearch", value: "meeting" },
+      { factor: "contentSearch", value: "agenda" },
+    ]);
+  });
+
+  it("preserves an unchanged advanced expression when moving from a Space to Home", () => {
+    state.selectedSpaceName = "spaces/design";
+    state.filters = [{ factor: "celSearch", value: "pinned && has_link" }];
+    render(<HomeSearchBar />);
+
+    fireEvent.submit(screen.getByRole("search"));
+    expect(state.navigate).toHaveBeenCalledWith({
+      pathname: "/",
+      search: "?filter=celSearch%3Apinned%20%26%26%20has_link",
+    });
+    expect(state.setFilters).not.toHaveBeenCalled();
+  });
+
+  it("discards an unsubmitted Home draft with Escape without changing active filters", () => {
+    state.filters = [{ factor: "contentSearch", value: "meeting notes" }];
+    render(<HomeSearchBar />);
+
+    const input = screen.getByRole("searchbox");
+    fireEvent.change(input, { target: { value: "unsubmitted" } });
+    input.focus();
+    const escape = createEvent.keyDown(input, { key: "Escape" });
+    fireEvent(input, escape);
+
+    expect(escape.defaultPrevented).toBe(true);
+    expect(input).toHaveValue('"meeting notes"');
+    expect(input).toHaveFocus();
+    expect(state.setFilters).not.toHaveBeenCalled();
+    expect(state.setMemoView).not.toHaveBeenCalled();
+    expect(state.navigate).not.toHaveBeenCalled();
+  });
+
+  it("does not discard Home drafts when Escape belongs to IME composition", () => {
+    state.filters = [{ factor: "contentSearch", value: "published" }];
+    render(<HomeSearchBar />);
+
+    const input = screen.getByRole("searchbox");
+    fireEvent.change(input, { target: { value: "編集中" } });
+    for (const options of [{ key: "Escape", isComposing: true }, { key: "Escape", keyCode: 229 }]) {
+      const event = createEvent.keyDown(input, options);
+      fireEvent(input, event);
+      expect(event.defaultPrevented).toBe(false);
+    }
+    expect(input).toHaveValue("編集中");
+    expect(state.setFilters).not.toHaveBeenCalled();
   });
 
   it("searches all accessible memos rather than retaining a previous label", () => {
