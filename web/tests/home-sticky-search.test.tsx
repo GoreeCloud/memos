@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "@/pages/Home";
 
@@ -33,7 +33,11 @@ vi.mock("@/hooks/useCurrentUser", () => ({
   default: () => ({ name: "users/test" }),
 }));
 vi.mock("@/components/HomeSearchBar", () => ({
-  default: () => <div role="search" data-testid="home-search">Search memos</div>,
+  default: () => (
+    <div role="search" data-testid="home-search">
+      Search memos
+    </div>
+  ),
 }));
 vi.mock("@/components/MemoEditor", () => ({
   default: ({ cacheKey }: { cacheKey: string }) => <textarea data-testid="home-composer" data-cache-key={cacheKey} />,
