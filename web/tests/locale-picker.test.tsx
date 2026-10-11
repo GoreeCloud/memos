@@ -3,15 +3,15 @@ import { describe, expect, it, vi } from "vitest";
 import { LocaleSearchList } from "@/components/LocalePicker";
 
 describe("<LocaleSearchList>", () => {
-  it("moves from search into a filtered native option and allows selection", () => {
+  it("moves from search into a filtered native option and allows selection", async () => {
     const onChange = vi.fn();
     render(<LocaleSearchList value="en" onChange={onChange} />);
 
-    const search = screen.getByRole("textbox", { name: "Language" });
+    const search = await screen.findByRole("textbox", { name: "Language" });
     fireEvent.change(search, { target: { value: "Arabic" } });
     fireEvent.keyDown(search, { key: "ArrowDown" });
 
-    const option = screen.getByRole("option");
+    const option = await screen.findByRole("option");
     expect(option.tagName).toBe("BUTTON");
     expect(option).toHaveFocus();
     expect(option).toHaveAttribute("tabindex", "0");
@@ -22,10 +22,10 @@ describe("<LocaleSearchList>", () => {
     expect(onChange).toHaveBeenCalledWith("ar");
   });
 
-  it("supports roving Arrow, Home and End focus without changing the selected language", () => {
+  it("supports roving Arrow, Home and End focus without changing the selected language", async () => {
     const onChange = vi.fn();
     render(<LocaleSearchList value="en" onChange={onChange} />);
-    const options = screen.getAllByRole("option");
+    const options = await screen.findAllByRole("option");
     const selected = options.find((option) => option.getAttribute("aria-selected") === "true");
     expect(selected).toBeDefined();
 
