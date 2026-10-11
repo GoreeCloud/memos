@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildQuickFindFilters, resolveQuickFindSubmission } from "@/components/AppSidebar/QuickFindDialog";
+import { buildQuickFindFilters, readQuickFindQuery, resolveQuickFindSubmission } from "@/components/AppSidebar/QuickFindDialog";
 import { type MemoFilter, parseFilterQuery, replaceFiltersByFactor } from "@/contexts/MemoFilterContext";
 
 describe("Quick Find", () => {
@@ -36,6 +36,18 @@ describe("Quick Find", () => {
     ]);
     expect(buildQuickFindFilters(" \n ", filters, true, "cel")).toEqual(scopedFilters.slice(0, 2));
     expect(buildQuickFindFilters(" ", filters, true, "text")).toEqual(scopedFilters.slice(0, 2));
+  });
+
+  it("keeps quoted phrases through the search URL and query edit flow", () => {
+    const filters = buildQuickFindFilters('"meeting notes" follow-up', scopedFilters, true, "text");
+    expect(filters.slice(2)).toEqual([
+      { factor: "contentSearch", value: "meeting notes" },
+      { factor: "contentSearch", value: "follow-up" },
+    ]);
+    expect(readQuickFindQuery(filters)).toEqual({ query: '"meeting notes" follow-up', mode: "text" });
+    const submission = resolveQuickFindSubmission("/attachments", '"meeting notes" follow-up', scopedFilters, "text");
+    const decoded = parseFilterQuery(new URL(submission.destination!, "https://memos.test").searchParams.get("filter"));
+    expect(decoded).toEqual(filters);
   });
 
   it("does not recognize expressions in Text mode", () => {
