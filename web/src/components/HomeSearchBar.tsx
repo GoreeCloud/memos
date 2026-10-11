@@ -1,5 +1,5 @@
 import { ArrowRightIcon, SearchIcon, XIcon } from "lucide-react";
-import { type FormEvent, type KeyboardEvent, useEffect, useState } from "react";
+import { type FormEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MemoDisplaySettingMenu from "@/components/MemoDisplaySettingMenu";
 import { getFilterSearch, isSearchFilter, type MemoFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
@@ -21,6 +21,7 @@ const HomeSearchBar = () => {
     .map((filter) => (filter.factor === "contentSearch" ? formatTextSearchTerms([filter.value]) : filter.value))
     .join(" ");
   const [query, setQuery] = useState(activeQuery);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => setQuery(activeQuery), [activeQuery]);
 
@@ -66,6 +67,7 @@ const HomeSearchBar = () => {
           {t("home.search-all")}
         </label>
         <input
+          ref={searchInputRef}
           id="goreecloud-home-search"
           type="search"
           enterKeyHint="search"
@@ -81,6 +83,8 @@ const HomeSearchBar = () => {
             onClick={() => {
               setQuery("");
               applySearch("");
+              // Keep the search ready for another query after clearing.
+              if (!selectedSpaceName) searchInputRef.current?.focus();
             }}
             aria-label={t("common.clear")}
             className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
