@@ -9,7 +9,7 @@ import AppSidebar, {
   SidebarResizeHandle,
   useSidebarWidth,
 } from "@/components/AppSidebar";
-import { AppSidebarProvider } from "@/contexts/AppSidebarContext";
+import { AppSidebarProvider, useAppSidebar } from "@/contexts/AppSidebarContext";
 import { GlobalMemoEditorProvider } from "@/contexts/GlobalMemoEditorContext";
 import { useInstance } from "@/contexts/InstanceContext";
 import { MemoFilterProvider, useMemoFilterContext } from "@/contexts/MemoFilterContext";
@@ -48,6 +48,7 @@ const RootLayoutContent = () => {
   const md = useMediaQuery("md");
   const { profile } = useInstance();
   const { removeFilter } = useMemoFilterContext();
+  const { quickFindOpen, setQuickFindOpen } = useAppSidebar();
   const { pathname } = location;
   // The map fills the viewport and scrolls inside itself, so the document must not.
   const fullBleed = resolveCollectionRoute(pathname).pathname.toLowerCase() === ROUTES.MAP;
@@ -65,6 +66,40 @@ const RootLayoutContent = () => {
 
     prevPathnameRef.current = pathname;
   }, [pathname, searchParams, removeFilter]);
+
+  // The global Quick Find shortcut must not replace native editing shortcuts or
+  // type into a memo. Dialogs retain their own keyboard interactions.
+  useEffect(() => {
+    const onQuickFindShortcut = (event: KeyboardEvent) => {
+      if (
+        quickFindOpen ||
+        event.defaultPrevented ||
+        event.repeat ||
+        event.isComposing ||
+        event.keyCode === 229 ||
+        event.key.toLowerCase() !== "k" ||
+        !(event.ctrlKey || event.metaKey) ||
+        event.altKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
+
+      if (
+        (event.target instanceof Element &&
+          event.target.closest('input, textarea, select, [contenteditable], [role="textbox"], .cm-editor')) ||
+        document.querySelector('[role="dialog"]')
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      setQuickFindOpen(true);
+    };
+
+    window.addEventListener("keydown", onQuickFindShortcut);
+    return () => window.removeEventListener("keydown", onQuickFindShortcut);
+  }, [quickFindOpen, setQuickFindOpen]);
 
   // Anonymous visitors to private instances may only reach share links. Treat an
   // unspecified mode as private so a partial or older response cannot expose content.

@@ -517,6 +517,7 @@ const GlobalNavigation = () => {
               <button
                 type="button"
                 aria-label={t("common.search")}
+                aria-keyshortcuts="Control+K Meta+K"
                 className={cn("ms-auto", navPillClasses(false))}
                 onClick={() => {
                   setMobileOpen(false);
@@ -529,7 +530,9 @@ const GlobalNavigation = () => {
               <SearchIcon className="size-4 opacity-75" strokeWidth={1.8} />
             </span>
           </TooltipTrigger>
-          <TooltipContent side="bottom">{t("common.search")}</TooltipContent>
+          <TooltipContent side="bottom">
+            {t("common.search")} <kbd className="ms-1 text-[11px] opacity-70">Ctrl/⌘ K</kbd>
+          </TooltipContent>
         </Tooltip>
       </nav>
     </TooltipProvider>

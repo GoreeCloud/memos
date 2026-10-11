@@ -1,6 +1,7 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { createEvent, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useAppSidebar } from "@/contexts/AppSidebarContext";
 import RootLayout from "@/layouts/RootLayout";
 
 const authState = vi.hoisted(() => ({ currentUser: { name: "users/test" } as { name: string } | undefined }));
@@ -59,6 +60,21 @@ const RouteState = () => {
   );
 };
 
+const ShortcutState = () => {
+  const { quickFindOpen, setQuickFindOpen } = useAppSidebar();
+
+  return (
+    <section>
+      <output data-testid="shortcut-open">{quickFindOpen ? "open" : "closed"}</output>
+      <button type="button" onClick={() => setQuickFindOpen(false)}>
+        Close Quick Find
+      </button>
+      <input aria-label="Draft title" />
+      <div data-testid="rich-editor" contentEditable suppressContentEditableWarning />
+    </section>
+  );
+};
+
 describe("RootLayout global editor shell", () => {
   beforeEach(() => {
     authState.currentUser = { name: "users/test" };
@@ -114,5 +130,76 @@ describe("RootLayout global editor shell", () => {
 
     expect(screen.getByTestId("route")).toHaveTextContent("/auth");
     expect(screen.queryByRole("link", { name: "common.skip-to-content" })).not.toBeInTheDocument();
+  });
+  it("opens Quick Find with Ctrl+K or Cmd+K without stealing editor shortcuts", () => {
+    render(
+      <MemoryRouter initialEntries={["/attachments"]}>
+        <Routes>
+          <Route element={<RootLayout />}>
+            <Route path="attachments" element={<ShortcutState />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const status = screen.getByTestId("shortcut-open");
+    expect(status).toHaveTextContent("closed");
+
+    const ctrlShortcut = createEvent.keyDown(window, { key: "k", ctrlKey: true });
+    fireEvent(window, ctrlShortcut);
+    expect(ctrlShortcut.defaultPrevented).toBe(true);
+    expect(status).toHaveTextContent("open");
+
+    fireEvent.click(screen.getByRole("button", { name: "Close Quick Find" }));
+    const macShortcut = createEvent.keyDown(window, { key: "K", metaKey: true });
+    fireEvent(window, macShortcut);
+    expect(macShortcut.defaultPrevented).toBe(true);
+    expect(status).toHaveTextContent("open");
+
+    fireEvent.click(screen.getByRole("button", { name: "Close Quick Find" }));
+    fireEvent.keyDown(screen.getByRole("textbox", { name: "Draft title" }), { key: "k", ctrlKey: true });
+    fireEvent.keyDown(screen.getByTestId("rich-editor"), { key: "k", metaKey: true });
+    expect(status).toHaveTextContent("closed");
+  });
+
+  it("does not override IME, repeated, modified, handled, or dialog key events", () => {
+    render(
+      <MemoryRouter initialEntries={["/attachments"]}>
+        <Routes>
+          <Route element={<RootLayout />}>
+            <Route path="attachments" element={<ShortcutState />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const status = screen.getByTestId("shortcut-open");
+    for (const options of [
+      { key: "k", ctrlKey: true, isComposing: true },
+      { key: "k", ctrlKey: true, keyCode: 229 },
+      { key: "k", ctrlKey: true, repeat: true },
+      { key: "k", ctrlKey: true, shiftKey: true },
+      { key: "k", ctrlKey: true, altKey: true },
+      { key: "k" },
+    ]) {
+      const event = createEvent.keyDown(window, options);
+      fireEvent(window, event);
+      expect(event.defaultPrevented).toBe(false);
+      expect(status).toHaveTextContent("closed");
+    }
+
+    const handled = createEvent.keyDown(window, { key: "k", ctrlKey: true });
+    handled.preventDefault();
+    fireEvent(window, handled);
+    expect(status).toHaveTextContent("closed");
+
+    const modal = document.createElement("div");
+    modal.setAttribute("role", "dialog");
+    document.body.appendChild(modal);
+    const whileModal = createEvent.keyDown(window, { key: "k", ctrlKey: true });
+    fireEvent(window, whileModal);
+    expect(whileModal.defaultPrevented).toBe(false);
+    expect(status).toHaveTextContent("closed");
+    modal.remove();
   });
 });
