@@ -98,7 +98,9 @@ const FilterChip = ({ icon: Icon, customIcon, label, onRemove, onEdit }: FilterC
   const body = (
     <>
       {customIcon ?? (Icon && <Icon className="w-3.5 h-3.5 text-muted-foreground shrink-0" />)}
-      <span className={cn("text-foreground/80 truncate", onEdit?.monospace ? "font-mono text-xs max-w-64" : "font-medium max-w-32")}>{label}</span>
+      <span className={cn("text-foreground/80 truncate", onEdit?.monospace ? "font-mono text-xs max-w-64" : "font-medium max-w-32")}>
+        {label}
+      </span>
     </>
   );
   return (
