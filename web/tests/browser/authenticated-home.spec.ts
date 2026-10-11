@@ -80,9 +80,7 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
     // Observe the actual server response before navigating away so this check
     // cannot cancel its own pending UpdateUserSetting request.
     const savedLocale = page.waitForResponse(
-      (response) =>
-        response.url().includes("/memos.api.v1.UserService/UpdateUserSetting") &&
-        response.request().method() === "POST",
+      (response) => response.url().includes("/memos.api.v1.UserService/UpdateUserSetting") && response.request().method() === "POST",
     );
     await arabicOption.click();
     const localeResponse = await savedLocale;
