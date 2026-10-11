@@ -186,33 +186,42 @@ func TestClientInfoExamples(t *testing.T) {
 func TestBuildRefreshTokenCookieSecureFlag(t *testing.T) {
 	service := &APIV1Service{}
 
-	t.Run("sets Secure for https origin", func(t *testing.T) {
+	t.Run("sets Secure for trusted HTTPS transport", func(t *testing.T) {
+		ctx := clientip.WithSecureTransport(context.Background(), true)
+		cookie := service.buildRefreshTokenCookie(ctx, "token", testCookieExpiry())
+		if !containsCookieAttribute(cookie, "Secure") {
+			t.Fatalf("expected Secure attribute in cookie: %s", cookie)
+		}
+	})
+
+	t.Run("forwarded metadata cannot bypass transport trust", func(t *testing.T) {
 		ctx := metadata.NewIncomingContext(context.Background(), metadata.Pairs(
 			"origin", "https://memos.example",
-		))
-		cookie := service.buildRefreshTokenCookie(ctx, "token", testCookieExpiry())
-		if !containsCookieAttribute(cookie, "Secure") {
-			t.Fatalf("expected Secure attribute in cookie: %s", cookie)
-		}
-	})
-
-	t.Run("sets Secure for forwarded proto", func(t *testing.T) {
-		ctx := metadata.NewIncomingContext(context.Background(), metadata.Pairs(
 			"x-forwarded-proto", "https",
-		))
-		cookie := service.buildRefreshTokenCookie(ctx, "token", testCookieExpiry())
-		if !containsCookieAttribute(cookie, "Secure") {
-			t.Fatalf("expected Secure attribute in cookie: %s", cookie)
-		}
-	})
-
-	t.Run("omits Secure for plain http", func(t *testing.T) {
-		ctx := metadata.NewIncomingContext(context.Background(), metadata.Pairs(
-			"origin", "http://memos.example",
+			"forwarded", "for=203.0.113.1;proto=https",
 		))
 		cookie := service.buildRefreshTokenCookie(ctx, "token", testCookieExpiry())
 		if containsCookieAttribute(cookie, "Secure") {
+			t.Fatalf("did not expect metadata alone to add Secure: %s", cookie)
+		}
+	})
+
+	t.Run("omits Secure for plain HTTP transport", func(t *testing.T) {
+		ctx := clientip.WithSecureTransport(context.Background(), false)
+		cookie := service.buildRefreshTokenCookie(ctx, "token", testCookieExpiry())
+		if containsCookieAttribute(cookie, "Secure") {
 			t.Fatalf("did not expect Secure attribute in cookie: %s", cookie)
+		}
+	})
+
+	t.Run("cookie clearing preserves Secure on HTTPS", func(t *testing.T) {
+		ctx := clientip.WithSecureTransport(context.Background(), true)
+		cookie := service.buildRefreshTokenCookie(ctx, "", time.Time{})
+		if !containsCookieAttribute(cookie, "Secure") {
+			t.Fatalf("expected Secure attribute while clearing cookie: %s", cookie)
+		}
+		if !strings.Contains(cookie, "Expires=Thu, 01 Jan 1970 00:00:00 GMT") {
+			t.Fatalf("expected expiry while clearing cookie: %s", cookie)
 		}
 	})
 }
