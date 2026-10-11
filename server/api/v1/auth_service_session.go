@@ -224,7 +224,7 @@ func isSecureRequest(ctx context.Context) bool {
 		return true
 	}
 	transportPeer, ok := peer.FromContext(ctx)
-	if !ok || transportPeer.AuthInfo == nil {
+	if !ok || transportPeer == nil || transportPeer.AuthInfo == nil {
 		return false
 	}
 	_, tlsAuthenticated := transportPeer.AuthInfo.(credentials.TLSInfo)
