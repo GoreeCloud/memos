@@ -1,6 +1,7 @@
 import { DirectionProvider } from "@base-ui/react/direction-provider";
 import { useEffect } from "react";
 import { Outlet, ScrollRestoration } from "react-router-dom";
+import DevelopmentUpdateNotice from "./components/DevelopmentUpdateNotice";
 import { useInstance } from "./contexts/InstanceContext";
 import useButtonStyle from "./hooks/useButtonStyle";
 import useNavigateTo from "./hooks/useNavigateTo";
@@ -55,6 +56,10 @@ const App = () => {
     <DirectionProvider direction={direction}>
       <Outlet />
       <ScrollRestoration />
+      <DevelopmentUpdateNotice
+        enabled={import.meta.env.VITE_GOREECLOUD_DEVELOPMENT_PREVIEW === "true"}
+        revision={import.meta.env.VITE_GOREECLOUD_SOURCE_REVISION}
+      />
     </DirectionProvider>
   );
 };
