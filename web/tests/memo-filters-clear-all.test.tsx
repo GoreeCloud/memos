@@ -41,7 +41,7 @@ describe("memo filter bulk clear", () => {
   it("clears combined search and label filters while retaining unrelated URL parameters", async () => {
     renderFilters("/?sort=displayTime&filter=tagSearch%3Awork%2CcontentSearch%3Aurgent");
 
-    fireEvent.click(screen.getByRole("button", { name: "memo.filters.clear-all" }));
+    fireEvent.click(screen.getByRole("button", { name: "map.clear-filters" }));
 
     await waitFor(() => {
       const query = new URLSearchParams(screen.getByTestId("query").textContent ?? "");
@@ -49,14 +49,14 @@ describe("memo filter bulk clear", () => {
       expect(query.has("filter")).toBe(false);
       expect(screen.getByTestId("filter-count")).toHaveTextContent("0");
     });
-    expect(screen.queryByRole("button", { name: "memo.filters.clear-all" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "map.clear-filters" })).not.toBeInTheDocument();
   });
 
   it("keeps the dedicated Clear query action instead of duplicating it for a search-only query", () => {
     renderFilters("/?filter=contentSearch%3Aalpha%2CcontentSearch%3Abeta");
 
     expect(screen.getByRole("button", { name: "search.clear-query" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "memo.filters.clear-all" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "map.clear-filters" })).not.toBeInTheDocument();
   });
 
   it("clears both a visible saved view and a label filter", async () => {
@@ -64,7 +64,7 @@ describe("memo filter bulk clear", () => {
     fireEvent.click(screen.getByRole("button", { name: "Activate tasks view" }));
     expect(screen.getByTestId("active-view")).toHaveTextContent(BUILTIN_TASKS_VIEW_ID);
 
-    fireEvent.click(screen.getByRole("button", { name: "memo.filters.clear-all" }));
+    fireEvent.click(screen.getByRole("button", { name: "map.clear-filters" }));
 
     await waitFor(() => {
       expect(screen.getByTestId("filter-count")).toHaveTextContent("0");
@@ -76,7 +76,7 @@ describe("memo filter bulk clear", () => {
     renderFilters("/settings?filter=tagSearch%3Awork%2Cpinned%3Atrue");
     fireEvent.click(screen.getByRole("button", { name: "Activate tasks view" }));
 
-    fireEvent.click(screen.getByRole("button", { name: "memo.filters.clear-all" }));
+    fireEvent.click(screen.getByRole("button", { name: "map.clear-filters" }));
 
     await waitFor(() => expect(screen.getByTestId("filter-count")).toHaveTextContent("0"));
     expect(screen.getByTestId("active-view")).toHaveTextContent(BUILTIN_TASKS_VIEW_ID);
