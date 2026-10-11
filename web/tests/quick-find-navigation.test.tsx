@@ -275,6 +275,38 @@ describe("Quick Find navigation", () => {
     ]);
   });
 
+  it("bulk-clears multiple search terms without removing labels or changing Space scope", () => {
+    state.filters = [
+      { factor: "contentSearch", value: "meeting notes" },
+      { factor: "contentSearch", value: "urgent" },
+      { factor: "tagSearch", value: "work" },
+    ];
+    renderSearch("/spaces/product");
+
+    const bulkClear = screen.getByRole("button", { name: "search.clear-query" });
+    expect(bulkClear).toHaveAttribute("type", "button");
+    expect(screen.getByRole("button", { name: "Remove urgent filter" })).toBeInTheDocument();
+    expect(state.setFilters).not.toHaveBeenCalled();
+
+    fireEvent.click(bulkClear);
+    expect(state.removeFilter).toHaveBeenCalledTimes(1);
+    const removeSearch = state.removeFilter.mock.calls[0][0];
+    expect(state.filters.filter((filter) => !removeSearch(filter))).toEqual([{ factor: "tagSearch", value: "work" }]);
+    expect(state.setFilters).not.toHaveBeenCalled();
+    expect(state.setMemoView).not.toHaveBeenCalled();
+    expect(screen.getByTestId("path")).toHaveTextContent("/spaces/product");
+  });
+
+  it.each(["contentSearch", "celSearch"] as const)("does not add redundant bulk-clear UI for a single %s filter", (factor) => {
+    state.filters = [
+      { factor, value: factor === "celSearch" ? "pinned" : "urgent" },
+      { factor: "tagSearch", value: "work" },
+    ];
+    renderSearch();
+    expect(screen.queryByRole("button", { name: "search.clear-query" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove work filter" })).toBeInTheDocument();
+  });
+
   it("removes only CEL using the chip remove button", async () => {
     state.filters = [
       { factor: "celSearch", value: "pinned" },
