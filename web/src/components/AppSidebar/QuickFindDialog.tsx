@@ -249,12 +249,7 @@ const QuickFindDialog = () => {
               </div>
             </div>
           ) : (
-            <div
-              role="tabpanel"
-              id={modePanelId}
-              aria-labelledby={textTabId}
-              className="flex h-[52px] shrink-0 items-center gap-2.5 px-4"
-            >
+            <div role="tabpanel" id={modePanelId} aria-labelledby={textTabId} className="flex h-[52px] shrink-0 items-center gap-2.5 px-4">
               <SearchIcon className="size-[17px] shrink-0 text-muted-foreground" strokeWidth={1.8} />
               <Input
                 {...fieldProps}
