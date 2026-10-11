@@ -69,6 +69,12 @@ describe("HomeSearchBar", () => {
     expect(screen.getByRole("searchbox")).toHaveValue('"meeting notes"');
   });
 
+  it("keeps an existing advanced expression visible on Home without rewriting it as quoted text", () => {
+    state.filters = [{ factor: "celSearch", value: "pinned && has_link" }];
+    render(<HomeSearchBar />);
+    expect(screen.getByRole("searchbox")).toHaveValue("pinned && has_link");
+  });
+
   it("searches all accessible memos rather than retaining a previous label", () => {
     state.filters = [{ factor: "tagSearch", value: "old" }];
     render(<HomeSearchBar />);
