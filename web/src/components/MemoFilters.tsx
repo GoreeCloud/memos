@@ -221,13 +221,7 @@ const MemoFilters = ({ className }: { className?: string }) => {
         </Button>
       )}
       {hasMultipleVisibleFilters && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-7 gap-1 rounded-full px-2.5 text-xs"
-          onClick={clearVisibleFilters}
-        >
+        <Button type="button" variant="ghost" size="sm" className="h-7 gap-1 rounded-full px-2.5 text-xs" onClick={clearVisibleFilters}>
           <XIcon className="size-3.5" aria-hidden="true" />
           {t("memo.filters.clear-all")}
         </Button>
