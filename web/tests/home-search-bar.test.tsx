@@ -120,10 +120,10 @@ describe("HomeSearchBar", () => {
     const input = screen.getByRole("searchbox");
     fireEvent.change(input, { target: { value: "unsubmitted" } });
     input.focus();
-    const escape = createEvent.keyDown(input, { key: "Escape" });
-    fireEvent(input, escape);
+    const escapeEvent = createEvent.keyDown(input, { key: "Escape" });
+    fireEvent(input, escapeEvent);
 
-    expect(escape.defaultPrevented).toBe(true);
+    expect(escapeEvent.defaultPrevented).toBe(true);
     expect(input).toHaveValue('"meeting notes"');
     expect(input).toHaveFocus();
     expect(state.setFilters).not.toHaveBeenCalled();
@@ -137,7 +137,10 @@ describe("HomeSearchBar", () => {
 
     const input = screen.getByRole("searchbox");
     fireEvent.change(input, { target: { value: "編集中" } });
-    for (const options of [{ key: "Escape", isComposing: true }, { key: "Escape", keyCode: 229 }]) {
+    for (const options of [
+      { key: "Escape", isComposing: true },
+      { key: "Escape", keyCode: 229 },
+    ]) {
       const event = createEvent.keyDown(input, options);
       fireEvent(input, event);
       expect(event.defaultPrevented).toBe(false);
