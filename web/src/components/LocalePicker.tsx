@@ -1,5 +1,5 @@
 import { CheckIcon, ChevronDownIcon, GlobeIcon, SearchIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,10 +20,23 @@ export const LocaleSearchList = (props: LocaleSearchListProps) => {
   const t = useTranslate();
   const { i18n } = useTranslation();
   const [query, setQuery] = useState("");
+  const [focusedLocale, setFocusedLocale] = useState<Locale>(value);
+  const optionsRef = useRef<HTMLDivElement>(null);
   const filteredLocales = useMemo(
     () => locales.filter((locale) => localeMatchesSearch(locale, query, i18n.language)),
     [i18n.language, query],
   );
+  const navigableLocale = filteredLocales.includes(focusedLocale)
+    ? focusedLocale
+    : filteredLocales.includes(value)
+      ? value
+      : filteredLocales[0];
+
+  const focusLocale = (locale: Locale) => {
+    setFocusedLocale(locale);
+    const index = filteredLocales.indexOf(locale);
+    optionsRef.current?.querySelectorAll<HTMLButtonElement>('[role="option"]')[index]?.focus();
+  };
 
   return (
     <div
@@ -37,22 +50,60 @@ export const LocaleSearchList = (props: LocaleSearchListProps) => {
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={(event) => event.stopPropagation()}
+          onKeyDown={(event) => {
+            // Keep typing local to the search box, but let keyboard users
+            // move directly into the filtered option list.
+            event.stopPropagation();
+            if (event.key === "ArrowDown" && navigableLocale) {
+              event.preventDefault();
+              focusLocale(navigableLocale);
+            }
+          }}
           className="pl-8"
           placeholder={`${t("common.search")} ${t("common.language").toLowerCase()}`}
           aria-label={t("common.language")}
         />
       </div>
-      <div className="mt-1 min-h-0 flex-1 touch-pan-y overflow-y-auto p-1" role="listbox" aria-label={t("common.language")}>
-        {filteredLocales.map((locale) => (
-          <div
+      <div
+        ref={optionsRef}
+        className="mt-1 min-h-0 flex-1 touch-pan-y overflow-y-auto p-1"
+        role="listbox"
+        aria-label={t("common.language")}
+      >
+        {filteredLocales.map((locale, index) => (
+          <button
             key={locale}
+            type="button"
             role="option"
             aria-selected={value === locale}
+            tabIndex={locale === navigableLocale ? 0 : -1}
             className={cn(
-              "flex h-8 w-full cursor-pointer items-center gap-2 rounded-sm px-2 text-left text-sm outline-hidden transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+              "flex h-8 w-full cursor-pointer items-center gap-2 rounded-sm px-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:outline-2 focus-visible:outline-offset-[-2px]",
               value === locale && "bg-accent/60",
             )}
+            onFocus={() => setFocusedLocale(locale)}
+            onKeyDown={(event) => {
+              let nextIndex: number;
+              switch (event.key) {
+                case "ArrowDown":
+                  nextIndex = (index + 1) % filteredLocales.length;
+                  break;
+                case "ArrowUp":
+                  nextIndex = (index - 1 + filteredLocales.length) % filteredLocales.length;
+                  break;
+                case "Home":
+                  nextIndex = 0;
+                  break;
+                case "End":
+                  nextIndex = filteredLocales.length - 1;
+                  break;
+                default:
+                  return;
+              }
+              event.preventDefault();
+              event.stopPropagation();
+              focusLocale(filteredLocales[nextIndex]);
+            }}
             onClick={() => onChange(locale)}
           >
             <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
@@ -60,7 +111,7 @@ export const LocaleSearchList = (props: LocaleSearchListProps) => {
               <span className="shrink-0 text-xs text-muted-foreground">{locale}</span>
             </span>
             {value === locale ? <CheckIcon className="size-4 shrink-0 text-primary" /> : <span className="size-4 shrink-0" />}
-          </div>
+          </button>
         ))}
         {filteredLocales.length === 0 && (
           <div className="px-2 py-6 text-center text-sm">
