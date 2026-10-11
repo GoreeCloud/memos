@@ -73,6 +73,7 @@ function useAutoFetchWhenNotScrollable({
   onFetchNext: () => Promise<unknown>;
 }) {
   const autoFetchTimeoutRef = useRef<number | null>(null);
+  const mountedRef = useRef(false);
   const enabledRef = useRef(enabled);
   enabledRef.current = enabled;
 
@@ -88,7 +89,11 @@ function useAutoFetchWhenNotScrollable({
 
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    const shouldFetch = enabledRef.current && !isPageScrollable() && hasNextPage && !isFetchingNextPage && memoCount > 0;
+    // A pending async check may resume after the list unmounts (including
+    // during route changes). Never read the DOM or fetch after cleanup.
+    if (!mountedRef.current || !enabledRef.current) return;
+
+    const shouldFetch = !isPageScrollable() && hasNextPage && !isFetchingNextPage && memoCount > 0;
 
     if (shouldFetch) {
       await onFetchNext();
@@ -115,7 +120,9 @@ function useAutoFetchWhenNotScrollable({
   }, [enabled]);
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
       if (autoFetchTimeoutRef.current) {
         clearTimeout(autoFetchTimeoutRef.current);
       }
