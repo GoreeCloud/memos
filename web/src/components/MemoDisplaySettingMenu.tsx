@@ -93,10 +93,16 @@ function MemoDisplaySettingsContent() {
                     : event.key === "ArrowUp"
                       ? -1
                       : 0;
-            if (delta === 0) return;
+            const edgeChoice =
+              event.key === "Home"
+                ? MAX_COLUMNS_VALUES[0]
+                : event.key === "End"
+                  ? MAX_COLUMNS_VALUES[MAX_COLUMNS_VALUES.length - 1]
+                  : undefined;
+            if (delta === 0 && edgeChoice === undefined) return;
             event.preventDefault();
             const index = MAX_COLUMNS_VALUES.indexOf(maxColumns);
-            const next = MAX_COLUMNS_VALUES[(index + delta + MAX_COLUMNS_VALUES.length) % MAX_COLUMNS_VALUES.length];
+            const next = edgeChoice ?? MAX_COLUMNS_VALUES[(index + delta + MAX_COLUMNS_VALUES.length) % MAX_COLUMNS_VALUES.length];
             setMaxColumns(next);
             event.currentTarget.querySelector<HTMLButtonElement>(`[data-value="${next}"]`)?.focus();
           }}
