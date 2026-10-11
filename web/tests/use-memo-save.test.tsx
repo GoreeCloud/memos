@@ -26,7 +26,7 @@ vi.mock("@/components/MemoEditor/state", () => ({
       setTimestamps: () => ({ type: "set-timestamps" }),
     },
     dispatch: mocks.dispatch,
-    getState: () => ({ ui: { justSaved: false } }),
+    getState: () => ({ ui: { justSaved: false, isLoading: { saving: false } } }),
   }),
 }));
 
@@ -43,6 +43,51 @@ describe("useMemoSave", () => {
     mocks.dispatch.mockReset();
     mocks.markNewMemo.mockReset();
     mocks.memoSave.mockReset();
+  });
+
+  it("allows only one save request while repeated shortcuts arrive before state updates", async () => {
+    let finishSave: ((value: { hasChanges: boolean; memoName: string }) => void) | undefined;
+    mocks.memoSave.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          finishSave = resolve;
+        }),
+    );
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const wrapper = ({ children }: PropsWithChildren) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+    const discardDraft = vi.fn();
+    const { result } = renderHook(() => useMemoSave({ discardDraft }), { wrapper });
+
+    await act(async () => {
+      const first = result.current();
+      const second = result.current();
+      const third = result.current();
+      expect(mocks.memoSave).toHaveBeenCalledOnce();
+      expect(mocks.dispatch.mock.calls.filter(([action]) => action.type === "set-loading" && action.value === true)).toHaveLength(1);
+      finishSave?.({ hasChanges: true, memoName: "memos/new" });
+      await Promise.all([first, second, third]);
+    });
+
+    expect(discardDraft).toHaveBeenCalledOnce();
+    expect(mocks.markNewMemo).toHaveBeenCalledOnce();
+    // The next distinct save is eligible after the first request settles.
+    mocks.memoSave.mockResolvedValueOnce({ hasChanges: true, memoName: "memos/next" });
+    await act(async () => result.current());
+    expect(mocks.memoSave).toHaveBeenCalledTimes(2);
+  });
+
+  it("releases the save lock when the mutation fails so the next attempt can succeed", async () => {
+    mocks.memoSave.mockRejectedValueOnce(new Error("temporary outage"));
+    mocks.memoSave.mockResolvedValueOnce({ hasChanges: true, memoName: "memos/retry" });
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const wrapper = ({ children }: PropsWithChildren) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+    const { result } = renderHook(() => useMemoSave({ discardDraft: vi.fn() }), { wrapper });
+
+    await act(async () => result.current());
+    await act(async () => result.current());
+
+    expect(mocks.memoSave).toHaveBeenCalledTimes(2);
+    expect(mocks.markNewMemo).toHaveBeenCalledWith("memos/retry");
   });
 
   it("invalidates scoped attachment libraries after a memo save", async () => {

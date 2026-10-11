@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { toast } from "react-hot-toast";
 import { useNewMemo } from "@/contexts/NewMemoContext";
 import { attachmentKeys } from "@/hooks/useAttachmentQueries";
@@ -44,21 +44,26 @@ export function useMemoSave({
   const queryClient = useQueryClient();
   const { markNewMemo } = useNewMemo();
   const { actions, dispatch, getState } = useEditorContext();
+  const saveInFlightRef = useRef(false);
 
   return useCallback(async () => {
+    // Multiple shortcut/toolbar events can arrive before the saving state
+    // propagates through React. Lock synchronously for this editor instance.
+    if (saveInFlightRef.current) return;
     const state = getState();
     // A repeated shortcut during the saved confirmation is not an error worth
     // a toast; the save already landed and the host is closing.
-    if (state.ui.justSaved) return;
+    if (state.ui.justSaved || state.ui.isLoading.saving) return;
     const { valid, reason, detail } = validationService.canSave(state);
     if (!valid) {
       toast.error(reason ? t(reason, detail ? { url: detail } : undefined) : t("editor.validation.cannot-save"));
       return;
     }
 
-    dispatch(actions.setLoading("saving", true));
+    saveInFlightRef.current = true;
 
     try {
+      dispatch(actions.setLoading("saving", true));
       const result = await memoService.save(state, { memoName, parentMemoName, space: defaultSpace });
 
       if (!result.hasChanges) {
@@ -114,6 +119,7 @@ export function useMemoSave({
     } finally {
       dispatch(actions.setLoading("saving", false));
       dispatch(actions.setJustSaved(false));
+      saveInFlightRef.current = false;
     }
   }, [
     actions,
