@@ -17,7 +17,7 @@ The trusted-proxy policy still defaults to `private`. Operators must configure t
 ## Acceptance and open questions
 - Run the exact-head Go suite, frontend suite, rendered Chromium acceptance and all three database upgrade checks.
 - Exercise direct TLS, trusted proxy HTTPS, untrusted spoofing, malformed/multiple forwarding values and session rotation/clearance under the existing unit/integration tests.
-- Native gRPC paths that bypass Echo now recognize authenticated gRPC TLS peer credentials rather than untrusted metadata. Source-level fallback exists, but direct native-gRPC end-to-end acceptance remains pending; an attempted dedicated regression-test update was blocked by the connected tool's safety checks.
+- Native gRPC paths that bypass Echo now recognize authenticated gRPC TLS peer credentials rather than untrusted metadata. Source-level fallback and a focused native gRPC cookie regression test now exist, but direct native-gRPC end-to-end acceptance remains pending.
 - Verify authenticated production-edge/ingress configuration and representative browser cookie behavior before any existing-volume deployment or security release claim.
 - Keep [issue #22](https://github.com/GoreeCloud/memos/issues/22) open until transport-specific and production-boundary acceptance is complete.
 
