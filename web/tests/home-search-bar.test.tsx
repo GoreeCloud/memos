@@ -53,6 +53,22 @@ describe("HomeSearchBar", () => {
     expect(buildHomeSearchFilters("  ")).toEqual([]);
   });
 
+  it("keeps quoted Home search phrases together when submitting", () => {
+    render(<HomeSearchBar />);
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: '"meeting notes" follow-up' } });
+    fireEvent.submit(screen.getByRole("search"));
+    expect(state.setFilters).toHaveBeenCalledWith([
+      { factor: "contentSearch", value: "meeting notes" },
+      { factor: "contentSearch", value: "follow-up" },
+    ]);
+  });
+
+  it("restores phrase boundaries in an existing Home search", () => {
+    state.filters = [{ factor: "contentSearch", value: "meeting notes" }];
+    render(<HomeSearchBar />);
+    expect(screen.getByRole("searchbox")).toHaveValue('"meeting notes"');
+  });
+
   it("searches all accessible memos rather than retaining a previous label", () => {
     state.filters = [{ factor: "tagSearch", value: "old" }];
     render(<HomeSearchBar />);
