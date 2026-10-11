@@ -25,6 +25,7 @@
 - Browser-client hardening that does not execute administrator-provided arbitrary JavaScript.
 - Shared quoted-phrase text search for Home and Quick Find, including literal embedded quotes, escaped characters within phrases, URL round-tripping, and query restoration. Server search authorization remains authoritative.
 - Home-only "/" keyboard focus shortcut with input/IME/dialog safety guards, an accessible advertised shortcut, a responsive visual hint, and regression coverage; Ctrl+K / ⌘K continues to open Quick Find.
+- Development implementation of an authenticated-browser-tested sticky Home search header above the paginated memo feed; the composer remains in the feed, and physical-device and screen-reader review is not yet accepted.
 
 - Separate HTTP liveness (/healthz) and database-backed readiness (/readyz) probes for operations and future Manager integration.
 
