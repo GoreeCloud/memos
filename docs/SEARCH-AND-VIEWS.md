@@ -15,6 +15,8 @@ Both Quick Find modes offer a **Clear** action when the draft contains text. Cle
 
 On Home, pressing **Escape** in the search field discards unsubmitted edits and restores the active query without changing filters. Submitting an unchanged advanced Expression query preserves its Expression semantics; editing that field and submitting creates a fresh Text search. Home searches remain global rather than retaining a previous label or Space filter.
 
+The active Text and Expression search chips can be selected to reopen Quick Find with the full current query, including all terms and quoted phrases. Selecting a chip's text does not change the search; its separate remove (X) action removes only that filter. Edit the query and submit to apply changes, or press Escape to cancel without changing the active search.
+
 Quoted phrase boundaries are preserved when an existing text search is reopened for editing. This is still literal content matching, not Expression mode or a third-party search provider. Unclosed leading quotes are treated as a phrase through the end of the query.
 
 When Quick Find is opened from a scoped collection such as a Space, archive, profile, or saved view, the application preserves the current scope unless that route explicitly searches the full memo collection.
