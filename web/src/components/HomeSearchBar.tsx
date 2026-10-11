@@ -2,7 +2,7 @@ import { ArrowRightIcon, SearchIcon, XIcon } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MemoDisplaySettingMenu from "@/components/MemoDisplaySettingMenu";
-import { getFilterSearch, type MemoFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
+import { getFilterSearch, isSearchFilter, type MemoFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { useSpaceContext } from "@/contexts/SpaceContext";
 import { formatTextSearchTerms, parseTextSearchTerms } from "@/lib/text-search-terms";
 import { ROUTES } from "@/router/routes";
@@ -16,7 +16,10 @@ const HomeSearchBar = () => {
   const navigate = useNavigate();
   const { filters, setFilters, setMemoView } = useMemoFilterContext();
   const { selectedSpaceName } = useSpaceContext();
-  const activeQuery = formatTextSearchTerms(filters.filter((filter) => filter.factor === "contentSearch").map((filter) => filter.value));
+  const activeQuery = filters
+    .filter(isSearchFilter)
+    .map((filter) => (filter.factor === "contentSearch" ? formatTextSearchTerms([filter.value]) : filter.value))
+    .join(" ");
   const [query, setQuery] = useState(activeQuery);
 
   useEffect(() => setQuery(activeQuery), [activeQuery]);
