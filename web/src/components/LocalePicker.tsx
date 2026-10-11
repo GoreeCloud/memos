@@ -64,7 +64,12 @@ export const LocaleSearchList = (props: LocaleSearchListProps) => {
           aria-label={t("common.language")}
         />
       </div>
-      <div ref={optionsRef} className="mt-1 min-h-0 flex-1 touch-pan-y overflow-y-auto p-1" role="listbox" aria-label={t("common.language")}>
+      <div
+        ref={optionsRef}
+        className="mt-1 min-h-0 flex-1 touch-pan-y overflow-y-auto p-1"
+        role="listbox"
+        aria-label={t("common.language")}
+      >
         {filteredLocales.map((locale, index) => (
           <button
             key={locale}
