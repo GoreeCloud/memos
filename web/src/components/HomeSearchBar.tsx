@@ -4,11 +4,12 @@ import { useNavigate } from "react-router-dom";
 import MemoDisplaySettingMenu from "@/components/MemoDisplaySettingMenu";
 import { getFilterSearch, isSearchFilter, type MemoFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { useSpaceContext } from "@/contexts/SpaceContext";
+import { formatTextSearchTerms, parseTextSearchTerms } from "@/lib/text-search-terms";
 import { ROUTES } from "@/router/routes";
 import { useTranslate } from "@/utils/i18n";
 
 export const buildHomeSearchFilters = (value: string): MemoFilter[] =>
-  Array.from(new Set(value.trim().split(/\s+/).filter(Boolean))).map((term) => ({ factor: "contentSearch", value: term }));
+  parseTextSearchTerms(value).map((term) => ({ factor: "contentSearch", value: term }));
 
 const HomeSearchBar = () => {
   const t = useTranslate();
@@ -17,7 +18,7 @@ const HomeSearchBar = () => {
   const { selectedSpaceName } = useSpaceContext();
   const activeQuery = filters
     .filter(isSearchFilter)
-    .map((filter) => filter.value)
+    .map((filter) => (filter.factor === "contentSearch" ? formatTextSearchTerms([filter.value]) : filter.value))
     .join(" ");
   const [query, setQuery] = useState(activeQuery);
 

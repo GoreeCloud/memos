@@ -14,6 +14,7 @@ import { useMemoViews } from "@/hooks/useUserQueries";
 import { MEMOS_SEARCH_DOCUMENTATION_URL } from "@/lib/constants";
 import { BUILTIN_TASKS_VIEW_ID, getMemoViewId, isMemoCollectionRoute } from "@/lib/memo-views";
 import { extractSpaceUidFromName, formatSpaceUidForDisplay } from "@/lib/space-display";
+import { formatTextSearchTerms, parseTextSearchTerms } from "@/lib/text-search-terms";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "@/utils/i18n";
 import { getRouteActionPolicy, getSidebarRouteKind } from "./routes";
@@ -23,7 +24,7 @@ export type QuickFindMode = "text" | "cel";
 const buildSearchFilters = (query: string, mode: QuickFindMode): MemoFilter[] => {
   const trimmed = query.trim();
   if (mode === "cel") return trimmed ? [{ factor: "celSearch", value: trimmed }] : [];
-  return Array.from(new Set(trimmed.split(/\s+/).filter(Boolean))).map((value) => ({ factor: "contentSearch", value }));
+  return parseTextSearchTerms(trimmed).map((value) => ({ factor: "contentSearch", value }));
 };
 
 export const buildQuickFindFilters = (
@@ -41,10 +42,7 @@ export const readQuickFindQuery = (filters: MemoFilter[]): { query: string; mode
   const celSearch = filters.find((filter) => filter.factor === "celSearch");
   if (celSearch) return { query: celSearch.value, mode: "cel" };
   return {
-    query: filters
-      .filter((filter) => filter.factor === "contentSearch")
-      .map((filter) => filter.value)
-      .join(" "),
+    query: formatTextSearchTerms(filters.filter((filter) => filter.factor === "contentSearch").map((filter) => filter.value)),
     mode: "text",
   };
 };

@@ -6,8 +6,10 @@ GoreeCloud Memos keeps search and saved views local to the configured self-hoste
 
 Quick Find supports two modes:
 
-- **Text** — splits the query into words and matches memo content using the application's normal content-search filters.
+- **Text** — searches memo content using separate terms, or treats a double-quoted phrase such as `"meeting notes"` as one contiguous term. Quotes inside unquoted text remain literal. A backslash can escape a quote or backslash inside a quoted phrase. Duplicate terms are removed. Home search uses the same syntax.
 - **Expression** — accepts a bounded CEL-style memo filter expression. Press Enter to search. In the multi-line expression field, Shift+Enter inserts a newline.
+
+Quoted phrase boundaries are preserved when an existing text search is reopened for editing. This is still literal content matching, not Expression mode or a third-party search provider. Unclosed leading quotes are treated as a phrase through the end of the query.
 
 When Quick Find is opened from a scoped collection such as a Space, archive, profile, or saved view, the application preserves the current scope unless that route explicitly searches the full memo collection.
 
