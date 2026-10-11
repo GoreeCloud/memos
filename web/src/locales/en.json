@@ -356,6 +356,7 @@
     "delete-confirm-description": "This action is irreversible. Attachments, links, and references will also be removed.",
     "direction": "Direction",
     "filters": {
+      "clear-all": "Clear filters",
       "has-code": "hasCode",
       "has-link": "hasLink",
       "has-location": "hasLocation",
