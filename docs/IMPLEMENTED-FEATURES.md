@@ -24,6 +24,8 @@
 - GoreeCloud-owned user-help destinations for API, search/saved views, authentication, webhooks, and missing-language feedback while preserving upstream protocol/provenance identifiers.
 - Browser-client hardening that does not execute administrator-provided arbitrary JavaScript.
 - Shared quoted-phrase text search for Home and Quick Find, including literal embedded quotes, escaped characters within phrases, URL round-tripping, and query restoration. Server search authorization remains authoritative.
+- Home-only "/" keyboard focus shortcut with input/IME/dialog safety guards, an accessible advertised shortcut, a responsive visual hint, and regression coverage; Ctrl+K / ⌘K continues to open Quick Find.
+- Development-source sticky Home search header separated from the paginated memo feed, with existing mobile navigation offset, source-level ordering/readiness tests, and unchanged Space-scoped composer location; representative-device sticky interaction and accessibility review remain unaccepted.
 
 - Separate HTTP liveness (/healthz) and database-backed readiness (/readyz) probes for operations and future Manager integration.
 
