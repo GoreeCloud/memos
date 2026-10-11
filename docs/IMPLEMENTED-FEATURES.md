@@ -28,6 +28,7 @@
 - Development-source language picker now exposes native keyboard-activatable locale options, search-to-option ArrowDown focus and roving Arrow/Home/End navigation with single-tab-stop list semantics; component regression coverage is added. Independent screen-reader, physical-device, translation and in-app acceptance remain open.
 - Development implementation of an authenticated-browser-tested sticky Home search header above the paginated memo feed; the composer remains in the feed, and physical-device and screen-reader review is not yet accepted.
 - Development-source memo view options include an accessible one-action Restore control that atomically resets column layout, sort field/direction, compact mode, and link previews to local defaults while removing legacy persisted sort aliases. The control is disabled at defaults and does not change memo content or server settings; component/context tests added. Independent device/assistive-tech acceptance remains open.
+- Development-source layout radiogroup additionally supports Home/End keyboard shortcuts to select and focus its first/last layout options, complementing arrow-key/RTL movement. Source regression coverage is included; independent keyboard and screen-reader acceptance remains open.
 
 - Separate HTTP liveness (/healthz) and database-backed readiness (/readyz) probes for operations and future Manager integration.
 
