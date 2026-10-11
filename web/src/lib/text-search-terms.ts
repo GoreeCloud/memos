@@ -30,8 +30,4 @@ export const parseTextSearchTerms = (query: string): string[] => {
 
 /** Quote text when needed so opening an existing search preserves phrase boundaries. */
 export const formatTextSearchTerms = (terms: string[]): string =>
-  terms
-    .map((term) =>
-      /[\s"\\]/u.test(term) ? '"' + term.replaceAll("\\", "\\\\").replaceAll('"', '\\"') + '"' : term,
-    )
-    .join(" ");
+  terms.map((term) => (/[\s"\\]/u.test(term) ? '"' + term.replaceAll("\\", "\\\\").replaceAll('"', '\\"') + '"' : term)).join(" ");
