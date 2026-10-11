@@ -101,6 +101,38 @@ describe("Quick Find navigation", () => {
   };
   const openQuickFind = () => fireEvent.click(screen.getByRole("button", { name: "Open Quick Find" }));
 
+  it("supports arrow, Home, and End keys for accessible mode-tab navigation", async () => {
+    renderSearch();
+    openQuickFind();
+
+    const textTab = screen.getByRole("tab", { name: "search.text" });
+    const expressionTab = screen.getByRole("tab", { name: "search.expression-mode" });
+    expect(textTab).toHaveAttribute("tabindex", "0");
+    expect(expressionTab).toHaveAttribute("tabindex", "-1");
+
+    fireEvent.change(await screen.findByRole("textbox"), { target: { value: '"meeting notes" urgent' } });
+    textTab.focus();
+    fireEvent.keyDown(textTab, { key: "ArrowRight" });
+    expect(expressionTab).toHaveAttribute("aria-selected", "true");
+    expect(expressionTab).toHaveAttribute("tabindex", "0");
+    expect(textTab).toHaveAttribute("tabindex", "-1");
+    expect(expressionTab).toHaveFocus();
+    expect(screen.getByRole("textbox")).toHaveValue('"meeting notes" urgent');
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", expressionTab.id);
+
+    fireEvent.keyDown(expressionTab, { key: "ArrowLeft" });
+    expect(textTab).toHaveFocus();
+    expect(textTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", textTab.id);
+
+    fireEvent.keyDown(textTab, { key: "End" });
+    expect(expressionTab).toHaveFocus();
+    fireEvent.keyDown(expressionTab, { key: "Home" });
+    expect(textTab).toHaveFocus();
+    expect(screen.getByRole("textbox")).toHaveValue('"meeting notes" urgent');
+    expect(state.setFilters).not.toHaveBeenCalled();
+  });
+
   it("preserves the draft when changing modes and submits CEL with Enter", async () => {
     renderSearch();
     openQuickFind();
