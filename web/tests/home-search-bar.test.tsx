@@ -44,6 +44,71 @@ describe("HomeSearchBar", () => {
     expect(state.setFilters).not.toHaveBeenCalled();
   });
 
+  it("focuses the Home search with slash without submitting or clearing filters", () => {
+    render(<HomeSearchBar />);
+    const field = screen.getByRole("searchbox");
+    expect(field).toHaveAttribute("aria-keyshortcuts", "/");
+    expect(screen.getByText("/", { selector: "kbd" })).toHaveAttribute("aria-hidden", "true");
+    expect(field).not.toHaveFocus();
+
+    const shortcut = createEvent.keyDown(document.body, { key: "/" });
+    fireEvent(document.body, shortcut);
+
+    expect(shortcut.defaultPrevented).toBe(true);
+    expect(field).toHaveFocus();
+    expect(state.setFilters).not.toHaveBeenCalled();
+    expect(state.navigate).not.toHaveBeenCalled();
+  });
+
+  it("does not steal slash while typing, composing, or using modified shortcuts", () => {
+    render(<HomeSearchBar />);
+    const field = screen.getByRole("searchbox");
+
+    const input = document.createElement("textarea");
+    document.body.append(input);
+    input.focus();
+    for (const options of [
+      { key: "/" },
+      { key: "/", isComposing: true },
+      { key: "/", keyCode: 229 },
+      { key: "/", ctrlKey: true },
+      { key: "/", metaKey: true },
+      { key: "/", altKey: true },
+      { key: "/", shiftKey: true },
+      { key: "?" },
+    ]) {
+      const event = createEvent.keyDown(input, options);
+      fireEvent(input, event);
+      expect(event.defaultPrevented).toBe(false);
+      expect(input).toHaveFocus();
+    }
+    input.remove();
+
+    const composing = createEvent.keyDown(document.body, { key: "/", isComposing: true });
+    fireEvent(document.body, composing);
+    expect(composing.defaultPrevented).toBe(false);
+    expect(field).not.toHaveFocus();
+  });
+
+  it("respects active modal dialogs and removes the shortcut listener on unmount", () => {
+    const { unmount } = render(<HomeSearchBar />);
+    const field = screen.getByRole("searchbox");
+    const dialog = document.createElement("div");
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    document.body.append(dialog);
+    const whileModalOpen = createEvent.keyDown(document.body, { key: "/" });
+    fireEvent(document.body, whileModalOpen);
+    expect(whileModalOpen.defaultPrevented).toBe(false);
+    expect(field).not.toHaveFocus();
+    dialog.remove();
+
+    unmount();
+    const afterUnmount = createEvent.keyDown(document.body, { key: "/" });
+    fireEvent(document.body, afterUnmount);
+    expect(afterUnmount.defaultPrevented).toBe(false);
+  });
+
   it("prepares a unique content search rather than an inert visual input", () => {
     expect(buildHomeSearchFilters("  early  idea early\nnotes  ")).toEqual([
       { factor: "contentSearch", value: "early" },
