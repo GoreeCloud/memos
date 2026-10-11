@@ -79,7 +79,7 @@ describe("Home sticky search layout", () => {
     expect(stickyHeader).not.toBeNull();
     expect(screen.getAllByRole("search")).toHaveLength(1);
     expect(stickyHeader).toContainElement(screen.getByTestId("home-search"));
-    expect(stickyHeader?.compareDocumentPosition(feed) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect((stickyHeader?.compareDocumentPosition(feed) ?? 0) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(feed).toContainElement(screen.getByTestId("home-composer"));
     expect(stickyHeader).not.toContainElement(screen.getByTestId("home-composer"));
     expect(screen.getByTestId("loaded-memos")).toBeInTheDocument();
