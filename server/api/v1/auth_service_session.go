@@ -9,7 +9,9 @@ import (
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -214,11 +216,19 @@ func (s *APIV1Service) clearAuthCookies(ctx context.Context) error {
 	return nil
 }
 
-// Only use the verified transport decision carried from the HTTP middleware.
-// The client-controlled Origin, Forwarded, and X-Forwarded-Proto metadata do
-// not establish cookie security; they can otherwise be spoofed by a direct peer.
+// The browser HTTP paths inherit the verified TLS/proxy decision from the
+// middleware. Native gRPC without that middleware can still prove TLS through
+// its authenticated peer credentials. Client metadata never proves transport.
 func isSecureRequest(ctx context.Context) bool {
-	return clientip.SecureFromContext(ctx)
+	if clientip.SecureFromContext(ctx) {
+		return true
+	}
+	transportPeer, ok := peer.FromContext(ctx)
+	if !ok || transportPeer.AuthInfo == nil {
+		return false
+	}
+	_, tlsAuthenticated := transportPeer.AuthInfo.(credentials.TLSInfo)
+	return tlsAuthenticated
 }
 
 func (*APIV1Service) buildRefreshTokenCookie(ctx context.Context, refreshToken string, expireTime time.Time) string {
