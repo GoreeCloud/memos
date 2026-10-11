@@ -4206,6 +4206,11 @@ components:
                     description: |-
                         Optional. The space in which this memo is placed. Format: spaces/{space}.
                          Every memo, including a comment, owns its placement independently.
+                cardColor:
+                    type: string
+                    description: |-
+                        Optional persisted memo card background preset; empty means the normal theme surface.
+                         Valid values: sky, lavender, mint, peach, rose, butter, slate.
         MemoImportIssue:
             type: object
             properties:

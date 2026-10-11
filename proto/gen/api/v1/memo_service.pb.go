@@ -257,7 +257,10 @@ type Memo struct {
 	Location *Location `protobuf:"bytes,18,opt,name=location,proto3,oneof" json:"location,omitempty"`
 	// Optional. The space in which this memo is placed. Format: spaces/{space}.
 	// Every memo, including a comment, owns its placement independently.
-	Space         *string `protobuf:"bytes,19,opt,name=space,proto3,oneof" json:"space,omitempty"`
+	Space *string `protobuf:"bytes,19,opt,name=space,proto3,oneof" json:"space,omitempty"`
+	// Optional persisted memo card background preset; empty means the normal theme surface.
+	// Valid values: sky, lavender, mint, peach, rose, butter, slate.
+	CardColor     string `protobuf:"bytes,20,opt,name=card_color,json=cardColor,proto3" json:"card_color,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -407,6 +410,13 @@ func (x *Memo) GetLocation() *Location {
 func (x *Memo) GetSpace() string {
 	if x != nil && x.Space != nil {
 		return *x.Space
+	}
+	return ""
+}
+
+func (x *Memo) GetCardColor() string {
+	if x != nil {
+		return x.CardColor
 	}
 	return ""
 }
@@ -2336,7 +2346,7 @@ const file_api_v1_memo_service_proto_rawDesc = "" +
 	"\vcreate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x03\xe0A\x03R\n" +
 	"createTime:X\xeaAU\n" +
 	"\x15memos.api.v1/Reaction\x12!memos/{memo}/reactions/{reaction}\x1a\x04name*\treactions2\breactionJ\x04\b\x03\x10\x04R\n" +
-	"content_id\"\xff\b\n" +
+	"content_id\"\xa3\t\n" +
 	"\x04Memo\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tB\x03\xe0A\bR\x04name\x12.\n" +
 	"\x05state\x18\x02 \x01(\x0e2\x13.memos.api.v1.StateB\x03\xe0A\x02R\x05state\x123\n" +
@@ -2362,7 +2372,9 @@ const file_api_v1_memo_service_proto_rawDesc = "" +
 	"\asnippet\x18\x11 \x01(\tB\x03\xe0A\x03R\asnippet\x12<\n" +
 	"\blocation\x18\x12 \x01(\v2\x16.memos.api.v1.LocationB\x03\xe0A\x01H\x01R\blocation\x88\x01\x01\x125\n" +
 	"\x05space\x18\x13 \x01(\tB\x1a\xe0A\x01\xfaA\x14\n" +
-	"\x12memos.api.v1/SpaceH\x02R\x05space\x88\x01\x01\x1a\xac\x01\n" +
+	"\x12memos.api.v1/SpaceH\x02R\x05space\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"card_color\x18\x14 \x01(\tB\x03\xe0A\x01R\tcardColor\x1a\xac\x01\n" +
 	"\bProperty\x12\x19\n" +
 	"\bhas_link\x18\x01 \x01(\bR\ahasLink\x12\"\n" +
 	"\rhas_task_list\x18\x02 \x01(\bR\vhasTaskList\x12\x19\n" +

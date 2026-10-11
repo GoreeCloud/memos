@@ -4,6 +4,7 @@ import {
   BookmarkMinusIcon,
   BookmarkPlusIcon,
   CheckCheckIcon,
+  CheckIcon,
   CopyIcon,
   Edit3Icon,
   FileTextIcon,
@@ -13,6 +14,7 @@ import {
   ListRestartIcon,
   MoreHorizontalIcon,
   MoreVerticalIcon,
+  PaletteIcon,
   TrashIcon,
 } from "lucide-react";
 import { useState } from "react";
@@ -28,6 +30,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { LABEL_PRESET_COLORS } from "@/lib/label-palette";
 import { State } from "@/types/proto/api/v1/common_pb";
 import { useTranslate } from "@/utils/i18n";
 import { useMemoActionHandlers } from "./hooks";
@@ -52,6 +55,7 @@ const MemoActionMenu = (props: MemoActionMenuProps) => {
   const {
     canMove,
     handleTogglePinMemoBtnClick,
+    handleMemoCardColorChange,
     handleEditMemoClick,
     handleToggleMemoStatusClick,
     handleCopyLink,
@@ -86,6 +90,32 @@ const MemoActionMenu = (props: MemoActionMenuProps) => {
               <Edit3Icon />
               {t("common.edit")}
             </DropdownMenuItem>
+            {!isComment && (
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <PaletteIcon />
+                  {t("setting.tags.background-color")}
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent aria-label={t("setting.tags.background-color")}>
+                  <DropdownMenuItem onClick={() => void handleMemoCardColorChange("")}>
+                    <span aria-hidden="true" className="size-4 rounded-full border border-border bg-card" />
+                    {t("setting.tags.default-color")}
+                    {!memo.cardColor && <CheckIcon className="ms-auto size-4" aria-hidden="true" />}
+                  </DropdownMenuItem>
+                  {LABEL_PRESET_COLORS.map(({ id, label, hex }) => (
+                    <DropdownMenuItem key={id} onClick={() => void handleMemoCardColorChange(id)}>
+                      <span
+                        aria-hidden="true"
+                        className="size-4 shrink-0 rounded-full border border-black/10"
+                        style={{ backgroundColor: hex }}
+                      />
+                      {label}
+                      {memo.cardColor === id && <CheckIcon className="ms-auto size-4" aria-hidden="true" />}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+            )}
           </>
         )}
 

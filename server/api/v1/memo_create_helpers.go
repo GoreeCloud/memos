@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/usememos/memos/core/memocolor"
 	"github.com/usememos/memos/core/memopayload"
 	v1pb "github.com/usememos/memos/proto/gen/api/v1"
 	"github.com/usememos/memos/store"
@@ -75,6 +76,10 @@ func (s *APIV1Service) prepareMemoCreate(ctx context.Context, user *store.User, 
 	if input.Location != nil {
 		memo.Payload.Location = convertLocationToStore(input.Location)
 	}
+	if !memocolor.Valid(input.CardColor) {
+		return nil, status.Error(codes.InvalidArgument, "unsupported memo card color")
+	}
+	memo.Payload.CardColor = input.CardColor
 
 	attachments, err := s.prepareMemoAttachments(ctx, user, memo, input.Attachments)
 	if err != nil {

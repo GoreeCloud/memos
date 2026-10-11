@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/usememos/memos/core/access"
+	"github.com/usememos/memos/core/memocolor"
 	"github.com/usememos/memos/core/memopayload"
 	"github.com/usememos/memos/internal/ratelimit"
 	v1pb "github.com/usememos/memos/proto/gen/api/v1"
@@ -394,6 +395,15 @@ func (s *APIV1Service) UpdateMemo(ctx context.Context, request *v1pb.UpdateMemoR
 				return nil, status.Errorf(codes.Internal, "failed to rebuild memo payload: %v", err)
 			}
 			update.Content = &nextMemo.Content
+			update.Payload = nextMemo.Payload
+		} else if path == "card_color" {
+			if !memocolor.Valid(request.Memo.CardColor) {
+				return nil, status.Error(codes.InvalidArgument, "unsupported memo card color")
+			}
+			if nextMemo.Payload == nil {
+				nextMemo.Payload = &storepb.MemoPayload{}
+			}
+			nextMemo.Payload.CardColor = request.Memo.CardColor
 			update.Payload = nextMemo.Payload
 		} else if path == "pinned" {
 			update.Pinned = &request.Memo.Pinned
