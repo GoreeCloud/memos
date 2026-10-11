@@ -141,7 +141,8 @@ const MemoFilters = ({ className }: { className?: string }) => {
   // A remembered view only narrows the collection routes; elsewhere it is dormant and must not be echoed.
   const viewApplies = memoView !== undefined && isMemoCollectionRoute(location.pathname);
   const { data: memoViews = [] } = useMemoViews(viewApplies ? currentUser?.name : undefined);
-  const hasMultipleSearchTerms = filters.filter(isSearchFilter).length > 1;
+  const searchTermCount = filters.filter(isSearchFilter).length;
+  const hasMultipleSearchTerms = searchTermCount > 1;
 
   const handleRemoveFilter = (filter: MemoFilter) => {
     removeFilter((f: MemoFilter) => isEqual(f, filter));
@@ -170,6 +171,16 @@ const MemoFilters = ({ className }: { className?: string }) => {
   if (filters.length === 0 && !viewChip) {
     return null;
   }
+
+  // A query-only collection already has its own Clear query action.
+  // Offer the broader reset only when there is more than one visible facet.
+  const hasMultipleVisibleFilters = filters.length + (viewChip ? 1 : 0) > 1 && (filters.length !== searchTermCount || !!viewChip);
+  const clearVisibleFilters = () => {
+    removeFilter(() => true);
+    // A saved view remembered on a non-collection route is dormant; never
+    // clear that invisible selection as a side effect of clearing route filters.
+    if (viewApplies) setMemoView(undefined);
+  };
 
   return (
     <div className={cn("w-full flex flex-row justify-start items-center flex-wrap gap-2", className)}>
@@ -207,6 +218,18 @@ const MemoFilters = ({ className }: { className?: string }) => {
         >
           <XIcon className="size-3.5" aria-hidden="true" />
           {t("search.clear-query")}
+        </Button>
+      )}
+      {hasMultipleVisibleFilters && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-7 gap-1 rounded-full px-2.5 text-xs"
+          onClick={clearVisibleFilters}
+        >
+          <XIcon className="size-3.5" aria-hidden="true" />
+          {t("memo.filters.clear-all")}
         </Button>
       )}
     </div>
