@@ -9,6 +9,7 @@ vi.mock("@/utils/i18n", () => ({
   useTranslate: () => (key: string, params?: Record<string, number>) => {
     const labels: Record<string, string> = {
       "common.created-at": "Created",
+      "common.restore": "Restore",
       "common.last-updated-at": "Last updated",
       "memo.compact-mode": "Compact mode",
       "memo.direction": "Direction",
@@ -58,6 +59,35 @@ describe("MemoDisplaySettingMenu", () => {
     expect(compactMode).toBeChecked();
     expect(compactMode).toHaveAttribute("aria-disabled", "true");
     expect(screen.getByText("Grid layouts always use compact cards.")).toBeInTheDocument();
+  });
+
+  it("restores user-selected view settings and disables the action at defaults", () => {
+    render(
+      <ViewProvider>
+        <MemoDisplaySettingMenu />
+      </ViewProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "View options" }));
+    const reset = screen.getByRole("button", { name: "Restore View options" });
+    expect(reset).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("radio", { name: "3 columns" }));
+    expect(reset).toBeEnabled();
+    expect(screen.getByRole("radio", { name: "3 columns" })).toBeChecked();
+
+    fireEvent.click(reset);
+    expect(screen.getByRole("radio", { name: "List" })).toBeChecked();
+    expect(screen.getByRole("switch", { name: "Compact mode" })).not.toBeChecked();
+    expect(screen.getByRole("switch", { name: "Link preview" })).toBeChecked();
+    expect(reset).toBeDisabled();
+
+    const saved = JSON.parse(localStorage.getItem("memos-view-setting") ?? "{}");
+    expect(saved).toMatchObject({
+      orderByTimeAsc: false,
+      compactMode: false,
+      linkPreview: true,
+      maxColumns: 1,
+    });
   });
 
   it("moves horizontally in the visual direction for RTL layouts", () => {
