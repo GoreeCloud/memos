@@ -214,34 +214,11 @@ func (s *APIV1Service) clearAuthCookies(ctx context.Context) error {
 	return nil
 }
 
+// Only use the verified transport decision carried from the HTTP middleware.
+// The client-controlled Origin, Forwarded, and X-Forwarded-Proto metadata do
+// not establish cookie security; they can otherwise be spoofed by a direct peer.
 func isSecureRequest(ctx context.Context) bool {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return false
-	}
-
-	for _, value := range md.Get("x-forwarded-proto") {
-		for proto := range strings.SplitSeq(value, ",") {
-			if strings.EqualFold(strings.TrimSpace(proto), "https") {
-				return true
-			}
-		}
-	}
-
-	for _, value := range md.Get("forwarded") {
-		lowerValue := strings.ToLower(value)
-		if strings.Contains(lowerValue, "proto=https") {
-			return true
-		}
-	}
-
-	for _, value := range md.Get("origin") {
-		if strings.HasPrefix(strings.ToLower(strings.TrimSpace(value)), "https://") {
-			return true
-		}
-	}
-
-	return false
+	return clientip.SecureFromContext(ctx)
 }
 
 func (*APIV1Service) buildRefreshTokenCookie(ctx context.Context, refreshToken string, expireTime time.Time) string {
