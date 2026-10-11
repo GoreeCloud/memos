@@ -94,7 +94,13 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
     await languageSearch.fill("Arabic");
     const arabicOption = page.getByRole("option");
     await expect(arabicOption).toHaveCount(1);
+    // The locale renders optimistically; verify its mutation persisted before navigation.
+    const savedLocale = page.waitForResponse(
+      (response) => response.url().includes("/memos.api.v1.UserService/UpdateUserSetting") && response.request().method() === "POST",
+    );
     await arabicOption.click();
+    const localeResponse = await savedLocale;
+    expect(localeResponse.ok(), "language setting must persist before navigation").toBe(true);
 
     await expect
       .poll(() => page.evaluate(() => ({ lang: document.documentElement.lang, dir: document.documentElement.dir })))
