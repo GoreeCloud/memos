@@ -372,6 +372,7 @@ func (i *memoImporter) buildMemo(record *memoexport.Memo, uid string, content []
 	if err := memopayload.RebuildMemoPayload(i.ctx, memo, i.service.MarkdownService); err != nil {
 		return nil, errors.Wrap(err, "failed to rebuild memo payload")
 	}
+	memo.Payload.CardColor = record.CardColor
 	if record.Location != nil {
 		memo.Payload.Location = &storepb.MemoPayload_Location{
 			Placeholder: record.Location.Placeholder,

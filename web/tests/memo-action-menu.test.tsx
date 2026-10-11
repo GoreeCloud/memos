@@ -8,6 +8,7 @@ import { MemoSchema } from "@/types/proto/api/v1/memo_service_pb";
 const handlers = vi.hoisted(() => ({
   canMove: true,
   handleTogglePinMemoBtnClick: vi.fn(),
+  handleMemoCardColorChange: vi.fn(),
   handleEditMemoClick: vi.fn(),
   handleToggleMemoStatusClick: vi.fn(),
   handleCopyLink: vi.fn(),
@@ -54,6 +55,20 @@ describe("MemoActionMenu", () => {
     fireEvent.click(screen.getByRole("menuitem", { name: action === "move" ? "memo.move.title" : "common.delete" }));
     if (action === "move") expect(await screen.findByRole("dialog", { name: "Move to Space" })).toBeInTheDocument();
     else expect(handlers.handleDeleteMemoClick).toHaveBeenCalledOnce();
+  });
+
+  it("assigns a named card color to writable top-level memos", async () => {
+    render(<MemoActionMenu memo={create(MemoSchema, { name: "memos/1", state: State.NORMAL })} />);
+    fireEvent.click(screen.getByRole("button", { name: "common.more" }));
+    fireEvent.click(await screen.findByRole("menuitem", { name: "setting.tags.background-color" }));
+    fireEvent.click(await screen.findByRole("menuitem", { name: "Sky" }));
+    expect(handlers.handleMemoCardColorChange).toHaveBeenCalledWith("sky");
+  });
+
+  it("does not offer card-color editing to read-only memos", async () => {
+    render(<MemoActionMenu memo={create(MemoSchema, { name: "memos/1", state: State.NORMAL })} readonly />);
+    fireEvent.click(screen.getByRole("button", { name: "common.more" }));
+    expect(screen.queryByRole("menuitem", { name: "setting.tags.background-color" })).not.toBeInTheDocument();
   });
 
   it("omits More when neither action is available", async () => {

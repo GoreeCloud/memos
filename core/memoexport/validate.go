@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+
+	"github.com/usememos/memos/core/memocolor"
 )
 
 // Warning records a recoverable deviation found while reading a record. The
@@ -117,6 +119,10 @@ func validateMemo(memo *Memo) ([]Warning, error) {
 	}
 
 	var warnings []Warning
+	if !memocolor.Valid(memo.CardColor) {
+		warnings = append(warnings, Warning{UID: memo.UID, Message: fmt.Sprintf("unknown card color %q, using default", memo.CardColor)})
+		memo.CardColor = ""
+	}
 	if _, ok := knownStates[memo.State]; !ok {
 		warnings = append(warnings, Warning{UID: memo.UID, Message: fmt.Sprintf("unknown state %q, using NORMAL", memo.State)})
 		memo.State = "NORMAL"

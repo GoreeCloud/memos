@@ -77,6 +77,7 @@ type Memo struct {
 	State       string       `json:"state"`
 	Visibility  string       `json:"visibility"`
 	Pinned      bool         `json:"pinned"`
+	CardColor   string       `json:"cardColor,omitempty"`
 	ContentPath string       `json:"contentPath"`
 	Tags        []string     `json:"tags,omitempty"`
 	Location    *Location    `json:"location,omitempty"`

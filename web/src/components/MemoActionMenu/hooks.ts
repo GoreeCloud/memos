@@ -66,6 +66,21 @@ export const useMemoActionHandlers = ({ memo, parentPage, onEdit, setDeleteDialo
     [memo.content, memo.name, t, updateMemo],
   );
 
+  const handleMemoCardColorChange = useCallback(
+    async (cardColor: string) => {
+      if (cardColor === memo.cardColor) return;
+      try {
+        await updateMemo({
+          update: { name: memo.name, cardColor },
+          updateMask: ["card_color"],
+        });
+      } catch (error: unknown) {
+        handleError(error, toast.error, { context: "Set memo card color", fallbackMessage: "Unable to save memo color" });
+      }
+    },
+    [memo.name, memo.cardColor, updateMemo],
+  );
+
   const handleTogglePinMemoBtnClick = useCallback(async () => {
     try {
       await updateMemo({
@@ -159,6 +174,7 @@ export const useMemoActionHandlers = ({ memo, parentPage, onEdit, setDeleteDialo
   return {
     canMove,
     handleTogglePinMemoBtnClick,
+    handleMemoCardColorChange,
     handleEditMemoClick,
     handleToggleMemoStatusClick,
     handleCopyLink,

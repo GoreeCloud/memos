@@ -281,6 +281,10 @@ message Memo {
     (google.api.resource_reference) = {type: "memos.api.v1/Space"}
   ];
 
+  // Optional persisted memo card background preset; empty means the normal theme surface.
+  // Valid values: sky, lavender, mint, peach, rose, butter, slate.
+  string card_color = 20 [(google.api.field_behavior) = OPTIONAL];
+
   // Computed properties of a memo.
   message Property {
     bool has_link = 1;

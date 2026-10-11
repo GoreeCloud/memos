@@ -26,6 +26,14 @@ describe("GoreeCloud Glaze presentation source contract", () => {
     expect(goreecloudCss).toMatch(/\.goreecloud-memo-card \{\s*border-radius: 1\.2rem;/);
   });
 
+  it("provides all seven portable memo-color backgrounds with forced-colors fallbacks", () => {
+    for (const color of ["sky", "lavender", "mint", "peach", "rose", "butter", "slate"]) {
+      expect(goreecloudCss).toContain('data-memo-color="' + color + '"');
+    }
+    expect(goreecloudCss).toContain(".dark .goreecloud-memo-card[data-memo-color]");
+    expect(goreecloudCss).toMatch(/@media \(forced-colors: active\) \{[\s\S]*?\.goreecloud-memo-card\[data-memo-color\]/);
+  });
+
   it("keeps visible focus and mobile transparency fallbacks", () => {
     expect(goreecloudCss).toContain(":focus-visible");
     expect(goreecloudCss).toContain("outline: 2px solid var(--ring);");
