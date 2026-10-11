@@ -42,6 +42,11 @@ const Home = () => {
   return (
     <div className="goreecloud-home w-full min-h-full bg-transparent text-foreground">
       <NewMemoProvider>
+        {isUserSettingsInitialized && (
+          <div className="sticky top-12 z-10 w-full bg-background pt-2 md:top-0" data-home-sticky-search>
+            <HomeSearchBar />
+          </div>
+        )}
         <PagedMemoList
           renderer={(memo: Memo, { compact }) => (
             <MemoView key={getMemoKey(memo)} memo={memo} showVisibility showPinned showSpace={!selectedSpaceName} compact={compact} />
@@ -51,7 +56,6 @@ const Home = () => {
           orderBy={orderBy}
           filter={memoFilter}
           contextFilter={contextFilter}
-          renderHeader={() => isUserSettingsInitialized && <HomeSearchBar />}
           renderLeading={({ useGrid }) => {
             if (!isUserSettingsInitialized) return null;
 
