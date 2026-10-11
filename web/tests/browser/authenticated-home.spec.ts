@@ -46,6 +46,24 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
   await expect(composer).toBeVisible();
   await expect(editor).toBeVisible();
   await expect(save).toBeVisible();
+
+  // The Home search is a unique, separate sticky sibling above the memo feed.
+  // Verify this in the real authenticated browser and every configured viewport.
+  const stickySearch = page.locator("[data-home-sticky-search]");
+  await expect(stickySearch).toHaveCount(1);
+  await expect(stickySearch.getByRole("search")).toBeVisible();
+  const stickyPresentation = await stickySearch.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const composerElement = document.querySelector(".goreecloud-composer");
+    return {
+      position: style.position,
+      top: Number.parseFloat(style.top),
+      beforeComposer: !!composerElement && Boolean(element.compareDocumentPosition(composerElement) & Node.DOCUMENT_POSITION_FOLLOWING),
+    };
+  });
+  expect(stickyPresentation.position).toBe("sticky");
+  expect(stickyPresentation.top).toBe(testInfo.project.name.includes("phone") ? 48 : 0);
+  expect(stickyPresentation.beforeComposer).toBe(true);
   await expectNoHorizontalOverflow(page);
 
   const skipLink = page.getByRole("link", { name: "Skip to main content", exact: true });
