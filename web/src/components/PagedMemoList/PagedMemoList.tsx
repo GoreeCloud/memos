@@ -172,6 +172,19 @@ const PagedMemoList = (props: Props) => {
       { enabled: props.enabled ?? true },
     );
 
+  // Scroll events and short-page auto-fill can fire before query state updates.
+  // Share one in-flight guard to avoid duplicate page requests in that gap.
+  const pageRequestInFlight = useRef(false);
+  const fetchNextPageOnce = useCallback(async () => {
+    if (pageRequestInFlight.current) return;
+    pageRequestInFlight.current = true;
+    try {
+      await fetchNextPage();
+    } finally {
+      pageRequestInFlight.current = false;
+    }
+  }, [fetchNextPage]);
+
   // Tag settings decide whether sensitive memo content must be blurred. Keep that
   // privacy boundary, but do not wait for unrelated memo views or instance settings.
   const isDisplayPending = isLoading || !isUserSettingsInitialized;
@@ -198,7 +211,7 @@ const PagedMemoList = (props: Props) => {
     hasNextPage,
     isFetchingNextPage,
     memoCount: sortedMemoList.length,
-    onFetchNext: fetchNextPage,
+    onFetchNext: fetchNextPageOnce,
   });
 
   // Infinite scroll: fetch more when user scrolls near bottom
@@ -208,13 +221,13 @@ const PagedMemoList = (props: Props) => {
     const handleScroll = () => {
       const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
       if (nearBottom && !isFetchingNextPage) {
-        fetchNextPage();
+        void fetchNextPageOnce();
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [canPaginate, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [canPaginate, hasNextPage, isFetchingNextPage, fetchNextPageOnce]);
 
   const leadingContent = props.renderLeading?.({ useGrid });
   const headerContent = props.renderHeader?.({ useGrid });
