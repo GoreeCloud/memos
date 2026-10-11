@@ -223,6 +223,24 @@ describe("<PagedMemoList>", () => {
     }
   });
 
+  it("does not resume automatic page fetching after unmount", async () => {
+    vi.useFakeTimers();
+    try {
+      feed.memos = [memo];
+      feed.hasNextPage = true;
+      const { unmount } = renderList((entry) => <div>{entry.content}</div>);
+      expect(screen.getByText("hello")).toBeInTheDocument();
+
+      // The 200ms short-page check is pending when the user navigates away.
+      // It must not read a torn-down document or fetch another page.
+      unmount();
+      await act(async () => vi.advanceTimersByTimeAsync(800));
+      expect(feed.fetchNextPage).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("keeps fetched memo content hidden until privacy settings settle", () => {
     feed.memos = [memo];
     readiness.userSettings = false;
