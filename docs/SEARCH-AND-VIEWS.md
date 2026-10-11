@@ -13,7 +13,7 @@ Quick Find supports two modes. In the mode selector, use Left/Right Arrow to swi
 
 Both Quick Find modes offer a **Clear** action when the draft contains text. Clearing empties only the draft search and restores focus to the input; it does not change existing filters, the selected Space, or the active view until Search is submitted. Close the dialog with Escape to discard changes.
 
-On Home, pressing **Escape** in the search field discards unsubmitted edits and restores the active query without changing filters. Submitting an unchanged advanced Expression query preserves its Expression semantics; editing that field and submitting creates a fresh Text search. Home searches remain global rather than retaining a previous label or Space filter.
+On Home, pressing **Escape** in the search field discards unsubmitted edits and restores the active query without changing filters. Submitting an unchanged advanced Expression query preserves its Expression semantics; editing that field and submitting creates a fresh Text search. Home searches remain global rather than retaining a previous label or Space filter. On Home, Clear removes the active search and returns keyboard focus to the search field so a new query can be entered immediately.
 
 The active Text and Expression search chips can be selected to reopen Quick Find with the full current query, including all terms and quoted phrases. Selecting a chip's text does not change the search; its separate remove (X) action removes only that filter. Edit the query and submit to apply changes, or press Escape to cancel without changing the active search.
 

@@ -171,10 +171,27 @@ describe("HomeSearchBar", () => {
     expect(state.setFilters).not.toHaveBeenCalled();
   });
 
-  it("provides an accessible clear action for an active query", () => {
+  it("provides an accessible clear action and keeps Home search ready for typing", () => {
+    state.filters = [{ factor: "contentSearch", value: "sketch" }];
+    render(<HomeSearchBar />);
+    const field = screen.getByRole("searchbox");
+    fireEvent.click(screen.getByRole("button", { name: "common.clear" }));
+    expect(state.setFilters).toHaveBeenCalledWith([]);
+    expect(field).toHaveValue("");
+    expect(field).toHaveFocus();
+    expect(screen.queryByRole("button", { name: "common.clear" })).not.toBeInTheDocument();
+
+    fireEvent.change(field, { target: { value: "follow-up" } });
+    fireEvent.submit(screen.getByRole("search"));
+    expect(state.setFilters).toHaveBeenLastCalledWith([{ factor: "contentSearch", value: "follow-up" }]);
+  });
+
+  it("keeps global clear navigation intact when leaving a Space", () => {
+    state.selectedSpaceName = "spaces/design";
     state.filters = [{ factor: "contentSearch", value: "sketch" }];
     render(<HomeSearchBar />);
     fireEvent.click(screen.getByRole("button", { name: "common.clear" }));
-    expect(state.setFilters).toHaveBeenCalledWith([]);
+    expect(state.navigate).toHaveBeenCalledWith({ pathname: "/", search: "" });
+    expect(state.setFilters).not.toHaveBeenCalled();
   });
 });
