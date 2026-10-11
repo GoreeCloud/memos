@@ -18,7 +18,8 @@ describe("<LocaleSearchList>", () => {
 
     // The option is a native button, supporting Enter and Space activation.
     fireEvent.click(option);
-    expect(onChange).toHaveBeenCalledExactlyOnceWith("ar");
+    expect(onChange).toHaveBeenCalledOnce();
+    expect(onChange).toHaveBeenCalledWith("ar");
   });
 
   it("supports roving Arrow, Home and End focus without changing the selected language", () => {
