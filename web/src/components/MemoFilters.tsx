@@ -31,7 +31,7 @@ const DATE_FILTER_FORMAT = "MMM D, YYYY";
 interface FilterConfig {
   icon: LucideIcon;
   getLabel: (value: string, t: ReturnType<typeof useTranslate>) => string;
-  /** The chip shows a typed expression: monospace, wider, and clicking it reopens Quick Find to edit. */
+  /** Activating the chip label reopens Quick Find without modifying the committed query. */
   editableQuery?: boolean;
 }
 
@@ -47,6 +47,7 @@ const FILTER_CONFIGS: Record<FilterFactor, FilterConfig> = {
   contentSearch: {
     icon: SearchIcon,
     getLabel: (value) => value,
+    editableQuery: true,
   },
   celSearch: {
     icon: SearchIcon,
@@ -88,7 +89,7 @@ interface FilterChipProps {
   label: string;
   onRemove: () => void;
   /** When set, the label is a button that edits the filter; the label is also shown in full as a tooltip. */
-  onEdit?: { label: string; onClick: () => void };
+  onEdit?: { label: string; onClick: () => void; monospace?: boolean };
 }
 
 /** One chip for anything narrowing the list, so a view, a tag and a day are announced the same way. */
@@ -97,7 +98,9 @@ const FilterChip = ({ icon: Icon, customIcon, label, onRemove, onEdit }: FilterC
   const body = (
     <>
       {customIcon ?? (Icon && <Icon className="w-3.5 h-3.5 text-muted-foreground shrink-0" />)}
-      <span className={cn("text-foreground/80 truncate", onEdit ? "font-mono text-xs max-w-64" : "font-medium max-w-32")}>{label}</span>
+      <span className={cn("text-foreground/80 truncate", onEdit?.monospace ? "font-mono text-xs max-w-64" : "font-medium max-w-32")}>
+        {label}
+      </span>
     </>
   );
   return (
@@ -180,7 +183,14 @@ const MemoFilters = ({ className }: { className?: string }) => {
           onRemove={() => handleRemoveFilter(filter)}
           onEdit={
             FILTER_CONFIGS[filter.factor]?.editableQuery
-              ? { label: t("search.edit-query"), onClick: () => setQuickFindOpen(true) }
+              ? {
+                  label:
+                    filter.factor === "contentSearch"
+                      ? `${t("search.edit-query")}: ${getFilterDisplayText(filter)}`
+                      : t("search.edit-query"),
+                  onClick: () => setQuickFindOpen(true),
+                  monospace: filter.factor === "celSearch",
+                }
               : undefined
           }
         />

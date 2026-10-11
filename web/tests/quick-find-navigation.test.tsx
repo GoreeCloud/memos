@@ -78,6 +78,7 @@ describe("Quick Find navigation", () => {
     state.filters = [];
     state.setFilters.mockClear();
     state.setMemoView.mockClear();
+    state.removeFilter.mockClear();
   });
 
   const renderSearch = (initialEntry = "/explore") => {
@@ -231,6 +232,47 @@ describe("Quick Find navigation", () => {
     fireEvent.submit(input.closest("form")!);
     expect(state.setFilters).toHaveBeenCalledWith([{ factor: "tagSearch", value: "work" }]);
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  });
+
+  it("edits the whole text query from a chip while keeping remove separate", async () => {
+    state.filters = [
+      { factor: "contentSearch", value: "meeting notes" },
+      { factor: "contentSearch", value: "urgent" },
+      { factor: "tagSearch", value: "work" },
+    ];
+    renderSearch("/spaces/product");
+
+    const phraseEdit = screen.getByRole("button", { name: "search.edit-query: meeting notes" });
+    const otherEdit = screen.getByRole("button", { name: "search.edit-query: urgent" });
+    expect(phraseEdit).toHaveAttribute("type", "button");
+    expect(otherEdit).toBeInTheDocument();
+
+    fireEvent.click(phraseEdit);
+    const query = await screen.findByRole("textbox");
+    expect(query).toHaveValue('"meeting notes" urgent');
+    expect(screen.getByRole("tab", { name: "search.text" })).toHaveAttribute("aria-selected", "true");
+    expect(query).toHaveFocus();
+    expect(state.setFilters).not.toHaveBeenCalled();
+    expect(state.removeFilter).not.toHaveBeenCalled();
+
+    fireEvent.change(query, { target: { value: "unsubmitted changes" } });
+    fireEvent.keyDown(query, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(state.setFilters).not.toHaveBeenCalled();
+    expect(state.removeFilter).not.toHaveBeenCalled();
+
+    fireEvent.click(otherEdit);
+    expect(await screen.findByRole("textbox")).toHaveValue('"meeting notes" urgent');
+    fireEvent.keyDown(screen.getByRole("textbox"), { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove meeting notes filter" }));
+    expect(state.removeFilter).toHaveBeenCalledTimes(1);
+    const removeOnlyPhrase = state.removeFilter.mock.calls[0][0];
+    expect(state.filters.filter((filter) => !removeOnlyPhrase(filter))).toEqual([
+      { factor: "contentSearch", value: "urgent" },
+      { factor: "tagSearch", value: "work" },
+    ]);
   });
 
   it("removes only CEL using the chip remove button", async () => {
