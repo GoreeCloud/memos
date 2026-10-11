@@ -6,7 +6,7 @@ GoreeCloud Memos keeps search and saved views local to the configured self-hoste
 
 Open Quick Find from the sidebar Search action, or press **Ctrl+K** (Windows/Linux) or **⌘K** (macOS) while navigating the application. This shortcut does not override text inputs, the Markdown editor, IME composition, other dialogs, or shortcuts already handled by another control. Escape closes Quick Find without submitting a search.
 
-Quick Find supports two modes:
+Quick Find supports two modes. In the mode selector, use Left/Right Arrow to switch modes, or Home/End to move to the first/last mode. The selected tab retains keyboard focus, and your unsubmitted query text stays intact.
 
 - **Text** — searches memo content using separate terms, or treats a double-quoted phrase such as `"meeting notes"` as one contiguous term. Quotes inside unquoted text remain literal. A backslash can escape a quote or backslash inside a quoted phrase. Duplicate terms are removed. Home search uses the same syntax.
 - **Expression** — accepts a bounded CEL-style memo filter expression. Press Enter to search. In the multi-line expression field, Shift+Enter inserts a newline.

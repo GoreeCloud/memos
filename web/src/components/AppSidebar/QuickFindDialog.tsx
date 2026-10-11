@@ -1,5 +1,5 @@
 import { CornerDownLeftIcon, SearchIcon, XIcon } from "lucide-react";
-import { type ChangeEvent, type FormEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
+import { type ChangeEvent, type FormEvent, type KeyboardEvent, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -88,6 +88,12 @@ const QuickFindDialog = () => {
   const textInputRef = useRef<HTMLInputElement>(null);
   const expressionInputRef = useRef<HTMLTextAreaElement>(null);
   const hintId = useId();
+  const textTabId = useId();
+  const expressionTabId = useId();
+  const modePanelId = useId();
+  const textTabRef = useRef<HTMLButtonElement>(null);
+  const expressionTabRef = useRef<HTMLButtonElement>(null);
+  const pendingTabFocus = useRef<QuickFindMode | null>(null);
   const viewApplies = isMemoCollectionRoute(location.pathname);
   const selectedMemoView = viewApplies ? memoViews.find((item) => getMemoViewId(item.name) === memoView) : undefined;
   const lensLabel =
@@ -110,6 +116,24 @@ const QuickFindDialog = () => {
     setMode(active.mode);
     setQuery(active.query);
   }, [filters, quickFindOpen]);
+
+  // Arrow-key tab selection keeps keyboard focus on the newly selected tab
+  // even though the new query field is mounted with autoFocus for mouse users.
+  useLayoutEffect(() => {
+    if (pendingTabFocus.current !== mode) return;
+    pendingTabFocus.current = null;
+    if (mode === "cel") expressionTabRef.current?.focus();
+    else textTabRef.current?.focus();
+  }, [mode]);
+
+  const handleModeTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const nextMode = event.key === "Home" ? "text" : event.key === "End" ? "cel" : mode === "text" ? "cel" : "text";
+    if (nextMode === mode) return;
+    pendingTabFocus.current = nextMode;
+    setMode(nextMode);
+  };
 
   const submitQuery = () => {
     const submission = resolveQuickFindSubmission(location.pathname, query, filters, mode);
@@ -175,8 +199,13 @@ const QuickFindDialog = () => {
                   key={value}
                   type="button"
                   role="tab"
+                  ref={value === "text" ? textTabRef : expressionTabRef}
+                  id={value === "text" ? textTabId : expressionTabId}
+                  aria-controls={modePanelId}
                   aria-selected={mode === value}
+                  tabIndex={mode === value ? 0 : -1}
                   onClick={() => setMode(value)}
+                  onKeyDown={handleModeTabKeyDown}
                   className={cn(tabsTriggerVariants({ variant: "segmented", active: mode === value }), "h-6 px-2 py-0 text-xs")}
                 >
                   {value === "cel" ? t("search.expression-mode") : t("search.text")}
@@ -185,7 +214,7 @@ const QuickFindDialog = () => {
             </div>
           </div>
           {mode === "cel" ? (
-            <div className="space-y-3 p-4">
+            <div role="tabpanel" id={modePanelId} aria-labelledby={expressionTabId} className="space-y-3 p-4">
               <Textarea
                 {...fieldProps}
                 ref={expressionInputRef}
@@ -220,7 +249,7 @@ const QuickFindDialog = () => {
               </div>
             </div>
           ) : (
-            <div className="flex h-[52px] shrink-0 items-center gap-2.5 px-4">
+            <div role="tabpanel" id={modePanelId} aria-labelledby={textTabId} className="flex h-[52px] shrink-0 items-center gap-2.5 px-4">
               <SearchIcon className="size-[17px] shrink-0 text-muted-foreground" strokeWidth={1.8} />
               <Input
                 {...fieldProps}
