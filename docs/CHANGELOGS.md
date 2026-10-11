@@ -6,6 +6,7 @@
 - Added explicit upstream, Glaze, and branding provenance.
 - Added GoreeCloud platform/lifecycle documentation and nonconformance gates.
 - Applied canonical GoreeCloud Memos branding.
+- Added a Home-only slash keyboard shortcut to focus the persistent search, with IME/dialog/editable-target guards and accessibility metadata.
 - Added private-first instance initialization.
 - Added Glaze-aligned GoreeCloud application styling and accessibility fallbacks.
 - Disabled arbitrary administrator-provided script execution in the GoreeCloud browser client.
