@@ -19,7 +19,7 @@ import { useLocation } from "react-router-dom";
 import MemoViewIcon from "@/components/MemoViewIcon";
 import { Button } from "@/components/ui/button";
 import { useAppSidebar } from "@/contexts/AppSidebarContext";
-import { type FilterFactor, getMemoFilterKey, type MemoFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
+import { type FilterFactor, getMemoFilterKey, isSearchFilter, type MemoFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { useMemoViews } from "@/hooks/useUserQueries";
 import { BUILTIN_TASKS_VIEW_ID, getMemoViewId, isMemoCollectionRoute } from "@/lib/memo-views";
@@ -141,6 +141,7 @@ const MemoFilters = ({ className }: { className?: string }) => {
   // A remembered view only narrows the collection routes; elsewhere it is dormant and must not be echoed.
   const viewApplies = memoView !== undefined && isMemoCollectionRoute(location.pathname);
   const { data: memoViews = [] } = useMemoViews(viewApplies ? currentUser?.name : undefined);
+  const hasMultipleSearchTerms = filters.filter(isSearchFilter).length > 1;
 
   const handleRemoveFilter = (filter: MemoFilter) => {
     removeFilter((f: MemoFilter) => isEqual(f, filter));
@@ -195,6 +196,19 @@ const MemoFilters = ({ className }: { className?: string }) => {
           }
         />
       ))}
+      {hasMultipleSearchTerms && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-7 gap-1 rounded-full px-2.5 text-xs"
+          onClick={() => removeFilter(isSearchFilter)}
+          aria-label={t("search.clear-query")}
+        >
+          <XIcon className="size-3.5" aria-hidden="true" />
+          {t("search.clear-query")}
+        </Button>
+      )}
     </div>
   );
 };
