@@ -1,5 +1,5 @@
 import { ArrowRightIcon, SearchIcon, XIcon } from "lucide-react";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, type KeyboardEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MemoDisplaySettingMenu from "@/components/MemoDisplaySettingMenu";
 import { getFilterSearch, isSearchFilter, type MemoFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
@@ -25,7 +25,12 @@ const HomeSearchBar = () => {
   useEffect(() => setQuery(activeQuery), [activeQuery]);
 
   const applySearch = (value: string) => {
-    const searchFilters = buildHomeSearchFilters(value);
+    // Re-submitting a visible, unchanged Expression query must keep its CEL
+    // semantics. Editing it instead starts a new plain-text Home search.
+    const searchFilters =
+      value === activeQuery && filters.some((filter) => filter.factor === "celSearch")
+        ? filters.filter(isSearchFilter)
+        : buildHomeSearchFilters(value);
     // A fresh search does not retain a former label, saved-view or Space restriction.
     setMemoView(undefined);
     if (selectedSpaceName) {
@@ -33,6 +38,14 @@ const HomeSearchBar = () => {
     } else {
       setFilters(searchFilters);
     }
+  };
+
+  const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Escape" || event.nativeEvent.isComposing || event.keyCode === 229 || query === activeQuery) return;
+    // Discard only the unsubmitted draft, keeping the active search and other
+    // filters unchanged. Escape does not submit a new search.
+    event.preventDefault();
+    setQuery(activeQuery);
   };
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -58,6 +71,7 @@ const HomeSearchBar = () => {
           enterKeyHint="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={handleSearchKeyDown}
           placeholder={t("home.search-placeholder")}
           className="min-w-0 flex-1 bg-transparent py-1 text-sm text-foreground outline-none placeholder:text-muted-foreground/75"
         />
