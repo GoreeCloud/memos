@@ -15,6 +15,7 @@ import {
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import HomeSearchBar from "@/components/HomeSearchBar";
+import MemoDisplaySettingMenu from "@/components/MemoDisplaySettingMenu";
 import MemoView from "@/components/MemoView";
 import PagedMemoList, { getMemoKey } from "@/components/PagedMemoList";
 import { useAuth } from "@/contexts/AuthContext";
@@ -149,7 +150,7 @@ const Home = () => {
       <div className="gc-dashboard" data-dashboard-home>
         <div className="gc-dashboard-controls">
           <div className="gc-dashboard-search" data-home-sticky-search>
-            {isUserSettingsInitialized && <HomeSearchBar />}
+            {isUserSettingsInitialized && <HomeSearchBar showDisplaySettings={false} />}
           </div>
           <div className="gc-dashboard-tools">
             <button type="button" className="gc-dashboard-new" onClick={openEditor} disabled={!canOpen} data-dashboard-new-memo>
@@ -180,6 +181,7 @@ const Home = () => {
               >
                 <ListIcon size={19} />
               </button>
+              <MemoDisplaySettingMenu className="gc-dashboard-view-settings" />
             </div>
           </div>
         </div>
@@ -295,7 +297,7 @@ const Home = () => {
                   <TagIcon />
                 </span>
                 <span>
-                  <strong>Browse Labels</strong>
+                  <strong>Manage Labels</strong>
                   <small>Organize your memos with labels.</small>
                 </span>
                 <ChevronRightIcon className="gc-dashboard-action-arrow" size={19} />
