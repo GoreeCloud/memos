@@ -529,6 +529,7 @@ describe("App sidebar logo", () => {
     );
 
     const dashboard = within(screen.getByRole("navigation", { name: "Memos dashboard" }));
+    expect(screen.queryByRole("button", { name: "editor.new-memo" })).not.toBeInTheDocument();
     expect(dashboard.getByRole("link", { name: "Home" })).toHaveAttribute("aria-current", "page");
     for (const label of ["All Memos", "Favorites", "Private", "Labels", "Archived", "Recent", "My Tasks", "Attachments"]) {
       expect(dashboard.getByRole("link", { name: label })).toBeInTheDocument();
