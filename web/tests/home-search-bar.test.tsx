@@ -44,11 +44,17 @@ describe("HomeSearchBar", () => {
     expect(state.setFilters).not.toHaveBeenCalled();
   });
 
+  it("does not duplicate view options when the dashboard owns the settings control", () => {
+    render(<HomeSearchBar showDisplaySettings={false} />);
+    expect(screen.getByRole("search", { name: "home.search-all" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "memo.view-options" })).not.toBeInTheDocument();
+  });
+
   it("focuses the Home search with slash without submitting or clearing filters", () => {
     render(<HomeSearchBar />);
     const field = screen.getByRole("searchbox");
     expect(field).toHaveAttribute("aria-keyshortcuts", "/");
-    expect(screen.getByText("/", { selector: "kbd" })).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByText("Ctrl + K", { selector: "kbd" })).toHaveAttribute("aria-hidden", "true");
     expect(field).not.toHaveFocus();
 
     const shortcut = createEvent.keyDown(document.body, { key: "/" });
