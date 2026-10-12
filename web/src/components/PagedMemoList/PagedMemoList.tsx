@@ -366,14 +366,20 @@ const BackToTop = () => {
       setIsVisible(shouldShow);
     };
 
+    // A returning or restored page may already be scrolled before this footer
+    // mounts, without another scroll event to reveal the control.
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
+    // Read the preference at click time so a system change takes effect
+    // without requiring the memo feed to remount.
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
+      behavior: reducedMotion ? "auto" : "smooth",
     });
   };
 
