@@ -15,11 +15,30 @@ const emulateReducedTransparency = async (page: import("@playwright/test").Page,
 };
 
 const expectNoHorizontalOverflow = async (page: import("@playwright/test").Page) => {
-  const metrics = await page.evaluate(() => ({
-    clientWidth: document.documentElement.clientWidth,
-    scrollWidth: document.documentElement.scrollWidth,
-  }));
-  expect(metrics.scrollWidth, "authenticated page should not require horizontal scrolling").toBeLessThanOrEqual(metrics.clientWidth + 1);
+  const metrics = await page.evaluate(() => {
+    const clientWidth = document.documentElement.clientWidth;
+    return {
+      clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      // Diagnostic only: keep the strict assertion and report the bounding
+      // elements, not user content, when a responsive layout regresses.
+      offenders: [...document.querySelectorAll<HTMLElement>("body *")]
+        .map((element) => ({ element, rect: element.getBoundingClientRect() }))
+        .filter(({ rect }) => rect.width > 0 && rect.height > 0 && (rect.right > clientWidth + 2 || rect.left < -2))
+        .slice(0, 16)
+        .map(({ element, rect }) => ({
+          tag: element.tagName.toLowerCase(),
+          id: element.id,
+          className: typeof element.className === "string" ? element.className.slice(0, 120) : "",
+          left: Math.round(rect.left),
+          right: Math.round(rect.right),
+        })),
+    };
+  });
+  expect(
+    metrics.scrollWidth,
+    `authenticated page should not require horizontal scrolling; overflow elements: ${JSON.stringify(metrics.offenders)}`,
+  ).toBeLessThanOrEqual(metrics.clientWidth + 1);
 };
 
 test("authenticated GoreeCloud home and composer render accessibly", async ({ page }, testInfo) => {
@@ -139,7 +158,7 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
       id,
       impact,
       help,
-      targets: nodes.map((node) => node.target),
+      targets: nodes.map((node) => ({ target: node.target, failureSummary: node.failureSummary })),
     })),
     "authenticated home should have no serious or critical axe violations",
   ).toEqual([]);
