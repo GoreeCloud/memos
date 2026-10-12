@@ -21,6 +21,9 @@
   margin: 0;
   display: block;
 }
+.gc-dashboard .gc-dashboard-search > div > button {
+  display: none;
+}
 .gc-dashboard .gc-dashboard-search form {
   height: 50px;
   background: #fff;
