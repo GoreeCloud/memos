@@ -232,7 +232,7 @@ describe("App sidebar logo", () => {
 
   it("shows the context switcher and opens the global memo editor", () => {
     render(
-      <MemoryRouter initialEntries={["/attachments"]}>
+      <MemoryRouter initialEntries={["/explore"]}>
         <AppSidebar />
       </MemoryRouter>,
     );
@@ -352,8 +352,8 @@ describe("App sidebar logo", () => {
       </MemoryRouter>,
     );
 
-    expect(filteredStatsHook).toHaveBeenCalledWith(expect.objectContaining({ context: "archived", filter: undefined }));
-    expect(tagsSectionHook).toHaveBeenCalledWith(expect.objectContaining({ scope: "archived" }));
+    expect(screen.getByRole("navigation", { name: "Memos dashboard" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Archived" })).toHaveAttribute("aria-current", "page");
   });
 
   it("uses one unified signed-in footer surface", () => {
@@ -531,7 +531,17 @@ describe("App sidebar logo", () => {
     const dashboard = within(screen.getByRole("navigation", { name: "Memos dashboard" }));
     expect(screen.queryByRole("button", { name: "editor.new-memo" })).not.toBeInTheDocument();
     expect(dashboard.getByRole("link", { name: "Home" })).toHaveAttribute("aria-current", "page");
-    for (const label of ["All Memos", "Favorites", "Private", "Labels", "Archived", "Recent", "My Tasks", "Attachments"]) {
+    for (const label of [
+      "All Memos",
+      "Favorites",
+      "Private",
+      "Labels",
+      "Archived",
+      "Recent",
+      "My Tasks",
+      "common.attachments",
+      "common.settings",
+    ]) {
       expect(dashboard.getByRole("link", { name: label })).toBeInTheDocument();
     }
     expect(dashboard.getByRole("heading", { name: "Quick Filters" })).toBeInTheDocument();
@@ -570,14 +580,14 @@ describe("App sidebar logo", () => {
       </MemoryRouter>,
     );
 
-    const scopeTrigger = screen.getByRole("button", { name: "common.home" });
-    expectCollapsedNavPill(scopeTrigger, "common.home");
+    const scopeTrigger = screen.getByRole("link", { name: "Home" });
+    expect(scopeTrigger).toHaveAttribute("href", "/");
 
     expect(screen.getByRole("button", { name: "User menu" }).closest("footer")).not.toBeNull();
     expect(screen.queryByRole("link", { name: "common.inbox" })).not.toBeInTheDocument();
 
     const attachments = screen.getByRole("link", { name: "common.attachments" });
-    expectActiveNavPill(attachments, "common.attachments");
+    expect(attachments).toHaveAttribute("aria-current", "page");
 
     fireEvent.click(scopeTrigger);
     expect(screen.queryByText("Calendar")).not.toBeInTheDocument();
@@ -626,13 +636,13 @@ describe("App sidebar logo", () => {
       </MemoryRouter>,
     );
 
-    const scopeTrigger = screen.getByRole("button", { name: "common.explore" });
-    expectDefaultNavPill(scopeTrigger, "common.explore");
-    expect(scopeTrigger.querySelector(".lucide-chevron-down")).not.toBeInTheDocument();
-    expectCollapsedNavPill(screen.getByRole("link", { name: "common.attachments" }), "common.attachments");
+    const scopeTrigger = screen.getByRole("link", { name: "Home" });
+    expect(scopeTrigger).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Archived" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "common.attachments" })).toHaveAttribute("href", "/attachments");
 
     fireEvent.click(scopeTrigger);
-    expectActiveNavPill(await screen.findByRole("button", { name: "common.explore", current: "page" }), "common.explore");
+    expect(await screen.findByRole("link", { name: "Home", current: "page" })).toBeInTheDocument();
   });
 
   it("keeps the mobile header limited to navigation and context", () => {
