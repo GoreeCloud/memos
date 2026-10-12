@@ -748,6 +748,12 @@
 [data-theme="default-dark"] .gc-dashboard-memos .gc-dashboard-memo [data-slot="memo-header-meta"] {
   color: #cbd5e1;
 }
+/* Readable paragraph/list ink on dark memo cards: prior light-theme #66758f
+   was only 3.14:1 against #1c293c in authenticated Chromium. */
+.dark .gc-dashboard-memos .gc-dashboard-memo :where(p, li),
+[data-theme="default-dark"] .gc-dashboard-memos .gc-dashboard-memo :where(p, li) {
+  color: #cbd5e1;
+}
 /* Match the light-theme 4.5:1 contrast fix in dark mode without changing Glaze surfaces. */
 .dark .gc-dashboard-action small,
 [data-theme="default-dark"] .gc-dashboard-action small,
