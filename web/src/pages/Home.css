@@ -671,6 +671,29 @@
   .gc-dashboard-action {
     min-height: 86px;
   }
+  /* 200% root text scaling must not force memo header actions outside the
+     narrow card in RTL. Wrap actions as a separate row when necessary. */
+  .gc-dashboard-memos .gc-dashboard-memo :has(> [data-slot="memo-header-actions"]) {
+    height: auto;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+  .gc-dashboard-memos .gc-dashboard-memo [data-slot="memo-header-actions"] {
+    max-width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 460px) {
+  /* At narrow phone widths, the benefit grid must not overflow in RTL when
+     text is enlarged or translated. Preserve every item without clipping. */
+  .gc-dashboard-features {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .gc-dashboard-feature > span:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
 }
 .dark .gc-dashboard,
 [data-theme="default-dark"] .gc-dashboard {
