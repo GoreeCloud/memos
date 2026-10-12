@@ -191,6 +191,9 @@
     "no-language-feedback": "Δεν βρέθηκε η γλώσσα; Υποβολή σχολίων"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "Προσθέστε το σχόλιό σας εδώ...",
     "any-thoughts": "Οποιαδήποτε σκέψη...",
     "exit-focus-mode": "Έξοδος από τη λειτουργία εστίασης",

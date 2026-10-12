@@ -153,6 +153,9 @@
     "no-language-feedback": "زبان پیدا نشد؟ ارسال بازخورد"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "نظر خود را اینجا اضافه کنید...",
     "any-thoughts": "فکر شما...",
     "exit-focus-mode": "خروج از حالت تمرکز",

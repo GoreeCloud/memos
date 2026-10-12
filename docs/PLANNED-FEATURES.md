@@ -1,6 +1,7 @@
 # Planned Features and Acceptance Work
 
 Priority work remains:
+- Independently verify draft-statistics presentation and locale copy on representative phones, browsers, screen readers and native-language surfaces before Development acceptance or promotion.
 - Complete native-language translation and human review of the Pinned memos title and Home copy across remaining locales. French, Spanish, German, Brazilian Portuguese, Japanese, Italian, Dutch and Korean Home resource candidates have source-level translations, but representative native-speaker and in-app accessibility review is still required; other locales retain the documented English fallback.
 - Complete the owner-requested responsive sticky-note/pinterest masonry redesign: persistent top search, collapsible desktop and mobile navigation, further pinned-section polish and expanded device-tested grid/list presentation (basic persisted layout options exposed beside search), context actions, quick composer expansion, reminders, keyboard and touch acceptance.
 - Design and validate **server-backed** managed label identities and memo color metadata, including creation, rename, deletion without deleting notes, complete bidirectional sidebar and composer assignment/removal (the additive composer selector is implemented separately), per-memo color persistence, export/sync/restore coverage, and safe migrations. Existing tags/regex-metadata settings and this light/dark palette do not provide those guarantees.

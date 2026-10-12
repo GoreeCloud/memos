@@ -191,6 +191,9 @@
     "no-language-feedback": "Езикът не е намерен? Изпратете обратна връзка"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "Добавете своя коментар тук...",
     "any-thoughts": "Някакви мисли...",
     "exit-focus-mode": "Излезте от режима на фокусиране",

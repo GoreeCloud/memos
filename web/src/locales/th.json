@@ -153,6 +153,9 @@
     "no-language-feedback": "ไม่พบภาษา? ส่งข้อเสนอแนะ"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "เพิ่มความคิดเห็นของคุณที่นี่...",
     "any-thoughts": "ความคิดใดๆ...",
     "exit-focus-mode": "ออกจากโหมดโฟกัส",

@@ -153,6 +153,9 @@
     "no-language-feedback": "Lingua non trovata? Invia feedback"
   },
   "editor": {
+    "draft-statistics": "Statistiche della bozza",
+    "draft-words": "Parole: {{count}}",
+    "draft-characters": "Caratteri: {{count}}",
     "add-your-comment-here": "Aggiungi qui il tuo commento...",
     "any-thoughts": "Qualsiasi cosa pensi...",
     "exit-focus-mode": "Esci Modalità Focus",

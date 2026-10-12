@@ -191,6 +191,9 @@
     "no-language-feedback": "Valoda nav atrasta? Iesniedziet atsauksmes"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "Pievienojiet savu komentāru šeit...",
     "any-thoughts": "Jebkuras domas...",
     "exit-focus-mode": "Iziet no fokusa režīma",

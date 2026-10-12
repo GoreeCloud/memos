@@ -183,6 +183,9 @@
     "no-language-feedback": "未找到语言？ 提交反馈"
   },
   "editor": {
+    "draft-statistics": "草稿统计",
+    "draft-words": "词数：{{count}}",
+    "draft-characters": "字符数：{{count}}",
     "add-your-comment-here": "请输入您的评论...",
     "any-thoughts": "此刻的想法...",
     "exit-focus-mode": "退出聚焦模式",

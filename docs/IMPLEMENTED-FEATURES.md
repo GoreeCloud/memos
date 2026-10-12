@@ -14,6 +14,8 @@
 
 ## GoreeCloud rebuild foundation
 
+- Development-source editor draft statistics display live, Unicode-aware word and grapheme-character counts for nonempty drafts. Counts remain browser-local, do not modify memo content or autosave, and require independent rendered/mobile/assistive-technology acceptance before release.
+
 - Maintained-fork provenance with full upstream Git history.
 - Canonical GoreeCloud Memos product identity.
 - GoreeCloud lifecycle/platform manifest.
