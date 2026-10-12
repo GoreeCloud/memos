@@ -59,7 +59,7 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
     const feed = document.querySelector(".gc-dashboard-results");
     return {
       inDashboard: element.closest("[data-dashboard-home]") !== null,
-      beforeFeed: Boolean(feed && (element.compareDocumentPosition(feed) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      beforeFeed: feed !== null && (element.compareDocumentPosition(feed) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0,
     };
   });
   expect(searchPlacement).toEqual({ inDashboard: true, beforeFeed: true });
