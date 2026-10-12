@@ -9,7 +9,9 @@ import (
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -214,34 +216,19 @@ func (s *APIV1Service) clearAuthCookies(ctx context.Context) error {
 	return nil
 }
 
+// The browser HTTP paths inherit the verified TLS/proxy decision from the
+// middleware. Native gRPC without that middleware can still prove TLS through
+// its authenticated peer credentials. Client metadata never proves transport.
 func isSecureRequest(ctx context.Context) bool {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
+	if clientip.SecureFromContext(ctx) {
+		return true
+	}
+	transportPeer, ok := peer.FromContext(ctx)
+	if !ok || transportPeer == nil || transportPeer.AuthInfo == nil {
 		return false
 	}
-
-	for _, value := range md.Get("x-forwarded-proto") {
-		for proto := range strings.SplitSeq(value, ",") {
-			if strings.EqualFold(strings.TrimSpace(proto), "https") {
-				return true
-			}
-		}
-	}
-
-	for _, value := range md.Get("forwarded") {
-		lowerValue := strings.ToLower(value)
-		if strings.Contains(lowerValue, "proto=https") {
-			return true
-		}
-	}
-
-	for _, value := range md.Get("origin") {
-		if strings.HasPrefix(strings.ToLower(strings.TrimSpace(value)), "https://") {
-			return true
-		}
-	}
-
-	return false
+	_, tlsAuthenticated := transportPeer.AuthInfo.(credentials.TLSInfo)
+	return tlsAuthenticated
 }
 
 func (*APIV1Service) buildRefreshTokenCookie(ctx context.Context, refreshToken string, expireTime time.Time) string {

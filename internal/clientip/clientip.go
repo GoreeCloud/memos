@@ -153,6 +153,48 @@ func parseAddr(value string) (netip.Addr, bool) {
 	return addr.Unmap(), true
 }
 
+// SecureTransport decides whether a request reached the application over an
+// authenticated TLS connection or through an explicitly trusted TLS-terminating
+// proxy. Origin is deliberately ignored: it is chosen by the client.
+// When multiple forwarding values exist, only the closest proxy's last value
+// is authoritative, preventing an earlier injected "https" from winning.
+func (r *Resolver) SecureTransport(remoteAddr string, directTLS bool, header http.Header) bool {
+	if directTLS {
+		return true
+	}
+	peer, ok := parseAddr(remoteAddr)
+	if !ok || !r.Trusts(peer) {
+		return false
+	}
+
+	if values := header.Values("X-Forwarded-Proto"); len(values) > 0 {
+		parts := strings.Split(values[len(values)-1], ",")
+		return strings.EqualFold(strings.TrimSpace(parts[len(parts)-1]), "https")
+	}
+
+	if values := header.Values("Forwarded"); len(values) > 0 {
+		elements := strings.Split(values[len(values)-1], ",")
+		closest := elements[len(elements)-1]
+		for _, attribute := range strings.Split(closest, ";") {
+			key, value, found := strings.Cut(strings.TrimSpace(attribute), "=")
+			if found && strings.EqualFold(strings.TrimSpace(key), "proto") {
+				scheme := strings.Trim(strings.TrimSpace(value), "\"")
+				return strings.EqualFold(scheme, "https")
+			}
+		}
+	}
+	return false
+}
+
+type secureTransportKey struct{}
+
+// SecureFromContext is the verified request scheme set by the HTTP boundary.
+// No forwarding header or Origin metadata can override it in API services.
+func SecureFromContext(ctx context.Context) bool {
+	value, _ := ctx.Value(secureTransportKey{}).(bool)
+	return value
+}
+
 type contextKey struct{}
 
 // WithClientIP stores the resolved client address in ctx.
@@ -176,7 +218,10 @@ func Middleware(resolver *Resolver) echo.MiddlewareFunc {
 		return func(c *echo.Context) error {
 			request := c.Request()
 			ip := resolver.Resolve(request.RemoteAddr, request.Header)
-			c.SetRequest(request.WithContext(WithClientIP(request.Context(), ip)))
+			secure := resolver.SecureTransport(request.RemoteAddr, request.TLS != nil, request.Header)
+			ctx := WithClientIP(request.Context(), ip)
+			ctx = context.WithValue(ctx, secureTransportKey{}, secure)
+			c.SetRequest(request.WithContext(ctx))
 			return next(c)
 		}
 	}

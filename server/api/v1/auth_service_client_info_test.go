@@ -2,10 +2,14 @@ package v1
 
 import (
 	"context"
+	"crypto/tls"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/labstack/echo/v5"
 	"github.com/usememos/memos/internal/clientip"
 
 	"google.golang.org/grpc/metadata"
@@ -185,36 +189,62 @@ func TestClientInfoExamples(t *testing.T) {
 
 func TestBuildRefreshTokenCookieSecureFlag(t *testing.T) {
 	service := &APIV1Service{}
-
-	t.Run("sets Secure for https origin", func(t *testing.T) {
-		ctx := metadata.NewIncomingContext(context.Background(), metadata.Pairs(
-			"origin", "https://memos.example",
-		))
-		cookie := service.buildRefreshTokenCookie(ctx, "token", testCookieExpiry())
-		if !containsCookieAttribute(cookie, "Secure") {
-			t.Fatalf("expected Secure attribute in cookie: %s", cookie)
-		}
-	})
-
-	t.Run("sets Secure for forwarded proto", func(t *testing.T) {
-		ctx := metadata.NewIncomingContext(context.Background(), metadata.Pairs(
-			"x-forwarded-proto", "https",
-		))
-		cookie := service.buildRefreshTokenCookie(ctx, "token", testCookieExpiry())
-		if !containsCookieAttribute(cookie, "Secure") {
-			t.Fatalf("expected Secure attribute in cookie: %s", cookie)
-		}
-	})
-
-	t.Run("omits Secure for plain http", func(t *testing.T) {
-		ctx := metadata.NewIncomingContext(context.Background(), metadata.Pairs(
-			"origin", "http://memos.example",
-		))
-		cookie := service.buildRefreshTokenCookie(ctx, "token", testCookieExpiry())
-		if containsCookieAttribute(cookie, "Secure") {
-			t.Fatalf("did not expect Secure attribute in cookie: %s", cookie)
-		}
-	})
+	tests := []struct {
+		name string
+		trusted []string
+		remote string
+		tls bool
+		header http.Header
+		wantSecure bool
+	}{
+		{name: "direct HTTPS", trusted: []string{"none"}, remote: "203.0.113.8:443", tls: true, wantSecure: true},
+		{name: "direct HTTP with spoofed origin", trusted: []string{"none"}, remote: "203.0.113.8:80", header: http.Header{"Origin": []string{"https://example.test"}}},
+		{name: "untrusted forwarded HTTPS", trusted: []string{"none"}, remote: "203.0.113.8:80", header: http.Header{"X-Forwarded-Proto": []string{"https"}}},
+		{name: "trusted forwarded HTTPS", trusted: []string{"127.0.0.1"}, remote: "127.0.0.1:80", header: http.Header{"X-Forwarded-Proto": []string{"https"}}, wantSecure: true},
+		{name: "trusted HTTP development", trusted: []string{"127.0.0.1"}, remote: "127.0.0.1:80", header: http.Header{"X-Forwarded-Proto": []string{"http"}}},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			resolver, err := clientip.ParseTrustedProxies(tc.trusted)
+			if err != nil {
+				t.Fatal(err)
+			}
+			e := echo.New()
+			e.Use(clientip.Middleware(resolver))
+			var initial, rotated, cleared string
+			e.GET("/cookie", func(c *echo.Context) error {
+				// Even forged gRPC metadata must not override the server-verified
+				// transport context inherited by Connect and Gateway handlers.
+				ctx := metadata.NewIncomingContext(c.Request().Context(), metadata.Pairs(
+					"origin", "https://forged.example",
+					"x-forwarded-proto", "https",
+					"forwarded", "proto=https",
+				))
+				initial = service.buildRefreshTokenCookie(ctx, "first", testCookieExpiry())
+				rotated = service.buildRefreshTokenCookie(ctx, "rotated", testCookieExpiry())
+				cleared = service.buildRefreshTokenCookie(ctx, "", time.Time{})
+				return nil
+			})
+			req := httptest.NewRequest(http.MethodGet, "http://example.test/cookie", nil)
+			req.RemoteAddr = tc.remote
+			req.Header = tc.header.Clone()
+			if tc.tls {
+				req.TLS = &tls.ConnectionState{}
+			}
+			e.ServeHTTP(httptest.NewRecorder(), req)
+			for _, cookie := range []string{initial, rotated, cleared} {
+				if containsCookieAttribute(cookie, "Secure") != tc.wantSecure {
+					t.Fatalf("wrong Secure attribute in cookie: %s", cookie)
+				}
+				if !containsCookieAttribute(cookie, "HttpOnly") || !strings.Contains(cookie, "SameSite=Lax") {
+					t.Fatalf("cookie lost its other security attributes: %s", cookie)
+				}
+			}
+			if !strings.Contains(cleared, "Expires=Thu, 01 Jan 1970 00:00:00 GMT") {
+				t.Fatalf("cookie clearing must still expire the token: %s", cleared)
+			}
+		})
+	}
 }
 
 func testCookieExpiry() time.Time {
