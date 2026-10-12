@@ -3,7 +3,6 @@ import { fireEvent, screen, render as testingLibraryRender, within } from "@test
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AppSidebar, { MobileAppHeader, MobileAppSidebar } from "@/components/AppSidebar";
-import { SIDEBAR_SECTION_ACTION_ICON_CLASSES } from "@/components/AppSidebar/SidebarSection";
 import { type MemoFilter, parseFilterQuery } from "@/contexts/MemoFilterContext";
 import { resolveCollectionRoute } from "@/router/routes";
 
