@@ -453,7 +453,7 @@
   display: block;
   font-size: 12px;
   line-height: 1.65;
-  color: #72829d;
+  color: #52627b;
 }
 .gc-dashboard-action-arrow {
   color: #7e8ba4;
@@ -526,7 +526,7 @@
   text-transform: uppercase;
   font-size: 12px;
   font-weight: 700;
-  color: #78879e;
+  color: #52627b;
   margin: 0 13px 14px;
 }
 .goreecloud-shell:has(.gc-dashboard) {
@@ -688,6 +688,13 @@
 .dark .gc-dashboard-side-link[aria-current="page"],
 [data-theme="dark"] .gc-dashboard-side-link[aria-current="page"] {
   background: #27446c;
+}
+/* Match the light-theme 4.5:1 contrast fix in dark mode without changing Glaze surfaces. */
+.dark .gc-dashboard-action small,
+[data-theme="dark"] .gc-dashboard-action small,
+.dark .gc-dashboard-side-caption,
+[data-theme="dark"] .gc-dashboard-side-caption {
+  color: #cbd5e1;
 }
 @media (prefers-reduced-motion: reduce) {
   .gc-dashboard * {
