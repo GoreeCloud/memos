@@ -21,9 +21,6 @@
   margin: 0;
   display: block;
 }
-.gc-dashboard .gc-dashboard-search > div > button {
-  display: none;
-}
 .gc-dashboard .gc-dashboard-search form {
   height: 50px;
   background: #fff;
@@ -106,7 +103,17 @@
   background: #f0f5fd;
 }
 .gc-dashboard .gc-dashboard-layout-toggle .gc-dashboard-view-settings {
-  display: none;
+  display: grid;
+  place-items: center;
+  height: 36px;
+  width: 37px;
+  min-width: 37px;
+  padding: 0;
+  border-radius: 8px;
+  color: #344259;
+}
+.gc-dashboard .gc-dashboard-layout-toggle .gc-dashboard-view-settings:hover {
+  background: #f0f5fd;
 }
 .gc-dashboard .gc-dashboard-welcome {
   position: relative;
@@ -270,7 +277,9 @@
   gap: 12px;
   padding: 21px 16px;
 }
-.gc-dashboard .gc-dashboard-paper span {
+.gc-dashboard .gc-dashboard-paper i {
+  display: block;
+  flex-shrink: 0;
   height: 9px;
   border-radius: 4px;
   background: #ecf3fb;
@@ -797,4 +806,21 @@
   .gc-dashboard-new {
     border: 1px solid CanvasText;
   }
+}
+
+/* Keep the complete dashboard brand visible and the Space switcher accessible. */
+.gc-dashboard-sidebar [data-sidebar-header] > button {
+  width: 100%;
+  min-width: 0;
+  justify-content: space-between;
+}
+.gc-dashboard-sidebar [data-sidebar-header] > button > span {
+  min-width: 0;
+}
+/* Draw actual memo skeleton lines: the illustration uses i elements, not spans. */
+.gc-dashboard .gc-dashboard-paper i:nth-child(2n) {
+  width: 76%;
+}
+.gc-dashboard .gc-dashboard-paper i:nth-child(3n) {
+  width: 88%;
 }
