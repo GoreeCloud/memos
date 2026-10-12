@@ -117,7 +117,7 @@ const HomeSearchBar = ({ showDisplaySettings = true }: { showDisplaySettings?: b
             aria-hidden="true"
             className="hidden shrink-0 rounded-md border border-border/70 bg-muted px-1.5 py-0.5 text-xs text-muted-foreground sm:inline-flex"
           >
-            /
+            Ctrl + K
           </kbd>
         )}
         {query && (
