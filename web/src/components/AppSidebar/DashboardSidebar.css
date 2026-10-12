@@ -1,2 +1,6 @@
-.gc-dashboard-sidebar { background: #fbfcff; }
-.gc-dashboard-side-link--nested { min-height: 36px; }
+.gc-dashboard-sidebar {
+  background: var(--sidebar);
+}
+.gc-dashboard-side-link--nested {
+  min-height: 36px;
+}
