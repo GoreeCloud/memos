@@ -362,6 +362,14 @@
   min-width: 28px;
   min-height: 28px;
 }
+/* Preserve readable wrapping on compact cards when text is magnified.
+   In particular, an inline-flex button with a localized text label must
+   not extend beyond its card at 200% browser font scaling. */
+.gc-dashboard-memos .gc-dashboard-memo button {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .gc-dashboard-memos .gc-dashboard-memo :where(p, li) {
   color: #66758f;
 }
@@ -665,7 +673,7 @@
   }
 }
 .dark .gc-dashboard,
-[data-theme="dark"] .gc-dashboard {
+[data-theme="default-dark"] .gc-dashboard {
   color: #edf2fb;
 }
 .dark
@@ -678,7 +686,7 @@
     .gc-dashboard-empty,
     .gc-dashboard-labels button
   ),
-[data-theme="dark"]
+[data-theme="default-dark"]
   .gc-dashboard
   :where(
     .gc-dashboard-search form,
@@ -693,28 +701,28 @@
   color: #e8f1ff;
 }
 .dark .gc-dashboard-welcome,
-[data-theme="dark"] .gc-dashboard-welcome {
+[data-theme="default-dark"] .gc-dashboard-welcome {
   background: linear-gradient(105deg, #202e43, #223d61);
   border-color: #405875;
 }
 .dark
   .gc-dashboard
   :where(.gc-dashboard-welcome h1, .gc-dashboard-section-heading h2, .gc-dashboard-quick h2, .gc-dashboard-feature strong),
-[data-theme="dark"]
+[data-theme="default-dark"]
   .gc-dashboard
   :where(.gc-dashboard-welcome h1, .gc-dashboard-section-heading h2, .gc-dashboard-quick h2, .gc-dashboard-feature strong) {
   color: #edf4ff;
 }
 .dark .gc-dashboard-sidebar,
-[data-theme="dark"] .gc-dashboard-sidebar {
+[data-theme="default-dark"] .gc-dashboard-sidebar {
   background: #192436;
 }
 .dark .gc-dashboard-side-link,
-[data-theme="dark"] .gc-dashboard-side-link {
+[data-theme="default-dark"] .gc-dashboard-side-link {
   color: #e4ecf8;
 }
 .dark .gc-dashboard-side-link[aria-current="page"],
-[data-theme="dark"] .gc-dashboard-side-link[aria-current="page"] {
+[data-theme="default-dark"] .gc-dashboard-side-link[aria-current="page"] {
   background: #27446c;
 }
 /* The global input and timestamp tokens are too faint on the dashboard's
@@ -722,29 +730,29 @@
 /* This selector must exceed the light dashboard form's specificity; the
    previous dark :where(...) selector left an actual white search background. */
 .dark .gc-dashboard .gc-dashboard-search form,
-[data-theme="dark"] .gc-dashboard .gc-dashboard-search form {
+[data-theme="default-dark"] .gc-dashboard .gc-dashboard-search form {
   background-color: #1c293c;
   border-color: #3a4b62;
   color: #edf4ff;
 }
 .dark .gc-dashboard #goreecloud-home-search,
-[data-theme="dark"] .gc-dashboard #goreecloud-home-search {
+[data-theme="default-dark"] .gc-dashboard #goreecloud-home-search {
   color: #edf4ff;
 }
 .dark .gc-dashboard #goreecloud-home-search::placeholder,
-[data-theme="dark"] .gc-dashboard #goreecloud-home-search::placeholder {
+[data-theme="default-dark"] .gc-dashboard #goreecloud-home-search::placeholder {
   color: #cbd5e1;
   opacity: 1;
 }
 .dark .gc-dashboard-memos .gc-dashboard-memo [data-slot="memo-header-meta"],
-[data-theme="dark"] .gc-dashboard-memos .gc-dashboard-memo [data-slot="memo-header-meta"] {
+[data-theme="default-dark"] .gc-dashboard-memos .gc-dashboard-memo [data-slot="memo-header-meta"] {
   color: #cbd5e1;
 }
 /* Match the light-theme 4.5:1 contrast fix in dark mode without changing Glaze surfaces. */
 .dark .gc-dashboard-action small,
-[data-theme="dark"] .gc-dashboard-action small,
+[data-theme="default-dark"] .gc-dashboard-action small,
 .dark .gc-dashboard-side-caption,
-[data-theme="dark"] .gc-dashboard-side-caption {
+[data-theme="default-dark"] .gc-dashboard-side-caption {
   color: #cbd5e1;
 }
 @media (prefers-reduced-motion: reduce) {
