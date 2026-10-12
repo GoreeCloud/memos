@@ -143,7 +143,9 @@ const HomeSearchBar = ({ showDisplaySettings = true }: { showDisplaySettings?: b
           <ArrowRightIcon className="size-4" aria-hidden="true" />
         </button>
       </form>
-      {showDisplaySettings && <MemoDisplaySettingMenu className="h-auto w-11 shrink-0 rounded-2xl border border-border/70 bg-card/90 text-foreground shadow-[0_12px_42px_-32px_rgba(0,0,0,.4)] hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" />}
+      {showDisplaySettings && (
+        <MemoDisplaySettingMenu className="h-auto w-11 shrink-0 rounded-2xl border border-border/70 bg-card/90 text-foreground shadow-[0_12px_42px_-32px_rgba(0,0,0,.4)] hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" />
+      )}
     </div>
   );
 };
