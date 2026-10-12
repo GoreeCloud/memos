@@ -36,6 +36,10 @@
 .gc-dashboard .gc-dashboard-search form input {
   font-size: 15px;
 }
+.gc-dashboard .gc-dashboard-search form input::placeholder {
+  color: #52627b;
+  opacity: 1;
+}
 .gc-dashboard .gc-dashboard-search form > button[type="submit"] {
   display: none;
 }
@@ -352,6 +356,12 @@
 .gc-dashboard-memos .gc-dashboard-memo [data-slot="memo-header-meta"] {
   color: #7a88a0;
 }
+/* The compact dashboard cards contain memo actions rendered as icon-only buttons.
+   Preserve at least a 24px mobile target without relying on surrounding whitespace. */
+.gc-dashboard-memos .gc-dashboard-memo button {
+  min-width: 28px;
+  min-height: 28px;
+}
 .gc-dashboard-memos .gc-dashboard-memo :where(p, li) {
   color: #66758f;
 }
@@ -564,6 +574,24 @@
   }
 }
 @media (max-width: 1000px) {
+  /* The app-shell flex child must be allowed to shrink under forced colors
+     and enlarged text instead of imposing its min-content width on the page. */
+  .goreecloud-shell:has(.gc-dashboard) .goreecloud-main-layout > div,
+  .gc-dashboard,
+  .gc-dashboard-results,
+  .gc-dashboard-feed,
+  .gc-dashboard-section-heading {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .gc-dashboard-section-heading {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .gc-dashboard-tools {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
   .gc-dashboard-controls {
     flex-wrap: wrap;
     gap: 14px;
@@ -688,6 +716,21 @@
 .dark .gc-dashboard-side-link[aria-current="page"],
 [data-theme="dark"] .gc-dashboard-side-link[aria-current="page"] {
   background: #27446c;
+}
+/* The global input and timestamp tokens are too faint on the dashboard's
+   dark card/search surfaces; provide dashboard-scoped readable foregrounds. */
+.dark .gc-dashboard #goreecloud-home-search,
+[data-theme="dark"] .gc-dashboard #goreecloud-home-search {
+  color: #edf4ff;
+}
+.dark .gc-dashboard #goreecloud-home-search::placeholder,
+[data-theme="dark"] .gc-dashboard #goreecloud-home-search::placeholder {
+  color: #cbd5e1;
+  opacity: 1;
+}
+.dark .gc-dashboard-memos .gc-dashboard-memo [data-slot="memo-header-meta"],
+[data-theme="dark"] .gc-dashboard-memos .gc-dashboard-memo [data-slot="memo-header-meta"] {
+  color: #cbd5e1;
 }
 /* Match the light-theme 4.5:1 contrast fix in dark mode without changing Glaze surfaces. */
 .dark .gc-dashboard-action small,
