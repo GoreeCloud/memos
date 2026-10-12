@@ -577,8 +577,8 @@ const AppSidebar = ({ className }: { className?: string }) => {
       )}
     >
       <div data-sidebar-header className={cn("flex h-13 shrink-0 items-center justify-between gap-2", SIDEBAR_RAIL_CLASSES)}>
-        <SidebarBrand className="min-w-0" size="header" />
-        {canCompose && <NewMemoAction onClick={openEditor} />}
+        <SidebarBrand className={cn("min-w-0", dashboard && "flex-1")} size="header" />
+        {canCompose && !dashboard && <NewMemoAction onClick={openEditor} />}
       </div>
       {!dashboard && <GlobalNavigation />}
       <div className="mx-3 mt-2 border-t border-border/70" />
