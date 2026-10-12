@@ -29,7 +29,10 @@ const expectNoHorizontalOverflow = async (page: import("@playwright/test").Page)
         .map(({ element, rect }) => ({
           tag: element.tagName.toLowerCase(),
           id: element.id,
-          className: typeof element.className === "string" ? element.className.slice(0, 120) : "",
+          className: typeof element.className === "string" ? element.className.slice(0, 260) : "",
+          parentClass: typeof element.parentElement?.className === "string" ? element.parentElement.className.slice(0, 160) : "",
+          ariaLabel: element.getAttribute("aria-label"),
+          title: element.getAttribute("title"),
           left: Math.round(rect.left),
           right: Math.round(rect.right),
         })),
