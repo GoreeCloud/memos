@@ -719,6 +719,14 @@
 }
 /* The global input and timestamp tokens are too faint on the dashboard's
    dark card/search surfaces; provide dashboard-scoped readable foregrounds. */
+/* This selector must exceed the light dashboard form's specificity; the
+   previous dark :where(...) selector left an actual white search background. */
+.dark .gc-dashboard .gc-dashboard-search form,
+[data-theme="dark"] .gc-dashboard .gc-dashboard-search form {
+  background-color: #1c293c;
+  border-color: #3a4b62;
+  color: #edf4ff;
+}
 .dark .gc-dashboard #goreecloud-home-search,
 [data-theme="dark"] .gc-dashboard #goreecloud-home-search {
   color: #edf4ff;
