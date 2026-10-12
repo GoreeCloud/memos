@@ -567,7 +567,7 @@ const AppSidebar = ({ className }: { className?: string }) => {
   const currentUser = useCurrentUser();
   const { setMobileOpen } = useAppSidebar();
   const { canOpen: canCompose, openEditor } = useGlobalMemoEditor();
-  const dashboard = ["home", "archived", "attachments", "settings"].includes(getSidebarRouteKind(useLocation().pathname));
+  const dashboard = getSidebarRouteKind(useLocation().pathname) === "home";
   return (
     <aside
       className={cn(
