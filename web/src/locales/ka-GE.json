@@ -153,6 +153,9 @@
     "no-language-feedback": "ენა ვერ მოიძებნა? გამოხმაურება"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "დაამატეთ თქვენი კომენტარი აქ...",
     "any-thoughts": "რამე იდეები...",
     "exit-focus-mode": "ფოკუსის რეჟიმიდან გასვლა",

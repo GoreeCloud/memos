@@ -153,6 +153,9 @@
     "no-language-feedback": "No s'ha trobat l'idioma? Envieu comentaris"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "Afegeix el teu comentari aquí...",
     "any-thoughts": "Alguna idea...",
     "exit-focus-mode": "Surt del mode focus",

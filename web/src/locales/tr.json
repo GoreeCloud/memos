@@ -178,6 +178,9 @@
     "no-language-feedback": "Dil bulunamadı mı? Geri bildirim gönder"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "Yorumunuzu buraya ekleyin...",
     "any-thoughts": "Düşünceleriniz...",
     "exit-focus-mode": "Odak modundan çık",

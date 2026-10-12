@@ -153,6 +153,9 @@
     "no-language-feedback": "Langue introuvable ? Soumettre des commentaires"
   },
   "editor": {
+    "draft-statistics": "Statistiques du brouillon",
+    "draft-words": "Mots : {{count}}",
+    "draft-characters": "Caractères : {{count}}",
     "add-your-comment-here": "Ajoutez votre commentaire ici...",
     "any-thoughts": "Des idées...",
     "exit-focus-mode": "Quitter le mode concentration",

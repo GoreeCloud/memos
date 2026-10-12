@@ -153,6 +153,9 @@
     "no-language-feedback": "Jezik nije pronađen? Pošaljite povratne informacije"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "Dodaj svoj komentar ovdje...",
     "any-thoughts": "Imaš li misli...",
     "exit-focus-mode": "Izlazi iz načina rada za fokus",

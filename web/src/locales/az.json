@@ -249,6 +249,9 @@
     "no-language-feedback": "Dil tapılmadı? Rəy göndərin"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "Şərhinizi bura yazın...",
     "any-thoughts": "Ağlınıza nə gəlir...",
     "exit-focus-mode": "Fokus rejimindən çıx",

@@ -153,6 +153,9 @@
     "no-language-feedback": "Language not found? Submit feedback"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "Add your comment here...",
     "any-thoughts": "Any thoughts...",
     "exit-focus-mode": "Exit Focus Mode",

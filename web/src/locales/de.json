@@ -153,6 +153,9 @@
     "no-language-feedback": "Sprache nicht gefunden? Geben Sie Feedback ab"
   },
   "editor": {
+    "draft-statistics": "Entwurfsstatistik",
+    "draft-words": "Wörter: {{count}}",
+    "draft-characters": "Zeichen: {{count}}",
     "add-your-comment-here": "Füge deinen Kommentar hinzu...",
     "any-thoughts": "Ein Gedanke...",
     "exit-focus-mode": "Fokus Modus verlassen",

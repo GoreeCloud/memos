@@ -191,6 +191,9 @@
     "no-language-feedback": "Eikö kieltä löydy? Lähetä palautetta"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "Lisää kommenttisi tähän...",
     "any-thoughts": "Mitään ajatuksia...",
     "exit-focus-mode": "Poistu tarkennustilasta",

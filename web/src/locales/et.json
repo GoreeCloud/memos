@@ -191,6 +191,9 @@
     "no-language-feedback": "Keelt ei leitud? Esitage tagasisidet"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "Lisa oma kommentaar siia...",
     "any-thoughts": "Mingid mõtted...",
     "exit-focus-mode": "Välju teravustamisrežiimist",

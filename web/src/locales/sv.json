@@ -153,6 +153,9 @@
     "no-language-feedback": "Språket hittades inte? Skicka feedback"
   },
   "editor": {
+    "draft-statistics": "Draft statistics",
+    "draft-words": "Words: {{count}}",
+    "draft-characters": "Characters: {{count}}",
     "add-your-comment-here": "Lägg till din kommentar här...",
     "any-thoughts": "Några tankar...",
     "exit-focus-mode": "Avsluta fokusläge",
