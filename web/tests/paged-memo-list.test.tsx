@@ -88,7 +88,8 @@ describe("<PagedMemoList>", () => {
     feed.memos = [];
     feed.hasNextPage = false;
     feed.isLoading = false;
-    feed.fetchNextPage.mockClear();
+    feed.fetchNextPage.mockReset();
+    feed.fetchNextPage.mockResolvedValue(undefined);
     feed.refetch.mockClear();
     feed.error = null;
     feed.isFetchNextPageError = false;
@@ -221,6 +222,34 @@ describe("<PagedMemoList>", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("coalesces repeated near-bottom scroll events while a page request is pending", async () => {
+    feed.memos = [memo];
+    feed.hasNextPage = true;
+    let finishRequest: (() => void) | undefined;
+    feed.fetchNextPage.mockImplementation(
+      () =>
+        new Promise<undefined>((resolve) => {
+          finishRequest = () => resolve(undefined);
+        }),
+    );
+
+    renderList((entry) => <div>{entry.content}</div>);
+    fireEvent.scroll(window);
+    fireEvent.scroll(window);
+    fireEvent.scroll(window);
+
+    expect(feed.fetchNextPage).toHaveBeenCalledOnce();
+    await act(async () => {
+      finishRequest?.();
+    });
+
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      finishRequest?.();
+    });
   });
 
   it("does not resume automatic page fetching after unmount", async () => {
