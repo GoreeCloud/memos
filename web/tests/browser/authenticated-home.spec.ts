@@ -43,42 +43,47 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
   expect(glazeStableCSS, "pinned Glaze stable stylesheet should be loaded in the rendered application").not.toBe("");
   await expect(main).toHaveCount(1);
   await expect(main).toBeVisible();
-  await expect(composer).toBeVisible();
-  await expect(editor).toBeVisible();
-  await expect(save).toBeVisible();
+  const newMemo = page.locator("[data-dashboard-new-memo]");
+  await expect(newMemo).toBeVisible();
+  await expect(newMemo).toBeEnabled();
+  // The redesigned Home keeps its editor closed until the user explicitly opens it.
+  await expect(composer).not.toBeVisible();
 
-  // The Home search is a unique, separate sticky sibling above the memo feed.
-  // Verify this in the real authenticated browser and every configured viewport.
-  const stickySearch = page.locator("[data-home-sticky-search]");
-  await expect(stickySearch).toHaveCount(1);
-  await expect(stickySearch.getByRole("search")).toBeVisible();
-  const stickyPresentation = await stickySearch.evaluate((element) => {
-    const style = getComputedStyle(element);
-    const composerElement = document.querySelector(".goreecloud-composer");
+  // Home search is a visible first-party search form above the memo feed.
+  // The old sticky inline-composer layout is intentionally replaced by dashboard controls.
+  const homeSearch = page.locator("[data-home-sticky-search]");
+  await expect(homeSearch).toHaveCount(1);
+  await expect(homeSearch.getByRole("search")).toBeVisible();
+  await expect(page.locator("#goreecloud-home-search")).toBeVisible();
+  const searchPlacement = await homeSearch.evaluate((element) => {
+    const feed = document.querySelector(".gc-dashboard-results");
     return {
-      position: style.position,
-      top: Number.parseFloat(style.top),
-      beforeComposer: !!composerElement && Boolean(element.compareDocumentPosition(composerElement) & Node.DOCUMENT_POSITION_FOLLOWING),
+      inDashboard: element.closest("[data-dashboard-home]") !== null,
+      beforeFeed: Boolean(feed && (element.compareDocumentPosition(feed) & Node.DOCUMENT_POSITION_FOLLOWING)),
     };
   });
-  expect(stickyPresentation.position).toBe("sticky");
-  expect(stickyPresentation.top).toBe(testInfo.project.name.includes("phone") ? 48 : 0);
-  expect(stickyPresentation.beforeComposer).toBe(true);
+  expect(searchPlacement).toEqual({ inDashboard: true, beforeFeed: true });
   await expectNoHorizontalOverflow(page);
 
   const skipLink = page.getByRole("link", { name: "Skip to main content", exact: true });
-  // Auto-focus can begin inside the composer, so do not assume a fixed Tab
-  // position. Focus the native skip link, then activate it using the keyboard.
+  // Check keyboard skip navigation before opening the focus-trapped editor dialog.
   await skipLink.focus();
   await expect(skipLink).toBeVisible();
   await expect(skipLink).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(main).toBeFocused();
 
+  await newMemo.click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(composer).toBeVisible();
+  await expect(editor).toBeVisible();
+  await expect(save).toBeVisible();
+
   const memoText = "Rendered authenticated acceptance — " + testInfo.project.name;
   await editor.fill(memoText);
   await expect(save).toBeEnabled();
   await save.click();
+  await expect(composer).not.toBeVisible();
 
   const memoCard = page.getByRole("article").filter({ hasText: memoText }).first();
   await expect(memoCard).toBeVisible();
@@ -102,7 +107,8 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
 
     await page.goto("/");
     await expect(shell).toBeVisible();
-    await expect(composer).toBeVisible();
+    await expect(page.locator("[data-dashboard-new-memo]")).toBeVisible();
+    await expect(homeSearch.getByRole("search")).toBeVisible();
     await expect(memoCard).toBeVisible();
     await expectNoHorizontalOverflow(page);
   }
@@ -139,7 +145,7 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
   ).toEqual([]);
 
   await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
-  await expect(composer).toBeVisible();
+  await expect(page.locator("[data-dashboard-new-memo]")).toBeVisible();
   await expect(memoCard).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
@@ -160,17 +166,27 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
     }));
     expect(localeState.lang).toBe("ar");
     expect(localeState.dir).toBe("rtl");
-    const composerTransparency = await composer.evaluate((element) => {
-      const style = getComputedStyle(element);
-      return { backdropFilter: style.backdropFilter, webkitBackdropFilter: style.getPropertyValue("-webkit-backdrop-filter") };
-    });
-    expect(composerTransparency.backdropFilter === "none" || composerTransparency.webkitBackdropFilter === "none").toBe(true);
     const cardTransparency = await memoCard.evaluate((element) => {
       const style = getComputedStyle(element);
       return { backdropFilter: style.backdropFilter, webkitBackdropFilter: style.getPropertyValue("-webkit-backdrop-filter") };
     });
     expect(cardTransparency.backdropFilter === "none" || cardTransparency.webkitBackdropFilter === "none").toBe(true);
   }
+
+  // At enlarged text the global composer must remain openable and dismissible.
+  // Verify reduced-transparency fallback on the actual on-demand editor in RTL.
+  await page.locator("[data-dashboard-new-memo]").click();
+  await expect(composer).toBeVisible();
+  if (testInfo.project.name.includes("rtl-reduced-transparency")) {
+    const composerTransparency = await composer.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { backdropFilter: style.backdropFilter, webkitBackdropFilter: style.getPropertyValue("-webkit-backdrop-filter") };
+    });
+    expect(composerTransparency.backdropFilter === "none" || composerTransparency.webkitBackdropFilter === "none").toBe(true);
+  }
+  await page.keyboard.press("Escape");
+  await expect(composer).not.toBeVisible();
+  await expect(memoCard).toBeVisible();
 
   expect(pageErrors).toEqual([]);
 
