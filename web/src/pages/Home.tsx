@@ -33,6 +33,7 @@ import { State } from "@/types/proto/api/v1/common_pb";
 import type { Memo } from "@/types/proto/api/v1/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
 import "./Home.css";
+import "./Home.mobile.css";
 
 type DashboardSection = "home" | "all" | "favorites" | "private" | "labels" | "recent" | "tasks";
 export const parseDashboardSection = (value: string | null): DashboardSection =>

@@ -8,7 +8,9 @@ interface Props {
 
 /** Build-gated, informational only: never expose deployment data, user content, or credentials. */
 const DevelopmentUpdateNotice = ({ enabled, revision }: Props) => {
-  const [expanded, setExpanded] = useState(true);
+  // Keep the development notice available without obscuring the memo feed on phones.
+  // Visitors can expand it when they want build details.
+  const [expanded, setExpanded] = useState(false);
   if (!enabled) return null;
 
   const buildLabel = revision?.match(/^[0-9a-f]{40}$/i) ? revision.slice(0, 8) : "Development";
