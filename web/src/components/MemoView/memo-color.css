@@ -1,0 +1,12 @@
+.gc-memo-tinted {
+  background-color: color-mix(in srgb, var(--card) 50%, var(--gc-memo-tint) 50%) !important;
+}
+.dark .gc-memo-tinted {
+  background-color: color-mix(in srgb, var(--card) 83%, var(--gc-memo-tint) 17%) !important;
+}
+@media (forced-colors: active) {
+  .gc-memo-tinted {
+    background-color: Canvas !important;
+    border-color: CanvasText;
+  }
+}

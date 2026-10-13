@@ -14,12 +14,14 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import SidebarCreateLabel from "@/components/AppSidebar/SidebarCreateLabel";
 import ColumnGrid, { ColumnGridUntrappedProvider } from "@/components/ColumnGrid";
 import HomeSearchBar from "@/components/HomeSearchBar";
 import MemoDisplaySettingMenu from "@/components/MemoDisplaySettingMenu";
 import MemoView from "@/components/MemoView";
 import PagedMemoList, { getMemoKey } from "@/components/PagedMemoList";
 import { estimateMemoCardHeight } from "@/components/PagedMemoList/memoCardHeight";
+import TagsSection from "@/components/Settings/TagsSection";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGlobalMemoEditor } from "@/contexts/GlobalMemoEditorContext";
 import { getFilterSearch, isSearchFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
@@ -221,16 +223,23 @@ const Home = () => {
             )}
           </div>
           {section === "labels" && !hasSearch ? (
-            <div className="gc-dashboard-labels">
-              {visibleLabels.length ? (
-                visibleLabels.map((label) => (
-                  <button type="button" key={label} onClick={() => handleLabel(label)}>
-                    <TagIcon size={17} /> {label}
-                  </button>
-                ))
-              ) : (
-                <p>No configured labels yet. Add labels from a memo or your settings.</p>
-              )}
+            <div className="gc-dashboard-label-workspace">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
+                <p className="text-sm text-muted-foreground">Create labels, organize your memos, and personalize their colors.</p>
+                <SidebarCreateLabel prominent />
+              </div>
+              <div className="gc-dashboard-labels">
+                {visibleLabels.length ? (
+                  visibleLabels.map((label) => (
+                    <button type="button" key={label} onClick={() => handleLabel(label)}>
+                      <TagIcon size={17} /> {label}
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No labels yet. Create your first label above.</p>
+                )}
+              </div>
+              <TagsSection />
             </div>
           ) : isDashboard ? (
             isLoading ? (

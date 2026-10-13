@@ -75,3 +75,12 @@
     max-width: 100%;
   }
 }
+.gc-dashboard-label-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+.gc-dashboard-label-workspace .gc-dashboard-labels {
+  margin-top: 0;
+}

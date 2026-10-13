@@ -109,6 +109,12 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
 
   const memoCard = page.getByRole("article").filter({ hasText: memoText }).first();
   await expect(memoCard).toBeVisible();
+  await memoCard.getByRole("button", { name: "More" }).click();
+  await page.getByRole("menuitem", { name: "Memo color" }).click();
+  await page.getByRole("menuitem", { name: "Sky" }).click();
+  await expect(memoCard).toHaveClass(/gc-memo-tinted/);
+  await page.reload();
+  await expect(memoCard).toHaveClass(/gc-memo-tinted/);
   const masonryBoard = page.locator(".gc-dashboard-memos-masonry");
   await expect(masonryBoard).toBeVisible();
   // Actual authenticated MemoView tiles are packed by the measured-height
