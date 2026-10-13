@@ -39,7 +39,7 @@ describe("MemoLabelsDialog", () => {
     await waitFor(() => expect(mocks.updateMemo).toHaveBeenCalledOnce());
     expect(mocks.getMemo).toHaveBeenCalledWith({ name: memo.name });
     expect(mocks.updateMemo).toHaveBeenCalledWith({
-      update: { name: memo.name, content: "Original content\\n\\n#Work" },
+      update: { name: memo.name, content: "Original content\n\n#Work" },
       updateMask: ["content", "update_time"],
     });
     expect(onOpenChange).toHaveBeenCalledWith(false);
