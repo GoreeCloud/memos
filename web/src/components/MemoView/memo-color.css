@@ -1,8 +1,12 @@
 .gc-memo-tinted {
-  background-color: color-mix(in srgb, var(--card) 50%, var(--gc-memo-tint) 50%) !important;
+  /* Keep readable content ink while letting the edge show the chosen tint. */
+  background-color: color-mix(in srgb, var(--card) 96%, var(--gc-memo-tint) 4%) !important;
+  border-inline-start: 4px solid color-mix(in srgb, var(--gc-memo-tint) 75%, var(--foreground) 25%);
 }
-.dark .gc-memo-tinted {
-  background-color: color-mix(in srgb, var(--card) 83%, var(--gc-memo-tint) 17%) !important;
+.dark .gc-memo-tinted,
+[data-theme="default-dark"] .gc-memo-tinted,
+[data-theme$="-dark"] .gc-memo-tinted {
+  background-color: color-mix(in srgb, #1c293c 96%, var(--gc-memo-tint) 4%) !important;
 }
 @media (forced-colors: active) {
   .gc-memo-tinted {
