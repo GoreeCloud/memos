@@ -51,6 +51,10 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
 
   await page.goto("/");
   await expect(page).toHaveURL(/\/$/);
+  // Keep pinch zoom available to people who need enlarged text on mobile.
+  const viewport = await page.locator('meta[name="viewport"]').getAttribute("content");
+  expect(viewport).toContain("width=device-width");
+  expect(viewport).not.toMatch(/user-scalable\\s*=\\s*no|maximum-scale\\s*=\\s*1(?:\\D|$)/i);
 
   const shell = page.locator('.goreecloud-shell[data-glaze-consumer="GoreeCloud Memos"][data-glaze-version="1.7.0"]');
   const main = page.getByRole("main");
