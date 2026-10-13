@@ -109,6 +109,39 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
 
   const memoCard = page.getByRole("article").filter({ hasText: memoText }).first();
   await expect(memoCard).toBeVisible();
+  const masonryBoard = page.locator(".gc-dashboard-memos-masonry");
+  await expect(masonryBoard).toBeVisible();
+  // Actual authenticated MemoView tiles are packed by the measured-height
+  // masonry engine on both desktop and phones, not a forced one-column list.
+  await expect
+    .poll(async () =>
+      masonryBoard.evaluate((board) => {
+        const card = board.querySelector(".gc-dashboard-memo");
+        return card ? card.getBoundingClientRect().width / board.getBoundingClientRect().width : 1;
+      }),
+    )
+    .toBeLessThan(0.65);
+  const listToggle = page.getByRole("button", { name: "List view" });
+  await expect(listToggle).toBeVisible();
+  await listToggle.click();
+  await expect(page.locator(".gc-dashboard-memos-list")).toBeVisible();
+  const gridToggle = page.getByRole("button", { name: "Grid view" });
+  await gridToggle.click();
+  await expect(masonryBoard).toBeVisible();
+  await page.getByRole("button", { name: "View all" }).click();
+  const fullFeed = page.locator(".gc-dashboard-feed");
+  await expect(fullFeed).toBeVisible();
+  await expect
+    .poll(async () =>
+      fullFeed.evaluate((feed) => {
+        const card = feed.querySelector("article");
+        return card ? card.getBoundingClientRect().width / feed.getBoundingClientRect().width : 1;
+      }),
+    )
+    .toBeLessThan(0.65);
+  await page.goto("/");
+  await expect(masonryBoard).toBeVisible();
+  await expect(memoCard).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
   if (testInfo.project.name.includes("rtl-reduced-transparency")) {
