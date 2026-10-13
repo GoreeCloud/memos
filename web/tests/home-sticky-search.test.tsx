@@ -7,7 +7,7 @@ import Home from "@/pages/Home";
 const state = vi.hoisted(() => ({
   ready: true,
   canOpen: true,
-  columns: 1,
+  columns: 0,
   selectedSpaceName: undefined as string | undefined,
   filters: [] as Array<{ factor: string; value: string }>,
   openEditor: vi.fn(),
@@ -88,7 +88,7 @@ describe("Home mockup dashboard layout", () => {
   beforeEach(() => {
     state.ready = true;
     state.canOpen = true;
-    state.columns = 1;
+    state.columns = 0;
     state.selectedSpaceName = undefined;
     state.filters = [];
     state.openEditor.mockClear();
@@ -123,12 +123,20 @@ describe("Home mockup dashboard layout", () => {
   });
 
   it("opens the global composer and switches preview from grid to list and back", () => {
-    const { container } = show();
+    const { container, rerender } = show();
+    const syncView = () =>
+      rerender(
+        <MemoryRouter>
+          <Home />
+        </MemoryRouter>,
+      );
     fireEvent.click(screen.getByRole("button", { name: /editor.new-memo/i }));
     expect(state.openEditor).toHaveBeenCalledOnce();
     fireEvent.click(screen.getByRole("button", { name: "List view" }));
+    syncView();
     expect(container.querySelector(".gc-dashboard-memos-list")).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Grid view" }));
+    syncView();
     expect(container.querySelector(".gc-dashboard-memos-list")).toBeNull();
   });
 
