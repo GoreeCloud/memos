@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { memoServiceClient } from "@/connect";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUpdateMemo } from "@/hooks/useMemoQueries";
 import { useTagCounts } from "@/hooks/useUserQueries";
@@ -31,8 +32,19 @@ export default function MemoLabelsDialog({ memo, open, onOpenChange }: Props) {
     if (busy || !pending.length) return;
     setBusy(true);
     try {
-      const suffix = pending.map((label) => `#${label}`).join(" ");
-      const content = memo.content.trimEnd() + (memo.content.trim() ? "\n\n" : "") + suffix;
+      // Read the latest server version before modifying memo content. A card
+      // snapshot can be stale when another browser or device has edited it.
+      const latestMemo = await memoServiceClient.getMemo({ name: memo.name });
+      if (latestMemo.content !== memo.content) {
+        toast.error("This memo changed. Reload it before adding labels.");
+        return;
+      }
+      const suffix = pending.filter((label) => !latestMemo.tags.includes(label)).map((label) => `#${label}`).join(" ");
+      if (!suffix) {
+        onOpenChange(false);
+        return;
+      }
+      const content = latestMemo.content.trimEnd() + (latestMemo.content.trim() ? "\n\n" : "") + suffix;
       await updateMemo({ update: { name: memo.name, content }, updateMask: ["content", "update_time"] });
       setSelected([]);
       onOpenChange(false);
