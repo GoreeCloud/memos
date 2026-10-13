@@ -39,7 +39,10 @@ export default function MemoLabelsDialog({ memo, open, onOpenChange }: Props) {
         toast.error("This memo changed. Reload it before adding labels.");
         return;
       }
-      const suffix = pending.filter((label) => !latestMemo.tags.includes(label)).map((label) => `#${label}`).join(" ");
+      const suffix = pending
+        .filter((label) => !latestMemo.tags.includes(label))
+        .map((label) => `#${label}`)
+        .join(" ");
       if (!suffix) {
         onOpenChange(false);
         return;
