@@ -18,7 +18,7 @@ const DevelopmentUpdateNotice = ({ enabled, revision }: Props) => {
   return (
     <aside
       aria-label="GoreeCloud Memos Development preview"
-      className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-sm rounded-2xl border border-primary/30 bg-card/95 text-card-foreground shadow-xl backdrop-blur-md sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-80"
+      className="relative mx-3 my-3 max-w-sm rounded-2xl border border-primary/30 bg-card/95 text-card-foreground shadow-xl backdrop-blur-md sm:fixed sm:inset-x-auto sm:right-5 sm:bottom-5 sm:z-50 sm:mx-0 sm:my-0 sm:w-80"
       data-development-update
     >
       <div className="flex items-center justify-between gap-2 px-4 py-3">
