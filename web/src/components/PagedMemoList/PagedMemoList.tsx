@@ -281,7 +281,9 @@ const PagedMemoList = (props: Props) => {
       </div>
     ) : undefined;
 
-  const pinnedSection = <PinnedMemoSection memos={pinnedMemos} renderer={props.renderer} compact={effectiveCompact} useGrid={useGrid} />;
+  const pinnedSection = (
+    <PinnedMemoSection memos={pinnedMemos} renderer={props.renderer} compact={effectiveCompact} useGrid={useGrid} maxColumns={maxColumns} />
+  );
   const newlyCreatedCard = newlyCreatedMemo ? (
     <div className="mx-auto w-full max-w-2xl">{props.renderer(newlyCreatedMemo, { compact: effectiveCompact })}</div>
   ) : null;

@@ -115,6 +115,11 @@ func (s *APIV1Service) UpdateUserSetting(ctx context.Context, request *v1pb.Upda
 				updatedGeneral.Locale = incomingGeneral.Locale
 			case "save_media_metadata":
 				updatedGeneral.SaveMediaMetadata = incomingGeneral.SaveMediaMetadata
+			case "memo_colors":
+				if err := validateMemoColors(incomingGeneral.MemoColors); err != nil {
+					return nil, status.Errorf(codes.InvalidArgument, "invalid memo colors: %v", err)
+				}
+				updatedGeneral.MemoColors = incomingGeneral.MemoColors
 			default:
 				// Ignore unsupported fields.
 			}

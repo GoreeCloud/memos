@@ -47,6 +47,8 @@ message GeneralUserSetting {
   string theme = 3;
   // Whether the official client should save metadata from future media uploads.
   bool save_media_metadata = 4;
+  // Cross-device, private per-user memo presentation preferences.
+  map<string, string> memo_colors = 5;
 }
 
 message UserTagMetadata {

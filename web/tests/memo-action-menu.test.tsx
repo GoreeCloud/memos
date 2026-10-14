@@ -22,6 +22,13 @@ vi.mock("@/components/ConfirmDialog", () => ({
   default: () => null,
 }));
 
+vi.mock("@/components/MemoActionMenu/MemoColorMenu", () => ({
+  default: () => <div role="menuitem">Memo color</div>,
+}));
+vi.mock("@/components/MemoActionMenu/MemoLabelsDialog", () => ({
+  default: () => null,
+}));
+
 vi.mock("@/components/MemoActionMenu/MemoMoveDialog", () => ({
   default: () => <div role="dialog" aria-label="Move to Space" />,
 }));

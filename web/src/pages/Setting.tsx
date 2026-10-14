@@ -1,4 +1,7 @@
+import { Settings2Icon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslate } from "@/utils/i18n";
+import "./Setting.css";
 import { useLocation } from "react-router-dom";
 import {
   DEFAULT_SETTING_SECTION,
@@ -12,6 +15,7 @@ import { User_Role } from "@/types/proto/api/v1/user_service_pb";
 
 const Setting = () => {
   const location = useLocation();
+  const t = useTranslate();
   const user = useCurrentUser();
   const { fetchSettings } = useInstance();
   const [selectedSection, setSelectedSection] = useState<SettingSectionKey>(DEFAULT_SETTING_SECTION);
@@ -58,9 +62,19 @@ const Setting = () => {
   const ActiveSection = selectedSectionDefinition.component;
 
   return (
-    <section className="w-full min-h-full">
-      <div className="mx-auto w-full max-w-4xl px-4 pb-12 pt-4 sm:px-6 md:pt-8">
-        <div className="min-w-0">
+    <section className="gc-settings-page w-full min-h-full">
+      <div className="gc-settings-shell">
+        <header className="gc-settings-hero">
+          <span className="gc-settings-hero-icon" aria-hidden="true">
+            <Settings2Icon />
+          </span>
+          <div className="gc-settings-hero-copy">
+            <p className="gc-settings-eyebrow">GoreeCloud</p>
+            <h1>{t("common.settings")}</h1>
+          </div>
+          <span className="gc-settings-current">{t(selectedSectionDefinition.labelKey)}</span>
+        </header>
+        <div className="gc-settings-content min-w-0">
           <ActiveSection />
         </div>
       </div>

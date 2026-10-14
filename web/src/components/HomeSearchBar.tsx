@@ -11,7 +11,7 @@ import { useTranslate } from "@/utils/i18n";
 export const buildHomeSearchFilters = (value: string): MemoFilter[] =>
   parseTextSearchTerms(value).map((term) => ({ factor: "contentSearch", value: term }));
 
-const HomeSearchBar = () => {
+const HomeSearchBar = ({ showDisplaySettings = true }: { showDisplaySettings?: boolean }) => {
   const t = useTranslate();
   const navigate = useNavigate();
   const { filters, setFilters, setMemoView } = useMemoFilterContext();
@@ -117,7 +117,7 @@ const HomeSearchBar = () => {
             aria-hidden="true"
             className="hidden shrink-0 rounded-md border border-border/70 bg-muted px-1.5 py-0.5 text-xs text-muted-foreground sm:inline-flex"
           >
-            /
+            Ctrl + K
           </kbd>
         )}
         {query && (
@@ -143,7 +143,9 @@ const HomeSearchBar = () => {
           <ArrowRightIcon className="size-4" aria-hidden="true" />
         </button>
       </form>
-      <MemoDisplaySettingMenu className="h-auto w-11 shrink-0 rounded-2xl border border-border/70 bg-card/90 text-foreground shadow-[0_12px_42px_-32px_rgba(0,0,0,.4)] hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" />
+      {showDisplaySettings && (
+        <MemoDisplaySettingMenu className="h-auto w-11 shrink-0 rounded-2xl border border-border/70 bg-card/90 text-foreground shadow-[0_12px_42px_-32px_rgba(0,0,0,.4)] hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" />
+      )}
     </div>
   );
 };

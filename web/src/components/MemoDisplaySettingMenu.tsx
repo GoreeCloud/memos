@@ -60,7 +60,7 @@ function MemoDisplaySettingsContent() {
   // Multi-column grids always render compact tiles, so the toggle is shown as on and locked
   // there; it only becomes a real choice at a single column.
   const compactLocked = maxColumns !== 1;
-  const hasCustomViewSettings = orderByTimeAsc || timeBasis !== "create_time" || compactMode || !linkPreview || maxColumns !== 1;
+  const hasCustomViewSettings = orderByTimeAsc || timeBasis !== "create_time" || compactMode || !linkPreview || maxColumns !== 0;
 
   const timeBasisOptions = [
     { value: "create_time", label: t("common.created-at") },

@@ -26,12 +26,19 @@ const LEADING_KEY = "__grid_leading__";
 const HEADER_KEY = "__grid_header__";
 
 const GRID_MIN_COLUMN_WIDTH = 260;
+const MOBILE_MIN_COLUMN_WIDTH = 156;
+const MOBILE_BOARD_MAX_WIDTH = 700;
 export const GRID_GAP = 12;
 
-// The single source of truth for how many columns fit a given width. Callers use it to detect a
-// one-column layout and fall back to a plain flow list instead of a degenerate one-column grid.
-export const columnCountForWidth = (width: number): number =>
-  Math.max(1, Math.floor((width + GRID_GAP) / (GRID_MIN_COLUMN_WIDTH + GRID_GAP)));
+// Keep readable desktop tiles, but support a real two-column Pinterest board on
+// phone-sized content panes. Zoomed/narrow panes safely fall back to one column.
+// Used by BOTH the initial list-vs-grid decision and ColumnGrid placement.
+export const columnCountForWidth = (width: number): number => {
+  if (width < MOBILE_BOARD_MAX_WIDTH) {
+    return width >= 2 * MOBILE_MIN_COLUMN_WIDTH + GRID_GAP ? 2 : 1;
+  }
+  return Math.max(1, Math.floor((width + GRID_GAP) / (GRID_MIN_COLUMN_WIDTH + GRID_GAP)));
+};
 
 const shortestColumn = (heights: number[]): number => {
   let index = 0;

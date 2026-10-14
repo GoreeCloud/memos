@@ -20,7 +20,7 @@ import { ColorSchema } from "@/types/proto/google/type/color_pb";
 import { useTranslate } from "@/utils/i18n";
 
 /** Creates an exact tag-metadata label without leaving the memo collection. */
-const SidebarCreateLabel = () => {
+const SidebarCreateLabel = ({ prominent = false }: { prominent?: boolean }) => {
   const t = useTranslate();
   const { currentUser, userTagsSetting, refetchSettings } = useAuth();
   const { mutateAsync: updateUserSetting } = useUpdateUserSetting();
@@ -71,8 +71,15 @@ const SidebarCreateLabel = () => {
   };
   return (
     <>
-      <Button variant="quiet" size="icon-sm" aria-label={label} title={label} onClick={() => setOpen(true)}>
+      <Button
+        variant={prominent ? "default" : "quiet"}
+        size={prominent ? "sm" : "icon-sm"}
+        aria-label={label}
+        title={label}
+        onClick={() => setOpen(true)}
+      >
         <PlusIcon className="size-3.5" strokeWidth={1.8} aria-hidden="true" />
+        {prominent && label}
       </Button>
       <Dialog
         open={open}

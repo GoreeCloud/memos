@@ -13,6 +13,7 @@ import {
   ListRestartIcon,
   MoreHorizontalIcon,
   MoreVerticalIcon,
+  TagsIcon,
   TrashIcon,
 } from "lucide-react";
 import { useState } from "react";
@@ -31,6 +32,8 @@ import {
 import { State } from "@/types/proto/api/v1/common_pb";
 import { useTranslate } from "@/utils/i18n";
 import { useMemoActionHandlers } from "./hooks";
+import MemoColorMenu from "./MemoColorMenu";
+import MemoLabelsDialog from "./MemoLabelsDialog";
 import MemoMoveDialog from "./MemoMoveDialog";
 import type { MemoActionMenuProps } from "./types";
 
@@ -39,6 +42,7 @@ const MemoActionMenu = (props: MemoActionMenuProps) => {
   const t = useTranslate();
 
   // Dialog state
+  const [labelsDialogOpen, setLabelsDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [moveDialogOpen, setMoveDialogOpen] = useState(false);
 
@@ -86,6 +90,13 @@ const MemoActionMenu = (props: MemoActionMenuProps) => {
               <Edit3Icon />
               {t("common.edit")}
             </DropdownMenuItem>
+            {!isComment && <MemoColorMenu memoName={memo.name} />}
+            {!isComment && (
+              <DropdownMenuItem onClick={() => setLabelsDialogOpen(true)}>
+                <TagsIcon />
+                Add labels
+              </DropdownMenuItem>
+            )}
           </>
         )}
 
@@ -170,6 +181,7 @@ const MemoActionMenu = (props: MemoActionMenuProps) => {
         )}
       </DropdownMenuContent>
 
+      {labelsDialogOpen && <MemoLabelsDialog memo={memo} open={labelsDialogOpen} onOpenChange={setLabelsDialogOpen} />}
       {moveDialogOpen && <MemoMoveDialog memo={memo} onOpenChange={setMoveDialogOpen} />}
 
       {/* Delete confirmation dialog */}
