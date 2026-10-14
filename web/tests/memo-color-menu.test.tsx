@@ -7,10 +7,12 @@ const mocks = vi.hoisted(() => ({
   user: { name: "users/test" } as { name: string } | undefined,
   colors: {} as Record<string, string>,
   save: vi.fn(),
+  fetchSettings: vi.fn(),
   refetchSettings: vi.fn(),
   error: vi.fn(),
 }));
 
+vi.mock("@/connect", () => ({ userServiceClient: { listUserSettings: mocks.fetchSettings } }));
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({
     currentUser: mocks.user,
@@ -44,6 +46,9 @@ describe("MemoColorMenu persistence", () => {
     mocks.user = { name: "users/test" };
     mocks.colors = { "memos/other": "#EEE5FF" };
     mocks.save.mockResolvedValue(undefined);
+    mocks.fetchSettings.mockResolvedValue({
+      settings: [{ value: { case: "generalSetting", value: { memoColors: { "memos/other": "#EEE5FF" } } } }],
+    });
     mocks.refetchSettings.mockResolvedValue(undefined);
   });
 
@@ -64,6 +69,9 @@ describe("MemoColorMenu persistence", () => {
 
   it("restores Default without deleting other card colors", async () => {
     mocks.colors = { "memos/other": "#EEE5FF", "memos/target": "#DCEEFE" };
+    mocks.fetchSettings.mockResolvedValue({
+      settings: [{ value: { case: "generalSetting", value: { memoColors: { ...mocks.colors } } } }],
+    });
     await openPalette();
     fireEvent.click(await screen.findByRole("menuitem", { name: "Default" }));
 
@@ -81,6 +89,54 @@ describe("MemoColorMenu persistence", () => {
 
     await waitFor(() => expect(mocks.error).toHaveBeenCalledWith("Could not save memo color. Please try again."));
     expect(mocks.refetchSettings).not.toHaveBeenCalled();
+  });
+
+  it("merges the latest server colors instead of overwriting remote-device changes", async () => {
+    // The mounted card is stale: another device added a second color since render.
+    mocks.fetchSettings.mockResolvedValue({
+      settings: [
+        {
+          value: {
+            case: "generalSetting",
+            value: { memoColors: { "memos/other": "#EEE5FF", "memos/remote": "#FDE4EC" } },
+          },
+        },
+      ],
+    });
+    await openPalette();
+    fireEvent.click(await screen.findByRole("menuitem", { name: "Peach" }));
+
+    await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
+    expect(mocks.fetchSettings).toHaveBeenCalledWith({ parent: "users/test" });
+    expect(mocks.save).toHaveBeenCalledWith({
+      generalSetting: {
+        memoColors: {
+          "memos/other": "#EEE5FF",
+          "memos/remote": "#FDE4EC",
+          "memos/target": "#FFE9D7",
+        },
+      },
+      updateMask: ["memo_colors"],
+    });
+  });
+
+  it("does not overwrite colors when fresh settings cannot be fetched", async () => {
+    mocks.fetchSettings.mockRejectedValue(new Error("offline"));
+    await openPalette();
+    fireEvent.click(await screen.findByRole("menuitem", { name: "Sky" }));
+
+    await waitFor(() => expect(mocks.error).toHaveBeenCalledWith("Could not save memo color. Please try again."));
+    expect(mocks.save).not.toHaveBeenCalled();
+    expect(mocks.refetchSettings).not.toHaveBeenCalled();
+  });
+
+  it("does not clear colors if the general settings response is missing", async () => {
+    mocks.fetchSettings.mockResolvedValue({ settings: [] });
+    await openPalette();
+    fireEvent.click(await screen.findByRole("menuitem", { name: "Sky" }));
+
+    await waitFor(() => expect(mocks.error).toHaveBeenCalledWith("Could not save memo color. Please try again."));
+    expect(mocks.save).not.toHaveBeenCalled();
   });
 
   it("disables color changes without a signed-in user", async () => {

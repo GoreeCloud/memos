@@ -2,6 +2,7 @@ import { CheckIcon, PaletteIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from "@/components/ui/dropdown-menu";
+import { userServiceClient } from "@/connect";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUpdateUserGeneralSetting } from "@/hooks/useUserQueries";
 import { LABEL_PRESET_COLORS } from "@/lib/label-palette";
@@ -15,7 +16,14 @@ const MemoColorMenu = ({ memoName }: { memoName: string }) => {
     if (!currentUser || busy) return;
     setBusy(true);
     try {
-      const next = { ...(userGeneralSetting?.memoColors ?? {}) };
+      // The initial card settings may be stale when another device changes colors.
+      // Refresh before writing a whole-map setting to preserve remote edits.
+      const { settings } = await userServiceClient.listUserSettings({ parent: currentUser.name });
+      const latest = settings.find((setting) => setting.value.case === "generalSetting");
+      if (!latest || latest.value.case !== "generalSetting") {
+        throw new Error("Current memo-color settings are unavailable");
+      }
+      const next = { ...latest.value.value.memoColors };
       if (hex) next[memoName] = hex;
       else delete next[memoName];
       await mutateAsync({ generalSetting: { memoColors: next }, updateMask: ["memo_colors"] });
