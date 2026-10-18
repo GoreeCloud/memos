@@ -51,6 +51,10 @@ describe("MemoDisplaySettingMenu", () => {
     fireEvent.click(trigger);
 
     const compactMode = screen.getByRole("switch", { name: "Compact mode" });
+    expect(compactMode).toBeChecked();
+    expect(compactMode).toHaveAttribute("aria-disabled", "true");
+
+    fireEvent.click(screen.getByRole("radio", { name: "List" }));
     expect(compactMode).not.toBeChecked();
     expect(compactMode).toBeEnabled();
 
@@ -76,8 +80,8 @@ describe("MemoDisplaySettingMenu", () => {
     expect(screen.getByRole("radio", { name: "3 columns" })).toBeChecked();
 
     fireEvent.click(reset);
-    expect(screen.getByRole("radio", { name: "List" })).toBeChecked();
-    expect(screen.getByRole("switch", { name: "Compact mode" })).not.toBeChecked();
+    expect(screen.getByRole("radio", { name: "Auto" })).toBeChecked();
+    expect(screen.getByRole("switch", { name: "Compact mode" })).toBeChecked();
     expect(screen.getByRole("switch", { name: "Link preview" })).toBeChecked();
     expect(reset).toBeDisabled();
 
@@ -86,7 +90,7 @@ describe("MemoDisplaySettingMenu", () => {
       orderByTimeAsc: false,
       compactMode: false,
       linkPreview: true,
-      maxColumns: 1,
+      maxColumns: 0,
     });
   });
 
@@ -124,6 +128,6 @@ describe("MemoDisplaySettingMenu", () => {
     fireEvent.click(screen.getByRole("button", { name: "View options" }));
     fireEvent.keyDown(screen.getByRole("radiogroup", { name: "Layout" }), { key: "ArrowLeft" });
 
-    expect(screen.getByRole("radio", { name: "2 columns" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "List" })).toBeChecked();
   });
 });

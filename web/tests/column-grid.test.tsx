@@ -62,6 +62,30 @@ describe("<ColumnGrid>", () => {
     offsetHeight.mockRestore();
   });
 
+  it("packs varied-height cards into two phone columns without forcing equal-height rows", () => {
+    const clientWidth = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(332);
+    const offsetHeight = vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function (this: HTMLElement) {
+      const heights: Record<string, number> = { "card-a": 120, "card-b": 240, "card-c": 80 };
+      return heights[this.dataset.testid ?? ""] ?? 100;
+    });
+
+    const { getByTestId, container } = render(
+      <ColumnGrid
+        items={[item("a"), item("b"), item("c")]}
+        getKey={getKey}
+        renderItem={(i) => <div data-testid={`card-${i.id}`}>{i.id}</div>}
+      />,
+    );
+
+    expect(getByTestId("card-a").parentElement?.style.width).toBe("160px");
+    expect(getByTestId("card-b").parentElement?.style.transform).toContain("translate3d(172px, 0px");
+    expect(getByTestId("card-c").parentElement?.style.transform).toContain("translate3d(0px, 132px");
+    expect((container.firstElementChild as HTMLElement).style.height).toBe("240px");
+
+    clientWidth.mockRestore();
+    offsetHeight.mockRestore();
+  });
+
   it("renders nothing for an empty list", () => {
     const { container } = render(<ColumnGrid items={[]} getKey={getKey} renderItem={() => <div data-testid="card" />} />);
 

@@ -52,6 +52,7 @@ import { User_Role, UserNotification_Status } from "@/types/proto/api/v1/user_se
 import { useTranslate } from "@/utils/i18n";
 import MemosLogo from "../MemosLogo";
 import CommonSidebarContent from "./CommonSidebarContent";
+import DashboardSidebar from "./DashboardSidebar";
 import { getSidebarRouteKind } from "./routes";
 import SidebarRow, { SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_FOCUS_CLASSES, SidebarRowIconSlot, sidebarRowStateClasses } from "./SidebarRow";
 import SidebarSection, { SIDEBAR_SECTION_STACK_CLASSES } from "./SidebarSection";
@@ -566,16 +567,23 @@ const AppSidebar = ({ className }: { className?: string }) => {
   const currentUser = useCurrentUser();
   const { setMobileOpen } = useAppSidebar();
   const { canOpen: canCompose, openEditor } = useGlobalMemoEditor();
+  const dashboard = ["home", "archived", "attachments", "settings"].includes(getSidebarRouteKind(useLocation().pathname));
   return (
-    <aside className={cn("goreecloud-sidebar flex h-full w-full select-none flex-col bg-sidebar text-sidebar-foreground", className)}>
+    <aside
+      className={cn(
+        "goreecloud-sidebar flex h-full w-full select-none flex-col bg-sidebar text-sidebar-foreground",
+        dashboard && "gc-dashboard-sidebar",
+        className,
+      )}
+    >
       <div data-sidebar-header className={cn("flex h-13 shrink-0 items-center justify-between gap-2", SIDEBAR_RAIL_CLASSES)}>
-        <SidebarBrand className="min-w-0" size="header" />
-        {canCompose && <NewMemoAction onClick={openEditor} />}
+        <SidebarBrand className={cn("min-w-0", dashboard && "flex-1")} size="header" />
+        {canCompose && !dashboard && <NewMemoAction onClick={openEditor} />}
       </div>
-      <GlobalNavigation />
+      {!dashboard && <GlobalNavigation />}
       <div className="mx-3 mt-2 border-t border-border/70" />
       <div className={cn("min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-3 [scrollbar-width:thin]", SIDEBAR_RAIL_CLASSES)}>
-        <RouteSidebarContent />
+        {dashboard ? <DashboardSidebar /> : <RouteSidebarContent />}
       </div>
       <footer className="shrink-0 border-t border-border/70">
         {currentUser ? (

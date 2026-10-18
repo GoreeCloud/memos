@@ -1,5 +1,6 @@
 import {
   type ComponentType,
+  type CSSProperties,
   forwardRef,
   memo,
   Suspense,
@@ -29,6 +30,7 @@ import { useImagePreview } from "./hooks";
 import { computeCommentAmount, MemoViewContext } from "./MemoViewContext";
 import { isMemoDetailPath, resolveMemoParentPage } from "./navigation";
 import type { MemoViewHandle, MemoViewProps } from "./types";
+import "./memo-color.css";
 
 const MemoShareImageDialog = lazyWithReload(() => import("../MemoActionMenu/MemoShareImageDialog"));
 const PreviewImageDialog = lazyWithReload(() => import("../PreviewImageDialog"));
@@ -51,8 +53,10 @@ const MemoView = forwardRef<MemoViewHandle, MemoViewProps>((props, ref) => {
   const [cardWidth, setCardWidth] = useState(0);
 
   const currentUser = useCurrentUser();
-  const { userTagsSetting } = useAuth();
+  const { userTagsSetting, userGeneralSetting } = useAuth();
   const creator = useResolvedUser(memoData.creator, { enabled: Boolean(showCreator || props.shareImageDialogOpen) });
+  const savedTint = userGeneralSetting?.memoColors?.[memoData.name];
+  const memoTint = savedTint && /^#[0-9A-Fa-f]{6}$/.test(savedTint) ? savedTint : undefined;
   const isArchived = memoData.state === State.ARCHIVED;
   const readonly = !canManageMemo(memoData, currentUser);
   const location = useLocation();
@@ -184,7 +188,8 @@ const MemoView = forwardRef<MemoViewHandle, MemoViewProps>((props, ref) => {
 
   const article = (
     <article
-      className={cn(MEMO_CARD_BASE_CLASSES, showCommentPreview ? "mb-0 rounded-b-none" : "mb-2", className)}
+      className={cn(MEMO_CARD_BASE_CLASSES, showCommentPreview ? "mb-0 rounded-b-none" : "mb-2", memoTint && "gc-memo-tinted", className)}
+      style={memoTint ? ({ "--gc-memo-tint": memoTint } as CSSProperties) : undefined}
       ref={cardRef}
       tabIndex={readonly ? -1 : 0}
     >

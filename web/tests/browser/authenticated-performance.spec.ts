@@ -42,21 +42,21 @@ test("bounded Glaze interaction-to-painted-update stays within the approved Deve
   await page.goto("/");
   await expect(page.locator('.goreecloud-shell[data-glaze-consumer="GoreeCloud Memos"][data-glaze-version="1.7.0"]')).toBeVisible();
 
-  const searchTrigger = page.locator("nav").getByRole("button", { name: "Search", exact: true }).first();
-  await expect(searchTrigger).toBeVisible();
-  await searchTrigger.click();
-
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
-  const textTab = dialog.getByRole("tab", { name: "Text", exact: true });
-  const expressionTab = dialog.getByRole("tab", { name: "Expression", exact: true });
-  await expect(textTab).toHaveAttribute("aria-selected", "true");
+  // The redesigned dashboard has persistent Grid/List controls in place of
+  // the former navigation Search dialog. Measure real user-visible layout
+  // transitions rather than timing an obsolete trigger or an inert control.
+  const layout = page.getByRole("group", { name: "Memo layout" });
+  const grid = layout.getByRole("button", { name: "Grid view" });
+  const list = layout.getByRole("button", { name: "List view" });
+  await expect(grid).toBeVisible();
+  await expect(list).toBeVisible();
+  await expect(grid).toHaveAttribute("aria-pressed", "true");
 
   const durations: number[] = [];
   for (let index = 0; index < SAMPLE_COUNT; index += 1) {
-    const target = index % 2 === 0 ? expressionTab : textTab;
+    const target = index % 2 === 0 ? list : grid;
     durations.push(await measureClickToPaint(page, target));
-    await expect(target).toHaveAttribute("aria-selected", "true");
+    await expect(target).toHaveAttribute("aria-pressed", "true");
   }
 
   const metrics = {
@@ -70,7 +70,7 @@ test("bounded Glaze interaction-to-painted-update stays within the approved Deve
       p95Ms: GLAZE_INTERACTION_P95_BUDGET_MS,
       p99Ms: GLAZE_INTERACTION_P99_BUDGET_MS,
     },
-    scope: "Search text/expression mode transitions; Development evidence only",
+    scope: "Home grid/list layout transitions; Development evidence only",
   };
 
   await testInfo.attach("glaze-interaction-performance.json", {

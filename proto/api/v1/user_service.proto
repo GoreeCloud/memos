@@ -681,6 +681,9 @@ message UserSetting {
     string theme = 4 [(google.api.field_behavior) = OPTIONAL];
     // Whether the official client should save metadata from future media uploads.
     bool save_media_metadata = 5 [(google.api.field_behavior) = OPTIONAL];
+    // Per-account, cross-device card tint preferences by memo resource name.
+    // These are private presentation settings, not changes to memo content.
+    map<string, string> memo_colors = 6 [(google.api.field_behavior) = OPTIONAL];
   }
 
   // Tag metadata for user-specific display rules.
