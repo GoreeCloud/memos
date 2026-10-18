@@ -212,6 +212,7 @@ function MemoDisplaySettingMenu({ className }: Props) {
       <Tooltip>
         <TooltipTrigger render={<span className="inline-flex" />}>
           <PopoverTrigger
+            type="button"
             aria-label={t("memo.view-options")}
             className={cn(buttonVariants({ variant: "quiet", size: "icon-sm" }), className)}
           >

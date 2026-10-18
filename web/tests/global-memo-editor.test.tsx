@@ -243,7 +243,7 @@ describe("GlobalMemoEditorProvider", () => {
     expect(close).toHaveFocus();
   });
 
-  it("returns focus to mobile navigation when the drawer's Compose trigger unmounts", async () => {
+  it("returns focus to persistent floating Compose when the drawer trigger unmounts", async () => {
     renderProvider(<EphemeralTrigger />);
 
     fireEvent.click(screen.getByRole("button", { name: "Open drawer editor" }));
@@ -251,7 +251,7 @@ describe("GlobalMemoEditorProvider", () => {
     fireEvent.click(screen.getByRole("button", { name: "Cancel editor" }));
 
     await expectClosed();
-    expect(screen.getByRole("button", { name: "Open navigation" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "editor.new-memo" })).toHaveFocus();
   });
 
   it("does not open or load the editor for a guest", () => {

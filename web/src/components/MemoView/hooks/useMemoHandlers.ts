@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { useInstance } from "@/contexts/InstanceContext";
 import type { PreviewMediaItem } from "@/utils/media-item";
 
 interface UseMemoHandlersOptions {
@@ -10,7 +9,6 @@ interface UseMemoHandlersOptions {
 
 export const useMemoHandlers = (options: UseMemoHandlersOptions) => {
   const { readonly, openEditor, openPreview } = options;
-  const { memoRelatedSetting } = useInstance();
 
   const handleMemoContentClick = useCallback(
     (e: React.MouseEvent) => {
@@ -20,21 +18,25 @@ export const useMemoHandlers = (options: UseMemoHandlersOptions) => {
         if (linkElement) return; // If image is inside a link, don't show preview
         const imgUrl = targetEl.getAttribute("src");
         if (imgUrl) openPreview(imgUrl);
+        return;
       }
-    },
-    [openPreview],
-  );
-
-  const handleMemoContentDoubleClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (readonly) return;
-      if (memoRelatedSetting.enableDoubleClickEdit) {
-        e.preventDefault();
+      if (
+        !readonly &&
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey &&
+        !e.shiftKey &&
+        !window.getSelection()?.toString() &&
+        !targetEl.closest("a, button, input, textarea, select, [role='button'], [contenteditable]")
+      ) {
         openEditor();
       }
     },
-    [readonly, openEditor, memoRelatedSetting.enableDoubleClickEdit],
+    [readonly, openEditor, openPreview],
   );
+
+  // Double-click now remains available for native text selection.
+  const handleMemoContentDoubleClick = useCallback(() => undefined, []);
 
   return { handleMemoContentClick, handleMemoContentDoubleClick };
 };

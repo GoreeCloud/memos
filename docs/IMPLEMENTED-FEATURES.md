@@ -12,6 +12,13 @@
 - Docker-oriented self-hosting foundation.
 - Optional AI/provider integrations that are inactive until configured.
 
+## Memo title and navigation Development UX
+
+- Optional memo title field on the shared create/edit composer. Titles are persisted as the leading Markdown H1, compatible with the existing `Memo.property.title` derivation, API, exports and backup formats without adding a new database field. An empty title leaves the memo body unchanged; legacy untitled memos remain untitled. This is *not* a separately stored title schema.
+- Single primary-click on regular editable memo text enters the existing editor; links, images, action buttons and read-only memos retain their respective behavior.
+- A persistent circular New Memo floating action appears at the bottom-end of authenticated desktop/mobile views. Its existing modal composer preserves focus restoration, session and Space boundaries.
+- Memo display/filter-style options move to the right end of the primary search bar. The signed-in root `/` becomes the All Memos collection; `/dashboard` preserves the existing Home composer/dashboard view and `/home` remains an alias to it. No production acceptance claim.
+
 ## Development platform packaging (not Stable)
 
 - Android API 26+ HTTPS-only WebView companion build, using a distinct Development application ID, a persistent locally managed signing identity, user-selected server origin, and local physical-device cold-launch evidence. It is not an offline native store and is not accepted for login/uploads/accessibility/production.

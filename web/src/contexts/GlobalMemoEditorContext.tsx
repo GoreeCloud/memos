@@ -1,4 +1,5 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { PlusIcon } from "lucide-react";
 import { type ComponentType, createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getSidebarRouteKind } from "@/components/AppSidebar/routes";
@@ -142,6 +143,18 @@ export function GlobalMemoEditorProvider({ children }: { children: ReactNode }) 
   return (
     <GlobalMemoEditorContext.Provider value={value}>
       {children}
+      {canOpen && (
+        <button
+          type="button"
+          onClick={openEditor}
+          data-new-memo-trigger
+          aria-label={t("editor.new-memo")}
+          title={t("editor.new-memo")}
+          className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] end-6 z-40 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring motion-reduce:transition-none"
+        >
+          <PlusIcon className="size-7" strokeWidth={2.25} aria-hidden="true" />
+        </button>
+      )}
       <DialogPrimitive.Root
         open={editorIsOpen}
         onOpenChange={(open, eventDetails) => {

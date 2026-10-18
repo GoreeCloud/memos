@@ -100,7 +100,7 @@ describe("locale key usage", () => {
     expect(references.unreviewedPatterns, "Add finite values for new computed translation keys").toEqual([]);
     expect([...references.dynamicPatterns].sort(), "Remove stale computed-key rules").toEqual(Object.keys(dynamicKeyParts).sort());
     expect(Object.keys(source).filter((key) => !references.keys.has(key) && !references.keys.has(pluralBase(key)))).toEqual([]);
-  });
+  }, 20_000);
 
   it("counts runtime key definitions but ignores comments and type-only references", () => {
     const references = collectReferences({

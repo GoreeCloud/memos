@@ -135,6 +135,7 @@ const HomeSearchBar = () => {
             <XIcon className="size-4" aria-hidden="true" />
           </button>
         )}
+        <MemoDisplaySettingMenu className="size-9 shrink-0 rounded-lg" />
         <button
           type="submit"
           aria-label={t("home.search-all")}
@@ -143,7 +144,6 @@ const HomeSearchBar = () => {
           <ArrowRightIcon className="size-4" aria-hidden="true" />
         </button>
       </form>
-      <MemoDisplaySettingMenu className="h-auto w-11 shrink-0 rounded-2xl border border-border/70 bg-card/90 text-foreground shadow-[0_12px_42px_-32px_rgba(0,0,0,.4)] hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" />
     </div>
   );
 };
