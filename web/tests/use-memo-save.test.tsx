@@ -26,7 +26,7 @@ vi.mock("@/components/MemoEditor/state", () => ({
       setTimestamps: () => ({ type: "set-timestamps" }),
     },
     dispatch: mocks.dispatch,
-    getState: () => ({ ui: { justSaved: false, isLoading: { saving: false } } }),
+    getState: () => ({ content: "", ui: { justSaved: false, isLoading: { saving: false } } }),
   }),
 }));
 
