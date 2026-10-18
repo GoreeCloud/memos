@@ -27,8 +27,9 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
   page.on("pageerror", (error) => pageErrors.push(error.message));
   await emulateReducedTransparency(page, testInfo.project.name);
 
-  await page.goto("/");
-  await expect(page).toHaveURL(/\/$/);
+  // The signed-in root is All Memos; Home remains its own dashboard route.
+  await page.goto("/dashboard");
+  await expect(page).toHaveURL(/\/dashboard$/);
 
   const shell = page.locator('.goreecloud-shell[data-glaze-consumer="GoreeCloud Memos"][data-glaze-version="1.7.0"]');
   const main = page.getByRole("main");
@@ -100,7 +101,7 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
       .poll(() => page.evaluate(() => ({ lang: document.documentElement.lang, dir: document.documentElement.dir })))
       .toEqual({ lang: "ar", dir: "rtl" });
 
-    await page.goto("/");
+    await page.goto("/dashboard");
     await expect(shell).toBeVisible();
     await expect(composer).toBeVisible();
     await expect(memoCard).toBeVisible();
@@ -178,4 +179,31 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
     path: testInfo.outputPath("authenticated-home.png"),
     fullPage: true,
   });
+});
+
+test("All Memos starts without an inline composer and offers an accessible floating New Memo action", async ({ page }) => {
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator(".goreecloud-composer")).toHaveCount(0);
+  const floatingCompose = page.locator("[data-new-memo-trigger]");
+  await expect(floatingCompose).toBeVisible();
+  await expect(floatingCompose).toHaveAttribute("aria-label", "New Memo");
+
+  await floatingCompose.click();
+  const editor = page.locator('.cm-content[contenteditable="true"]').first();
+  await expect(editor).toBeVisible();
+  const title = page.getByRole("textbox", { name: "Title" });
+  await expect(title).toBeVisible();
+  const memoTitle = "Optional title — Development acceptance";
+  await title.fill(memoTitle);
+  await expect(page.getByRole("button", { name: "Save", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+
+  const card = page.getByRole("article").filter({ hasText: memoTitle }).first();
+  await expect(card).toBeVisible();
+  await card.getByText(memoTitle).click();
+  await expect(title).toBeVisible();
+  await title.fill("Renamed title — Development acceptance");
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("article").filter({ hasText: "Renamed title — Development acceptance" }).first()).toBeVisible();
 });
