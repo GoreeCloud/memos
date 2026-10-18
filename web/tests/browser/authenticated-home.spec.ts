@@ -66,9 +66,10 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
   expect(glazeStableCSS, "pinned Glaze stable stylesheet should be loaded in the rendered application").not.toBe("");
   await expect(main).toHaveCount(1);
   await expect(main).toBeVisible();
-  const newMemo = page.locator("[data-dashboard-new-memo]");
+  const newMemo = page.locator("[data-new-memo-trigger]");
   await expect(newMemo).toBeVisible();
   await expect(newMemo).toBeEnabled();
+  await expect(page.locator("[data-dashboard-new-memo]")).toHaveCount(0);
   // The redesigned Home keeps its editor closed until the user explicitly opens it.
   await expect(composer).not.toBeVisible();
 
@@ -141,7 +142,8 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
     )
     .toBeLessThan(0.65);
   await page.goto("/");
-  await expect(masonryBoard).toBeVisible();
+  // The signed-in root is All Memos, not the Home dashboard masonry preview.
+  await expect(page.locator(".gc-dashboard-feed")).toBeVisible();
   await expect(memoCard).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
@@ -153,7 +155,7 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
 
     const languageSearch = page.getByRole("textbox", { name: "Language", exact: true });
     await languageSearch.fill("Arabic");
-    const arabicOption = page.getByRole("option");
+    const arabicOption = page.getByRole("listbox", { name: "Language" }).getByRole("option");
     await expect(arabicOption).toHaveCount(1);
     await arabicOption.click();
 
@@ -163,7 +165,7 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
 
     await page.goto("/dashboard");
     await expect(shell).toBeVisible();
-    await expect(page.locator("[data-dashboard-new-memo]")).toBeVisible();
+    await expect(page.locator("[data-new-memo-trigger]")).toBeVisible();
     await expect(homeSearch.getByRole("search")).toBeVisible();
     await expect(memoCard).toBeVisible();
     await expectNoHorizontalOverflow(page);
@@ -201,7 +203,7 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
   ).toEqual([]);
 
   await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
-  await expect(page.locator("[data-dashboard-new-memo]")).toBeVisible();
+  await expect(page.locator("[data-new-memo-trigger]")).toBeVisible();
   await expect(memoCard).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
@@ -231,7 +233,7 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
 
   // At enlarged text the global composer must remain openable and dismissible.
   // Verify reduced-transparency fallback on the actual on-demand editor in RTL.
-  await page.locator("[data-dashboard-new-memo]").click();
+  await page.locator("[data-new-memo-trigger]").click();
   await expect(composer).toBeVisible();
   if (testInfo.project.name.includes("rtl-reduced-transparency")) {
     const composerTransparency = await composer.evaluate((element) => {

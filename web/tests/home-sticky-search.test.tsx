@@ -137,7 +137,7 @@ describe("Home mockup dashboard layout", () => {
     state.canOpen = false;
     const { rerender } = show();
     expect(screen.queryByRole("search")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /editor.new-memo/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /New Memo/i })).toBeDisabled();
     state.ready = true;
     state.canOpen = true;
     rerender(
@@ -147,14 +147,23 @@ describe("Home mockup dashboard layout", () => {
     );
   });
 
-  it("opens the global composer and keeps Pinterest masonry as the only layout", () => {
-    const { container } = show();
-    fireEvent.click(screen.getByRole("button", { name: /editor.new-memo/i }));
+  it("retains the floating compose flow and supports the dashboard grid/list switch", () => {
+    const { container, rerender } = show();
+    fireEvent.click(screen.getByRole("button", { name: /New Memo/i }));
     expect(state.openEditor).toHaveBeenCalledOnce();
     expect(container.querySelector(".gc-dashboard-memos-masonry")).not.toBeNull();
-    expect(container.querySelector(".gc-dashboard-memos-list")).toBeNull();
-    expect(screen.queryByRole("button", { name: "List view" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Grid view" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Grid view" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: "List view" }));
+    expect(state.columns).toBe(1);
+    rerender(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>,
+    );
+    expect(container.querySelector(".gc-dashboard-memos-list")).not.toBeNull();
+    expect(screen.getByRole("button", { name: "List view" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: "Grid view" }));
+    expect(state.columns).toBe(0);
   });
 
   it("keeps only one Home search when switching Space scope", () => {

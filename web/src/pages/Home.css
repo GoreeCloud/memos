@@ -780,6 +780,11 @@
 [data-theme="default-dark"] .gc-dashboard-memos .gc-dashboard-memo [data-slot="memo-header-meta"] {
   color: #cbd5e1;
 }
+/* Keep timestamps readable across the Home preview and All Memos feed in dark mode. */
+.dark .gc-dashboard relative-time,
+[data-theme="default-dark"] .gc-dashboard relative-time {
+  color: #cbd5e1;
+}
 /* Readable paragraph/list ink on dark memo cards: prior light-theme #66758f
    was only 3.14:1 against #1c293c in authenticated Chromium. */
 .dark .gc-dashboard-memos .gc-dashboard-memo :where(p, li),

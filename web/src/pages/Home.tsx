@@ -1,9 +1,9 @@
 import {
-  ChevronDownIcon,
   ChevronRightIcon,
   CloudIcon,
+  Grid2X2Icon,
+  ListIcon,
   LockKeyholeIcon,
-  PlusIcon,
   SearchIcon,
   Settings2Icon,
   ShieldCheckIcon,
@@ -23,6 +23,7 @@ import { useGlobalMemoEditor } from "@/contexts/GlobalMemoEditorContext";
 import { getFilterSearch, isSearchFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { NewMemoProvider } from "@/contexts/NewMemoContext";
 import { useSpaceContext } from "@/contexts/SpaceContext";
+import { useView } from "@/contexts/ViewContext";
 import { useMemoFilters, useMemoSorting } from "@/hooks";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { useInfiniteMemos } from "@/hooks/useMemoQueries";
@@ -30,7 +31,6 @@ import { combineCELFilters } from "@/lib/cel-filter";
 import { buildCollectionPath, ROUTES } from "@/router/routes";
 import { State } from "@/types/proto/api/v1/common_pb";
 import type { Memo } from "@/types/proto/api/v1/memo_service_pb";
-import { useTranslate } from "@/utils/i18n";
 import "./Home.css";
 import "./Home.mobile.css";
 import "./Home.masonry.css";
@@ -92,9 +92,10 @@ const WELCOME_FEATURES = [
 
 const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
   const currentUser = useCurrentUser();
-  const t = useTranslate();
   const { isUserSettingsInitialized, userTagsSetting } = useAuth();
   const { canOpen, openEditor } = useGlobalMemoEditor();
+  const { maxColumns, setMaxColumns } = useView();
+  const dashboardGrid = maxColumns !== 1;
   const { filters, setMemoView } = useMemoFilterContext();
   const { selectedSpaceName, memoFilter: contextFilter } = useSpaceContext();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -153,12 +154,13 @@ const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
             {isUserSettingsInitialized && <HomeSearchBar showDisplaySettings={false} />}
           </div>
           <div className="gc-dashboard-tools">
-            <button type="button" className="gc-dashboard-new" onClick={openEditor} disabled={!canOpen} data-dashboard-new-memo>
-              <PlusIcon size={20} aria-hidden="true" />
-              <span>{t("editor.new-memo")}</span>
-              <ChevronDownIcon size={14} aria-hidden="true" />
-            </button>
             <div className="gc-dashboard-layout-toggle" role="group" aria-label="Memo layout">
+              <button type="button" aria-label="Grid view" aria-pressed={dashboardGrid} onClick={() => setMaxColumns(0)}>
+                <Grid2X2Icon size={19} aria-hidden="true" />
+              </button>
+              <button type="button" aria-label="List view" aria-pressed={!dashboardGrid} onClick={() => setMaxColumns(1)}>
+                <ListIcon size={19} aria-hidden="true" />
+              </button>
               <MemoDisplaySettingMenu className="gc-dashboard-view-settings" />
             </div>
           </div>
@@ -221,26 +223,42 @@ const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
                 </button>
               </div>
             ) : recentMemos.length ? (
-              <div className="gc-dashboard-memos gc-dashboard-memos-masonry">
-                <ColumnGridUntrappedProvider>
-                  <ColumnGrid
-                    items={recentMemos}
-                    getKey={getMemoKey}
-                    estimateHeight={estimateMemoCardHeight}
-                    maxColumns={0}
-                    maxColumnWidth={420}
-                    renderItem={(memo) => (
-                      <MemoView
-                        memo={memo}
-                        showVisibility
-                        showPinned
-                        showSpace={!selectedSpaceName}
-                        compact
-                        className="gc-dashboard-memo"
-                      />
-                    )}
-                  />
-                </ColumnGridUntrappedProvider>
+              <div
+                className={dashboardGrid ? "gc-dashboard-memos gc-dashboard-memos-masonry" : "gc-dashboard-memos gc-dashboard-memos-list"}
+              >
+                {dashboardGrid ? (
+                  <ColumnGridUntrappedProvider>
+                    <ColumnGrid
+                      items={recentMemos}
+                      getKey={getMemoKey}
+                      estimateHeight={estimateMemoCardHeight}
+                      maxColumns={maxColumns === 0 ? 3 : maxColumns}
+                      maxColumnWidth={420}
+                      renderItem={(memo) => (
+                        <MemoView
+                          memo={memo}
+                          showVisibility
+                          showPinned
+                          showSpace={!selectedSpaceName}
+                          compact
+                          className="gc-dashboard-memo"
+                        />
+                      )}
+                    />
+                  </ColumnGridUntrappedProvider>
+                ) : (
+                  recentMemos.map((memo) => (
+                    <MemoView
+                      key={getMemoKey(memo)}
+                      memo={memo}
+                      showVisibility
+                      showPinned
+                      showSpace={!selectedSpaceName}
+                      compact
+                      className="gc-dashboard-memo"
+                    />
+                  ))
+                )}
               </div>
             ) : (
               <div className="gc-dashboard-empty">
