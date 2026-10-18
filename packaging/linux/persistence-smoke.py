@@ -100,7 +100,7 @@ def check_fixture(db_file: Path) -> None:
             raise AssertionError("Disposable note content was not preserved")
 
 
-def main(package: Path) -> None:
+def main(package: Path, previous_package: Path | None = None) -> None:
     if not package.is_file() or package.suffix != ".deb":
         raise ValueError("Expected existing Debian package")
     with tempfile.TemporaryDirectory(prefix="goreecloud-memos-restore-") as folder:
@@ -110,9 +110,18 @@ def main(package: Path) -> None:
         binary = extracted / "usr/lib/goreecloud-memos/memos"
         if not binary.is_file():
             raise AssertionError("Expected packaged Memos executable")
+        initial_binary = binary
+        if previous_package is not None:
+            if not previous_package.is_file() or previous_package.suffix != ".deb":
+                raise ValueError("Expected existing previous-version Debian package")
+            old_root = root / "previous"
+            subprocess.run(["dpkg-deb", "--extract", str(previous_package), str(old_root)], check=True)
+            initial_binary = old_root / "usr/lib/goreecloud-memos/memos"
+            if not initial_binary.is_file():
+                raise AssertionError("Previous package does not include Memos executable")
         primary = root / "primary"
         primary.mkdir(mode=0o700)
-        with running_server(binary, primary, root):
+        with running_server(initial_binary, primary, root):
             pass  # Migrations initialize the disposable database.
         db_file = primary / "memos_prod.db"
         with closing(connect_checked(db_file)) as db:
@@ -135,11 +144,15 @@ def main(package: Path) -> None:
         with running_server(binary, restored, root):
             pass
         check_fixture(restored / "memos_prod.db")
-        print("PASS: packaged Memos SQLite fixture survives restart and cold backup/restore")
+        print("PASS: packaged Memos SQLite fixture survives prior-version upgrade, "
+              "restart, and cold backup/restore" if previous_package is not None else
+              "PASS: packaged Memos SQLite fixture survives restart and cold backup/restore")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("package", type=Path)
+    parser.add_argument("--previous-package", type=Path,
+                        help="Optional older Debian package for forward schema upgrade acceptance")
     args = parser.parse_args()
-    main(args.package)
+    main(args.package, args.previous_package)
