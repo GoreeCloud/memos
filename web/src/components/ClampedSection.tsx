@@ -58,7 +58,12 @@ const ClampedSection = ({ enabled, children }: ClampedSectionProps) => {
         )}
       </div>
       {clamped && (
-        <Button variant="quiet" size="sm" onClick={() => setExpanded((prev) => !prev)}>
+        <Button
+          variant="quiet"
+          size="sm"
+          className="h-auto min-w-0 max-w-full whitespace-normal break-words text-start"
+          onClick={() => setExpanded((prev) => !prev)}
+        >
           {t(collapsed ? "memo.show-more" : "memo.show-less")}
           {collapsed ? (
             <ChevronDownIcon className="size-3.5" strokeWidth={1.8} />

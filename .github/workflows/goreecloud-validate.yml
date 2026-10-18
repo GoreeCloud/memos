@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - main
+  # Run the exact-head validation for stacked Development PRs as well as main.
   pull_request:
-    branches:
-      - main
 
 permissions:
   contents: read
