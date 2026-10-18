@@ -15,4 +15,6 @@ async function fetchAsset(filename){
  const [archive,checksum]=await Promise.all([fetchAsset(name),fetchAsset('SHA256SUMS')]);
  assert.equal(createHash('sha256').update(archive).digest('hex'),sha);
  assert.equal(checksum.toString('utf8').trim(),sha+'  '+name);
-console.log('Checksum verified');
+const tar = gunzipSync(archive);
+assert.ok(tar.includes(Buffer.from('Apache License')), 'License missing from pinned archive');
+console.log('Foundations v1.0.0 immutable archive verified');
