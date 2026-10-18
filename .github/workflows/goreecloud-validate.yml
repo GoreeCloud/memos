@@ -66,6 +66,9 @@ jobs:
         working-directory: web
         run: pnpm install --frozen-lockfile
 
+      - name: Verify upstream GC UI Foundations release checksum
+        run: node web/scripts/verify-gc-ui-foundations.mjs
+
       - name: Lint and typecheck
         working-directory: web
         run: pnpm lint
