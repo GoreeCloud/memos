@@ -1,7 +1,7 @@
 import { ArrowRightIcon, SearchIcon, XIcon } from "lucide-react";
 import { type FormEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MemoDisplaySettingMenu from "@/components/MemoDisplaySettingMenu";
+import MemoFacetFilterMenu from "@/components/MemoFacetFilterMenu";
 import { getFilterSearch, isSearchFilter, type MemoFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { useSpaceContext } from "@/contexts/SpaceContext";
 import { formatTextSearchTerms, parseTextSearchTerms } from "@/lib/text-search-terms";
@@ -9,11 +9,15 @@ import { ROUTES } from "@/router/routes";
 import { useTranslate } from "@/utils/i18n";
 
 export const buildHomeSearchFilters = (value: string): MemoFilter[] =>
-  parseTextSearchTerms(value).map((term) => ({ factor: "contentSearch", value: term }));
+  parseTextSearchTerms(value).map((term) => ({
+    factor: "contentSearch",
+    value: term,
+  }));
 
 const HomeSearchBar = () => {
   const t = useTranslate();
   const navigate = useNavigate();
+
   const { filters, setFilters, setMemoView } = useMemoFilterContext();
   const { selectedSpaceName } = useSpaceContext();
   const activeQuery = filters
@@ -66,12 +70,16 @@ const HomeSearchBar = () => {
       value === activeQuery && filters.some((filter) => filter.factor === "celSearch")
         ? filters.filter(isSearchFilter)
         : buildHomeSearchFilters(value);
-    // A fresh search does not retain a former label, saved-view or Space restriction.
+    // Preserve user-selected content facets while clearing old labels, views and Space restrictions.
+    const nextFilters = [...filters.filter((filter) => filter.factor.startsWith("property.")), ...searchFilters];
     setMemoView(undefined);
     if (selectedSpaceName) {
-      navigate({ pathname: ROUTES.HOME, search: getFilterSearch(searchFilters) });
+      navigate({
+        pathname: ROUTES.HOME,
+        search: getFilterSearch(nextFilters),
+      });
     } else {
-      setFilters(searchFilters);
+      setFilters(nextFilters);
     }
   };
 
@@ -135,7 +143,8 @@ const HomeSearchBar = () => {
             <XIcon className="size-4" aria-hidden="true" />
           </button>
         )}
-        <MemoDisplaySettingMenu className="size-9 shrink-0 rounded-lg" />
+
+        <MemoFacetFilterMenu />
         <button
           type="submit"
           aria-label={t("home.search-all")}
