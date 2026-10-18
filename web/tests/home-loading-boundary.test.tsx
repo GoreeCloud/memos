@@ -84,7 +84,10 @@ describe("Home dashboard loading and Space boundaries", () => {
     const memo = screen.getByTestId("memo-view");
     expect(search.compareDocumentPosition(memo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getAllByTestId("memo-view")).toHaveLength(1);
-    fireEvent.click(screen.getByRole("button", { name: "editor.new-memo" }));
+    // Home quick actions still open the shared editor; the floating compose
+    // button is rendered by the global layout rather than Home itself.
+    expect(document.querySelector("[data-dashboard-new-memo]")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^New Memo/ }));
     expect(state.openEditor).toHaveBeenCalledOnce();
     expect(state.query).toMatchObject({ state: 1, pageSize: 3 });
   });
