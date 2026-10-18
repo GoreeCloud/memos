@@ -3,9 +3,9 @@
 This branch introduces a **non-rendering prerequisite**, not a completed UI migration.
 
 The CI probe downloads the two official release assets from
-[Foundations 1.0.0](https://github.com/GoreeCloud/gc-ui/releases/tag/foundations-v1.0.0),
+[Foundations 1.0.1](https://github.com/GoreeCloud/gc-ui/releases/tag/foundations-v1.0.1),
 compares the archive to its pinned SHA-256
-`8db29188f90da8936f5452a01b2414ffe8f295092320f1d67221c4a95bc28102`,
+`275d7e6dc9503b2e74b3190bcecf176d73d2345860e8a20fa5faa3b326cd2298`,
 and cross-checks the downloaded `SHA256SUMS` manifest.
 
 It runs with Node 24 without modifying Memos' package.json, pnpm lockfile,
