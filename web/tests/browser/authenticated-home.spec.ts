@@ -187,17 +187,21 @@ test("All Memos starts without an inline composer and offers an accessible float
   await expect(page.locator(".goreecloud-composer")).toHaveCount(0);
   const floatingCompose = page.locator("[data-new-memo-trigger]");
   await expect(floatingCompose).toBeVisible();
-  await expect(floatingCompose).toHaveAttribute("aria-label", "New memo");
+  const arabic = (await page.locator("html").getAttribute("lang"))?.startsWith("ar") ?? false;
+  const names = arabic
+    ? { newMemo: "مذكرة جديدة", title: "العنوان", save: "حفظ", update: "تحديث" }
+    : { newMemo: "New memo", title: "Title", save: "Save", update: "Update" };
+  await expect(floatingCompose).toHaveAttribute("aria-label", names.newMemo);
 
   await floatingCompose.click();
   const editor = page.locator('.cm-content[contenteditable="true"]').first();
   await expect(editor).toBeVisible();
-  const title = page.getByRole("textbox", { name: "Title" });
+  const title = page.getByRole("textbox", { name: names.title });
   await expect(title).toBeVisible();
   const memoTitle = "Optional title — Development acceptance";
   await title.fill(memoTitle);
-  await expect(page.getByRole("button", { name: "Save", exact: true })).toBeEnabled();
-  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("button", { name: names.save, exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: names.save, exact: true }).click();
 
   const card = page.getByRole("article").filter({ hasText: memoTitle }).first();
   await expect(card).toBeVisible();
@@ -205,6 +209,6 @@ test("All Memos starts without an inline composer and offers an accessible float
   await expect(title).toBeVisible();
   await title.fill("Renamed title — Development acceptance");
   // Existing memos use the explicit Update action; Save labels only creation.
-  await page.getByRole("button", { name: "Update", exact: true }).click();
+  await page.getByRole("button", { name: names.update, exact: true }).click();
   await expect(page.getByRole("article").filter({ hasText: "Renamed title — Development acceptance" }).first()).toBeVisible();
 });
