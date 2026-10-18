@@ -1,5 +1,10 @@
 # Changelog
 
+## Development packaging checkpoint — 2026-10-18
+
+- Added a signed, isolated Android WebView Development companion build for explicit HTTPS Memos origins; no offline-native store or production acceptance is claimed.
+- Added Debian AMD64 local desktop Development packaging with private per-user data, loopback-only service launch, symlinked-data-path rejection, isolated smoke acceptance and single-workflow Linux package artifact validation. Development builds are not Stable or production qualified.
+
 ## 0.1.0-dev — 2026-10-07
 
 - Recreated GoreeCloud Memos as a maintained fork of Memos v0.31.0 while preserving upstream history.

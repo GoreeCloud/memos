@@ -38,6 +38,21 @@ pnpm test
 pnpm build
 ```
 
+## Android and Linux development packages
+
+The experimental Android APK is an HTTPS-only WebView companion for a Memos
+server. It does **not** store offline-native notes. See
+[Android Dev build](packaging/android/README.md) for signing and install limits.
+
+The experimental Debian AMD64 package hosts Memos only on the local loopback
+interface and opens its embedded interface in the default browser. It does
+**not** replace an existing VPS deployment. See
+[Linux Dev package](packaging/linux/README.md) for its data location and
+[build instructions](packaging/linux/build-deb.sh).
+
+These are Development artifacts; installation or a successful HTTP smoke test
+does not establish production, Stable, Seal, or Anchor readiness.
+
 ## Recovery snapshot tools
 
 Database-only snapshot:

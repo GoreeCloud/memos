@@ -12,6 +12,11 @@
 - Docker-oriented self-hosting foundation.
 - Optional AI/provider integrations that are inactive until configured.
 
+## Development platform packaging (not Stable)
+
+- Android API 26+ HTTPS-only WebView companion build, using a distinct Development application ID, a persistent locally managed signing identity, user-selected server origin, and local physical-device cold-launch evidence. It is not an offline native store and is not accepted for login/uploads/accessibility/production.
+- Debian AMD64 desktop preview that embeds the web UI into a loopback-only local Go Memos service, launches through a desktop entry, uses a dedicated private per-user data directory, rejects symlinked data targets, and passes isolated package extraction/readiness/HTTP smoke testing. Upgrade/rollback, independent visual/assistive-technology, installation on broader Linux distributions, and production acceptance remain open.
+
 ## GoreeCloud rebuild foundation
 
 - Maintained-fork provenance with full upstream Git history.
