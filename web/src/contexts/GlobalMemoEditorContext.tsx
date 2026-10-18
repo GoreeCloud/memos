@@ -1,4 +1,5 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { PlusIcon } from "lucide-react";
 import { type ComponentType, createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getSidebarRouteKind } from "@/components/AppSidebar/routes";
@@ -85,9 +86,6 @@ export function GlobalMemoEditorProvider({ children }: { children: ReactNode }) 
     isSavingRef.current = false;
     setOpened(undefined);
   }, []);
-  const requestCloseEditor = useCallback(() => {
-    if (!isSavingRef.current) closeEditor();
-  }, [closeEditor]);
   const reportSaving = useCallback((saving: boolean) => {
     isSavingRef.current = saving;
   }, []);
@@ -142,6 +140,18 @@ export function GlobalMemoEditorProvider({ children }: { children: ReactNode }) 
   return (
     <GlobalMemoEditorContext.Provider value={value}>
       {children}
+      {canOpen && (
+        <button
+          type="button"
+          onClick={openEditor}
+          data-new-memo-trigger
+          aria-label={t("editor.new-memo")}
+          title={t("editor.new-memo")}
+          className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] end-6 z-40 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring motion-reduce:transition-none"
+        >
+          <PlusIcon className="size-7" strokeWidth={2.25} aria-hidden="true" />
+        </button>
+      )}
       <DialogPrimitive.Root
         open={editorIsOpen}
         onOpenChange={(open, eventDetails) => {
@@ -158,9 +168,9 @@ export function GlobalMemoEditorProvider({ children }: { children: ReactNode }) 
       >
         {EditorComponent && (
           <DialogPrimitive.Portal>
-            <DialogPrimitive.Backdrop className="fixed inset-0 z-overlay bg-transparent" />
+            <DialogPrimitive.Backdrop className="fixed inset-0 z-overlay bg-black/35 backdrop-blur-[2px]" />
             <DialogPrimitive.Popup
-              className="fixed inset-0 z-overlay outline-none"
+              className="fixed inset-x-3 top-[8vh] z-overlay mx-auto w-[calc(100%-1.5rem)] max-w-[620px] max-h-[84vh] overflow-y-auto rounded-2xl border border-border bg-card p-2 shadow-2xl outline-none sm:top-[12vh] sm:max-h-[76vh]"
               initialFocus
               finalFocus={resolveFinalFocus}
               aria-modal="true"
@@ -174,10 +184,11 @@ export function GlobalMemoEditorProvider({ children }: { children: ReactNode }) 
                 defaultSpace={opened?.space}
                 placeholder={t("editor.any-thoughts")}
                 onConfirm={closeEditor}
-                onCancel={closeEditor}
+                onCancel={() => {
+                  if (!isSavingRef.current) closeEditor();
+                }}
                 // Hosts the editor's focus-mode presentation: it mounts in focus
                 // mode and dismisses this dialog instead of collapsing inline.
-                onFocusModeExit={requestCloseEditor}
                 onSavingChange={reportSaving}
               />
               <DialogPrimitive.Close className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:end-3 focus-visible:top-3 focus-visible:z-dropdown focus-visible:h-9 focus-visible:rounded-md focus-visible:bg-background focus-visible:px-3 focus-visible:text-sm focus-visible:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50">

@@ -5,10 +5,17 @@ const reloadOnChunkLoadError = (error: unknown) => {
   const message = error instanceof Error ? error.message : "";
   const isChunkError =
     message.includes("Failed to fetch dynamically imported module") || message.includes("Importing a module script failed");
-  const reloadKey = "chunk-reload";
-  if (isChunkError && !sessionStorage.getItem(reloadKey)) {
-    sessionStorage.setItem(reloadKey, "1");
+  if (!isChunkError || typeof window === "undefined") return;
+
+  // Browser privacy settings can reject sessionStorage access; a failed reload
+  // must not hide the original chunk error from the error boundary.
+  try {
+    const reloadKey = "chunk-reload";
+    if (window.sessionStorage.getItem(reloadKey)) return;
+    window.sessionStorage.setItem(reloadKey, "1");
     window.location.reload();
+  } catch {
+    // loadWithReload will rethrow the original error for UI recovery.
   }
 };
 

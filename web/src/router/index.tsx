@@ -70,8 +70,8 @@ export const routeConfig: RouteObject[] = [
           },
         ],
       },
-      // Backward compatibility: the old `/home` URL now lives at `/`.
-      { path: "home", element: <Navigate to={Routes.HOME} replace /> },
+      // Keep historical Home dashboard bookmarks while All Memos becomes the root page.
+      { path: "home", element: <Navigate to={Routes.DASHBOARD} replace /> },
       {
         element: <RootLayout />,
         children: [
@@ -80,7 +80,7 @@ export const routeConfig: RouteObject[] = [
             children: [
               {
                 element: <LandingRoute />,
-                children: [{ index: true, element: <Home /> }],
+                children: [{ index: true, element: <Home allMemos /> }],
               },
               {
                 element: <RequireInstanceInitializationRoute />,
@@ -91,6 +91,7 @@ export const routeConfig: RouteObject[] = [
               {
                 element: <RequireAuthRoute />,
                 children: [
+                  { path: Routes.DASHBOARD, element: <Home /> },
                   { path: Routes.ARCHIVED, element: <Archived /> },
                   { path: CALENDAR_ROUTE_PATTERN, element: <Calendar /> },
                   {

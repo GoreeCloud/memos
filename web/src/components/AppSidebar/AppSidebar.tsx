@@ -17,14 +17,12 @@ import {
   MenuIcon,
   PaperclipIcon,
   SearchIcon,
-  SquarePenIcon,
   Trash2Icon,
   UserRoundIcon,
 } from "lucide-react";
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, Suspense, useEffect } from "react";
 import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { MAP_MEMO_FILTER } from "@/components/MapView/useMapMemos";
-import { MemoDetailSidebar } from "@/components/MemoDetailSidebar";
 import { DEFAULT_SETTING_SECTION, SETTINGS_SECTIONS } from "@/components/Settings/settingSections";
 import UserMenu from "@/components/UserMenu";
 import { Button } from "@/components/ui/button";
@@ -33,7 +31,6 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { type AttachmentSection, type InboxFilter, useAppSidebar } from "@/contexts/AppSidebarContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useGlobalMemoEditor } from "@/contexts/GlobalMemoEditorContext";
 import { useInstance } from "@/contexts/InstanceContext";
 import { getFilterSearch, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { useSpaceContext } from "@/contexts/SpaceContext";
@@ -50,6 +47,7 @@ import { collectionPathForLocation, ROUTES } from "@/router/routes";
 import { State } from "@/types/proto/api/v1/common_pb";
 import { User_Role, UserNotification_Status } from "@/types/proto/api/v1/user_service_pb";
 import { useTranslate } from "@/utils/i18n";
+import { lazyWithReload } from "@/utils/lazy";
 import MemosLogo from "../MemosLogo";
 import CommonSidebarContent from "./CommonSidebarContent";
 import DashboardSidebar from "./DashboardSidebar";
@@ -66,19 +64,10 @@ import {
 import TagsSection from "./TagsSection";
 import ViewsSection from "./ViewsSection";
 
-const NewMemoAction = ({ onClick }: { onClick: () => void }) => {
-  const t = useTranslate();
-  const label = t("editor.new-memo");
-
-  return (
-    <Tooltip>
-      <TooltipTrigger render={<Button variant="outline" size="icon-compact" onClick={onClick} aria-label={label} data-new-memo-trigger />}>
-        <SquarePenIcon className="size-4" strokeWidth={1.8} />
-      </TooltipTrigger>
-      <TooltipContent side="bottom">{label}</TooltipContent>
-    </Tooltip>
-  );
-};
+// Keep memo detail panel code out of the initial Home and Settings bundles.
+const MemoDetailSidebar = lazyWithReload(() =>
+  import("@/components/MemoDetailSidebar").then(({ MemoDetailSidebar }) => ({ default: MemoDetailSidebar })),
+);
 
 const ProfileNavigation = () => {
   const t = useTranslate();
@@ -274,7 +263,9 @@ const MemoDetailSidebarContent = () => {
 
 const RouteSidebarContent = () => {
   const location = useLocation();
-  const kind = getSidebarRouteKind(location.pathname);
+  // The dedicated Home dashboard retains the same contextual memo sidebar
+  // even though All Memos owns the signed-in root route.
+  const kind = location.pathname === ROUTES.DASHBOARD ? "home" : getSidebarRouteKind(location.pathname);
   if (kind === "home" || kind === "archived" || kind === "explore" || kind === "profile") {
     return <CollectionSidebarContent context={kind} />;
   }
@@ -284,7 +275,13 @@ const RouteSidebarContent = () => {
   if (kind === "attachments") return <AttachmentsSidebarContent />;
   if (kind === "inbox") return <InboxSidebarContent />;
   if (kind === "settings") return <SettingsSidebarContent />;
-  if (kind === "memo") return <MemoDetailSidebarContent />;
+  if (kind === "memo") {
+    return (
+      <Suspense fallback={<div className="mx-3 h-24 animate-pulse rounded-lg bg-muted/30" aria-hidden="true" />}>
+        <MemoDetailSidebarContent />
+      </Suspense>
+    );
+  }
   if (kind === "common") return <CommonSidebarContent />;
   return null;
 };
@@ -356,7 +353,7 @@ const GlobalNavigation = () => {
   }, [memoScope, primaryScope, routeOwnsPrimaryScope, setMemoScope]);
 
   const scopeItems: Array<{ id: PrimaryMemoScope; label: string; icon: LucideIcon }> = [
-    { id: "home", label: t("common.home"), icon: HouseIcon },
+    { id: "home", label: `${t("common.all")} ${t("common.memos")}`, icon: LayoutListIcon },
     { id: "explore", label: t("common.explore"), icon: EarthIcon },
   ];
   const activeScopeItem = scopeItems.find((item) => item.id === primaryScope) ?? scopeItems[0];
@@ -370,6 +367,13 @@ const GlobalNavigation = () => {
 
   const items: GlobalNavItem[] = currentUser
     ? [
+        {
+          id: "dashboard",
+          label: t("common.home"),
+          path: ROUTES.DASHBOARD,
+          icon: HouseIcon,
+          active: location.pathname === ROUTES.DASHBOARD,
+        },
         {
           id: "map",
           label: t("common.map"),
@@ -566,8 +570,8 @@ const AppSidebar = ({ className }: { className?: string }) => {
   const t = useTranslate();
   const currentUser = useCurrentUser();
   const { setMobileOpen } = useAppSidebar();
-  const { canOpen: canCompose, openEditor } = useGlobalMemoEditor();
-  const dashboard = ["home", "archived", "attachments", "settings"].includes(getSidebarRouteKind(useLocation().pathname));
+  const routeKind = getSidebarRouteKind(useLocation().pathname);
+  const dashboard = ["home", "archived", "attachments", "settings"].includes(routeKind) || (routeKind === "profile" && !!currentUser);
   return (
     <aside
       className={cn(
@@ -578,14 +582,13 @@ const AppSidebar = ({ className }: { className?: string }) => {
     >
       <div data-sidebar-header className={cn("flex h-13 shrink-0 items-center justify-between gap-2", SIDEBAR_RAIL_CLASSES)}>
         <SidebarBrand className={cn("min-w-0", dashboard && "flex-1")} size="header" />
-        {canCompose && !dashboard && <NewMemoAction onClick={openEditor} />}
       </div>
       {!dashboard && <GlobalNavigation />}
       <div className="mx-3 mt-2 border-t border-border/70" />
       <div className={cn("min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-3 [scrollbar-width:thin]", SIDEBAR_RAIL_CLASSES)}>
         {dashboard ? <DashboardSidebar /> : <RouteSidebarContent />}
       </div>
-      <footer className="shrink-0 border-t border-border/70">
+      <footer className="shrink-0 border-t border-border/70 p-2">
         {currentUser ? (
           <UserMenu />
         ) : (
