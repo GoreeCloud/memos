@@ -85,7 +85,7 @@ describe("Home dashboard loading and Space boundaries", () => {
     expect(search.compareDocumentPosition(memo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getAllByTestId("memo-view")).toHaveLength(1);
     // The Home Quick Action has a visible accessible label; the global floating editor trigger lives in the app shell.
-    fireEvent.click(screen.getByRole("button", { name: /^New Memo\\b/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^New Memo\b/ }));
     expect(state.openEditor).toHaveBeenCalledOnce();
     expect(state.query).toMatchObject({ state: 1, pageSize: 3 });
   });
