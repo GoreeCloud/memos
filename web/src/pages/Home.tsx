@@ -151,7 +151,7 @@ const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
       <div className="gc-dashboard" data-dashboard-home>
         <div className="gc-dashboard-controls">
           <div className="gc-dashboard-search" data-home-sticky-search>
-            {isUserSettingsInitialized && <HomeSearchBar showDisplaySettings={false} />}
+            {isUserSettingsInitialized && <HomeSearchBar />}
           </div>
           <div className="gc-dashboard-tools">
             <div className="gc-dashboard-layout-toggle" role="group" aria-label="Memo layout">
