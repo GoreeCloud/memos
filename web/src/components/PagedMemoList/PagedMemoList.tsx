@@ -134,10 +134,12 @@ const PagedMemoList = (props: Props) => {
   const { isUserSettingsInitialized } = useAuth();
   const { filters, memoView, removeFilter } = useMemoFilterContext();
   const { setQuickFindOpen } = useAppSidebar();
-  const { maxColumns, compactMode } = useView();
+  const { compactMode } = useView();
+  // Responsive masonry is the sole memo layout; legacy saved column choices are ignored.
+  const maxColumns = 0;
   // maxColumns is a ceiling: 1 = single reading column, 0 = as many as fit. The single
   // column renders in normal document flow; anything wider becomes the packed grid.
-  const multiColumn = maxColumns !== 1;
+  const multiColumn = true;
 
   // Measure the available width: when it only fits one column anyway, render the flow
   // layout rather than a degenerate one-column grid (capped tiles, composer-as-tile).
@@ -281,7 +283,9 @@ const PagedMemoList = (props: Props) => {
       </div>
     ) : undefined;
 
-  const pinnedSection = <PinnedMemoSection memos={pinnedMemos} renderer={props.renderer} compact={effectiveCompact} useGrid={useGrid} />;
+  const pinnedSection = (
+    <PinnedMemoSection memos={pinnedMemos} renderer={props.renderer} compact={effectiveCompact} useGrid={useGrid} maxColumns={maxColumns} />
+  );
   const newlyCreatedCard = newlyCreatedMemo ? (
     <div className="mx-auto w-full max-w-2xl">{props.renderer(newlyCreatedMemo, { compact: effectiveCompact })}</div>
   ) : null;

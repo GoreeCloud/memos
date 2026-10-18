@@ -20,10 +20,9 @@ import {
   Trash2Icon,
   UserRoundIcon,
 } from "lucide-react";
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, Suspense, useEffect } from "react";
 import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { MAP_MEMO_FILTER } from "@/components/MapView/useMapMemos";
-import { MemoDetailSidebar } from "@/components/MemoDetailSidebar";
 import { DEFAULT_SETTING_SECTION, SETTINGS_SECTIONS } from "@/components/Settings/settingSections";
 import UserMenu from "@/components/UserMenu";
 import { Button } from "@/components/ui/button";
@@ -48,8 +47,10 @@ import { collectionPathForLocation, ROUTES } from "@/router/routes";
 import { State } from "@/types/proto/api/v1/common_pb";
 import { User_Role, UserNotification_Status } from "@/types/proto/api/v1/user_service_pb";
 import { useTranslate } from "@/utils/i18n";
+import { lazyWithReload } from "@/utils/lazy";
 import MemosLogo from "../MemosLogo";
 import CommonSidebarContent from "./CommonSidebarContent";
+import DashboardSidebar from "./DashboardSidebar";
 import { getSidebarRouteKind } from "./routes";
 import SidebarRow, { SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_FOCUS_CLASSES, SidebarRowIconSlot, sidebarRowStateClasses } from "./SidebarRow";
 import SidebarSection, { SIDEBAR_SECTION_STACK_CLASSES } from "./SidebarSection";
@@ -62,6 +63,11 @@ import {
 } from "./sidebar-layout";
 import TagsSection from "./TagsSection";
 import ViewsSection from "./ViewsSection";
+
+// Keep memo detail panel code out of the initial Home and Settings bundles.
+const MemoDetailSidebar = lazyWithReload(() =>
+  import("@/components/MemoDetailSidebar").then(({ MemoDetailSidebar }) => ({ default: MemoDetailSidebar })),
+);
 
 const ProfileNavigation = () => {
   const t = useTranslate();
@@ -269,7 +275,13 @@ const RouteSidebarContent = () => {
   if (kind === "attachments") return <AttachmentsSidebarContent />;
   if (kind === "inbox") return <InboxSidebarContent />;
   if (kind === "settings") return <SettingsSidebarContent />;
-  if (kind === "memo") return <MemoDetailSidebarContent />;
+  if (kind === "memo") {
+    return (
+      <Suspense fallback={<div className="mx-3 h-24 animate-pulse rounded-lg bg-muted/30" aria-hidden="true" />}>
+        <MemoDetailSidebarContent />
+      </Suspense>
+    );
+  }
   if (kind === "common") return <CommonSidebarContent />;
   return null;
 };
@@ -558,17 +570,25 @@ const AppSidebar = ({ className }: { className?: string }) => {
   const t = useTranslate();
   const currentUser = useCurrentUser();
   const { setMobileOpen } = useAppSidebar();
+  const routeKind = getSidebarRouteKind(useLocation().pathname);
+  const dashboard = ["home", "archived", "attachments", "settings"].includes(routeKind) || (routeKind === "profile" && !!currentUser);
   return (
-    <aside className={cn("goreecloud-sidebar flex h-full w-full select-none flex-col bg-sidebar text-sidebar-foreground", className)}>
+    <aside
+      className={cn(
+        "goreecloud-sidebar flex h-full w-full select-none flex-col bg-sidebar text-sidebar-foreground",
+        dashboard && "gc-dashboard-sidebar",
+        className,
+      )}
+    >
       <div data-sidebar-header className={cn("flex h-13 shrink-0 items-center justify-between gap-2", SIDEBAR_RAIL_CLASSES)}>
-        <SidebarBrand className="min-w-0" size="header" />
+        <SidebarBrand className={cn("min-w-0", dashboard && "flex-1")} size="header" />
       </div>
-      <GlobalNavigation />
+      {!dashboard && <GlobalNavigation />}
       <div className="mx-3 mt-2 border-t border-border/70" />
       <div className={cn("min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-3 [scrollbar-width:thin]", SIDEBAR_RAIL_CLASSES)}>
-        <RouteSidebarContent />
+        {dashboard ? <DashboardSidebar /> : <RouteSidebarContent />}
       </div>
-      <footer className="shrink-0 border-t border-border/70">
+      <footer className="shrink-0 border-t border-border/70 p-2">
         {currentUser ? (
           <UserMenu />
         ) : (

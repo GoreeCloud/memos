@@ -15,11 +15,33 @@ const emulateReducedTransparency = async (page: import("@playwright/test").Page,
 };
 
 const expectNoHorizontalOverflow = async (page: import("@playwright/test").Page) => {
-  const metrics = await page.evaluate(() => ({
-    clientWidth: document.documentElement.clientWidth,
-    scrollWidth: document.documentElement.scrollWidth,
-  }));
-  expect(metrics.scrollWidth, "authenticated page should not require horizontal scrolling").toBeLessThanOrEqual(metrics.clientWidth + 1);
+  const metrics = await page.evaluate(() => {
+    const clientWidth = document.documentElement.clientWidth;
+    return {
+      clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      // Diagnostic only: keep the strict assertion and report the bounding
+      // elements, not user content, when a responsive layout regresses.
+      offenders: [...document.querySelectorAll<HTMLElement>("body *")]
+        .map((element) => ({ element, rect: element.getBoundingClientRect() }))
+        .filter(({ rect }) => rect.width > 0 && rect.height > 0 && (rect.right > clientWidth + 2 || rect.left < -2))
+        .slice(0, 16)
+        .map(({ element, rect }) => ({
+          tag: element.tagName.toLowerCase(),
+          id: element.id,
+          className: typeof element.className === "string" ? element.className.slice(0, 260) : "",
+          parentClass: typeof element.parentElement?.className === "string" ? element.parentElement.className.slice(0, 160) : "",
+          ariaLabel: element.getAttribute("aria-label"),
+          title: element.getAttribute("title"),
+          left: Math.round(rect.left),
+          right: Math.round(rect.right),
+        })),
+    };
+  });
+  expect(
+    metrics.scrollWidth,
+    `authenticated page should not require horizontal scrolling; overflow elements: ${JSON.stringify(metrics.offenders)}`,
+  ).toBeLessThanOrEqual(metrics.clientWidth + 1);
 };
 
 test("authenticated GoreeCloud home and composer render accessibly", async ({ page }, testInfo) => {
@@ -44,44 +66,82 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
   expect(glazeStableCSS, "pinned Glaze stable stylesheet should be loaded in the rendered application").not.toBe("");
   await expect(main).toHaveCount(1);
   await expect(main).toBeVisible();
-  await expect(composer).toBeVisible();
-  await expect(editor).toBeVisible();
-  await expect(save).toBeVisible();
+  const newMemo = page.locator("[data-dashboard-new-memo]");
+  await expect(newMemo).toBeVisible();
+  await expect(newMemo).toBeEnabled();
+  // The redesigned Home keeps its editor closed until the user explicitly opens it.
+  await expect(composer).not.toBeVisible();
 
-  // The Home search is a unique, separate sticky sibling above the memo feed.
-  // Verify this in the real authenticated browser and every configured viewport.
-  const stickySearch = page.locator("[data-home-sticky-search]");
-  await expect(stickySearch).toHaveCount(1);
-  await expect(stickySearch.getByRole("search")).toBeVisible();
-  const stickyPresentation = await stickySearch.evaluate((element) => {
-    const style = getComputedStyle(element);
-    const composerElement = document.querySelector(".goreecloud-composer");
+  // Home search is a visible first-party search form above the memo feed.
+  // The old sticky inline-composer layout is intentionally replaced by dashboard controls.
+  const homeSearch = page.locator("[data-home-sticky-search]");
+  await expect(homeSearch).toHaveCount(1);
+  await expect(homeSearch.getByRole("search")).toBeVisible();
+  await expect(page.locator("#goreecloud-home-search")).toBeVisible();
+  const searchPlacement = await homeSearch.evaluate((element) => {
+    const feed = document.querySelector(".gc-dashboard-results");
     return {
-      position: style.position,
-      top: Number.parseFloat(style.top),
-      beforeComposer: !!composerElement && Boolean(element.compareDocumentPosition(composerElement) & Node.DOCUMENT_POSITION_FOLLOWING),
+      inDashboard: element.closest("[data-dashboard-home]") !== null,
+      beforeFeed: feed !== null && (element.compareDocumentPosition(feed) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0,
     };
   });
-  expect(stickyPresentation.position).toBe("sticky");
-  expect(stickyPresentation.top).toBe(testInfo.project.name.includes("phone") ? 48 : 0);
-  expect(stickyPresentation.beforeComposer).toBe(true);
+  expect(searchPlacement).toEqual({ inDashboard: true, beforeFeed: true });
   await expectNoHorizontalOverflow(page);
 
   const skipLink = page.getByRole("link", { name: "Skip to main content", exact: true });
-  // Auto-focus can begin inside the composer, so do not assume a fixed Tab
-  // position. Focus the native skip link, then activate it using the keyboard.
+  // Check keyboard skip navigation before opening the focus-trapped editor dialog.
   await skipLink.focus();
   await expect(skipLink).toBeVisible();
   await expect(skipLink).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(main).toBeFocused();
 
+  await newMemo.click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(composer).toBeVisible();
+  await expect(editor).toBeVisible();
+  await expect(save).toBeVisible();
+
   const memoText = "Rendered authenticated acceptance — " + testInfo.project.name;
   await editor.fill(memoText);
   await expect(save).toBeEnabled();
   await save.click();
+  await expect(composer).not.toBeVisible();
 
   const memoCard = page.getByRole("article").filter({ hasText: memoText }).first();
+  await expect(memoCard).toBeVisible();
+  const masonryBoard = page.locator(".gc-dashboard-memos-masonry");
+  await expect(masonryBoard).toBeVisible();
+  // Actual authenticated MemoView tiles are packed by the measured-height
+  // masonry engine on both desktop and phones, not a forced one-column list.
+  await expect
+    .poll(async () =>
+      masonryBoard.evaluate((board) => {
+        const card = board.querySelector(".gc-dashboard-memo");
+        return card ? card.getBoundingClientRect().width / board.getBoundingClientRect().width : 1;
+      }),
+    )
+    .toBeLessThan(0.65);
+  const listToggle = page.getByRole("button", { name: "List view" });
+  await expect(listToggle).toBeVisible();
+  await listToggle.click();
+  await expect(page.locator(".gc-dashboard-memos-list")).toBeVisible();
+  const gridToggle = page.getByRole("button", { name: "Grid view" });
+  await gridToggle.click();
+  await expect(masonryBoard).toBeVisible();
+  await page.getByRole("button", { name: "View all" }).click();
+  const fullFeed = page.locator(".gc-dashboard-feed");
+  await expect(fullFeed).toBeVisible();
+  await expect
+    .poll(async () =>
+      fullFeed.evaluate((feed) => {
+        const card = feed.querySelector("article");
+        return card ? card.getBoundingClientRect().width / feed.getBoundingClientRect().width : 1;
+      }),
+    )
+    .toBeLessThan(0.65);
+  await page.goto("/");
+  await expect(masonryBoard).toBeVisible();
   await expect(memoCard).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
@@ -103,7 +163,8 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
 
     await page.goto("/dashboard");
     await expect(shell).toBeVisible();
-    await expect(composer).toBeVisible();
+    await expect(page.locator("[data-dashboard-new-memo]")).toBeVisible();
+    await expect(homeSearch.getByRole("search")).toBeVisible();
     await expect(memoCard).toBeVisible();
     await expectNoHorizontalOverflow(page);
   }
@@ -134,13 +195,13 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
       id,
       impact,
       help,
-      targets: nodes.map((node) => node.target),
+      targets: nodes.map((node) => ({ target: node.target, failureSummary: node.failureSummary })),
     })),
     "authenticated home should have no serious or critical axe violations",
   ).toEqual([]);
 
   await page.addStyleTag({ content: ":root { font-size: 200% !important; }" });
-  await expect(composer).toBeVisible();
+  await expect(page.locator("[data-dashboard-new-memo]")).toBeVisible();
   await expect(memoCard).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
@@ -161,17 +222,27 @@ test("authenticated GoreeCloud home and composer render accessibly", async ({ pa
     }));
     expect(localeState.lang).toBe("ar");
     expect(localeState.dir).toBe("rtl");
-    const composerTransparency = await composer.evaluate((element) => {
-      const style = getComputedStyle(element);
-      return { backdropFilter: style.backdropFilter, webkitBackdropFilter: style.getPropertyValue("-webkit-backdrop-filter") };
-    });
-    expect(composerTransparency.backdropFilter === "none" || composerTransparency.webkitBackdropFilter === "none").toBe(true);
     const cardTransparency = await memoCard.evaluate((element) => {
       const style = getComputedStyle(element);
       return { backdropFilter: style.backdropFilter, webkitBackdropFilter: style.getPropertyValue("-webkit-backdrop-filter") };
     });
     expect(cardTransparency.backdropFilter === "none" || cardTransparency.webkitBackdropFilter === "none").toBe(true);
   }
+
+  // At enlarged text the global composer must remain openable and dismissible.
+  // Verify reduced-transparency fallback on the actual on-demand editor in RTL.
+  await page.locator("[data-dashboard-new-memo]").click();
+  await expect(composer).toBeVisible();
+  if (testInfo.project.name.includes("rtl-reduced-transparency")) {
+    const composerTransparency = await composer.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { backdropFilter: style.backdropFilter, webkitBackdropFilter: style.getPropertyValue("-webkit-backdrop-filter") };
+    });
+    expect(composerTransparency.backdropFilter === "none" || composerTransparency.webkitBackdropFilter === "none").toBe(true);
+  }
+  await page.keyboard.press("Escape");
+  await expect(composer).not.toBeVisible();
+  await expect(memoCard).toBeVisible();
 
   expect(pageErrors).toEqual([]);
 

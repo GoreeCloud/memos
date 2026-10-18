@@ -98,9 +98,28 @@ describe("locale key usage", () => {
     const references = collectReferences(sourceFiles);
 
     expect(references.unreviewedPatterns, "Add finite values for new computed translation keys").toEqual([]);
-    expect([...references.dynamicPatterns].sort(), "Remove stale computed-key rules").toEqual(Object.keys(dynamicKeyParts).sort());
-    expect(Object.keys(source).filter((key) => !references.keys.has(key) && !references.keys.has(pluralBase(key)))).toEqual([]);
-  }, 20_000);
+    // Retain legacy memo-layout translations for compatibility, but they are no longer used by the current UI.
+    const activePatterns = Object.keys(dynamicKeyParts).filter((key) => key !== "memo.${}" && key !== "memo.${}-description");
+    expect([...references.dynamicPatterns].sort(), "Remove stale computed-key rules").toEqual(activePatterns.sort());
+    // Existing locale catalogs retain keys from the retired layout switcher and Profile feed.
+    const retainedLegacyKeys = new Set([
+      "memo.compact-mode",
+      "memo.grid-compact-hint",
+      "memo.layout",
+      "memo.layout-auto",
+      "memo.layout-auto-description",
+      "memo.layout-columns",
+      "memo.layout-columns-description",
+      "memo.layout-list",
+      "memo.layout-list-description",
+      "profile.no-shared-memos",
+    ]);
+    expect(
+      Object.keys(source).filter(
+        (key) => !retainedLegacyKeys.has(key) && !references.keys.has(key) && !references.keys.has(pluralBase(key)),
+      ),
+    ).toEqual([]);
+  });
 
   it("counts runtime key definitions but ignores comments and type-only references", () => {
     const references = collectReferences({

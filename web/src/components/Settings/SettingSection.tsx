@@ -11,9 +11,9 @@ interface SettingSectionProps {
 
 const SettingSection: React.FC<SettingSectionProps> = ({ title, description, children, className, actions }) => {
   return (
-    <div className={cn("mx-auto flex w-full max-w-4xl min-w-0 flex-col gap-5 py-1 sm:py-2", className)}>
+    <div className={cn("gc-setting-section mx-auto flex w-full max-w-4xl min-w-0 flex-col gap-5 py-1 sm:py-2", className)}>
       {(title || description || actions) && (
-        <div className="flex min-w-0 flex-col gap-3 border-b border-border/70 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="gc-setting-heading flex min-w-0 flex-col gap-3 border-b border-border/70 pb-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0 flex-1">
             {title && (
               <div className="mb-1 text-lg font-semibold tracking-tight text-foreground">
@@ -25,7 +25,7 @@ const SettingSection: React.FC<SettingSectionProps> = ({ title, description, chi
           {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
         </div>
       )}
-      <div className="flex min-w-0 flex-col gap-5">{children}</div>
+      <div className="gc-setting-section-body flex min-w-0 flex-col gap-5">{children}</div>
     </div>
   );
 };
