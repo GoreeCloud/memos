@@ -187,7 +187,7 @@ test("All Memos starts without an inline composer and offers an accessible float
   await expect(page.locator(".goreecloud-composer")).toHaveCount(0);
   const floatingCompose = page.locator("[data-new-memo-trigger]");
   await expect(floatingCompose).toBeVisible();
-  await expect(floatingCompose).toHaveAttribute("aria-label", "New Memo");
+  await expect(floatingCompose).toHaveAttribute("aria-label", "New memo");
 
   await floatingCompose.click();
   const editor = page.locator('.cm-content[contenteditable="true"]').first();
