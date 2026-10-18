@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=GoreeCloud Memos
+Comment=Private, self-hosted notes on your local computer
+Exec=/usr/bin/goreecloud-memos-desktop
+Icon=accessories-text-editor
+Terminal=true
+Categories=Office;Utility;
+StartupNotify=true

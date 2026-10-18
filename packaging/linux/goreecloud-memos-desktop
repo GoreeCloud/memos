@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+PORT="${GOREECLOUD_MEMOS_DESKTOP_PORT:-18423}"
+if [[ ! "$PORT" =~ ^[0-9]+$ ]] || (( PORT < 1024 || PORT > 65535 )); then
+  echo "Invalid local-only port: $PORT" >&2; exit 2
+fi
+if (echo >"/dev/tcp/127.0.0.1/$PORT") 2>/dev/null; then
+  echo "Port $PORT is already in use. Memos will not connect to an unknown service." >&2
+  exit 1
+fi
+DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+DATA="$DATA_HOME/goreecloud-memos-desktop"
+if [[ -L "$DATA" ]]; then
+  echo "Refusing to use a symlinked Memos data directory: $DATA" >&2
+  exit 1
+fi
+mkdir -p -- "$DATA"
+if [[ ! -d "$DATA" || -L "$DATA" ]]; then
+  echo "Unsafe Memos data directory: $DATA" >&2
+  exit 1
+fi
+chmod 700 -- "$DATA"
+URL="http://127.0.0.1:$PORT"
+echo "GoreeCloud Memos Desktop — local-only development build"
+echo "Notes are stored under: $DATA"
+echo "Closing this terminal stops the local server."
+/usr/lib/goreecloud-memos/memos --addr 127.0.0.1 --port "$PORT" --data "$DATA" \
+  --trusted-proxies none --instance-url "$URL" &
+PID=$!
+cleanup() { kill "$PID" 2>/dev/null || :; wait "$PID" 2>/dev/null || :; }
+trap cleanup EXIT
+trap 'exit 0' INT TERM
+READY=0
+for attempt in $(seq 1 30); do
+  if ! kill -0 "$PID" 2>/dev/null; then
+    echo "Memos stopped before the readiness check." >&2; exit 1
+  fi
+  if command -v curl >/dev/null 2>&1 && curl --silent --show-error --fail \
+      --max-time 1 "$URL/readyz" >/dev/null 2>&1; then
+    READY=1; break
+  fi
+  sleep 1
+done
+if [[ "$READY" != 1 ]]; then
+  echo "Local server did not become ready at $URL/readyz" >&2; exit 1
+fi
+if command -v xdg-open >/dev/null 2>&1; then
+  xdg-open "$URL/" >/dev/null 2>&1 || echo "Open $URL/ in a browser."
+else
+  echo "Open $URL/ in a browser."
+fi
+wait "$PID"
