@@ -204,6 +204,7 @@ test("All Memos starts without an inline composer and offers an accessible float
   await card.getByText(memoTitle).click();
   await expect(title).toBeVisible();
   await title.fill("Renamed title — Development acceptance");
-  await page.getByRole("button", { name: "Save", exact: true }).click();
+  // Existing memos use the explicit Update action; Save labels only creation.
+  await page.getByRole("button", { name: "Update", exact: true }).click();
   await expect(page.getByRole("article").filter({ hasText: "Renamed title — Development acceptance" }).first()).toBeVisible();
 });
