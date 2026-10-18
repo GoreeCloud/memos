@@ -428,6 +428,7 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
             onInsertLocalFiles={inlineImageUpload.insertLocalImages}
           />
           <EditorToolbar
+            title={title}
             onSave={handleSave}
             onCancel={onCancel ? handleCancel : undefined}
             memoName={memoName}

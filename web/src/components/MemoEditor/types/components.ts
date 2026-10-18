@@ -64,6 +64,8 @@ export interface EditorViewToggles {
 }
 
 export interface EditorToolbarProps {
+  /** Optional memo title, including titles with no body. */
+  title?: string;
   onSave: () => void;
   onCancel?: () => void;
   memoName?: string;

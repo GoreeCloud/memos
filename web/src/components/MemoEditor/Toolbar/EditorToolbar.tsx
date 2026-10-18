@@ -2,12 +2,14 @@ import { CheckIcon, CornerDownLeftIcon, LoaderIcon } from "lucide-react";
 import type { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { composeMemoTitle } from "@/lib/memo-title";
 import { cn } from "@/lib/utils";
 import type { Location, Visibility } from "@/types/proto/api/v1/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
+import { findInvalidManagedAttachmentReferences } from "@/utils/managed-attachment";
 import { primaryModifierGlyph } from "@/utils/platform";
 import { validationService } from "../services";
-import { useEditorContext, useEditorSelector } from "../state";
+import { type EditorState, useEditorContext, useEditorSelector } from "../state";
 import type { EditorToolbarProps } from "../types";
 import ComposerLabelSelector from "./ComposerLabelSelector";
 import InsertMenu from "./InsertMenu";
@@ -32,6 +34,7 @@ const ShortcutChip: FC<{ busy: boolean }> = ({ busy }) => (
 );
 
 export const EditorToolbar: FC<EditorToolbarProps> = ({
+  title,
   onSave,
   onCancel,
   memoName,
@@ -47,9 +50,22 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
   // Subscribe to narrow/derived slices so typing (which only changes content)
   // doesn't re-render the toolbar or the heavy InsertMenu it hosts. `valid`
   // flips only on empty↔non-empty / loading transitions, not per keystroke.
-  const valid = useEditorSelector((s) => validationService.canSave(s).valid);
-  const blockedReason = useEditorSelector((s) => validationService.canSave(s).reason);
-  const blockedReasonDetail = useEditorSelector((s) => validationService.canSave(s).detail);
+  // A changed title is React state, not an external-store notification. Keep
+  // subscriptions independent of the title prop, then combine both inputs.
+  // These selectors still change only on validation-boundary transitions.
+  const validateWithTitle = (s: EditorState) => validationService.canSave({ ...s, content: composeMemoTitle("Memo title", s.content) });
+  const bodyValid = useEditorSelector((s) => validationService.canSave(s).valid);
+  const titledValid = useEditorSelector((s) => validateWithTitle(s).valid);
+  const bodyReason = useEditorSelector((s) => validationService.canSave(s).reason);
+  const titledReason = useEditorSelector((s) => validateWithTitle(s).reason);
+  const bodyDetail = useEditorSelector((s) => validationService.canSave(s).detail);
+  const titledDetail = useEditorSelector((s) => validateWithTitle(s).detail);
+  const sanitizedTitle = composeMemoTitle(title ?? "", "");
+  const [invalidTitleReference] = findInvalidManagedAttachmentReferences(sanitizedTitle);
+  const hasTitle = sanitizedTitle.length > 0;
+  const valid = !invalidTitleReference && (hasTitle ? titledValid : bodyValid);
+  const blockedReason = invalidTitleReference ? "editor.validation.unsupported-attachment-image-url" : hasTitle ? titledReason : bodyReason;
+  const blockedReasonDetail = invalidTitleReference ?? (hasTitle ? titledDetail : bodyDetail);
   const isSaving = useEditorSelector((s) => s.ui.isLoading.saving);
   const justSaved = useEditorSelector((s) => s.ui.justSaved);
   const isUploading = useEditorSelector((s) => s.ui.isLoading.uploading);
