@@ -1,5 +1,10 @@
 # Changelog
 
+## Memo creation and navigation Development UX — 2026-10-18
+
+- Introduced optional, editable H1-backed titles without changing the memo server schema, enabled single-click text editing with interactive-target guards, placed real memo-facet filters inside search while retaining separate view options, added a responsive floating compose button and made All Memos the root route while retaining Home at `/dashboard`.
+- This source-level Development work requires exact-head CI, authenticated/browser/device accessibility and dashboard-branch integration review before any deployment or acceptance claim.
+
 ## Development packaging checkpoint — 2026-10-18
 
 - Added a signed, isolated Android WebView Development companion build for explicit HTTPS Memos origins; no offline-native store or production acceptance is claimed.

@@ -17,7 +17,6 @@ import {
   MenuIcon,
   PaperclipIcon,
   SearchIcon,
-  SquarePenIcon,
   Trash2Icon,
   UserRoundIcon,
 } from "lucide-react";
@@ -33,7 +32,6 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { type AttachmentSection, type InboxFilter, useAppSidebar } from "@/contexts/AppSidebarContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useGlobalMemoEditor } from "@/contexts/GlobalMemoEditorContext";
 import { useInstance } from "@/contexts/InstanceContext";
 import { getFilterSearch, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { useSpaceContext } from "@/contexts/SpaceContext";
@@ -64,20 +62,6 @@ import {
 } from "./sidebar-layout";
 import TagsSection from "./TagsSection";
 import ViewsSection from "./ViewsSection";
-
-const NewMemoAction = ({ onClick }: { onClick: () => void }) => {
-  const t = useTranslate();
-  const label = t("editor.new-memo");
-
-  return (
-    <Tooltip>
-      <TooltipTrigger render={<Button variant="outline" size="icon-compact" onClick={onClick} aria-label={label} data-new-memo-trigger />}>
-        <SquarePenIcon className="size-4" strokeWidth={1.8} />
-      </TooltipTrigger>
-      <TooltipContent side="bottom">{label}</TooltipContent>
-    </Tooltip>
-  );
-};
 
 const ProfileNavigation = () => {
   const t = useTranslate();
@@ -273,7 +257,9 @@ const MemoDetailSidebarContent = () => {
 
 const RouteSidebarContent = () => {
   const location = useLocation();
-  const kind = getSidebarRouteKind(location.pathname);
+  // The dedicated Home dashboard retains the same contextual memo sidebar
+  // even though All Memos owns the signed-in root route.
+  const kind = location.pathname === ROUTES.DASHBOARD ? "home" : getSidebarRouteKind(location.pathname);
   if (kind === "home" || kind === "archived" || kind === "explore" || kind === "profile") {
     return <CollectionSidebarContent context={kind} />;
   }
@@ -355,7 +341,7 @@ const GlobalNavigation = () => {
   }, [memoScope, primaryScope, routeOwnsPrimaryScope, setMemoScope]);
 
   const scopeItems: Array<{ id: PrimaryMemoScope; label: string; icon: LucideIcon }> = [
-    { id: "home", label: t("common.home"), icon: HouseIcon },
+    { id: "home", label: `${t("common.all")} ${t("common.memos")}`, icon: LayoutListIcon },
     { id: "explore", label: t("common.explore"), icon: EarthIcon },
   ];
   const activeScopeItem = scopeItems.find((item) => item.id === primaryScope) ?? scopeItems[0];
@@ -369,6 +355,13 @@ const GlobalNavigation = () => {
 
   const items: GlobalNavItem[] = currentUser
     ? [
+        {
+          id: "dashboard",
+          label: t("common.home"),
+          path: ROUTES.DASHBOARD,
+          icon: HouseIcon,
+          active: location.pathname === ROUTES.DASHBOARD,
+        },
         {
           id: "map",
           label: t("common.map"),
@@ -565,12 +558,10 @@ const AppSidebar = ({ className }: { className?: string }) => {
   const t = useTranslate();
   const currentUser = useCurrentUser();
   const { setMobileOpen } = useAppSidebar();
-  const { canOpen: canCompose, openEditor } = useGlobalMemoEditor();
   return (
     <aside className={cn("goreecloud-sidebar flex h-full w-full select-none flex-col bg-sidebar text-sidebar-foreground", className)}>
       <div data-sidebar-header className={cn("flex h-13 shrink-0 items-center justify-between gap-2", SIDEBAR_RAIL_CLASSES)}>
         <SidebarBrand className="min-w-0" size="header" />
-        {canCompose && <NewMemoAction onClick={openEditor} />}
       </div>
       <GlobalNavigation />
       <div className="mx-3 mt-2 border-t border-border/70" />

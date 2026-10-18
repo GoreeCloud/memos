@@ -16,7 +16,7 @@ import { State } from "@/types/proto/api/v1/common_pb";
 import { Memo } from "@/types/proto/api/v1/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
 
-const Home = () => {
+const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
   const user = useCurrentUser();
   const t = useTranslate();
   const { isUserSettingsInitialized } = useAuth();
@@ -57,7 +57,7 @@ const Home = () => {
           filter={memoFilter}
           contextFilter={contextFilter}
           renderLeading={({ useGrid }) => {
-            if (!isUserSettingsInitialized) return null;
+            if (!isUserSettingsInitialized || allMemos) return null;
 
             return (
               <MemoEditor

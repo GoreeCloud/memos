@@ -226,12 +226,12 @@ describe("App sidebar logo", () => {
         <LocationProbe />
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByRole("button", { name: "common.home" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.all common.memos" }));
     fireEvent.click(await screen.findByRole("menuitem", { name: "common.explore" }));
     expect(screen.getByTestId("scope-location")).toHaveTextContent(JSON.stringify({ path: "/explore", filters: filterState.filters }));
   });
 
-  it("shows the context switcher and opens the global memo editor", () => {
+  it("shows the context switcher and leaves Compose to the floating action", () => {
     render(
       <MemoryRouter initialEntries={["/attachments"]}>
         <AppSidebar />
@@ -240,7 +240,7 @@ describe("App sidebar logo", () => {
 
     const switcher = screen.getByRole("button", { name: "space.switch: common.memos" });
     const header = switcher.closest("[data-sidebar-header]");
-    const compose = screen.getByRole("button", { name: "editor.new-memo" });
+    expect(screen.queryByRole("button", { name: "editor.new-memo" })).not.toBeInTheDocument();
     const primaryNavigation = screen.getByRole("navigation", { name: "Primary" });
     const search = within(primaryNavigation).getByRole("button", { name: "common.search" });
 
@@ -252,8 +252,6 @@ describe("App sidebar logo", () => {
     expect(within(switcher).getByText("Memos logo")).toHaveAttribute("data-logo-size", "header");
     expect(switcher.querySelector(".lucide-chevrons-up-down")).not.toBeNull();
     expect(switcher.querySelector(".lucide-chevron-down")).toBeNull();
-    expect(compose).toHaveClass("size-7", "rounded-md", "border", "bg-background", "shadow-xs");
-    expect(compose).not.toHaveClass("rounded-full");
     expect(header).not.toContainElement(search);
     expect(search).toHaveClass("ms-auto", "h-7", "px-1.5");
     expect(search.querySelector(".lucide-search")).toHaveClass("size-4");
@@ -262,8 +260,6 @@ describe("App sidebar logo", () => {
     expect(sidebarState.setQuickFindOpen).toHaveBeenCalledWith(true);
     expect(sidebarState.setMobileOpen).toHaveBeenCalledWith(false);
 
-    fireEvent.click(compose);
-    expect(globalEditorState.openEditor).toHaveBeenCalledOnce();
     // The Calendar has no sidebar shortcut; the standalone calendar URL remains available.
     expect(within(primaryNavigation).queryByRole("link", { name: "common.calendar" })).not.toBeInTheDocument();
     expect(screen.queryByText("Calendar")).not.toBeInTheDocument();
@@ -431,7 +427,7 @@ describe("App sidebar logo", () => {
     expect(signIn).not.toHaveClass("rounded-md");
     expect(signIn.closest("footer")).not.toBeNull();
     expect(screen.queryByRole("button", { name: "editor.new-memo" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "common.home" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "common.all common.memos" })).not.toBeInTheDocument();
   });
 
   it.each(["/403", "/404", "/unknown"])("uses the common sidebar without inheriting collection content on %s", (path) => {
@@ -461,12 +457,12 @@ describe("App sidebar logo", () => {
     expect(screen.queryByText("Tags")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "space.switch: common.memos" })).toBeInTheDocument();
     const navigation = within(screen.getByRole("navigation", { name: "Primary" }));
-    expectDefaultNavPill(navigation.getByRole("button", { name: "common.home" }), "common.home");
+    expectDefaultNavPill(navigation.getByRole("button", { name: "common.all common.memos" }), "common.all common.memos");
     const attachments = navigation.getByRole("link", { name: "common.attachments" });
     expect(attachments).toHaveAttribute("href", "/attachments");
     expectCollapsedNavPill(attachments, "common.attachments");
     expect(screen.queryByRole("link", { name: "common.inbox" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "common.home" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "common.all common.memos" })).not.toBeInTheDocument();
     expect(screen.getByText("User menu").closest("footer")).not.toBeNull();
   });
 
@@ -481,8 +477,8 @@ describe("App sidebar logo", () => {
     expect(screen.getByRole("heading", { name: "common.resources", level: 2 })).toBeInTheDocument();
 
     const navigation = within(screen.getByRole("navigation", { name: "Primary" }));
-    const scopeTrigger = navigation.getByRole("button", { name: "common.home" });
-    expectDefaultNavPill(scopeTrigger, "common.home");
+    const scopeTrigger = navigation.getByRole("button", { name: "common.all common.memos" });
+    expectDefaultNavPill(scopeTrigger, "common.all common.memos");
     expect(scopeTrigger.querySelector(".lucide-chevron-down")).not.toBeInTheDocument();
     expectCollapsedNavPill(navigation.getByRole("link", { name: "common.attachments" }), "common.attachments");
   });
@@ -499,7 +495,7 @@ describe("App sidebar logo", () => {
     const explore = navigation.getByRole("link", { name: "common.explore" });
     expect(explore).toHaveAttribute("href", "/explore");
     expectDefaultNavPill(explore, "common.explore");
-    expect(screen.queryByRole("link", { name: "common.home" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "common.all common.memos" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "common.attachments" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "common.inbox" })).not.toBeInTheDocument();
     const about = navigation.getByRole("link", { name: "common.about" });
@@ -543,13 +539,13 @@ describe("App sidebar logo", () => {
     expect(tasksView).not.toHaveTextContent("☑️");
     expect(screen.queryByRole("button", { name: "common.all" })).not.toBeInTheDocument();
 
-    const scopeTrigger = screen.getByRole("button", { name: "common.home" });
-    expectActiveNavPill(scopeTrigger, "common.home");
+    const scopeTrigger = screen.getByRole("button", { name: "common.all common.memos" });
+    expectActiveNavPill(scopeTrigger, "common.all common.memos");
     expect(scopeTrigger.querySelector(".lucide-chevron-down")).toBeInTheDocument();
     expect(scopeTrigger.querySelector(".lucide-chevrons-up-down")).not.toBeInTheDocument();
     expectCollapsedNavPill(screen.getByRole("link", { name: "common.attachments" }), "common.attachments");
     fireEvent.click(scopeTrigger);
-    expect(await screen.findByRole("menuitem", { name: "common.home" })).toBeInTheDocument();
+    expect(await screen.findByRole("menuitem", { name: "common.all common.memos" })).toBeInTheDocument();
     expect(screen.getByRole("menuitem", { name: "common.explore" })).toBeInTheDocument();
     expect(screen.queryByRole("menuitem", { name: "common.archived" })).not.toBeInTheDocument();
   });
@@ -581,8 +577,8 @@ describe("App sidebar logo", () => {
       </MemoryRouter>,
     );
 
-    const scopeTrigger = screen.getByRole("button", { name: "common.home" });
-    expectCollapsedNavPill(scopeTrigger, "common.home");
+    const scopeTrigger = screen.getByRole("button", { name: "common.all common.memos" });
+    expectCollapsedNavPill(scopeTrigger, "common.all common.memos");
 
     expect(screen.getByRole("button", { name: "User menu" }).closest("footer")).not.toBeNull();
     expect(screen.queryByRole("link", { name: "common.inbox" })).not.toBeInTheDocument();
@@ -592,7 +588,7 @@ describe("App sidebar logo", () => {
 
     fireEvent.click(scopeTrigger);
     expect(screen.queryByText("Calendar")).not.toBeInTheDocument();
-    expectActiveNavPill(screen.getByRole("button", { name: "common.home" }), "common.home");
+    expectActiveNavPill(screen.getByRole("button", { name: "common.all common.memos" }), "common.all common.memos");
     expect(screen.queryByRole("menuitem", { name: "common.explore" })).not.toBeInTheDocument();
   });
 
@@ -659,7 +655,7 @@ describe("App sidebar logo", () => {
     expect(screen.queryByRole("button", { name: "editor.new-memo" })).not.toBeInTheDocument();
   });
 
-  it("exposes Compose in the mobile navigation drawer", () => {
+  it("keeps Compose out of the mobile drawer in favor of the floating action", () => {
     sidebarState.mobileOpen = true;
     render(
       <MemoryRouter initialEntries={["/about"]}>
@@ -668,8 +664,7 @@ describe("App sidebar logo", () => {
     );
 
     expect(screen.getByRole("button", { name: "common.search" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "editor.new-memo" }));
-    expect(globalEditorState.openEditor).toHaveBeenCalledOnce();
+    expect(screen.queryByRole("button", { name: "editor.new-memo" })).not.toBeInTheDocument();
   });
 
   it("keeps an accessible Close control in the mobile navigation drawer", () => {
