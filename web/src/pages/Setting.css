@@ -115,7 +115,8 @@
 .gc-settings-content .gc-setting-group-header p {
   font-size: 12.5px;
   line-height: 1.7;
-  color: #697b95;
+  /* Readable muted copy on white/light setting cards (WCAG AA normal text). */
+  color: #52657e;
 }
 .gc-settings-content .gc-setting-group-body {
   gap: 15px;
@@ -238,4 +239,36 @@
   color: #d8e8ff;
   border-color: #476688;
   background: #243d5a;
+}
+
+/* Settings category selection belongs to the page, not the global sidebar. */
+.gc-settings-section-select {
+  max-width: min(100%, 240px);
+  min-width: 175px;
+  margin-inline-start: auto;
+  padding: 10px 34px 10px 13px;
+  border: 1px solid #d4e2f6;
+  border-radius: 10px;
+  background: #fff;
+  color: #274c85;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.gc-settings-section-select:focus-visible {
+  outline: 2px solid #3878df;
+  outline-offset: 2px;
+}
+.dark .gc-settings-section-select,
+[data-theme="default-dark"] .gc-settings-section-select {
+  color: #e9f2ff;
+  border-color: #476688;
+  background: #243d5a;
+}
+@media (max-width: 740px) {
+  .gc-settings-section-select {
+    min-width: 0;
+    max-width: 100%;
+    margin-inline-start: 0;
+  }
 }

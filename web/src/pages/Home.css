@@ -824,3 +824,54 @@
 .gc-dashboard .gc-dashboard-paper i:nth-child(3n) {
   width: 88%;
 }
+
+/* Compact home overview: notes, not promotional artwork, get the first screen. */
+.gc-dashboard .gc-dashboard-controls {
+  margin-bottom: 20px;
+}
+.gc-dashboard .gc-dashboard-welcome {
+  min-height: 0;
+  align-items: center;
+  padding: 18px 22px;
+  margin-bottom: 24px;
+  border-radius: 14px;
+}
+.gc-dashboard .gc-dashboard-welcome h1 {
+  font-size: clamp(21px, 2vw, 26px);
+  letter-spacing: -0.7px;
+}
+.gc-dashboard .gc-dashboard-welcome-copy > p {
+  margin: 5px 0 13px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.gc-dashboard .gc-dashboard-features {
+  max-width: none;
+  gap: 10px;
+}
+.gc-dashboard .gc-dashboard-feature {
+  align-items: center;
+  gap: 7px;
+}
+.gc-dashboard .gc-dashboard-feature-icon {
+  width: 29px;
+  height: 29px;
+}
+.gc-dashboard .gc-dashboard-feature-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.gc-dashboard .gc-dashboard-feature strong {
+  font-size: 11px;
+}
+.gc-dashboard .gc-dashboard-feature small {
+  display: none;
+}
+.gc-dashboard .gc-dashboard-art {
+  display: none;
+}
+@container (max-width: 720px) {
+  .gc-dashboard .gc-dashboard-welcome {
+    padding: 16px 18px;
+  }
+}

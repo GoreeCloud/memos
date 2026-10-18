@@ -1,8 +1,8 @@
 import { Settings2Icon } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslate } from "@/utils/i18n";
 import "./Setting.css";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   DEFAULT_SETTING_SECTION,
   isSettingSectionKey,
@@ -11,15 +11,22 @@ import {
 } from "@/components/Settings/settingSections";
 import { useInstance } from "@/contexts/InstanceContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import { ROUTES } from "@/router/routes";
 import { User_Role } from "@/types/proto/api/v1/user_service_pb";
 
 const Setting = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const t = useTranslate();
   const user = useCurrentUser();
   const { fetchSettings } = useInstance();
   const [selectedSection, setSelectedSection] = useState<SettingSectionKey>(DEFAULT_SETTING_SECTION);
   const isHost = user?.role === User_Role.ADMIN;
+
+  // A retained scroll offset from a previous memo list must not hide the Settings title.
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   const sectionGroups = useMemo(() => {
     const visibleSections = SETTINGS_SECTIONS.filter((section) => section.scope === "basic" || isHost);
@@ -72,7 +79,18 @@ const Setting = () => {
             <p className="gc-settings-eyebrow">GoreeCloud</p>
             <h1>{t("common.settings")}</h1>
           </div>
-          <span className="gc-settings-current">{t(selectedSectionDefinition.labelKey)}</span>
+          <select
+            aria-label="Settings section"
+            className="gc-settings-section-select"
+            value={selectedSection}
+            onChange={(event) => navigate(`${ROUTES.SETTING}#${event.target.value}`)}
+          >
+            {sectionGroups.all.map((section) => (
+              <option key={section.key} value={section.key}>
+                {t(section.labelKey)}
+              </option>
+            ))}
+          </select>
         </header>
         <div className="gc-settings-content min-w-0">
           <ActiveSection />

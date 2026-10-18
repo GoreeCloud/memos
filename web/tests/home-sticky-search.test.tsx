@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -107,6 +107,31 @@ describe("Home mockup dashboard layout", () => {
     expect(screen.queryByTestId("memo-feed")).not.toBeInTheDocument();
   });
 
+  it("wires Home quick actions to the composer and the intended destinations", () => {
+    show();
+    const actions = within(screen.getByRole("region", { name: "Quick Actions" }));
+
+    fireEvent.click(actions.getByRole("button", { name: /New Memo/i }));
+    expect(state.openEditor).toHaveBeenCalledOnce();
+    expect(actions.getByRole("link", { name: /Manage Labels/i })).toHaveAttribute("href", "/?dashboard=labels");
+    expect(actions.getByRole("link", { name: /Settings/i })).toHaveAttribute("href", "/setting");
+    expect(actions.getByRole("button", { name: /Search Memos/i })).toBeEnabled();
+  });
+
+  it("focuses the existing Home search control when Quick Search is activated", () => {
+    const searchField = document.createElement("input");
+    searchField.id = "goreecloud-home-search";
+    document.body.append(searchField);
+    try {
+      show();
+      const actions = within(screen.getByRole("region", { name: "Quick Actions" }));
+      fireEvent.click(actions.getByRole("button", { name: /Search Memos/i }));
+      expect(searchField).toHaveFocus();
+    } finally {
+      searchField.remove();
+    }
+  });
+
   it("uses the existing global New Memo action and respects readiness", () => {
     state.ready = false;
     state.canOpen = false;
@@ -122,22 +147,14 @@ describe("Home mockup dashboard layout", () => {
     );
   });
 
-  it("opens the global composer and switches preview from grid to list and back", () => {
-    const { container, rerender } = show();
-    const syncView = () =>
-      rerender(
-        <MemoryRouter>
-          <Home />
-        </MemoryRouter>,
-      );
+  it("opens the global composer and keeps Pinterest masonry as the only layout", () => {
+    const { container } = show();
     fireEvent.click(screen.getByRole("button", { name: /editor.new-memo/i }));
     expect(state.openEditor).toHaveBeenCalledOnce();
-    fireEvent.click(screen.getByRole("button", { name: "List view" }));
-    syncView();
-    expect(container.querySelector(".gc-dashboard-memos-list")).not.toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Grid view" }));
-    syncView();
+    expect(container.querySelector(".gc-dashboard-memos-masonry")).not.toBeNull();
     expect(container.querySelector(".gc-dashboard-memos-list")).toBeNull();
+    expect(screen.queryByRole("button", { name: "List view" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Grid view" })).not.toBeInTheDocument();
   });
 
   it("keeps only one Home search when switching Space scope", () => {

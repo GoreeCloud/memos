@@ -1,118 +1,95 @@
-import { UserRoundIcon } from "lucide-react";
-import { type ReactNode } from "react";
+import { PencilIcon } from "lucide-react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import MemoView from "@/components/MemoView";
-import PagedMemoList, { getMemoKey } from "@/components/PagedMemoList";
+import UpdateAccountDialog from "@/components/UpdateAccountDialog";
 import UserAvatar from "@/components/UserAvatar";
-import { useMemoFilters, useMemoSorting } from "@/hooks";
+import { Button } from "@/components/ui/button";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { useDelayedFlag } from "@/hooks/useDelayedFlag";
 import { useUser } from "@/hooks/useUserQueries";
 import { LOADING_INDICATOR_DELAY_MS } from "@/lib/constants";
 import { userNamePrefix } from "@/lib/resource-names";
-import { cn } from "@/lib/utils";
 import { ROUTES } from "@/router/routes";
-import { State } from "@/types/proto/api/v1/common_pb";
-import { Memo } from "@/types/proto/api/v1/memo_service_pb";
 import type { User } from "@/types/proto/api/v1/user_service_pb";
 import { useTranslate } from "@/utils/i18n";
 
-const PROFILE_TITLE_CLASSES = "text-xl font-semibold leading-7 tracking-[-0.01em] text-foreground";
-const PROFILE_AVATAR_SLOT_CLASSES = "mt-0.5 size-10 shrink-0 rounded-lg";
+/**
+ * Profile identity and the memo collection are different parts of the page.
+ * The user menu must never land in what looks like a second All Memos screen.
+ */
+const ProfileOverview = ({ user, isOwner, onEdit }: { user: User; isOwner: boolean; onEdit: () => void }) => {
+  const t = useTranslate();
 
-// The identity block sits on the content rail like everything else on the page: a 40px
-// avatar slot beside a text column. The loaded, loading and not-found states all share
-// this shell so they occupy the same space and swap without a jump.
-const IdentityRow = ({ avatar, className, children }: { avatar: ReactNode; className?: string; children: ReactNode }) => (
-  <div className={cn("flex w-full items-start gap-3", className)}>
-    {avatar}
-    <div className="min-w-0 flex-1">{children}</div>
-  </div>
-);
+  return (
+    <>
+      <section aria-label={t("common.profile")} className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm sm:px-5">
+        <div className="flex min-w-0 items-center gap-3">
+          <UserAvatar className="size-12 shrink-0 rounded-xl" avatarUrl={user.avatarUrl} />
+          <div className="min-w-0 flex-1">
+            <h1 className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{t("common.profile")}</h1>
+            <h2 className="truncate text-lg font-semibold tracking-tight text-foreground">{user.displayName || user.username}</h2>
+            <p className="text-xs text-muted-foreground">@{user.username}</p>
+            {user.description && (
+              <p className="mt-1 max-w-2xl whitespace-pre-wrap break-words text-xs text-muted-foreground">{user.description}</p>
+            )}
+          </div>
+          {isOwner && (
+            <Button variant="outline" size="sm" className="shrink-0" onClick={onEdit}>
+              <PencilIcon className="me-1.5 size-3.5" aria-hidden="true" />
+              {t("common.edit")}
+            </Button>
+          )}
+        </div>
+      </section>
+    </>
+  );
+};
 
-// The list's header, so in grid mode it spans every column.
-const ProfileHeader = ({ user, className }: { user: User; className?: string }) => (
-  <IdentityRow className={className} avatar={<UserAvatar className={PROFILE_AVATAR_SLOT_CLASSES} avatarUrl={user.avatarUrl} />}>
-    <div className="flex min-w-0 flex-wrap items-baseline gap-x-2">
-      <h1 className={cn("truncate", PROFILE_TITLE_CLASSES)}>{user.displayName || user.username}</h1>
-      {user.displayName && <span className="text-ui text-muted-foreground">@{user.username}</span>}
-    </div>
-    {user.description && <p className="mt-0.5 line-clamp-2 max-w-[60ch] text-ui text-muted-foreground">{user.description}</p>}
-  </IdentityRow>
-);
-
-const ProfileHeaderSkeleton = () => (
-  <div aria-busy="true">
-    <IdentityRow avatar={<span className={cn(PROFILE_AVATAR_SLOT_CLASSES, "animate-pulse bg-muted")} />}>
-      <span className="mt-1 block h-5 w-40 animate-pulse rounded bg-muted" />
-      <span className="mt-2 block h-3.5 w-3/5 animate-pulse rounded bg-muted" />
-    </IdentityRow>
-  </div>
-);
+const ProfileLoading = () => {
+  const t = useTranslate();
+  return (
+    <section className="flex w-full flex-col gap-5" aria-busy="true" aria-label={t("common.profile")}>
+      <div className="h-28 animate-pulse rounded-2xl border border-border bg-muted/40" />
+      <div className="h-36 animate-pulse rounded-2xl border border-border bg-muted/40" />
+    </section>
+  );
+};
 
 const ProfileNotFound = ({ username }: { username: string }) => {
   const t = useTranslate();
   return (
-    <IdentityRow
-      avatar={
-        <span
-          className={cn(PROFILE_AVATAR_SLOT_CLASSES, "grid place-items-center border border-dashed border-input text-muted-foreground/60")}
-        >
-          <UserRoundIcon className="size-5" strokeWidth={1.6} />
-        </span>
-      }
-    >
-      <h1 className={PROFILE_TITLE_CLASSES}>{t("profile.not-found-title")}</h1>
-      <p className="mt-0.5 max-w-[60ch] text-ui text-muted-foreground">{t("profile.not-found-description", { username })}</p>
-      <Link to={ROUTES.EXPLORE} className="mt-3 block w-fit text-ui text-primary hover:underline">
+    <section className="w-full rounded-2xl border border-border bg-card p-8">
+      <h1 className="text-2xl font-semibold text-foreground">{t("profile.not-found-title")}</h1>
+      <p className="mt-2 max-w-xl text-sm text-muted-foreground">{t("profile.not-found-description", { username })}</p>
+      <Link to={ROUTES.EXPLORE} className="mt-4 inline-flex text-sm font-medium text-primary hover:underline">
         {t("common.explore")}
       </Link>
-    </IdentityRow>
+    </section>
   );
 };
 
 const UserProfile = () => {
-  const t = useTranslate();
   const username = useParams().username ?? "";
   const currentUser = useCurrentUser();
-
+  const [editOpen, setEditOpen] = useState(false);
   const { data: user, isLoading } = useUser(`${userNamePrefix}${username}`, { enabled: !!username });
   const showSkeleton = useDelayedFlag(isLoading, LOADING_INDICATOR_DELAY_MS);
 
-  const memoFilter = useMemoFilters({
-    creatorName: user?.name,
-    includeMemoViews: true,
-    includePinned: true,
-  });
-
-  const { listSort, orderBy } = useMemoSorting({
-    pinnedFirst: true,
-    state: State.NORMAL,
-  });
-
-  if (user) {
-    // Visitors only see what the backend lets them see, so an empty list means nothing
-    // shared rather than nothing written. The owner sees everything and gets the default.
-    const isOwner = currentUser?.name === user.name;
+  if (!user) {
     return (
-      <PagedMemoList
-        renderer={(memo: Memo, { compact }) => (
-          <MemoView key={getMemoKey(memo)} memo={memo} showVisibility showPinned showSpace compact={compact} />
-        )}
-        listSort={listSort}
-        orderBy={orderBy}
-        filter={memoFilter}
-        emptyMessage={isOwner ? undefined : t("profile.no-shared-memos", { username: user.username })}
-        renderHeader={({ useGrid }) => <ProfileHeader user={user} className={useGrid ? undefined : "mb-4"} />}
-      />
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+        {isLoading ? showSkeleton && <ProfileLoading /> : <ProfileNotFound username={username} />}
+      </div>
     );
   }
 
-  // Everything that is not the list shares the list's single-column reading rail.
+  const isOwner = currentUser?.name === user.name;
   return (
-    <section className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-      {isLoading ? showSkeleton && <ProfileHeaderSkeleton /> : <ProfileNotFound username={username} />}
-    </section>
+    <div className="gc-profile-page mx-auto flex w-full max-w-7xl flex-col gap-6">
+      <ProfileOverview user={user} isOwner={isOwner} onEdit={() => setEditOpen(true)} />
+
+      {isOwner && <UpdateAccountDialog open={editOpen} onOpenChange={setEditOpen} />}
+    </div>
   );
 };
 

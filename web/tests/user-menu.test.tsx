@@ -72,7 +72,7 @@ describe("User menu", () => {
     expect(profile.compareDocumentPosition(inbox) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(inbox.compareDocumentPosition(archived) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(archived).toHaveAttribute("aria-current", "page");
-    expect(screen.getAllByRole("separator")).toHaveLength(2);
+    expect(screen.getAllByRole("separator")).toHaveLength(3);
 
     fireEvent.click(archived);
     expect(mocks.setMobileOpen).toHaveBeenCalledWith(false);
@@ -88,18 +88,18 @@ describe("User menu", () => {
     );
 
     const trigger = screen.getByRole("button", { name: "Steven, common.more, 2 inbox.unread" });
-    expect(trigger).toHaveClass("h-9", "w-full", "gap-1", "px-5");
-    expect(trigger).not.toHaveClass("rounded-md");
-    expect(trigger.firstElementChild).toHaveClass("size-5");
-    expect(trigger.querySelector(".lucide-ellipsis-vertical")).not.toBeNull();
-    expect(trigger.querySelector(".lucide-chevrons-up-down")).toBeNull();
+    expect(trigger).toHaveClass("h-11", "w-full", "rounded-lg", "gap-2.5");
+    expect(trigger).not.toHaveClass("rounded-none");
+    expect(trigger.firstElementChild).toHaveClass("size-8");
+    expect(trigger.querySelector(".lucide-chevrons-up-down")).not.toBeNull();
+    expect(trigger.querySelector(".lucide-ellipsis-vertical")).toBeNull();
     expect(trigger.querySelector("[data-inbox-unread-indicator]")).not.toBeNull();
     fireEvent.click(trigger);
 
     const inbox = await screen.findByRole("menuitem", { name: "common.inbox, 2 inbox.unread" });
     const menu = screen.getByRole("menu");
-    expect(menu).toHaveClass("w-[calc(var(--anchor-width)-1.5rem)]");
-    expect(menu).not.toHaveClass("min-w-56");
+    expect(menu).toHaveClass("w-[256px]", "rounded-xl");
+    expect(menu).toHaveTextContent("@steven");
     expect(inbox).toHaveAttribute("aria-current", "page");
     expect(inbox).toHaveTextContent("common.inbox");
     expect(inbox).toHaveTextContent("2");

@@ -62,7 +62,7 @@ const MockMemoEditor = (props: MemoEditorProps) => {
       <button type="button" onClick={props.onCancel}>
         Cancel editor
       </button>
-      <button type="button" onClick={props.onFocusModeExit}>
+      <button type="button" onClick={props.onCancel}>
         Exit focus mode
       </button>
       <button type="button" onClick={() => props.onSavingChange?.(true)}>
@@ -185,7 +185,7 @@ describe("GlobalMemoEditorProvider", () => {
     expect(claimFocus()).toBe(false);
   });
 
-  it("opens a modal focus-mode editor, closes the sidebar surfaces, and restores focus after Escape", async () => {
+  it("opens a compact modal editor, closes sidebar surfaces, and restores focus after Escape", async () => {
     const trigger = await openViaTrigger();
     const dialog = screen.getByRole("dialog", DIALOG);
 
@@ -197,8 +197,8 @@ describe("GlobalMemoEditorProvider", () => {
     expect(mocks.editorProps).toMatchObject({
       autoFocus: true,
       cacheKey: "global-memo-editor",
-      onFocusModeExit: expect.any(Function),
     });
+    expect(mocks.editorProps?.onFocusModeExit).toBeUndefined();
     await waitFor(() => expect(dialog).toContainElement(document.activeElement as HTMLElement | null));
 
     fireEvent.keyDown(dialog, { key: "Escape" });
@@ -207,7 +207,7 @@ describe("GlobalMemoEditorProvider", () => {
     expect(trigger).toHaveFocus();
   });
 
-  it.each(["Save memo", "Cancel editor", "Exit focus mode", "common.close"])("closes after %s", async (action) => {
+  it.each(["Save memo", "Cancel editor", "common.close"])("closes after %s", async (action) => {
     const trigger = await openViaTrigger();
 
     fireEvent.click(screen.getByRole("button", { name: action }));
@@ -224,7 +224,7 @@ describe("GlobalMemoEditorProvider", () => {
     fireEvent.keyDown(dialog, { key: "Escape" });
     expect(dialog).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Exit focus mode" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel editor" }));
     expect(dialog).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "common.close" }));
@@ -243,7 +243,7 @@ describe("GlobalMemoEditorProvider", () => {
     expect(close).toHaveFocus();
   });
 
-  it("returns focus to mobile navigation when the drawer's Compose trigger unmounts", async () => {
+  it("returns focus to persistent floating Compose when the drawer trigger unmounts", async () => {
     renderProvider(<EphemeralTrigger />);
 
     fireEvent.click(screen.getByRole("button", { name: "Open drawer editor" }));
@@ -251,7 +251,7 @@ describe("GlobalMemoEditorProvider", () => {
     fireEvent.click(screen.getByRole("button", { name: "Cancel editor" }));
 
     await expectClosed();
-    expect(screen.getByRole("button", { name: "Open navigation" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "editor.new-memo" })).toHaveFocus();
   });
 
   it("does not open or load the editor for a guest", () => {

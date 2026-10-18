@@ -7,24 +7,27 @@ const state = vi.hoisted(() => ({
   selectedSpaceName: undefined as string | undefined,
   setFilters: vi.fn(),
   setMemoView: vi.fn(),
+  setQuickFindOpen: vi.fn(),
   navigate: vi.fn(),
 }));
 
 vi.mock("react-router-dom", () => ({ useNavigate: () => state.navigate }));
-vi.mock("@/components/MemoDisplaySettingMenu", () => ({
-  default: () => (
-    <button type="button" aria-label="memo.view-options">
-      Layout options
-    </button>
-  ),
+vi.mock("@/contexts/AppSidebarContext", () => ({
+  useAppSidebar: () => ({ setQuickFindOpen: state.setQuickFindOpen }),
 }));
 vi.mock("@/contexts/MemoFilterContext", () => ({
-  useMemoFilterContext: () => ({ filters: state.filters, setFilters: state.setFilters, setMemoView: state.setMemoView }),
+  useMemoFilterContext: () => ({
+    filters: state.filters,
+    setFilters: state.setFilters,
+    setMemoView: state.setMemoView,
+  }),
   getFilterSearch: (filters: Array<{ factor: string; value: string }>) =>
     filters.length ? "?filter=" + encodeURIComponent(filters.map((f) => f.factor + ":" + f.value).join(",")) : "",
   isSearchFilter: (filter: { factor: string }) => filter.factor === "contentSearch" || filter.factor === "celSearch",
 }));
-vi.mock("@/contexts/SpaceContext", () => ({ useSpaceContext: () => ({ selectedSpaceName: state.selectedSpaceName }) }));
+vi.mock("@/contexts/SpaceContext", () => ({
+  useSpaceContext: () => ({ selectedSpaceName: state.selectedSpaceName }),
+}));
 vi.mock("@/utils/i18n", () => ({ useTranslate: () => (key: string) => key }));
 
 describe("HomeSearchBar", () => {
@@ -33,14 +36,15 @@ describe("HomeSearchBar", () => {
     state.selectedSpaceName = undefined;
     state.setFilters.mockReset();
     state.setMemoView.mockReset();
+    state.setQuickFindOpen.mockReset();
     state.navigate.mockReset();
   });
 
-  it("keeps searchable content and persistent layout controls as separate actions", () => {
+  it("opens the actual filter interface from the right end without submitting a search", () => {
     render(<HomeSearchBar />);
     expect(screen.getByRole("search", { name: "home.search-all" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "memo.view-options" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "memo.view-options" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.filter" }));
+    expect(screen.getByRole("button", { name: "memo.filters.has-link" })).toBeInTheDocument();
     expect(state.setFilters).not.toHaveBeenCalled();
   });
 
@@ -90,7 +94,10 @@ describe("HomeSearchBar", () => {
     }
     input.remove();
 
-    const composing = createEvent.keyDown(document.body, { key: "/", isComposing: true });
+    const composing = createEvent.keyDown(document.body, {
+      key: "/",
+      isComposing: true,
+    });
     fireEvent(document.body, composing);
     expect(composing.defaultPrevented).toBe(false);
     expect(field).not.toHaveFocus();
@@ -126,7 +133,9 @@ describe("HomeSearchBar", () => {
 
   it("keeps quoted Home search phrases together when submitting", () => {
     render(<HomeSearchBar />);
-    fireEvent.change(screen.getByRole("searchbox"), { target: { value: '"meeting notes" follow-up' } });
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: '"meeting notes" follow-up' },
+    });
     fireEvent.submit(screen.getByRole("search"));
     expect(state.setFilters).toHaveBeenCalledWith([
       { factor: "contentSearch", value: "meeting notes" },
@@ -163,7 +172,9 @@ describe("HomeSearchBar", () => {
     state.filters = [{ factor: "celSearch", value: "pinned && has_link" }];
     render(<HomeSearchBar />);
 
-    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "meeting agenda" } });
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "meeting agenda" },
+    });
     fireEvent.submit(screen.getByRole("search"));
     expect(state.setFilters).toHaveBeenCalledWith([
       { factor: "contentSearch", value: "meeting" },
@@ -223,7 +234,9 @@ describe("HomeSearchBar", () => {
   it("searches all accessible memos rather than retaining a previous label", () => {
     state.filters = [{ factor: "tagSearch", value: "old" }];
     render(<HomeSearchBar />);
-    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "fresh memo" } });
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "fresh memo" },
+    });
     fireEvent.submit(screen.getByRole("search"));
     expect(state.setFilters).toHaveBeenCalledWith([
       { factor: "contentSearch", value: "fresh" },
@@ -235,9 +248,14 @@ describe("HomeSearchBar", () => {
   it("leaves Space scope when searching across the whole library", () => {
     state.selectedSpaceName = "spaces/design";
     render(<HomeSearchBar />);
-    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "  sketch  " } });
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "  sketch  " },
+    });
     fireEvent.submit(screen.getByRole("search"));
-    expect(state.navigate).toHaveBeenCalledWith({ pathname: "/", search: "?filter=contentSearch%3Asketch" });
+    expect(state.navigate).toHaveBeenCalledWith({
+      pathname: "/",
+      search: "?filter=contentSearch%3Asketch",
+    });
     expect(state.setMemoView).toHaveBeenCalledWith(undefined);
     expect(state.setFilters).not.toHaveBeenCalled();
   });
