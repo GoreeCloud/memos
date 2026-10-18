@@ -1,8 +1,11 @@
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import babel from "@rolldown/plugin-babel";
-import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { resolve } from "path";
-import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+const configDirectory = dirname(fileURLToPath(import.meta.url));
 
 let devProxyServer = "http://localhost:8081";
 if (process.env.DEV_PROXY_SERVER && process.env.DEV_PROXY_SERVER.length > 0) {
@@ -39,7 +42,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@/": `${resolve(__dirname, "src")}/`,
+      "@/": `${resolve(configDirectory, "src")}/`,
     },
   },
   build: {

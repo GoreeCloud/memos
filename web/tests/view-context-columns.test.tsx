@@ -14,9 +14,9 @@ describe("ViewContext maxColumns setting", () => {
     localStorage.clear();
   });
 
-  it("defaults to a single column", () => {
+  it("defaults to an adaptive masonry board", () => {
     const { result } = renderHook(() => useView(), { wrapper });
-    expect(result.current.maxColumns).toBe(1);
+    expect(result.current.maxColumns).toBe(0);
   });
 
   it("updates and persists the column ceiling", () => {
@@ -26,6 +26,7 @@ describe("ViewContext maxColumns setting", () => {
 
     expect(result.current.maxColumns).toBe(0);
     expect(persisted().maxColumns).toBe(0);
+    expect(persisted().layoutPreferenceVersion).toBe(2);
   });
 
   it("sets and persists the sort direction explicitly", () => {
@@ -68,21 +69,34 @@ describe("ViewContext maxColumns setting", () => {
       timeBasis: "create_time",
       compactMode: false,
       linkPreview: true,
-      maxColumns: 1,
+      maxColumns: 0,
     });
     expect(persisted()).toEqual({
       orderByTimeAsc: false,
       compactMode: false,
       linkPreview: true,
-      maxColumns: 1,
+      maxColumns: 0,
     });
   });
 
-  it("falls back to a single column for an invalid persisted value", () => {
+  it("upgrades the legacy single-column default without changing unrelated preferences", () => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ maxColumns: 1, linkPreview: false }));
+    const { result } = renderHook(() => useView(), { wrapper });
+    expect(result.current.maxColumns).toBe(0);
+    expect(result.current.linkPreview).toBe(false);
+  });
+
+  it("preserves a deliberately selected single-column list across remounts", () => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ maxColumns: 1, layoutPreferenceVersion: 2 }));
+    const { result } = renderHook(() => useView(), { wrapper });
+    expect(result.current.maxColumns).toBe(1);
+  });
+
+  it("falls back to masonry for an invalid persisted value", () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ maxColumns: 7 }));
 
     const { result } = renderHook(() => useView(), { wrapper });
 
-    expect(result.current.maxColumns).toBe(1);
+    expect(result.current.maxColumns).toBe(0);
   });
 });

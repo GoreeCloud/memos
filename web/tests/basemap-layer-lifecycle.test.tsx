@@ -20,7 +20,8 @@ it("unregisters a failed WebGL layer before leaving the fallback map", async () 
   const map = mapRef.current!;
 
   await waitFor(() => {
-    expect(getContext).toHaveBeenCalledWith("webgl2", expect.any(Object));
+    // MapLibre can fail before asking for a canvas context. Test the observable
+    // fallback and layer cleanup instead of requiring a particular init step.
     const layers: L.Layer[] = [];
     map.eachLayer((layer) => layers.push(layer));
     expect(layers.some((layer) => layer instanceof L.TileLayer)).toBe(true);
@@ -28,4 +29,5 @@ it("unregisters a failed WebGL layer before leaving the fallback map", async () 
   });
   expect(view.container.querySelector(".leaflet-gl-layer")).toBeNull();
   expect(() => view.unmount()).not.toThrow();
+  getContext.mockRestore();
 });

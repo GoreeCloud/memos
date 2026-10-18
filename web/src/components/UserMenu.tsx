@@ -2,14 +2,13 @@ import {
   ArchiveIcon,
   BellIcon,
   CheckIcon,
+  ChevronsUpDownIcon,
   GlobeIcon,
   InfoIcon,
   LogOutIcon,
-  MoreVerticalIcon,
   PaletteIcon,
   SettingsIcon,
   SquareUserIcon,
-  User2Icon,
 } from "lucide-react";
 import { matchPath, useLocation } from "react-router-dom";
 import { useAppSidebar } from "@/contexts/AppSidebarContext";
@@ -23,7 +22,7 @@ import { Routes } from "@/router";
 import { UserNotification_Status } from "@/types/proto/api/v1/user_service_pb";
 import { getLocaleWithFallback, loadLocale, useTranslate } from "@/utils/i18n";
 import { getThemeWithFallback, loadTheme, THEME_OPTIONS } from "@/utils/theme";
-import { SIDEBAR_LEADING_SLOT_CLASSES, sidebarSurfaceVariants } from "./AppSidebar/sidebar-layout";
+import { sidebarSurfaceVariants } from "./AppSidebar/sidebar-layout";
 import { LocaleSearchList } from "./LocalePicker";
 import UserAvatar from "./UserAvatar";
 import {
@@ -59,6 +58,7 @@ const UserMenu = (props: Props) => {
   const archivedActive = Boolean(matchPath(Routes.ARCHIVED, location.pathname));
   const unreadCount = notifications.filter((notification) => notification.status === UserNotification_Status.UNREAD).length;
   const userLabel = currentUser?.displayName || currentUser?.username || t("common.profile");
+  const accountHandle = currentUser?.username ? `@${currentUser.username}` : t("common.profile");
   const triggerLabel = `${userLabel}, ${t("common.more")}${unreadCount > 0 ? `, ${unreadCount} ${t("inbox.unread")}` : ""}`;
   const inboxLabel = unreadCount > 0 ? `${t("common.inbox")}, ${unreadCount} ${t("inbox.unread")}` : t("common.inbox");
 
@@ -133,12 +133,8 @@ const UserMenu = (props: Props) => {
           "cursor-pointer text-start text-foreground transition-colors hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/50 data-popup-open:bg-sidebar-accent",
         )}
       >
-        <div className={cn(SIDEBAR_LEADING_SLOT_CLASSES, "relative")}>
-          {currentUser?.avatarUrl ? (
-            <UserAvatar className="size-5 rounded-[5px]" avatarUrl={currentUser?.avatarUrl} />
-          ) : (
-            <User2Icon className="me-auto size-4 text-muted-foreground" />
-          )}
+        <div className="relative flex size-8 shrink-0 items-center justify-center">
+          <UserAvatar className="size-8 rounded-lg" avatarUrl={currentUser?.avatarUrl} />
           {sseStatus !== "connected" && (
             <Tooltip>
               <TooltipTrigger
@@ -156,13 +152,14 @@ const UserMenu = (props: Props) => {
           )}
         </div>
         {!collapsed && (
-          <span data-sidebar-label className="min-w-0 flex-1 truncate text-start text-[13px] font-medium text-foreground">
-            {userLabel}
+          <span data-sidebar-label className="flex min-w-0 flex-1 flex-col text-start leading-tight">
+            <span className="truncate text-[12px] font-semibold text-foreground">{userLabel}</span>
+            <span className="truncate text-[10px] text-muted-foreground">{accountHandle}</span>
           </span>
         )}
         {!collapsed && (
           <span data-sidebar-trailing className="relative flex size-5 shrink-0 items-center justify-center">
-            <MoreVerticalIcon className="size-4 text-muted-foreground/70" strokeWidth={1.8} />
+            <ChevronsUpDownIcon className="size-4 text-muted-foreground" strokeWidth={1.8} />
             {unreadCount > 0 && (
               <span
                 aria-hidden="true"
@@ -173,7 +170,20 @@ const UserMenu = (props: Props) => {
           </span>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={collapsed ? "start" : "center"} className={cn(!collapsed && "w-[calc(var(--anchor-width)-1.5rem)]")}>
+      <DropdownMenuContent
+        align="start"
+        side="top"
+        sideOffset={9}
+        className="w-[256px] max-w-[calc(100vw-1rem)] rounded-xl border-border/80 p-1.5 shadow-xl"
+      >
+        <div className="flex items-center gap-2.5 px-2.5 py-2" aria-label="Signed-in account">
+          <UserAvatar className="size-9 rounded-lg" avatarUrl={currentUser?.avatarUrl} />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-semibold text-foreground">{userLabel}</p>
+            <p className="truncate text-[11px] text-muted-foreground">{accountHandle}</p>
+          </div>
+        </div>
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => navigateFromMenu(`/u/${encodeURIComponent(currentUser?.username ?? "")}`)}>
           <SquareUserIcon className="size-4 text-muted-foreground" />
           {t("common.profile")}
@@ -237,7 +247,7 @@ const UserMenu = (props: Props) => {
           {t("common.settings")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut}>
+        <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
           <LogOutIcon className="size-4 text-muted-foreground" />
           {t("common.sign-out")}
         </DropdownMenuItem>

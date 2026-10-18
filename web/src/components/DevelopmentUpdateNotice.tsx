@@ -8,7 +8,9 @@ interface Props {
 
 /** Build-gated, informational only: never expose deployment data, user content, or credentials. */
 const DevelopmentUpdateNotice = ({ enabled, revision }: Props) => {
-  const [expanded, setExpanded] = useState(true);
+  // Keep the development notice available without obscuring the memo feed on phones.
+  // Visitors can expand it when they want build details.
+  const [expanded, setExpanded] = useState(false);
   if (!enabled) return null;
 
   const buildLabel = revision?.match(/^[0-9a-f]{40}$/i) ? revision.slice(0, 8) : "Development";
@@ -16,7 +18,7 @@ const DevelopmentUpdateNotice = ({ enabled, revision }: Props) => {
   return (
     <aside
       aria-label="GoreeCloud Memos Development preview"
-      className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-sm rounded-2xl border border-primary/30 bg-card/95 text-card-foreground shadow-xl backdrop-blur-md sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-80"
+      className="relative mx-3 my-3 max-w-sm rounded-2xl border border-primary/30 bg-card/95 text-card-foreground shadow-xl backdrop-blur-md sm:fixed sm:inset-x-auto sm:right-5 sm:bottom-5 sm:z-50 sm:mx-0 sm:my-0 sm:w-80"
       data-development-update
     >
       <div className="flex items-center justify-between gap-2 px-4 py-3">

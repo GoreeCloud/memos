@@ -1,7 +1,7 @@
 import { create } from "@bufbuild/protobuf";
 import { isEqual } from "lodash-es";
 import { MoreVerticalIcon, PlusIcon } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -356,6 +356,10 @@ interface TranscriptionFormProps {
 
 const TranscriptionForm = ({ providers, transcription, referencedProvider, onChange }: TranscriptionFormProps) => {
   const t = useTranslate();
+  const providerInputId = useId();
+  const modelInputId = useId();
+  const languageInputId = useId();
+  const promptInputId = useId();
   const noProviders = providers.length === 0;
 
   const providerOptions = useMemo(
@@ -380,14 +384,14 @@ const TranscriptionForm = ({ providers, transcription, referencedProvider, onCha
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-3xl">
       <div className="flex flex-col gap-1.5 sm:col-span-2">
-        <Label>{t("setting.ai.transcription-provider")}</Label>
+        <Label htmlFor={providerInputId}>{t("setting.ai.transcription-provider")}</Label>
         <Select
           value={transcription.providerId || "__none__"}
           items={providerOptions}
           onValueChange={(value) => update({ providerId: value === "__none__" ? "" : value })}
           disabled={noProviders}
         >
-          <SelectTrigger className="w-full">
+          <SelectTrigger id={providerInputId} className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -405,8 +409,9 @@ const TranscriptionForm = ({ providers, transcription, referencedProvider, onCha
       </div>
 
       <div className="flex flex-col gap-1.5 sm:col-span-2">
-        <Label>{t("setting.ai.transcription-model")}</Label>
+        <Label htmlFor={modelInputId}>{t("setting.ai.transcription-model")}</Label>
         <Input
+          id={modelInputId}
           value={transcription.model}
           onChange={(e) => update({ model: e.target.value })}
           placeholder={placeholderForProvider(referencedProvider)}
@@ -417,8 +422,9 @@ const TranscriptionForm = ({ providers, transcription, referencedProvider, onCha
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label>{t("setting.ai.transcription-language")}</Label>
+        <Label htmlFor={languageInputId}>{t("setting.ai.transcription-language")}</Label>
         <Input
+          id={languageInputId}
           value={transcription.language}
           onChange={(e) => update({ language: e.target.value })}
           placeholder={t("setting.ai.transcription-language-placeholder")}
@@ -429,8 +435,9 @@ const TranscriptionForm = ({ providers, transcription, referencedProvider, onCha
       </div>
 
       <div className="flex flex-col gap-1.5 sm:col-span-2">
-        <Label>{t("setting.ai.transcription-prompt")}</Label>
+        <Label htmlFor={promptInputId}>{t("setting.ai.transcription-prompt")}</Label>
         <Textarea
+          id={promptInputId}
           value={transcription.prompt}
           onChange={(e) => update({ prompt: e.target.value })}
           placeholder={t("setting.ai.transcription-prompt-placeholder")}
@@ -452,6 +459,10 @@ interface AIProviderDialogProps {
 
 const AIProviderDialog = ({ provider, onOpenChange, onSave }: AIProviderDialogProps) => {
   const t = useTranslate();
+  const providerTitleId = useId();
+  const providerTypeId = useId();
+  const endpointId = useId();
+  const apiKeyId = useId();
   const [draft, setDraft] = useState<LocalAIProvider>(() => provider ?? newProvider());
 
   useEffect(() => {
@@ -477,18 +488,18 @@ const AIProviderDialog = ({ provider, onOpenChange, onSave }: AIProviderDialogPr
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label>{t("setting.ai.provider-title")}</Label>
-            <Input value={draft.title} onChange={(e) => updateDraft({ title: e.target.value })} placeholder="OpenAI" />
+            <Label htmlFor={providerTitleId}>{t("setting.ai.provider-title")}</Label>
+            <Input id={providerTitleId} value={draft.title} onChange={(e) => updateDraft({ title: e.target.value })} placeholder="OpenAI" />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label>{t("setting.ai.provider-type")}</Label>
+            <Label htmlFor={providerTypeId}>{t("setting.ai.provider-type")}</Label>
             <Select
               value={String(draft.type)}
               items={providerTypeSelectOptions}
               onValueChange={(value) => updateDraft({ type: Number(value) as InstanceSetting_AIProviderType })}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger id={providerTypeId} className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -502,8 +513,9 @@ const AIProviderDialog = ({ provider, onOpenChange, onSave }: AIProviderDialogPr
           </div>
 
           <div className="flex flex-col gap-1.5 sm:col-span-2">
-            <Label>{t("setting.ai.endpoint")}</Label>
+            <Label htmlFor={endpointId}>{t("setting.ai.endpoint")}</Label>
             <Input
+              id={endpointId}
               value={draft.endpoint}
               onChange={(e) => updateDraft({ endpoint: e.target.value })}
               placeholder={getDefaultEndpointPlaceholder(draft.type)}
@@ -512,8 +524,9 @@ const AIProviderDialog = ({ provider, onOpenChange, onSave }: AIProviderDialogPr
           </div>
 
           <div className="flex flex-col gap-1.5 sm:col-span-2">
-            <Label>{t("setting.ai.api-key")}</Label>
+            <Label htmlFor={apiKeyId}>{t("setting.ai.api-key")}</Label>
             <Input
+              id={apiKeyId}
               type="password"
               value={draft.apiKey}
               onChange={(e) => updateDraft({ apiKey: e.target.value })}

@@ -13,6 +13,8 @@ interface ViewState {
   compactMode: boolean;
   linkPreview: boolean;
   maxColumns: MemoMaxColumns;
+  /** Marks an intentional list/grid selection after the masonry-default migration. */
+  layoutPreferenceVersion?: 2;
 }
 
 interface ViewContextValue {
@@ -33,7 +35,7 @@ const ViewContext = createContext<ViewContextValue | null>(null);
 
 const LOCAL_STORAGE_KEY = "memos-view-setting";
 
-const DEFAULT_VIEW_STATE: ViewState = { orderByTimeAsc: false, compactMode: false, linkPreview: true, maxColumns: 1 };
+const DEFAULT_VIEW_STATE: ViewState = { orderByTimeAsc: false, compactMode: false, linkPreview: true, maxColumns: 0 };
 
 export function ViewProvider({ children }: { children: ReactNode }) {
   const getInitialState = (): ViewState => {
@@ -43,15 +45,21 @@ export function ViewProvider({ children }: { children: ReactNode }) {
         const data = JSON.parse(cached) as Partial<ViewState>;
         const cachedTimeBasis = data.timeBasis ?? data.sortTimeField;
         const timeBasis = cachedTimeBasis === "create_time" || cachedTimeBasis === "update_time" ? cachedTimeBasis : undefined;
-        const maxColumns = MAX_COLUMNS_VALUES.includes(data.maxColumns as MemoMaxColumns)
-          ? (data.maxColumns as MemoMaxColumns)
-          : DEFAULT_VIEW_STATE.maxColumns;
+        // The old one-column default was stored without evidence of an explicit choice.
+        // Migrate that legacy value to masonry; preserve deliberate choices made afterward.
+        const maxColumns =
+          data.maxColumns === 1 && data.layoutPreferenceVersion !== 2
+            ? DEFAULT_VIEW_STATE.maxColumns
+            : MAX_COLUMNS_VALUES.includes(data.maxColumns as MemoMaxColumns)
+              ? (data.maxColumns as MemoMaxColumns)
+              : DEFAULT_VIEW_STATE.maxColumns;
         return {
           orderByTimeAsc: Boolean(data.orderByTimeAsc ?? DEFAULT_VIEW_STATE.orderByTimeAsc),
           timeBasis,
           compactMode: Boolean(data.compactMode ?? DEFAULT_VIEW_STATE.compactMode),
           linkPreview: Boolean(data.linkPreview ?? DEFAULT_VIEW_STATE.linkPreview),
           maxColumns,
+          layoutPreferenceVersion: data.layoutPreferenceVersion === 2 ? 2 : undefined,
         };
       }
     } catch (error) {
@@ -83,7 +91,7 @@ export function ViewProvider({ children }: { children: ReactNode }) {
   const setTimeBasis = (field: MemoTimeBasis) => updateState({ timeBasis: field });
   const setCompactMode = (value: boolean) => updateState({ compactMode: value });
   const setLinkPreview = (value: boolean) => updateState({ linkPreview: value });
-  const setMaxColumns = (value: MemoMaxColumns) => updateState({ maxColumns: value });
+  const setMaxColumns = (value: MemoMaxColumns) => updateState({ maxColumns: value, layoutPreferenceVersion: 2 });
   const resetViewSettings = () => {
     // Reset in one state/storage write so legacy sort aliases and stale values
     // cannot survive a sequence of partial setter updates.
