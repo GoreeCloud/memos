@@ -15,3 +15,9 @@ then `bash packaging/linux/build-deb.sh` at the root.
 
 **Development preview only.** Require clean-install, data-migration, upgrade,
 accessibility and Linux desktop acceptance before Stable release.
+
+For isolated recovery verification, run `bash packaging/linux/smoke-test.sh path/to/package.deb`.
+This uses a disposable localhost server and SQLite fixture to check an initial
+startup, restart, and cold backup/restore. It never installs the package or
+reads existing notes. This is **not** a cross-version upgrade or user-driven
+memo CRUD acceptance test, and does not establish production recovery readiness.

@@ -35,3 +35,5 @@ HTTP="$(curl -sS -o "$TMP/index.html" -w '%{http_code}' "http://127.0.0.1:$PORT/
 [[ "$HTTP" = "200" ]] || { echo "Expected HTTP 200, got $HTTP" >&2; exit 1; }
 grep -q '<div id="root"' "$TMP/index.html" || { echo 'Embedded frontend missing' >&2; exit 1; }
 echo "PASS: Debian package serves readyz and embedded frontend on loopback"
+# Exercise a cold backup and restore using a disposable fixture; never touch user data.
+python3 "$ROOT/persistence-smoke.py" "$PKG"
