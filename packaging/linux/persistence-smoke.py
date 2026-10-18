@@ -144,6 +144,21 @@ def main(package: Path, previous_package: Path | None = None) -> None:
         with running_server(binary, restored, root):
             pass
         check_fixture(restored / "memos_prod.db")
+        # Negative restore case: a damaged cold backup must fail integrity
+        # checks; it must not silently be considered a successful recovery.
+        corrupted = root / "corrupted-backup"
+        shutil.copytree(restored, corrupted)
+        corrupt_db = corrupted / "memos_prod.db"
+        with corrupt_db.open("r+b") as stream:
+            stream.write(b"CORRUPTED-BACKUP")
+        try:
+            check_fixture(corrupt_db)
+        except (AssertionError, sqlite3.DatabaseError):
+            pass
+        else:
+            raise AssertionError("Corrupted backup was incorrectly accepted")
+        check_fixture(restored / "memos_prod.db")
+        print("PASS: damaged disposable SQLite backup fails integrity verification")
         print("PASS: packaged Memos SQLite fixture survives prior-version upgrade, "
               "restart, and cold backup/restore" if previous_package is not None else
               "PASS: packaged Memos SQLite fixture survives restart and cold backup/restore")

@@ -28,7 +28,9 @@ python3 packaging/linux/persistence-smoke.py path/to/current.deb \\
 
 The upgrade check starts the older binary, inserts a synthetic memo, then starts
 the newer binary against the same temporary database and validates that its note
-survives a cold restored copy. It never installs either package or reads existing
-notes. **It does not qualify arbitrary older versions, downgrade support,
-attachments, or owner-data recovery**; real migration and desktop acceptance
+survives a cold restored copy. The smoke test also corrupts a separate
+throwaway backup and verifies that SQLite integrity checks reject it.
+It never installs either package or reads existing notes. **It does not
+qualify arbitrary older versions, downgrade support, attachments, or
+owner-data recovery**; real migration and desktop acceptance
 are still required before production or Stable release.
