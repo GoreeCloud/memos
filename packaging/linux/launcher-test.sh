@@ -87,4 +87,16 @@ grep -q 'already running' "$TMP/locked.err"
 kill "$HOLDER" 2>/dev/null || :
 wait "$HOLDER" 2>/dev/null || :
 HOLDER=""
+# A preexisting lock symlink must neither be followed nor truncate its target.
+LOCK="$XDG_DATA_HOME/goreecloud-memos-desktop/.launcher.lock"
+rm -f "$LOCK"
+printf 'keep this synthetic data intact\n' >"$TMP/lock-sentinel"
+ln -s "$TMP/lock-sentinel" "$LOCK"
+if GOREECLOUD_MEMOS_DESKTOP_PORT="$PORT" "$LAUNCHER" --local >"$TMP/symlink.out" 2>"$TMP/symlink.err"; then
+  echo "Symlinked profile lock unexpectedly accepted" >&2
+  exit 1
+fi
+grep -q 'Unsafe local profile lock file' "$TMP/symlink.err"
+grep -Fxq 'keep this synthetic data intact' "$TMP/lock-sentinel"
+rm -f "$LOCK"
 echo "PASS: launcher sign-in/local isolation, URL validation and profile lock"
