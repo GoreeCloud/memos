@@ -1,15 +1,4 @@
-import {
-  ArchiveIcon,
-  BellIcon,
-  CheckIcon,
-  ChevronsUpDownIcon,
-  GlobeIcon,
-  InfoIcon,
-  LogOutIcon,
-  PaletteIcon,
-  SettingsIcon,
-  SquareUserIcon,
-} from "lucide-react";
+import { BellIcon, CheckIcon, ChevronsUpDownIcon, GlobeIcon, InfoIcon, LogOutIcon, PaletteIcon } from "lucide-react";
 import { matchPath, useLocation } from "react-router-dom";
 import { useAppSidebar } from "@/contexts/AppSidebarContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -55,7 +44,6 @@ const UserMenu = (props: Props) => {
   const currentLocale = getLocaleWithFallback(userGeneralSetting?.locale);
   const currentTheme = getThemeWithFallback(userGeneralSetting?.theme);
   const inboxActive = Boolean(matchPath(Routes.INBOX, location.pathname));
-  const archivedActive = Boolean(matchPath(Routes.ARCHIVED, location.pathname));
   const unreadCount = notifications.filter((notification) => notification.status === UserNotification_Status.UNREAD).length;
   const userLabel = currentUser?.displayName || currentUser?.username || t("common.profile");
   const accountHandle = currentUser?.username ? `@${currentUser.username}` : t("common.profile");
@@ -184,10 +172,7 @@ const UserMenu = (props: Props) => {
           </div>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigateFromMenu(`/u/${encodeURIComponent(currentUser?.username ?? "")}`)}>
-          <SquareUserIcon className="size-4 text-muted-foreground" />
-          {t("common.profile")}
-        </DropdownMenuItem>
+        {/* The sidebar owns Profile, Archived and Settings; keep only distinct account actions here. */}
         <DropdownMenuItem
           aria-label={inboxLabel}
           aria-current={inboxActive ? "page" : undefined}
@@ -204,14 +189,6 @@ const UserMenu = (props: Props) => {
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          aria-current={archivedActive ? "page" : undefined}
-          className={cn(archivedActive && "bg-accent text-accent-foreground")}
-          onClick={() => navigateFromMenu(Routes.ARCHIVED)}
-        >
-          <ArchiveIcon className="size-4 text-muted-foreground" />
-          {t("common.archived")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuSub>
@@ -241,10 +218,6 @@ const UserMenu = (props: Props) => {
         <DropdownMenuItem onClick={() => navigateFromMenu(Routes.ABOUT)}>
           <InfoIcon className="size-4 text-muted-foreground" />
           {t("common.about")}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigateFromMenu(Routes.SETTING)}>
-          <SettingsIcon className="size-4 text-muted-foreground" />
-          {t("common.settings")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
