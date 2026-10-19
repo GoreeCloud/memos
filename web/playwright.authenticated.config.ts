@@ -25,13 +25,13 @@ export default defineConfig({
     },
     {
       name: "authenticated-desktop-light",
-      testMatch: [/authenticated-home\.spec\.ts/, /authenticated-view-sync\.spec\.ts/],
+      testMatch: [/authenticated-home\.spec\.ts/, /authenticated-pinned\.spec\.ts/, /authenticated-view-sync\.spec\.ts/],
       dependencies: ["authenticated-setup"],
       use: { storageState, viewport: { width: 1440, height: 900 }, colorScheme: "light" },
     },
     {
       name: "authenticated-phone-dark",
-      testMatch: /authenticated-home\.spec\.ts/,
+      testMatch: [/authenticated-home\.spec\.ts/, /authenticated-pinned\.spec\.ts/],
       dependencies: ["authenticated-setup"],
       use: {
         storageState,
@@ -43,7 +43,7 @@ export default defineConfig({
     },
     {
       name: "authenticated-tablet-forced-colors",
-      testMatch: /authenticated-home\.spec\.ts/,
+      testMatch: [/authenticated-home\.spec\.ts/, /authenticated-pinned\.spec\.ts/],
       dependencies: ["authenticated-setup"],
       use: {
         storageState,
@@ -66,7 +66,7 @@ export default defineConfig({
     },
     {
       name: "authenticated-phone-ar-rtl-reduced-transparency",
-      testMatch: /authenticated-home\.spec\.ts/,
+      testMatch: [/authenticated-home\.spec\.ts/, /authenticated-pinned\.spec\.ts/],
       dependencies: [
         "authenticated-desktop-light",
         "authenticated-phone-dark",
