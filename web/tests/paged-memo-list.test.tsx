@@ -88,7 +88,8 @@ describe("<PagedMemoList>", () => {
     feed.memos = [];
     feed.hasNextPage = false;
     feed.isLoading = false;
-    feed.fetchNextPage.mockClear();
+    feed.fetchNextPage.mockReset();
+    feed.fetchNextPage.mockResolvedValue(undefined);
     feed.refetch.mockClear();
     feed.error = null;
     feed.isFetchNextPageError = false;
@@ -221,6 +222,64 @@ describe("<PagedMemoList>", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("coalesces overlapping scroll pagination requests until a page settles", async () => {
+    feed.memos = [memo];
+    feed.hasNextPage = true;
+    const pending: Array<() => void> = [];
+    feed.fetchNextPage.mockImplementation(
+      () =>
+        new Promise<undefined>((resolve) => {
+          pending.push(() => resolve(undefined));
+        }),
+    );
+    renderList((entry) => <div>{entry.content}</div>);
+
+    fireEvent.scroll(window);
+    fireEvent.scroll(window);
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledOnce();
+
+    await act(async () => pending.shift()?.());
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(2);
+    await act(async () => pending.shift()?.());
+  });
+
+  it("allows a new filter's page while an old query is pending without clearing the new gate", async () => {
+    feed.memos = [memo];
+    feed.hasNextPage = true;
+    const pending: Array<() => void> = [];
+    feed.fetchNextPage.mockImplementation(
+      () =>
+        new Promise<undefined>((resolve) => {
+          pending.push(() => resolve(undefined));
+        }),
+    );
+    const client = new QueryClient();
+    const page = (filter: string) => (
+      <QueryClientProvider client={client}>
+        <PagedMemoList filter={filter} renderer={(entry) => <div>{entry.content}</div>} />
+      </QueryClientProvider>
+    );
+    const { rerender } = render(page("pinned"));
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledOnce();
+
+    rerender(page("private"));
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(2);
+
+    // Old completion must not clear the *new* filter's still-running request.
+    await act(async () => pending.shift()?.());
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(2);
+
+    await act(async () => pending.shift()?.());
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(3);
+    await act(async () => pending.shift()?.());
   });
 
   it("does not resume automatic page fetching after unmount", async () => {
