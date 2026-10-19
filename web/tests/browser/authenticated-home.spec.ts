@@ -303,7 +303,16 @@ test("revamped Inbox keeps the sidebar, filters, and accessible empty or notific
   await expect(inbox.locator('[data-inbox-filter="archived"]')).toHaveAttribute("aria-pressed", "true");
   await inbox.locator('[data-inbox-filter="all"]').click();
   await expect(inbox.locator('[data-inbox-filter="all"]')).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator(".gc-dashboard-side-navigation")).toHaveCount(1);
+  if (testInfo.project.name.includes("phone")) {
+    await page.locator("[data-mobile-navigation-trigger]").click();
+    await expect(page.locator(".gc-dashboard-side-navigation")).toBeVisible();
+    await expect(page.locator('.gc-dashboard-side-navigation a[href="/inbox"]')).toHaveAttribute("aria-current", "page");
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  } else {
+    await expect(page.locator(".gc-dashboard-side-navigation")).toBeVisible();
+    await expect(page.locator('.gc-dashboard-side-navigation a[href="/inbox"]')).toHaveAttribute("aria-current", "page");
+  }
   await expectNoHorizontalOverflow(page);
   const serious = (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze()).violations.filter(
     (violation) => violation.impact === "serious" || violation.impact === "critical",
