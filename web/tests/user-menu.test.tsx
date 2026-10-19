@@ -57,26 +57,27 @@ describe("User menu", () => {
     mocks.notifications = [];
   });
 
-  it("groups Inbox and Archived with Profile and marks Archived active", async () => {
+  it.each(["/", "/setting", "/archived", "/u/steven"])("keeps only unique account actions and omits sidebar links on %s", async (path) => {
     render(
-      <MemoryRouter initialEntries={["/archived"]}>
+      <MemoryRouter initialEntries={[path]}>
         <UserMenu />
       </MemoryRouter>,
     );
 
     fireEvent.click(screen.getByRole("button", { name: /Steven/ }));
-
-    const profile = await screen.findByRole("menuitem", { name: "common.profile" });
-    const inbox = screen.getByRole("menuitem", { name: "common.inbox" });
-    const archived = screen.getByRole("menuitem", { name: "common.archived" });
-    expect(profile.compareDocumentPosition(inbox) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(inbox.compareDocumentPosition(archived) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(archived).toHaveAttribute("aria-current", "page");
+    const inbox = await screen.findByRole("menuitem", { name: "common.inbox" });
+    expect(screen.queryByRole("menuitem", { name: "common.profile" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("menuitem", { name: "common.archived" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("menuitem", { name: "common.settings" })).not.toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "common.language" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "setting.preference.theme" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "common.about" })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: "common.sign-out" })).toBeInTheDocument();
     expect(screen.getAllByRole("separator")).toHaveLength(3);
 
-    fireEvent.click(archived);
+    fireEvent.click(inbox);
     expect(mocks.setMobileOpen).toHaveBeenCalledWith(false);
-    expect(mocks.navigateTo).toHaveBeenCalledWith("/archived");
+    expect(mocks.navigateTo).toHaveBeenCalledWith("/inbox");
   });
 
   it("uses a full-bleed footer trigger, inset menu width, and preserves the Inbox unread state", async () => {

@@ -1,5 +1,9 @@
 # Changelog
 
+## Account-menu cleanup — 2026-10-18
+
+- Remove Profile, Archived and Settings links duplicated in the main sidebar, while keeping Inbox, Language, Theme, About and Sign out in the account menu.
+
 ## Responsive UI integration acceptance — 2026-10-18
 
 - Preserved Home Grid/List options and the separate View settings while retaining All Memos as the root route.
