@@ -70,7 +70,7 @@ function useAutoFetchWhenNotScrollable({
   hasNextPage: boolean | undefined;
   isFetchingNextPage: boolean;
   memoCount: number;
-  onFetchNext: () => Promise<unknown>;
+  onFetchNext: () => Promise<boolean>;
 }) {
   const autoFetchTimeoutRef = useRef<number | null>(null);
   const mountedRef = useRef(false);
@@ -96,9 +96,9 @@ function useAutoFetchWhenNotScrollable({
     const shouldFetch = !isPageScrollable() && hasNextPage && !isFetchingNextPage && memoCount > 0;
 
     if (shouldFetch) {
-      await onFetchNext();
+      const fetchedCurrentQuery = await onFetchNext();
 
-      if (enabledRef.current) {
+      if (enabledRef.current && fetchedCurrentQuery) {
         autoFetchTimeoutRef.current = window.setTimeout(() => {
           void checkAndFetchIfNeeded();
         }, 500);
@@ -163,16 +163,39 @@ const PagedMemoList = (props: Props) => {
   // pages don't each repeat the policy.
   const effectiveCompact = compactMode || useGrid;
 
+  const listRequest = {
+    state: props.state || State.NORMAL,
+    orderBy: props.orderBy || "create_time desc",
+    filter: combineCELFilters(props.contextFilter, props.filter),
+    pageSize: props.pageSize || DEFAULT_LIST_MEMOS_PAGE_SIZE,
+  };
+  // Keep the in-flight gate aligned to the same request dimensions as memoKeys.list.
+  const pageRequestKey = JSON.stringify([listRequest.state, listRequest.orderBy, listRequest.filter, listRequest.pageSize]);
+  const activePageRequestKey = useRef(pageRequestKey);
+  activePageRequestKey.current = pageRequestKey;
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error, isFetchNextPageError, refetch } =
-    useInfiniteMemos(
-      {
-        state: props.state || State.NORMAL,
-        orderBy: props.orderBy || "create_time desc",
-        filter: combineCELFilters(props.contextFilter, props.filter),
-        pageSize: props.pageSize || DEFAULT_LIST_MEMOS_PAGE_SIZE,
-      },
-      { enabled: props.enabled ?? true },
-    );
+    useInfiniteMemos(listRequest, { enabled: props.enabled ?? true });
+
+  // Scroll events and short-page fills can overlap before React Query updates
+  // isFetchingNextPage. Track one flight per *active query*, not per component,
+  // so an old Space/filter request never blocks newly selected results.
+  const pageRequestInFlight = useRef<{ key: string; marker: symbol } | null>(null);
+  const fetchNextPageOnce = useCallback(async (): Promise<boolean> => {
+    if (activePageRequestKey.current !== pageRequestKey || pageRequestInFlight.current?.key === pageRequestKey) {
+      return false;
+    }
+    const marker = Symbol("memo-page");
+    pageRequestInFlight.current = { key: pageRequestKey, marker };
+    try {
+      await fetchNextPage();
+      // An old query's delayed auto-fill must not continue after a filter switch.
+      return activePageRequestKey.current === pageRequestKey;
+    } finally {
+      // The previous query's completion cannot clear a newer query's gate.
+      if (pageRequestInFlight.current?.marker === marker) pageRequestInFlight.current = null;
+    }
+  }, [fetchNextPage, pageRequestKey]);
 
   // Tag settings decide whether sensitive memo content must be blurred. Keep that
   // privacy boundary, but do not wait for unrelated memo views or instance settings.
@@ -200,7 +223,7 @@ const PagedMemoList = (props: Props) => {
     hasNextPage,
     isFetchingNextPage,
     memoCount: sortedMemoList.length,
-    onFetchNext: fetchNextPage,
+    onFetchNext: fetchNextPageOnce,
   });
 
   // Infinite scroll: fetch more when user scrolls near bottom
@@ -210,13 +233,13 @@ const PagedMemoList = (props: Props) => {
     const handleScroll = () => {
       const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
       if (nearBottom && !isFetchingNextPage) {
-        fetchNextPage();
+        void fetchNextPageOnce();
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [canPaginate, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [canPaginate, hasNextPage, isFetchingNextPage, fetchNextPageOnce]);
 
   const leadingContent = props.renderLeading?.({ useGrid });
   const headerContent = props.renderHeader?.({ useGrid });
