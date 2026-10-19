@@ -1,0 +1,77 @@
+/* Pinterest-style memo cards retain intrinsic heights in the measured masonry engine. */
+.gc-dashboard .gc-dashboard-memos-masonry {
+  display: block;
+  min-width: 0;
+}
+
+.gc-dashboard .gc-dashboard-memos-masonry .gc-dashboard-memo {
+  min-height: 0;
+  height: auto;
+  min-width: 0;
+  max-width: 100%;
+  padding: 14px;
+  overflow-wrap: anywhere;
+}
+
+.gc-dashboard .gc-dashboard-memos-masonry .gc-dashboard-memo :where(p, li, pre) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.gc-dashboard .gc-dashboard-memos-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container (max-width: 720px) {
+  /* The masonry engine can fit two readable note columns; allow natural heights
+     instead of the old tall forced grid cells. */
+  .gc-dashboard .gc-dashboard-memos-masonry .gc-dashboard-memo {
+    min-height: 0;
+    height: auto;
+    padding: 12px;
+  }
+
+  .gc-dashboard .gc-dashboard-memos-masonry .gc-dashboard-memo [data-slot="memo-header-meta"] {
+    min-width: 0;
+    overflow-wrap: normal;
+  }
+
+  .gc-dashboard .gc-dashboard-memos-masonry .gc-dashboard-memo [data-slot="memo-header-actions"] {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  /* Let the user select an explicit readable single-column list on a phone. */
+  .gc-dashboard .gc-dashboard-layout-toggle > button[aria-label="Grid view"],
+  .gc-dashboard .gc-dashboard-layout-toggle > button[aria-label="List view"] {
+    display: grid;
+  }
+}
+
+/* Full feed uses the same measured board and must protect actions and long
+   attachment filenames when each phone tile is about 160–190px wide. */
+@container (max-width: 720px) {
+  .gc-dashboard .gc-dashboard-feed :has(> [data-slot="memo-header-actions"]) {
+    height: auto;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .gc-dashboard .gc-dashboard-feed [data-slot="memo-header-actions"] {
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .gc-dashboard .gc-dashboard-feed .goreecloud-memo-card {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    padding: 12px;
+  }
+
+  .gc-dashboard .gc-dashboard-feed :where(pre, img, video) {
+    max-width: 100%;
+  }
+}

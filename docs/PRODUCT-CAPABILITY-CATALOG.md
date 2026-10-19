@@ -8,6 +8,8 @@
 
 > **Document status: proposed product-capability reference; not an approved implementation commitment.** This catalog preserves the owner's full feature vision. It neither supersedes [Project Specifications](PROJECT-SPECIFICATIONS.md), [Implemented Features](IMPLEMENTED-FEATURES.md), or [Planned Features](PLANNED-FEATURES.md), nor demonstrates that a listed feature is shipped, production-approved, or accepted. Deep knowledge-management scope remains assigned to GoreeCloud Notes unless separately approved. Each proposed extension requires prioritization, design, privacy and security review, tests, and acceptance before promotion to the roadmap.
 
+See [Owner Capability Intake (2026-10-19)](OWNER-CAPABILITY-INTAKE-20261019.md) for the 22-area reconciliation, suggested priorities, implementation gates, and explicit non-acceptance boundaries from the latest owner-provided feature inventory.
+
 ---
 
 ## Product Overview

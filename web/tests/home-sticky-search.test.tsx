@@ -1,23 +1,35 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "@/pages/Home";
 
 const state = vi.hoisted(() => ({
   ready: true,
+  canOpen: true,
+  columns: 0,
   selectedSpaceName: undefined as string | undefined,
   filters: [] as Array<{ factor: string; value: string }>,
+  openEditor: vi.fn(),
 }));
-
 vi.mock("@/contexts/AuthContext", () => ({
-  useAuth: () => ({ isUserSettingsInitialized: state.ready }),
+  useAuth: () => ({ isUserSettingsInitialized: state.ready, userTagsSetting: { tags: {} } }),
 }));
 vi.mock("@/contexts/GlobalMemoEditorContext", () => ({
-  useGlobalMemoEditor: () => ({ claimHomeAutoFocus: false }),
+  useGlobalMemoEditor: () => ({ canOpen: state.canOpen, openEditor: state.openEditor }),
+}));
+vi.mock("@/contexts/ViewContext", () => ({
+  useView: () => ({
+    maxColumns: state.columns,
+    setMaxColumns: (value: number) => {
+      state.columns = value;
+    },
+  }),
 }));
 vi.mock("@/contexts/MemoFilterContext", () => ({
-  useMemoFilterContext: () => ({ filters: state.filters }),
+  useMemoFilterContext: () => ({ filters: state.filters, setMemoView: vi.fn() }),
   isSearchFilter: (filter: { factor: string }) => filter.factor === "contentSearch" || filter.factor === "celSearch",
+  getFilterSearch: () => "",
 }));
 vi.mock("@/contexts/SpaceContext", () => ({
   useSpaceContext: () => ({ memoFilter: undefined, selectedSpaceName: state.selectedSpaceName }),
@@ -26,11 +38,22 @@ vi.mock("@/contexts/NewMemoContext", () => ({
   NewMemoProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 vi.mock("@/hooks", () => ({
-  useMemoFilters: () => ({}),
-  useMemoSorting: () => ({ listSort: undefined, orderBy: undefined }),
+  useMemoFilters: () => "",
+  useMemoSorting: () => ({ listSort: undefined, orderBy: "create_time desc" }),
 }));
 vi.mock("@/hooks/useCurrentUser", () => ({
   default: () => ({ name: "users/test" }),
+}));
+vi.mock("@/hooks/useMemoQueries", () => ({
+  useInfiniteMemos: () => ({
+    data: { pages: [{ memos: [{ name: "memos/first" }, { name: "memos/second" }, { name: "memos/third" }] }] },
+    isLoading: false,
+    isError: false,
+    refetch: vi.fn(),
+  }),
+}));
+vi.mock("@/lib/cel-filter", () => ({
+  combineCELFilters: (...parts: Array<string | undefined>) => parts.filter(Boolean).join(" && "),
 }));
 vi.mock("@/components/HomeSearchBar", () => ({
   default: () => (
@@ -39,81 +62,130 @@ vi.mock("@/components/HomeSearchBar", () => ({
     </div>
   ),
 }));
-vi.mock("@/components/MemoEditor", () => ({
-  default: ({ cacheKey }: { cacheKey: string }) => <textarea data-testid="home-composer" data-cache-key={cacheKey} />,
-}));
 vi.mock("@/components/MemoView", () => ({
-  default: () => <div>Memo</div>,
+  default: ({ memo }: { memo: { name: string } }) => <article>{memo.name}</article>,
 }));
 vi.mock("@/components/PagedMemoList", () => ({
-  default: ({
-    renderHeader,
-    renderLeading,
-  }: {
-    renderHeader?: () => ReactNode;
-    renderLeading?: (options: { useGrid: boolean }) => ReactNode;
-  }) => (
-    <section data-testid="memo-feed">
-      {renderHeader?.()}
-      {renderLeading?.({ useGrid: true })}
-      <div data-testid="loaded-memos">Loaded memos</div>
+  default: ({ filter }: { filter?: string }) => (
+    <section data-testid="memo-feed" data-filter={filter}>
+      Paginated memos
     </section>
   ),
   getMemoKey: (memo: { name: string }) => memo.name,
-}));
-vi.mock("@/components/MemoEditor/utils/deriveDefaultCreateTime", () => ({
-  deriveDefaultCreateTimeFromFilters: () => undefined,
 }));
 vi.mock("@/utils/i18n", () => ({
   useTranslate: () => (key: string) => key,
 }));
 
-describe("Home sticky search layout", () => {
+const show = (initialPath = "/") =>
+  render(
+    <MemoryRouter initialEntries={[initialPath]}>
+      <Home />
+    </MemoryRouter>,
+  );
+
+describe("Home mockup dashboard layout", () => {
   beforeEach(() => {
     state.ready = true;
+    state.canOpen = true;
+    state.columns = 0;
     state.selectedSpaceName = undefined;
     state.filters = [];
+    state.openEditor.mockClear();
   });
 
-  it("renders exactly one search above the paginated feed and keeps the composer in the feed", () => {
-    const { container } = render(<Home />);
-    const stickyHeader = container.querySelector("[data-home-sticky-search]");
-    const feed = screen.getByTestId("memo-feed");
-
-    expect(stickyHeader).not.toBeNull();
+  it("shows one search, the banner, three recent cards and quick actions", () => {
+    const { container } = show();
+    const search = container.querySelector("[data-home-sticky-search]");
+    expect(search).not.toBeNull();
     expect(screen.getAllByRole("search")).toHaveLength(1);
-    expect(stickyHeader).toContainElement(screen.getByTestId("home-search"));
-    expect((stickyHeader?.compareDocumentPosition(feed) ?? 0) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(feed).toContainElement(screen.getByTestId("home-composer"));
-    expect(stickyHeader).not.toContainElement(screen.getByTestId("home-composer"));
-    expect(screen.getByTestId("loaded-memos")).toBeInTheDocument();
+    expect(search).toContainElement(screen.getByTestId("home-search"));
+    expect(screen.getByRole("heading", { name: /Capture your thoughts/i })).toBeInTheDocument();
+    expect(container.querySelectorAll(".gc-dashboard-memos article")).toHaveLength(3);
+    expect(container.querySelector(".gc-dashboard-memos-list")).toBeNull();
+    expect(screen.getByRole("heading", { name: "Quick Actions" })).toBeInTheDocument();
+    expect(screen.queryByTestId("memo-feed")).not.toBeInTheDocument();
   });
 
-  it("does not expose search or the composer until settings are initialized", () => {
+  it("wires Home quick actions to the composer and the intended destinations", () => {
+    show();
+    const actions = within(screen.getByRole("region", { name: "Quick Actions" }));
+
+    fireEvent.click(actions.getByRole("button", { name: /New Memo/i }));
+    expect(state.openEditor).toHaveBeenCalledOnce();
+    expect(actions.getByRole("link", { name: /Manage Labels/i })).toHaveAttribute("href", "/?dashboard=labels");
+    expect(actions.getByRole("link", { name: /Settings/i })).toHaveAttribute("href", "/setting");
+    expect(actions.getByRole("button", { name: /Search Memos/i })).toBeEnabled();
+  });
+
+  it("focuses the existing Home search control when Quick Search is activated", () => {
+    const searchField = document.createElement("input");
+    searchField.id = "goreecloud-home-search";
+    document.body.append(searchField);
+    try {
+      show();
+      const actions = within(screen.getByRole("region", { name: "Quick Actions" }));
+      fireEvent.click(actions.getByRole("button", { name: /Search Memos/i }));
+      expect(searchField).toHaveFocus();
+    } finally {
+      searchField.remove();
+    }
+  });
+
+  it("uses the existing global New Memo action and respects readiness", () => {
     state.ready = false;
-    const { container, rerender } = render(<Home />);
-    expect(container.querySelector("[data-home-sticky-search]")).toBeNull();
+    state.canOpen = false;
+    const { rerender } = show();
     expect(screen.queryByRole("search")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("home-composer")).not.toBeInTheDocument();
-    expect(screen.getByTestId("memo-feed")).toBeInTheDocument();
-
+    expect(screen.getByRole("button", { name: /New Memo/i })).toBeDisabled();
     state.ready = true;
-    rerender(<Home />);
-    expect(screen.getAllByRole("search")).toHaveLength(1);
-    expect(screen.getByTestId("home-composer")).toBeInTheDocument();
+    state.canOpen = true;
+    rerender(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>,
+    );
   });
 
-  it("preserves responsive sticky offsets and does not duplicate search when the Space changes", () => {
-    const { container, rerender } = render(<Home />);
-    const header = container.querySelector("[data-home-sticky-search]");
-    expect(header).toHaveClass("sticky", "top-12", "md:top-0");
-    expect(screen.getAllByRole("search")).toHaveLength(1);
-    const previousCacheKey = screen.getByTestId("home-composer").getAttribute("data-cache-key");
+  it("retains the floating compose flow and supports the dashboard grid/list switch", () => {
+    const { container, rerender } = show();
+    fireEvent.click(screen.getByRole("button", { name: /New Memo/i }));
+    expect(state.openEditor).toHaveBeenCalledOnce();
+    expect(container.querySelector(".gc-dashboard-memos-masonry")).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Grid view" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: "List view" }));
+    expect(state.columns).toBe(1);
+    rerender(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>,
+    );
+    expect(container.querySelector(".gc-dashboard-memos-list")).not.toBeNull();
+    expect(screen.getByRole("button", { name: "List view" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: "Grid view" }));
+    expect(state.columns).toBe(0);
+  });
 
+  it("keeps only one Home search when switching Space scope", () => {
+    const { rerender } = show();
     state.selectedSpaceName = "spaces/project";
-    rerender(<Home />);
-    expect(container.querySelectorAll("[data-home-sticky-search]")).toHaveLength(1);
+    rerender(
+      <MemoryRouter>
+        <Home />
+      </MemoryRouter>,
+    );
     expect(screen.getAllByRole("search")).toHaveLength(1);
-    expect(screen.getByTestId("home-composer").getAttribute("data-cache-key")).not.toBe(previousCacheKey);
+  });
+
+  it("moves from recent preview into the full paginated feed", () => {
+    show();
+    fireEvent.click(screen.getByRole("button", { name: /View all/i }));
+    expect(screen.getByTestId("memo-feed")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /Capture your thoughts/i })).not.toBeInTheDocument();
+  });
+
+  it("applies the server-side private filter rather than filtering only loaded cards", () => {
+    show("/?dashboard=private");
+    expect(screen.getByTestId("memo-feed").getAttribute("data-filter")).toContain('visibility == "PRIVATE"');
   });
 });

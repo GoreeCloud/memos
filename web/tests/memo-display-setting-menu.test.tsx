@@ -50,15 +50,11 @@ describe("MemoDisplaySettingMenu", () => {
 
     fireEvent.click(trigger);
 
-    const compactMode = screen.getByRole("switch", { name: "Compact mode" });
-    expect(compactMode).not.toBeChecked();
-    expect(compactMode).toBeEnabled();
+    expect(screen.queryByRole("switch", { name: "Compact mode" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("radiogroup")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("radio", { name: "2 columns" }));
-
-    expect(compactMode).toBeChecked();
-    expect(compactMode).toHaveAttribute("aria-disabled", "true");
-    expect(screen.getByText("Grid layouts always use compact cards.")).toBeInTheDocument();
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
+    expect(screen.getByRole("switch", { name: "Link preview" })).toBeChecked();
   });
 
   it("restores user-selected view settings and disables the action at defaults", () => {
@@ -71,13 +67,11 @@ describe("MemoDisplaySettingMenu", () => {
     const reset = screen.getByRole("button", { name: "Restore View options" });
     expect(reset).toBeDisabled();
 
-    fireEvent.click(screen.getByRole("radio", { name: "3 columns" }));
+    fireEvent.click(screen.getByRole("switch", { name: "Link preview" }));
     expect(reset).toBeEnabled();
-    expect(screen.getByRole("radio", { name: "3 columns" })).toBeChecked();
 
     fireEvent.click(reset);
-    expect(screen.getByRole("radio", { name: "List" })).toBeChecked();
-    expect(screen.getByRole("switch", { name: "Compact mode" })).not.toBeChecked();
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
     expect(screen.getByRole("switch", { name: "Link preview" })).toBeChecked();
     expect(reset).toBeDisabled();
 
@@ -86,33 +80,22 @@ describe("MemoDisplaySettingMenu", () => {
       orderByTimeAsc: false,
       compactMode: false,
       linkPreview: true,
-      maxColumns: 1,
+      maxColumns: 0,
     });
   });
 
-  it("jumps to the first and last layout choices with Home and End", () => {
+  it("exposes no fixed-column or list options in LTR", () => {
     render(
       <ViewProvider>
         <MemoDisplaySettingMenu />
       </ViewProvider>,
     );
     fireEvent.click(screen.getByRole("button", { name: "View options" }));
-    const choices = screen.getByRole("radiogroup", { name: "Layout" });
-
-    fireEvent.keyDown(choices, { key: "End" });
-    const last = screen.getByRole("radio", { name: "Auto" });
-    expect(last).toBeChecked();
-    expect(last).toHaveFocus();
-    expect(last).toHaveAttribute("tabindex", "0");
-
-    fireEvent.keyDown(choices, { key: "Home" });
-    const first = screen.getByRole("radio", { name: "List" });
-    expect(first).toBeChecked();
-    expect(first).toHaveFocus();
-    expect(last).toHaveAttribute("tabindex", "-1");
+    expect(screen.queryByRole("radiogroup")).not.toBeInTheDocument();
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
   });
 
-  it("moves horizontally in the visual direction for RTL layouts", () => {
+  it("exposes no fixed-column or list options in RTL", () => {
     render(
       <DirectionProvider direction="rtl">
         <ViewProvider>
@@ -122,8 +105,7 @@ describe("MemoDisplaySettingMenu", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "View options" }));
-    fireEvent.keyDown(screen.getByRole("radiogroup", { name: "Layout" }), { key: "ArrowLeft" });
-
-    expect(screen.getByRole("radio", { name: "2 columns" })).toBeChecked();
+    expect(screen.queryByRole("radiogroup")).not.toBeInTheDocument();
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
   });
 });

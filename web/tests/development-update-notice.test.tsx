@@ -12,6 +12,7 @@ describe("Development update notice", () => {
     render(<DevelopmentUpdateNotice enabled revision={"a".repeat(40)} />);
     const notice = screen.getByRole("complementary", { name: "GoreeCloud Memos Development preview" });
     expect(notice).toHaveAttribute("data-development-update");
+    fireEvent.click(screen.getByRole("button", { name: "Show Development updates" }));
     expect(screen.getByText("Search improvements are live")).toBeVisible();
     expect(screen.getByText(/Open Quick Find with Ctrl\+K/)).toBeVisible();
     expect(screen.getByText("Build aaaaaaaa · Development only")).toBeVisible();
@@ -19,6 +20,7 @@ describe("Development update notice", () => {
 
   it("collapses without blocking access to the update notice", () => {
     render(<DevelopmentUpdateNotice enabled revision={"b".repeat(40)} />);
+    fireEvent.click(screen.getByRole("button", { name: "Show Development updates" }));
     fireEvent.click(screen.getByRole("button", { name: "Collapse Development updates" }));
     expect(screen.getByText("Development preview")).toBeVisible();
     expect(screen.getByText("Search improvements are live")).not.toBeVisible();
