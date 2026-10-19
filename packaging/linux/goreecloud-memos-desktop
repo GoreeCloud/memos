@@ -131,7 +131,7 @@ if [[ ! "$PORT" =~ ^[0-9]+$ ]] || (( 10#$PORT < 1024 || 10#$PORT > 65535 )); the
   fail "Invalid local-only port: $PORT"
 fi
 # Fail closed without forwarding requests to an unknown process on this port.
-if (echo >"/dev/tcp/127.0.0.1/$PORT") 2>/dev/null; then
+if (: >"/dev/tcp/127.0.0.1/$PORT") 2>/dev/null; then
   fail "Port $PORT is already in use. No additional server was started. To use an existing Memos account, relaunch and choose Connect, using its own URL."
 fi
 
