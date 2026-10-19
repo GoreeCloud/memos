@@ -370,14 +370,18 @@ const BackToTop = () => {
       setIsVisible(shouldShow);
     };
 
+    // A restored page can already be scrolled before the button mounts.
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
+    // Check at activation time to honor changes to the user's motion preference.
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
+      behavior: reducedMotion ? "auto" : "smooth",
     });
   };
 
