@@ -15,3 +15,22 @@ then `bash packaging/linux/build-deb.sh` at the root.
 
 **Development preview only.** Require clean-install, data-migration, upgrade,
 accessibility and Linux desktop acceptance before Stable release.
+
+For isolated recovery verification, run `bash packaging/linux/smoke-test.sh path/to/package.deb`.
+This uses a disposable localhost server and SQLite fixture to check an initial
+startup, restart, and cold backup/restore. For an opt-in forward-upgrade check,
+pass a previously built development package as the second input:
+
+```bash
+python3 packaging/linux/persistence-smoke.py path/to/current.deb \\
+  --previous-package path/to/prior.deb
+```
+
+The upgrade check starts the older binary, inserts a synthetic memo, then starts
+the newer binary against the same temporary database and validates that its note
+survives a cold restored copy. The smoke test also corrupts a separate
+throwaway backup and verifies that SQLite integrity checks reject it.
+It never installs either package or reads existing notes. **It does not
+qualify arbitrary older versions, downgrade support, attachments, or
+owner-data recovery**; real migration and desktop acceptance
+are still required before production or Stable release.
