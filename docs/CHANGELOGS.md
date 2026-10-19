@@ -1,5 +1,11 @@
 # Changelog
 
+## Development Inbox revamp — 2026-10-18
+
+- Replaced the minimal Inbox notification panel with a responsive GoreeCloud dashboard view: notification summary, inline All/Unread/Archived filtering, explicit refresh/retry, distinct loading/failure/empty states, and more useful empty-state guidance.
+- Preserved existing comment, mention and space-invitation interactions and notification state; moved Inbox into the persistent sidebar for consistent navigation without duplicating it in the account dropdown.
+- Added locale-catalog English fallbacks for new Inbox labels pending translated copy, component/route tests and authenticated browser coverage for responsive filtering and accessibility.
+
 ## Account-menu cleanup — 2026-10-18
 
 - Remove Profile, Archived and Settings links duplicated in the main sidebar, while keeping Inbox, Language, Theme, About and Sign out in the account menu.

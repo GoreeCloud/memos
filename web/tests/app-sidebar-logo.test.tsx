@@ -416,7 +416,7 @@ describe("App sidebar logo", () => {
     expect(footer).not.toHaveClass("py-1");
     expect(footer).not.toHaveClass("py-1.5");
     expect(footer?.childElementCount).toBe(1);
-    expect(screen.queryByRole("link", { name: /^common\.inbox/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "common.inbox" })).toHaveAttribute("aria-current", "page");
   });
 
   it("keeps Attachments active after route normalization", () => {
@@ -631,7 +631,7 @@ describe("App sidebar logo", () => {
     expect(scopeTrigger).toHaveAttribute("href", "/dashboard");
 
     expect(screen.getByRole("button", { name: "User menu" }).closest("footer")).not.toBeNull();
-    expect(screen.queryByRole("link", { name: "common.inbox" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "common.inbox" })).toHaveAttribute("href", "/inbox");
 
     const attachments = screen.getByRole("link", { name: "common.attachments" });
     expect(attachments).toHaveAttribute("aria-current", "page");
@@ -653,7 +653,12 @@ describe("App sidebar logo", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: label, level: 2 })).toBeInTheDocument();
+    if (path === "/inbox") {
+      expect(screen.getByRole("navigation", { name: "Memos dashboard" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: label })).toHaveAttribute("aria-current", "page");
+    } else {
+      expect(screen.getByRole("heading", { name: label, level: 2 })).toBeInTheDocument();
+    }
   });
 
   it("opens Settings as a standalone page without extending the global sidebar", () => {
@@ -671,13 +676,13 @@ describe("App sidebar logo", () => {
   it("keeps the Explore scope available from a global destination", async () => {
     sidebarState.memoScope = "explore";
     render(
-      <MemoryRouter initialEntries={["/inbox"]}>
+      <MemoryRouter initialEntries={["/map"]}>
         <AppSidebar />
       </MemoryRouter>,
     );
 
     const scopeTrigger = screen.getByRole("button", { name: "common.explore" });
-    expectDefaultNavPill(scopeTrigger, "common.explore");
+    expectCollapsedNavPill(scopeTrigger, "common.explore");
     expect(scopeTrigger.querySelector(".lucide-chevron-down")).not.toBeInTheDocument();
     expectCollapsedNavPill(screen.getByRole("link", { name: "common.attachments" }), "common.attachments");
 

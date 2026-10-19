@@ -1,14 +1,12 @@
-import { BellIcon, CheckIcon, ChevronsUpDownIcon, GlobeIcon, InfoIcon, LogOutIcon, PaletteIcon } from "lucide-react";
-import { matchPath, useLocation } from "react-router-dom";
+import { CheckIcon, ChevronsUpDownIcon, GlobeIcon, InfoIcon, LogOutIcon, PaletteIcon } from "lucide-react";
 import { useAppSidebar } from "@/contexts/AppSidebarContext";
 import { useAuth } from "@/contexts/AuthContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { useSSEConnectionStatus } from "@/hooks/useLiveMemoRefresh";
 import useNavigateTo from "@/hooks/useNavigateTo";
-import { useNotifications, useUpdateUserGeneralSetting } from "@/hooks/useUserQueries";
+import { useUpdateUserGeneralSetting } from "@/hooks/useUserQueries";
 import { cn } from "@/lib/utils";
 import { Routes } from "@/router";
-import { UserNotification_Status } from "@/types/proto/api/v1/user_service_pb";
 import { getLocaleWithFallback, loadLocale, useTranslate } from "@/utils/i18n";
 import { getThemeWithFallback, loadTheme, THEME_OPTIONS } from "@/utils/theme";
 import { sidebarSurfaceVariants } from "./AppSidebar/sidebar-layout";
@@ -33,22 +31,17 @@ interface Props {
 const UserMenu = (props: Props) => {
   const { collapsed } = props;
   const t = useTranslate();
-  const location = useLocation();
   const navigateTo = useNavigateTo();
   const { setMobileOpen } = useAppSidebar();
   const currentUser = useCurrentUser();
   const { userGeneralSetting, refetchSettings, logout } = useAuth();
   const { mutate: updateUserGeneralSetting } = useUpdateUserGeneralSetting(currentUser?.name);
-  const { data: notifications = [] } = useNotifications();
   const sseStatus = useSSEConnectionStatus();
   const currentLocale = getLocaleWithFallback(userGeneralSetting?.locale);
   const currentTheme = getThemeWithFallback(userGeneralSetting?.theme);
-  const inboxActive = Boolean(matchPath(Routes.INBOX, location.pathname));
-  const unreadCount = notifications.filter((notification) => notification.status === UserNotification_Status.UNREAD).length;
   const userLabel = currentUser?.displayName || currentUser?.username || t("common.profile");
   const accountHandle = currentUser?.username ? `@${currentUser.username}` : t("common.profile");
-  const triggerLabel = `${userLabel}, ${t("common.more")}${unreadCount > 0 ? `, ${unreadCount} ${t("inbox.unread")}` : ""}`;
-  const inboxLabel = unreadCount > 0 ? `${t("common.inbox")}, ${unreadCount} ${t("inbox.unread")}` : t("common.inbox");
+  const triggerLabel = `${userLabel}, ${t("common.more")}`;
 
   const handleLocaleChange = async (locale: Locale) => {
     if (!currentUser) return;
@@ -148,13 +141,6 @@ const UserMenu = (props: Props) => {
         {!collapsed && (
           <span data-sidebar-trailing className="relative flex size-5 shrink-0 items-center justify-center">
             <ChevronsUpDownIcon className="size-4 text-muted-foreground" strokeWidth={1.8} />
-            {unreadCount > 0 && (
-              <span
-                aria-hidden="true"
-                data-inbox-unread-indicator
-                className="absolute end-0 top-0 size-1.5 rounded-full bg-primary ring-2 ring-sidebar"
-              />
-            )}
           </span>
         )}
       </DropdownMenuTrigger>
@@ -172,25 +158,7 @@ const UserMenu = (props: Props) => {
           </div>
         </div>
         <DropdownMenuSeparator />
-        {/* The sidebar owns Profile, Archived and Settings; keep only distinct account actions here. */}
-        <DropdownMenuItem
-          aria-label={inboxLabel}
-          aria-current={inboxActive ? "page" : undefined}
-          className={cn(inboxActive && "bg-accent text-accent-foreground")}
-          onClick={() => navigateFromMenu(Routes.INBOX)}
-        >
-          <BellIcon className="size-4 text-muted-foreground" />
-          <span className="min-w-0 flex-1">{t("common.inbox")}</span>
-          {unreadCount > 0 && (
-            <span
-              aria-hidden="true"
-              className="ms-auto min-w-5 rounded-full bg-primary/10 px-1.5 text-center text-[10px] font-medium text-primary"
-            >
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          )}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
+        {/* Primary navigation, including Inbox, lives in the sidebar. */}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <GlobeIcon className="size-4 text-muted-foreground" />
