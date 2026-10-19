@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PKG="${1:-$(find "$ROOT/out" -maxdepth 1 -name '*.deb' -type f | sort | tail -n 1)}"
 [[ -f "$PKG" ]] || { echo "No Debian artifact: $PKG" >&2; exit 2; }
+# Exercise launcher intent/isolation before starting a throwaway package.
+bash "$ROOT/launcher-test.sh"
 TMP="$(mktemp -d)"
 PID=""
 cleanup() {
