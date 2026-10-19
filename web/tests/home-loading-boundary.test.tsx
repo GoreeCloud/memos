@@ -17,7 +17,11 @@ vi.mock("@/components/MemoView", () => ({
   default: ({ memo }: { memo: { name: string } }) => <article data-testid="memo-view">{memo.name}</article>,
 }));
 vi.mock("@/components/PagedMemoList", () => ({
-  default: () => <section data-testid="memo-feed">Full feed</section>,
+  default: ({ groupPinned }: { groupPinned?: boolean }) => (
+    <section data-testid="memo-feed" data-group-pinned={String(Boolean(groupPinned))}>
+      Full feed
+    </section>
+  ),
   getMemoKey: (memo: { name: string }) => memo.name,
 }));
 vi.mock("@/contexts/AuthContext", () => ({
@@ -90,6 +94,15 @@ describe("Home dashboard loading and Space boundaries", () => {
     fireEvent.click(screen.getByRole("button", { name: /^New Memo/ }));
     expect(state.openEditor).toHaveBeenCalledOnce();
     expect(state.query).toMatchObject({ state: 1, pageSize: 3 });
+  });
+
+  it("enables accessible pinned grouping on the actual All Memos route", () => {
+    render(
+      <MemoryRouter>
+        <Home allMemos />
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("memo-feed")).toHaveAttribute("data-group-pinned", "true");
   });
 
   it("passes selected Space restrictions through to the server-backed preview query", () => {
