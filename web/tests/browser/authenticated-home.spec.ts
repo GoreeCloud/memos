@@ -321,3 +321,51 @@ test("revamped Inbox keeps the sidebar, filters, and accessible empty or notific
   expect(pageErrors).toEqual([]);
   await page.screenshot({ path: testInfo.outputPath("authenticated-inbox.png"), fullPage: true });
 });
+
+test("Pinned memo disclosure stays keyboard-accessible and restores responsive card layout", async ({ page }, testInfo) => {
+  await page.goto("/");
+  const language = await page.locator("html").getAttribute("lang");
+  const saveLabel = language?.startsWith("ar") ? "حفظ" : "Save";
+  const content = `Pinned disclosure acceptance — ${testInfo.project.name}`;
+
+  const compose = page.locator("[data-new-memo-trigger]");
+  await compose.focus();
+  await page.keyboard.press("Enter");
+  await page.locator('.goreecloud-composer .cm-content[contenteditable="true"]').fill(content);
+  await page.getByRole("button", { name: saveLabel, exact: true }).click();
+
+  const created = page.getByRole("article").filter({ hasText: content }).first();
+  await expect(created).toBeVisible();
+  await created.locator('[data-slot="memo-header-actions"] button').last().click();
+  await page.getByRole("menuitem").filter({ has: page.locator("svg.lucide-bookmark-plus") }).click();
+
+  const toggle = page.locator("section[aria-label] h2 button[aria-controls][aria-expanded]").first();
+  await expect(toggle).toBeVisible();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  const panelId = await toggle.getAttribute("aria-controls");
+  expect(panelId).toBeTruthy();
+  const panel = page.locator(`[id="${panelId}"]`);
+  const pinnedCard = panel.getByRole("article").filter({ hasText: content });
+  await expect(pinnedCard).toBeVisible();
+  const original = await pinnedCard.elementHandle();
+  expect(original).not.toBeNull();
+
+  await toggle.focus();
+  await page.keyboard.press("Enter");
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(panel).toBeHidden();
+  await toggle.focus();
+  await page.keyboard.press("Space");
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(pinnedCard).toBeVisible();
+  expect(await original!.evaluate((element) => element.isConnected)).toBe(true);
+
+  const cardBox = await pinnedCard.boundingBox();
+  expect(cardBox?.width ?? 0).toBeGreaterThan(100);
+  expect(cardBox?.height ?? 0).toBeGreaterThan(30);
+  const dimensions = await page.evaluate(() => ({
+    client: document.documentElement.clientWidth,
+    scroll: document.documentElement.scrollWidth,
+  }));
+  expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.client + 1);
+});
