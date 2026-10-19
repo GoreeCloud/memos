@@ -228,7 +228,10 @@ describe("<PagedMemoList>", () => {
     const originalScrollY = Object.getOwnPropertyDescriptor(window, "scrollY");
     const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
     Object.defineProperty(window, "scrollY", { configurable: true, value: 650 });
-    vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: true })));
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({ matches: true })),
+    );
 
     try {
       renderList();
@@ -237,7 +240,10 @@ describe("<PagedMemoList>", () => {
       expect(scrollTo).toHaveBeenLastCalledWith({ top: 0, behavior: "auto" });
 
       // The setting must be checked at click time, not captured at mount.
-      vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: false })));
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn(() => ({ matches: false })),
+      );
       fireEvent.click(button);
       expect(scrollTo).toHaveBeenLastCalledWith({ top: 0, behavior: "smooth" });
 
