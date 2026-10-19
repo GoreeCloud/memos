@@ -99,4 +99,37 @@ fi
 grep -q 'Unsafe local profile lock file' "$TMP/symlink.err"
 grep -Fxq 'keep this synthetic data intact' "$TMP/lock-sentinel"
 rm -f "$LOCK"
+
+# The port-in-use detector may connect to a different local service but must
+# never send an application payload to it.
+python3 - "$TMP/port-ready" "$TMP/port-received" <<'PY' &
+import socket
+import sys
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+    listener.bind(("127.0.0.1", 0))
+    listener.listen(1)
+    with open(sys.argv[1], "w") as port_file:
+        port_file.write(str(listener.getsockname()[1]))
+    listener.settimeout(8)
+    conn, _ = listener.accept()
+    with conn:
+        conn.settimeout(3)
+        payload = conn.recv(128)
+    with open(sys.argv[2], "wb") as received:
+        received.write(payload)
+PY
+PORT_LISTENER=$!
+for attempt in $(seq 1 80); do
+  [[ -s "$TMP/port-ready" ]] && break
+  sleep 0.05
+done
+[[ -s "$TMP/port-ready" ]] || { echo "Fixture port unavailable" >&2; exit 1; }
+if GOREECLOUD_MEMOS_DESKTOP_PORT="$(cat "$TMP/port-ready")" "$LAUNCHER" --local >"$TMP/port-in-use.out" 2>"$TMP/port-in-use.err"; then
+  echo "Port occupied by unrelated fixture was accepted" >&2
+  exit 1
+fi
+grep -q 'already in use' "$TMP/port-in-use.err"
+wait "$PORT_LISTENER"
+test ! -s "$TMP/port-received"
 echo "PASS: launcher sign-in/local isolation, URL validation and profile lock"
