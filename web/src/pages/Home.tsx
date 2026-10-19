@@ -271,6 +271,7 @@ const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
           ) : (
             <div className="gc-dashboard-feed">
               <PagedMemoList
+                groupPinned
                 renderer={(memo: Memo, { compact }) => (
                   <MemoView key={getMemoKey(memo)} memo={memo} showVisibility showPinned showSpace={!selectedSpaceName} compact={compact} />
                 )}
