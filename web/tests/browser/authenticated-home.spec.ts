@@ -337,7 +337,10 @@ test("Pinned memo disclosure stays keyboard-accessible and restores responsive c
   const created = page.getByRole("article").filter({ hasText: content }).first();
   await expect(created).toBeVisible();
   await created.locator('[data-slot="memo-header-actions"] button').last().click();
-  await page.getByRole("menuitem").filter({ has: page.locator("svg.lucide-bookmark-plus") }).click();
+  await page
+    .getByRole("menuitem")
+    .filter({ has: page.locator("svg.lucide-bookmark-plus") })
+    .click();
 
   const toggle = page.locator("section[aria-label] h2 button[aria-controls][aria-expanded]").first();
   await expect(toggle).toBeVisible();
