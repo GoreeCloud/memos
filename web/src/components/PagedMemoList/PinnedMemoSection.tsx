@@ -28,7 +28,7 @@ const PinnedMemoSection = ({ memos, renderer, compact, useGrid, maxColumns }: Pr
           aria-controls={contentId}
           aria-expanded={!collapsed}
           onClick={() => setCollapsed((previous) => !previous)}
-          className="flex w-full items-center gap-2 rounded-sm text-start focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className="flex w-full items-center gap-2 rounded-sm text-start text-[#18243b] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           <PinIcon aria-hidden="true" className="size-4 shrink-0 text-primary" strokeWidth={1.7} />
           <span className="flex-1">{t("home.pinned-memos")}</span>
