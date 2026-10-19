@@ -71,9 +71,7 @@ describe("Pinned memo disclosure", () => {
   });
 
   it("renders no disclosure or empty landmark when there are no pinned memos", () => {
-    const { container } = render(
-      <PinnedMemoSection memos={[]} renderer={renderMemo} compact={false} useGrid={false} maxColumns={1} />,
-    );
+    const { container } = render(<PinnedMemoSection memos={[]} renderer={renderMemo} compact={false} useGrid={false} maxColumns={1} />);
     expect(container).toBeEmptyDOMElement();
     expect(screen.queryByRole("button", { name: "home.pinned-memos" })).not.toBeInTheDocument();
   });
