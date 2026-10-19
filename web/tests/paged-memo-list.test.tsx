@@ -223,6 +223,41 @@ describe("<PagedMemoList>", () => {
     }
   });
 
+  it("reveals Back to top at restored scroll and follows changes in reduced-motion preference", () => {
+    feed.memos = [memo];
+    const originalScrollY = Object.getOwnPropertyDescriptor(window, "scrollY");
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    Object.defineProperty(window, "scrollY", { configurable: true, value: 650 });
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({ matches: true })),
+    );
+
+    try {
+      renderList();
+      const button = screen.getByRole("button", { name: "router.back-to-top" });
+      fireEvent.click(button);
+      expect(scrollTo).toHaveBeenLastCalledWith({ top: 0, behavior: "auto" });
+
+      // The setting must be checked at click time, not captured at mount.
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn(() => ({ matches: false })),
+      );
+      fireEvent.click(button);
+      expect(scrollTo).toHaveBeenLastCalledWith({ top: 0, behavior: "smooth" });
+
+      Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
+      fireEvent.scroll(window);
+      expect(screen.queryByRole("button", { name: "router.back-to-top" })).not.toBeInTheDocument();
+    } finally {
+      if (originalScrollY) Object.defineProperty(window, "scrollY", originalScrollY);
+      else Reflect.deleteProperty(window, "scrollY");
+      scrollTo.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("does not resume automatic page fetching after unmount", async () => {
     vi.useFakeTimers();
     try {
