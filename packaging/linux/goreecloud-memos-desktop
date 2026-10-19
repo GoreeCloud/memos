@@ -148,7 +148,11 @@ chmod 700 -- "$DATA"
 # Prevent two launches of this installed profile even when different ports are
 # requested. The lock FD stays open for the duration of the child server.
 command -v flock >/dev/null 2>&1 || fail "Missing required flock utility."
-exec {LOCK_FD}>"$DATA/.launcher.lock"
+LOCK_PATH="$DATA/.launcher.lock"
+if [[ -L "$LOCK_PATH" || ( -e "$LOCK_PATH" && ( ! -f "$LOCK_PATH" || ! -O "$LOCK_PATH" ) ) ]]; then
+  fail "Unsafe local profile lock file: $LOCK_PATH"
+fi
+exec {LOCK_FD}>>"$LOCK_PATH"
 flock -n "$LOCK_FD" || fail "This local Memos profile is already running. Do not start two servers against the same database."
 
 URL="http://127.0.0.1:$PORT"
