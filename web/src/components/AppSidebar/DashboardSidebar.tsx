@@ -1,5 +1,6 @@
 import {
   ArchiveIcon,
+  BellIcon,
   CheckSquare2Icon,
   Clock3Icon,
   FileAudioIcon,
@@ -83,6 +84,7 @@ const DashboardSidebar = () => {
   const isHome = routeKind === "home";
   const isArchived = routeKind === "archived";
   const isAttachments = routeKind === "attachments";
+  const isInbox = routeKind === "inbox";
   const isSettings = routeKind === "settings";
   const primary: NavigationItem[] = [
     { id: "home", label: "Home", icon: HouseIcon, href: ROUTES.DASHBOARD },
@@ -99,6 +101,7 @@ const DashboardSidebar = () => {
     ...(currentUser?.username
       ? [{ id: "profile", label: t("common.profile"), icon: UserRoundIcon, href: `/u/${encodeURIComponent(currentUser.username)}` }]
       : []),
+    { id: "inbox", label: t("common.inbox"), icon: BellIcon, href: ROUTES.INBOX },
     { id: "settings", label: t("common.settings"), icon: Settings2Icon, href: ROUTES.SETTING },
   ];
   const row = (item: NavigationItem) => {
@@ -108,11 +111,13 @@ const DashboardSidebar = () => {
         ? isArchived
         : item.id === "attachments"
           ? isAttachments
-          : item.id === "settings"
-            ? isSettings
-            : item.id === "profile"
-              ? routeKind === "profile" && getProfileUsername(pathname) === currentUser?.username
-              : isHome && dashboard === item.id;
+          : item.id === "inbox"
+            ? isInbox
+            : item.id === "settings"
+              ? isSettings
+              : item.id === "profile"
+                ? routeKind === "profile" && getProfileUsername(pathname) === currentUser?.username
+                : isHome && dashboard === item.id;
     return (
       <Link
         key={item.id}

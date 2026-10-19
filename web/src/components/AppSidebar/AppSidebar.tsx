@@ -571,7 +571,8 @@ const AppSidebar = ({ className }: { className?: string }) => {
   const currentUser = useCurrentUser();
   const { setMobileOpen } = useAppSidebar();
   const routeKind = getSidebarRouteKind(useLocation().pathname);
-  const dashboard = ["home", "archived", "attachments", "settings"].includes(routeKind) || (routeKind === "profile" && !!currentUser);
+  const dashboard =
+    ["home", "archived", "attachments", "settings", "inbox"].includes(routeKind) || (routeKind === "profile" && !!currentUser);
   return (
     <aside
       className={cn(
