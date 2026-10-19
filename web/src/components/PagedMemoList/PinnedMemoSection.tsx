@@ -34,31 +34,34 @@ const PinnedMemoSection = ({ memos, renderer, compact, useGrid, maxColumns }: Pr
           <span className="flex-1">{t("home.pinned-memos")}</span>
           <ChevronDownIcon
             aria-hidden="true"
-            className={cn("size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none", collapsed && "-rotate-90")}
+            className={cn(
+              "size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none",
+              collapsed && "-rotate-90",
+            )}
           />
         </button>
       </h2>
       {/* Preserve memo/editor component state while collapsed, including unsaved drafts. */}
       <div id={contentId} className={collapsed ? "hidden" : undefined}>
         {useGrid ? (
-        <ColumnGridUntrappedProvider>
-          <ColumnGrid
-            items={memos}
-            getKey={(memo) => memo.name}
-            renderItem={(memo) => renderer(memo, { compact })}
-            estimateHeight={estimateMemoCardHeight}
-            maxColumns={maxColumns}
-            maxColumnWidth={420}
-          />
-        </ColumnGridUntrappedProvider>
-      ) : (
-        <div className={cn("flex min-w-0 flex-col gap-3")}>
-          {memos.map((memo) => (
-            <div key={memo.name} className="min-w-0">
-              {renderer(memo, { compact })}
-            </div>
-          ))}
-        </div>
+          <ColumnGridUntrappedProvider>
+            <ColumnGrid
+              items={memos}
+              getKey={(memo) => memo.name}
+              renderItem={(memo) => renderer(memo, { compact })}
+              estimateHeight={estimateMemoCardHeight}
+              maxColumns={maxColumns}
+              maxColumnWidth={420}
+            />
+          </ColumnGridUntrappedProvider>
+        ) : (
+          <div className={cn("flex min-w-0 flex-col gap-3")}>
+            {memos.map((memo) => (
+              <div key={memo.name} className="min-w-0">
+                {renderer(memo, { compact })}
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </section>
