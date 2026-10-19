@@ -5,5 +5,5 @@ Comment=Connect to an existing Memos server or run your private local instance
 Exec=/usr/bin/goreecloud-memos-desktop
 Icon=accessories-text-editor
 Terminal=true
-Categories=Office;Utility;
+Categories=Office;
 StartupNotify=true
