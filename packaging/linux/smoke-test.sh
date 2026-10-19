@@ -17,6 +17,35 @@ dpkg-deb --contents "$PKG" >"$TMP/contents.txt"
 grep -q 'usr/lib/goreecloud-memos/memos' "$TMP/contents.txt"
 dpkg-deb --extract "$PKG" "$TMP/root"
 BINARY="$TMP/root/usr/lib/goreecloud-memos/memos"
+LAUNCHER="$TMP/root/usr/bin/goreecloud-memos-desktop"
+# Validate the actual packaged launcher, not only the source script, with an
+# isolated browser stub. No installed binary, network, or user profile is read.
+test -x "$LAUNCHER"
+mkdir -p "$TMP/launcher-bin" "$TMP/launcher-data"
+cat >"$TMP/launcher-bin/xdg-open" <<'EOF'
+#!/bin/sh
+printf '%s\n' "$1" >>"$GC_MEMOS_TEST_OPEN_LOG"
+EOF
+cat >"$TMP/launcher-bin/curl" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
+chmod 700 "$TMP/launcher-bin/xdg-open" "$TMP/launcher-bin/curl"
+(
+  export PATH="$TMP/launcher-bin:$PATH"
+  export GC_MEMOS_TEST_OPEN_LOG="$TMP/launcher-opened"
+  export XDG_DATA_HOME="$TMP/launcher-data"
+  "$LAUNCHER" --connect https://memos.example.invalid >"$TMP/launcher-connect.log" 2>&1
+  grep -Fxq 'https://memos.example.invalid/' "$GC_MEMOS_TEST_OPEN_LOG"
+  grep -q 'could not be reached' "$TMP/launcher-connect.log"
+  # The desktop entry runs a terminal. Exercise its actual interactive chooser
+  # through a temporary PTY, including the loopback-existing-instance choice.
+  printf '1\nhttp://127.0.0.1:18423\n' | script -qec "$LAUNCHER" /dev/null >"$TMP/launcher-interactive.log"
+  grep -q 'Connect to an existing Memos server' "$TMP/launcher-interactive.log"
+  grep -Fxq 'http://127.0.0.1:18423/' "$GC_MEMOS_TEST_OPEN_LOG"
+  test ! -e "$XDG_DATA_HOME/goreecloud-memos-desktop"
+)
+echo "PASS: extracted Debian launcher, interactive existing-server choice and offline feedback"
 mkdir -m 0700 "$TMP/data"
 # Use an unused high port; never connect to an existing service.
 PORT="$(python3 -c 'import socket;s=socket.socket();s.bind(("127.0.0.1",0));print(s.getsockname()[1]);s.close()')"
