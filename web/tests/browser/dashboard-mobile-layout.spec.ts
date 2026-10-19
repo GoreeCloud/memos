@@ -64,9 +64,7 @@ test("mobile user pinch-to-zoom works in the served application", async ({ brows
 
     const client = await context.newCDPSession(page);
     await client.send("Input.synthesizePinchGesture", { x: 180, y: 320, scaleFactor: 2, relativeSpeed: 400 });
-    await expect
-      .poll(async () => page.evaluate(() => window.visualViewport?.scale ?? 1), { timeout: 5000 })
-      .toBeGreaterThan(1.2);
+    await expect.poll(async () => page.evaluate(() => window.visualViewport?.scale ?? 1), { timeout: 5000 }).toBeGreaterThan(1.2);
   } finally {
     await context.close();
   }
