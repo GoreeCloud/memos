@@ -324,15 +324,15 @@ test("revamped Inbox keeps the sidebar, filters, and accessible empty or notific
 
 test("Pinned memo disclosure stays keyboard-accessible and restores responsive card layout", async ({ page }, testInfo) => {
   await page.goto("/");
-  const language = await page.locator("html").getAttribute("lang");
-  const saveLabel = language?.startsWith("ar") ? "حفظ" : "Save";
+  // The signed-in language setting hydrates asynchronously after navigation.
+  // Exercise the same Save action in both supported acceptance locales.
   const content = `Pinned disclosure acceptance — ${testInfo.project.name}`;
 
   const compose = page.locator("[data-new-memo-trigger]");
   await compose.focus();
   await page.keyboard.press("Enter");
   await page.locator('.goreecloud-composer .cm-content[contenteditable="true"]').fill(content);
-  await page.getByRole("button", { name: saveLabel, exact: true }).click();
+  await page.getByRole("button", { name: /^(?:Save|حفظ)$/ }).click();
 
   const created = page.getByRole("article").filter({ hasText: content }).first();
   await expect(created).toBeVisible();
