@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { render, waitFor } from "@testing-library/react";
 import { useRef } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -36,6 +37,14 @@ describe("useSearchMatchHighlight", () => {
 
     expect(registry.has(SEARCH_MATCH_HIGHLIGHT_NAME)).toBe(true);
     expect(paintedRanges()).toEqual(["Memo", "memo"]);
+  });
+
+  it("keeps the TypeScript source text-only while retaining multi-term highlighting", () => {
+    const source = readFileSync("src/components/MemoContent/useSearchMatchHighlight.ts", "utf8");
+    expect(source).not.toContain("\0");
+
+    render(<Body terms={["alpha", "bravo"]} html="<p>alpha then bravo</p>" />);
+    expect(paintedRanges()).toEqual(["alpha", "bravo"]);
   });
 
   it("leaves math and SVG subtrees alone", () => {
