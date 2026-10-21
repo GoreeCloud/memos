@@ -8,6 +8,7 @@ const state = vi.hoisted(() => ({
   ready: true,
   canOpen: true,
   columns: 0,
+  timeBasis: "update_time" as "update_time" | "create_time",
   selectedSpaceName: undefined as string | undefined,
   filters: [] as Array<{ factor: string; value: string }>,
   openEditor: vi.fn(),
@@ -23,6 +24,10 @@ vi.mock("@/contexts/ViewContext", () => ({
     maxColumns: state.columns,
     setMaxColumns: (value: number) => {
       state.columns = value;
+    },
+    timeBasis: state.timeBasis,
+    setTimeBasis: (value: "update_time" | "create_time") => {
+      state.timeBasis = value;
     },
   }),
 }));
@@ -74,7 +79,19 @@ vi.mock("@/components/PagedMemoList", () => ({
   getMemoKey: (memo: { name: string }) => memo.name,
 }));
 vi.mock("@/utils/i18n", () => ({
-  useTranslate: () => (key: string) => key,
+  useTranslate: () => (key: string) =>
+    (
+      ({
+        "dashboard.grid-view": "Grid view",
+        "dashboard.list-view": "List view",
+        "dashboard.two-column-view": "Two-column view",
+        "dashboard.memo-layout": "Memo layout",
+        "dashboard.recent-memos": "Recent Memos",
+        "dashboard.all-memos": "All Memos",
+        "dashboard.date-modified": "Date modified",
+        "dashboard.date-created": "Date created",
+      }) as Record<string, string>
+    )[key] ?? key,
 }));
 
 const show = (initialPath = "/") =>
@@ -89,6 +106,7 @@ describe("Home mockup dashboard layout", () => {
     state.ready = true;
     state.canOpen = true;
     state.columns = 0;
+    state.timeBasis = "update_time";
     state.selectedSpaceName = undefined;
     state.filters = [];
     state.openEditor.mockClear();
@@ -149,7 +167,8 @@ describe("Home mockup dashboard layout", () => {
 
   it("retains the floating compose flow and supports the dashboard grid/list switch", () => {
     const { container, rerender } = show();
-    fireEvent.click(screen.getByRole("button", { name: /New Memo/i }));
+    expect(container.querySelector(".gc-dashboard-fab")).not.toBeInTheDocument();
+    fireEvent.click(within(screen.getByRole("region", { name: "Quick Actions" })).getByRole("button", { name: /New Memo/i }));
     expect(state.openEditor).toHaveBeenCalledOnce();
     expect(container.querySelector(".gc-dashboard-memos-masonry")).not.toBeNull();
     expect(screen.getByRole("button", { name: "Grid view" })).toHaveAttribute("aria-pressed", "true");
@@ -164,6 +183,20 @@ describe("Home mockup dashboard layout", () => {
     expect(screen.getByRole("button", { name: "List view" })).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(screen.getByRole("button", { name: "Grid view" }));
     expect(state.columns).toBe(0);
+    fireEvent.click(screen.getByRole("button", { name: "Two-column view" }));
+    expect(state.columns).toBe(2);
+  });
+
+  it("generates actual server-side local-date filters for Today and This Week", () => {
+    const { unmount } = show("/?dashboard=today");
+    const today = screen.getByTestId("memo-feed");
+    expect(today.dataset.filter).toContain("updated_ts");
+    expect(today.dataset.filter).toContain("timestamp(");
+    unmount();
+    show("/?dashboard=week");
+    const week = screen.getByTestId("memo-feed");
+    expect(week.dataset.filter).toContain("updated_ts");
+    expect(week.dataset.filter).toContain("timestamp(");
   });
 
   it("keeps only one Home search when switching Space scope", () => {

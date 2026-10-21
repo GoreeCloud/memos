@@ -62,7 +62,7 @@ describe("ViewContext cross-tab local preference updates", () => {
       otherTabUpdate(KEY, value);
       expect(result.current).toMatchObject({
         orderByTimeAsc: false,
-        timeBasis: "create_time",
+        timeBasis: "update_time",
         compactMode: false,
         linkPreview: true,
         maxColumns: 0,

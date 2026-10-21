@@ -88,26 +88,64 @@
 .gc-dashboard-settings-navigation {
   padding-bottom: 24px;
 }
-.dark .gc-dashboard-sidebar {
+:root[data-theme*="dark"] .gc-dashboard-sidebar {
   background: var(--sidebar);
 }
-.dark .gc-dashboard-side-link {
+:root[data-theme*="dark"] .gc-dashboard-side-link {
   color: var(--sidebar-foreground);
 }
-.dark .gc-dashboard-side-link:hover {
+:root[data-theme*="dark"] .gc-dashboard-side-link:hover {
   background: var(--sidebar-accent);
 }
-.dark .gc-dashboard-side-link[aria-current="page"],
-.dark .gc-dashboard-side-link[aria-pressed="true"] {
+:root[data-theme*="dark"] .gc-dashboard-side-link[aria-current="page"],
+:root[data-theme*="dark"] .gc-dashboard-side-link[aria-pressed="true"] {
   color: var(--sidebar-accent-foreground);
   background: var(--sidebar-accent);
 }
-.dark .gc-dashboard-side-caption,
-.dark .gc-dashboard-side-count {
+:root[data-theme*="dark"] .gc-dashboard-side-caption,
+:root[data-theme*="dark"] .gc-dashboard-side-count {
   color: var(--muted-foreground);
 }
 @media (prefers-reduced-motion: reduce) {
   .gc-dashboard-side-link {
     transition: none;
   }
+}
+
+/* Screenshot-aligned full-width compose control and scrolling tag library. */
+.gc-dashboard-create-wrap {
+  padding: 8px 17px 3px;
+}
+.gc-dashboard-create {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  gap: 14px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: linear-gradient(110deg, #3478ff, #2865e9);
+  color: white;
+  font-size: 14px;
+  font-weight: 650;
+  box-shadow: 0 9px 21px -13px #2865e9;
+  transition: background 160ms ease;
+}
+.gc-dashboard-create > span {
+  flex: 1;
+  text-align: start;
+}
+.gc-dashboard-create:hover {
+  background: #215dd3;
+}
+.gc-dashboard-create:focus-visible {
+  outline: 2px solid #3478ff;
+  outline-offset: 3px;
+}
+.gc-dashboard-side-tags {
+  min-width: 0;
+  padding: 0 3px 8px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gc-dashboard-create { transition: none; }
 }

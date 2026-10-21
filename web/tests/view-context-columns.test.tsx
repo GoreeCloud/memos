@@ -66,13 +66,14 @@ describe("ViewContext maxColumns setting", () => {
 
     expect(result.current).toMatchObject({
       orderByTimeAsc: false,
-      timeBasis: "create_time",
+      timeBasis: "update_time",
       compactMode: false,
       linkPreview: true,
       maxColumns: 0,
     });
     expect(persisted()).toEqual({
       orderByTimeAsc: false,
+      timeBasis: "update_time",
       compactMode: false,
       linkPreview: true,
       maxColumns: 0,

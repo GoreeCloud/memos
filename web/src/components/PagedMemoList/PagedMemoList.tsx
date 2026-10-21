@@ -54,7 +54,7 @@ interface Props {
   /** Route-owned content rendered before the list and inside column one in grid mode. */
   renderLeading?: (options: { useGrid: boolean }) => ReactNode;
   /** Route-owned content spanning the full list width above every column (e.g. a page identity block). */
-  renderHeader?: (options: { useGrid: boolean }) => ReactNode;
+  renderHeader?: (options: { useGrid: boolean; memoCount: number; hasMore: boolean }) => ReactNode;
   /** Replaces the generic empty-state message when the route knows why the list is empty. */
   emptyMessage?: string;
 }
@@ -134,12 +134,12 @@ const PagedMemoList = (props: Props) => {
   const { isUserSettingsInitialized } = useAuth();
   const { filters, memoView, removeFilter } = useMemoFilterContext();
   const { setQuickFindOpen } = useAppSidebar();
-  const { compactMode } = useView();
-  // Responsive masonry is the sole memo layout; legacy saved column choices are ignored.
-  const maxColumns = 0;
+  const { compactMode, maxColumns } = useView();
+  // Responsive masonry remains the default; deliberate list/column selections
+  // now follow the saved view preferences, including cross-tab updates.
   // maxColumns is a ceiling: 1 = single reading column, 0 = as many as fit. The single
   // column renders in normal document flow; anything wider becomes the packed grid.
-  const multiColumn = true;
+  const multiColumn = maxColumns !== 1;
 
   // Measure the available width: when it only fits one column anyway, render the flow
   // layout rather than a degenerate one-column grid (capped tiles, composer-as-tile).
@@ -219,7 +219,7 @@ const PagedMemoList = (props: Props) => {
   }, [canPaginate, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const leadingContent = props.renderLeading?.({ useGrid });
-  const headerContent = props.renderHeader?.({ useGrid });
+  const headerContent = props.renderHeader?.({ useGrid, memoCount: sortedMemoList.length, hasMore: Boolean(hasNextPage) });
 
   // A freshly created memo is hoisted to the front; pin it to the top of column one so it
   // appears right under the composer instead of dropping into a random (shortest) column.

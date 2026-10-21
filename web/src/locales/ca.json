@@ -1,4 +1,25 @@
 {
+  "dashboard": {
+    "all-memos": "All Memos",
+    "recent-memos": "Recent Memos",
+    "pinned": "Pinned",
+    "private-memos": "Private Memos",
+    "my-tasks": "My Tasks",
+    "quick-filters": "Quick Filters",
+    "recent": "Recent",
+    "this-week": "This Week",
+    "date-modified": "Date modified",
+    "date-created": "Date created",
+    "sort-memos": "Sort memos",
+    "memo-layout": "Memo layout",
+    "grid-view": "Grid view",
+    "list-view": "List view",
+    "two-column-view": "Two-column view",
+    "memo-count_one": "{{count}} memo",
+    "memo-count_other": "{{count}} memos",
+    "more-to-load": "more to load",
+    "search-results": "Search results"
+  },
   "about": {
     "documents": "Documents",
     "github-repository": "Repositori GitHub",
