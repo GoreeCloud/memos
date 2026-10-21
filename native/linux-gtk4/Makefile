@@ -12,8 +12,11 @@ build/goreecloud-memos-native-linux: app.c model.c model.h | build
 	$(CC) $(CFLAGS) $(GTK_CFLAGS) -o $@ app.c model.c $(GTK_LIBS)
 build/test-model: tests/test-model.c model.c model.h | build
 	$(CC) $(CFLAGS) $(GLIB_CFLAGS) -o $@ tests/test-model.c model.c $(GLIB_LIBS)
-test: build/test-model
+build/test-api: tests/test-api.c api.c api.h | build
+	$(CC) $(CFLAGS) $(GLIB_CFLAGS) -o $@ tests/test-api.c api.c $(GLIB_LIBS)
+test: build/test-model build/test-api
 	./build/test-model
+	./build/test-api
 smoke: all
 	@timeout 5 xvfb-run -a ./build/goreecloud-memos-native-linux >/dev/null 2>build/smoke-stderr.log; result=$$?; if [ $$result -eq 124 ]; then echo 'Native GTK4 window stayed alive for 5 seconds'; else cat build/smoke-stderr.log; exit $$result; fi
 clean:
