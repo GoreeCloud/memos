@@ -1,14 +1,16 @@
-# Glaze Adoption
+# Historical Design-System Adoption — Superseded
 
-Current shared authority: **Glaze V1.7 / 1.7.0**.
+> **CURRENT AUTHORITY (October 20, 2026):** [GoreeCloud UI](https://github.com/GoreeCloud/gc-ui) permanently supersedes the former design system. All version pins, validation references, and installation details below describe a **legacy implementation snapshot** and are retained only as engineering and rollback provenance; they are not approved requirements for new development. The current source still carries legacy runtime dependencies, and a complete Memos-specific GC UI implementation and accessibility/visual/rollback acceptance remain outstanding. Do not relabel old packages, exact commits, CSS variables, or runtime probes as GC UI.
+
+Former shared target at the time: **legacy V1.7 / 1.7.0**.
 
 - Release integration: `1a5756daed2294155be2e9972b24f580f6222b7b`
 - Qualification anchor: `7c4ded83d7a8725165bb6a55dfb175667cc9589e`
 - Known-good rollback baseline: `1.6.0`
 
-This rebuild vendors the exact governed Stable Glaze web/runtime source from the V1.7 release integration and layers an application-owned GoreeCloud presentation treatment on top, including: semantic surfaces, restrained translucency, accessibility-first fallbacks, clear focus, responsive layout, reduced-motion/reduced-transparency handling, high-contrast compatibility, and canonical product identity.
+The recorded legacy rebuild vendored the exact governed Stable predecessor web/runtime source from the V1.7 release integration and layers an application-owned GoreeCloud presentation treatment on top, including: semantic surfaces, restrained translucency, accessibility-first fallbacks, clear focus, responsive layout, reduced-motion/reduced-transparency handling, high-contrast compatibility, and canonical product identity.
 
-The pinned stable Glaze stylesheet is loaded directly from production HTML instead of through a late CSS import. Repository validation requires that direct stylesheet link, and rendered-browser acceptance verifies a Glaze V1.4.1 semantic custom property is present at runtime so production optimization cannot silently drop the shared stylesheet.
+The pinned predecessor stylesheet was loaded directly from production HTML instead of through a late CSS import. Repository validation requires that direct stylesheet link, and rendered-browser acceptance verifies a Glaze V1.4.1 semantic custom property is present at runtime so production optimization cannot silently drop the shared stylesheet.
 
 This is **not** a claim of completed Glaze consumer acceptance. The shared Glaze release does not automatically grant downstream acceptance. Fresh Memos-local rendered, accessibility, keyboard, screen-reader, responsive, performance, rollback, and human visual review remain required.
 
@@ -21,7 +23,7 @@ This is source-level regression evidence only. It does not establish rendered co
 
 ## Authentication entry surface
 
-The sign-in, sign-up, first-run setup, and administrator sign-in pages share an application-owned GoreeCloud authentication shell layered on the current Glaze source authority. The shell provides product identity, responsive card geometry, visible hierarchy, reduced-transparency fallback, and forced-colors fallback without changing credential, session, challenge, redirect, or identity-provider semantics.
+The sign-in, sign-up, first-run setup, and administrator sign-in pages share an application-owned GoreeCloud authentication shell layered on the former predecessor source. The recorded shell provides product identity, responsive card geometry, visible hierarchy, reduced-transparency fallback, and forced-colors fallback without changing credential, session, challenge, redirect, or identity-provider semantics.
 
 This is source-level implementation evidence. Representative rendered review, keyboard/screen-reader acceptance, scaling/zoom, reduced-motion/contrast review, and authentication threat-model acceptance remain separate release gates.
 
