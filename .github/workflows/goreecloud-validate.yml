@@ -278,11 +278,48 @@ jobs:
       - name: Vet backend
         run: go vet ./...
 
-      - name: Run backend test suite
-        run: go test ./...
+      - name: Run all non-store-driver backend tests
+        run: |
+          # Each store driver is exercised by the matrix below; keep all other packages.
+          all_packages="$(go list ./...)"
+          store_package="github.com/usememos/memos/store/test"
+          printf '%s\n' "$all_packages" | grep -Fx "$store_package"
+          other_packages="$(printf '%s\n' "$all_packages" | grep -Fvx "$store_package")"
+          test -n "$other_packages"
+          printf '%s\n' "$other_packages" | xargs go test -count=1 -p 2
 
       - name: Build backend
         run: go build ./cmd/memos
+
+  store-driver-tests:
+    name: Store integration (${{ matrix.driver }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        driver:
+          - sqlite
+          - mysql
+          - postgres
+    steps:
+      - name: Check out exact source revision
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: "1.27.0"
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Run complete store integration suite for selected database
+        env:
+          DRIVER: ${{ matrix.driver }}
+        run: go test -count=1 -timeout=15m ./store/test/...
 
   development-linux-package:
     name: Linux Development package and loopback smoke
