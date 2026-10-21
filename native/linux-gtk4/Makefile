@@ -10,18 +10,21 @@ GTK_LIBS := $(shell pkg-config --libs gtk4)
 all: build/goreecloud-memos-native-linux
 build:
 	mkdir -p build
-build/goreecloud-memos-native-linux: app.c model.c model.h | build
-	$(CC) $(CFLAGS) $(GTK_CFLAGS) -o $@ app.c model.c $(GTK_LIBS)
+build/goreecloud-memos-native-linux: app.c model.c model.h demo-feed.c demo-feed.h response.c response.h | build
+	$(CC) $(CFLAGS) $(GTK_CFLAGS) $(JSON_CFLAGS) -o $@ app.c model.c demo-feed.c response.c $(GTK_LIBS) $(JSON_LIBS)
 build/test-model: tests/test-model.c model.c model.h | build
 	$(CC) $(CFLAGS) $(GLIB_CFLAGS) -o $@ tests/test-model.c model.c $(GLIB_LIBS)
 build/test-api: tests/test-api.c api.c api.h | build
 	$(CC) $(CFLAGS) $(GLIB_CFLAGS) -o $@ tests/test-api.c api.c $(GLIB_LIBS)
 build/test-response: tests/test-response.c response.c response.h | build
 	$(CC) $(CFLAGS) $(JSON_CFLAGS) -o $@ tests/test-response.c response.c $(JSON_LIBS)
-test: build/test-model build/test-api build/test-response
+build/test-demo-feed: tests/test-demo-feed.c demo-feed.c demo-feed.h response.c response.h model.c model.h | build
+	$(CC) $(CFLAGS) $(JSON_CFLAGS) -o $@ tests/test-demo-feed.c demo-feed.c response.c model.c $(JSON_LIBS)
+test: build/test-model build/test-api build/test-response build/test-demo-feed
 	./build/test-model
 	./build/test-api
 	./build/test-response
+	./build/test-demo-feed
 smoke: all
 	@timeout 5 xvfb-run -a ./build/goreecloud-memos-native-linux >/dev/null 2>build/smoke-stderr.log; result=$$?; if [ $$result -eq 124 ]; then echo 'Native GTK4 window stayed alive for 5 seconds'; else cat build/smoke-stderr.log; exit $$result; fi
 clean:
