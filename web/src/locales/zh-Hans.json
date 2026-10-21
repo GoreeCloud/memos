@@ -1,4 +1,25 @@
 {
+  "dashboard": {
+    "all-memos": "所有备忘录",
+    "recent-memos": "最近的备忘录",
+    "pinned": "已置顶",
+    "private-memos": "私人备忘录",
+    "my-tasks": "我的任务",
+    "quick-filters": "快捷筛选",
+    "recent": "最近",
+    "this-week": "本周",
+    "date-modified": "修改日期",
+    "date-created": "创建日期",
+    "sort-memos": "备忘录排序",
+    "memo-layout": "备忘录布局",
+    "grid-view": "网格视图",
+    "list-view": "列表视图",
+    "two-column-view": "双列视图",
+    "memo-count_one": "{{count}} 条备忘录",
+    "memo-count_other": "{{count}} 条备忘录",
+    "more-to-load": "还有更多可加载",
+    "search-results": "搜索结果"
+  },
   "map": {
     "selection": "选中的 Memo",
     "loaded": "已加载 {{count}} 条",

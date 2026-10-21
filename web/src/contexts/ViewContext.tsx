@@ -35,7 +35,13 @@ const ViewContext = createContext<ViewContextValue | null>(null);
 
 const LOCAL_STORAGE_KEY = "memos-view-setting";
 
-const DEFAULT_VIEW_STATE: ViewState = { orderByTimeAsc: false, compactMode: false, linkPreview: true, maxColumns: 0 };
+const DEFAULT_VIEW_STATE: ViewState = {
+  orderByTimeAsc: false,
+  timeBasis: "update_time",
+  compactMode: false,
+  linkPreview: true,
+  maxColumns: 0,
+};
 
 /** Parse both initial preferences and cross-tab updates without trusting stored values. */
 function parseStoredViewState(raw: string | null): ViewState {
@@ -92,7 +98,7 @@ export function ViewProvider({ children }: { children: ReactNode }) {
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
-  const timeBasis = viewState.timeBasis ?? "create_time";
+  const timeBasis = viewState.timeBasis ?? "update_time";
 
   const persistToStorage = (newState: ViewState) => {
     try {

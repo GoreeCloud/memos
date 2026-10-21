@@ -17,6 +17,7 @@ import {
   MenuIcon,
   PaperclipIcon,
   SearchIcon,
+  SquarePenIcon,
   Trash2Icon,
   UserRoundIcon,
 } from "lucide-react";
@@ -31,6 +32,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { type AttachmentSection, type InboxFilter, useAppSidebar } from "@/contexts/AppSidebarContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGlobalMemoEditor } from "@/contexts/GlobalMemoEditorContext";
 import { useInstance } from "@/contexts/InstanceContext";
 import { getFilterSearch, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { useSpaceContext } from "@/contexts/SpaceContext";
@@ -570,6 +572,7 @@ const AppSidebar = ({ className }: { className?: string }) => {
   const t = useTranslate();
   const currentUser = useCurrentUser();
   const { setMobileOpen } = useAppSidebar();
+  const { canOpen: canCompose, openEditor } = useGlobalMemoEditor();
   const routeKind = getSidebarRouteKind(useLocation().pathname);
   const dashboard =
     ["home", "archived", "attachments", "settings", "inbox"].includes(routeKind) || (routeKind === "profile" && !!currentUser);
@@ -584,6 +587,15 @@ const AppSidebar = ({ className }: { className?: string }) => {
       <div data-sidebar-header className={cn("flex h-13 shrink-0 items-center justify-between gap-2", SIDEBAR_RAIL_CLASSES)}>
         <SidebarBrand className={cn("min-w-0", dashboard && "flex-1")} size="header" />
       </div>
+      {dashboard && currentUser && canCompose && (
+        <div className="gc-dashboard-create-wrap">
+          <button type="button" className="gc-dashboard-create" onClick={openEditor} aria-label={t("editor.new-memo")}>
+            <SquarePenIcon size={19} strokeWidth={1.9} aria-hidden="true" />
+            <span>{t("editor.new-memo")}</span>
+            <ChevronDownIcon size={18} aria-hidden="true" />
+          </button>
+        </div>
+      )}
       {!dashboard && <GlobalNavigation />}
       <div className="mx-3 mt-2 border-t border-border/70" />
       <div className={cn("min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-3 [scrollbar-width:thin]", SIDEBAR_RAIL_CLASSES)}>

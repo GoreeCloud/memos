@@ -1,6 +1,8 @@
+import dayjs from "dayjs";
 import {
   ChevronRightIcon,
   CloudIcon,
+  Columns2Icon,
   Grid2X2Icon,
   ListIcon,
   LockKeyholeIcon,
@@ -18,6 +20,7 @@ import MemoDisplaySettingMenu from "@/components/MemoDisplaySettingMenu";
 import MemoView from "@/components/MemoView";
 import PagedMemoList, { getMemoKey } from "@/components/PagedMemoList";
 import { estimateMemoCardHeight } from "@/components/PagedMemoList/memoCardHeight";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGlobalMemoEditor } from "@/contexts/GlobalMemoEditorContext";
 import { getFilterSearch, isSearchFilter, useMemoFilterContext } from "@/contexts/MemoFilterContext";
@@ -27,17 +30,26 @@ import { useView } from "@/contexts/ViewContext";
 import { useMemoFilters, useMemoSorting } from "@/hooks";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { useInfiniteMemos } from "@/hooks/useMemoQueries";
+import { buildTimestampRangeFilter, getLocalDayTimestampRange, getTimeBasisField, getToday, parseLocalDate } from "@/lib/calendar-utils";
 import { combineCELFilters } from "@/lib/cel-filter";
 import { buildCollectionPath, ROUTES } from "@/router/routes";
 import { State } from "@/types/proto/api/v1/common_pb";
 import type { Memo } from "@/types/proto/api/v1/memo_service_pb";
+import { useTranslate } from "@/utils/i18n";
 import "./Home.css";
 import "./Home.mobile.css";
 import "./Home.masonry.css";
 
-type DashboardSection = "home" | "all" | "favorites" | "private" | "labels" | "recent" | "tasks";
+type DashboardSection = "home" | "all" | "favorites" | "private" | "labels" | "recent" | "tasks" | "today" | "week";
 export const parseDashboardSection = (value: string | null): DashboardSection =>
-  value === "all" || value === "favorites" || value === "private" || value === "labels" || value === "recent" || value === "tasks"
+  value === "all" ||
+  value === "favorites" ||
+  value === "private" ||
+  value === "labels" ||
+  value === "recent" ||
+  value === "tasks" ||
+  value === "today" ||
+  value === "week"
     ? value
     : "home";
 
@@ -49,6 +61,8 @@ const SECTION_FILTERS: Record<DashboardSection, string | undefined> = {
   labels: undefined,
   recent: undefined,
   tasks: "has_task_list",
+  today: undefined,
+  week: undefined,
 };
 
 const WelcomeArtwork = () => (
@@ -91,10 +105,11 @@ const WELCOME_FEATURES = [
 ] as const;
 
 const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
+  const t = useTranslate();
   const currentUser = useCurrentUser();
   const { isUserSettingsInitialized, userTagsSetting } = useAuth();
   const { canOpen, openEditor } = useGlobalMemoEditor();
-  const { maxColumns, setMaxColumns } = useView();
+  const { maxColumns, setMaxColumns, timeBasis, setTimeBasis } = useView();
   const dashboardGrid = maxColumns !== 1;
   const { filters, setMemoView } = useMemoFilterContext();
   const { selectedSpaceName, memoFilter: contextFilter } = useSpaceContext();
@@ -110,7 +125,25 @@ const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
     includePinned: true,
   });
   const { listSort, orderBy } = useMemoSorting({ pinnedFirst: false, state: State.NORMAL });
-  const sectionFilter = hasSearch ? undefined : SECTION_FILTERS[section];
+  const dateFilter = useMemo(() => {
+    const field = getTimeBasisField(timeBasis);
+    if (section === "today") {
+      const range = getLocalDayTimestampRange(getToday());
+      return range ? buildTimestampRangeFilter(field, range) : undefined;
+    }
+    if (section === "week") {
+      const start = parseLocalDate(dayjs().startOf("week").format("YYYY-MM-DD"));
+      if (!start) return undefined;
+      const end = new Date(start);
+      end.setDate(end.getDate() + 7);
+      return buildTimestampRangeFilter(field, {
+        startTimestamp: Math.floor(start.getTime() / 1000),
+        endTimestamp: Math.floor(end.getTime() / 1000),
+      });
+    }
+    return undefined;
+  }, [section, timeBasis]);
+  const sectionFilter = hasSearch ? undefined : combineCELFilters(SECTION_FILTERS[section], dateFilter);
   const queryFilter = combineCELFilters(combineCELFilters(contextFilter, memoFilter), sectionFilter);
   const { data, isLoading, isError, refetch } = useInfiniteMemos(
     { state: State.NORMAL, filter: queryFilter, pageSize: 3, orderBy },
@@ -137,13 +170,15 @@ const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
   };
   const title =
     section === "home" || section === "recent"
-      ? "Recent Memos"
+      ? t("dashboard.recent-memos")
       : {
-          all: "All Memos",
-          favorites: "Pinned",
-          private: "Private Memos",
-          labels: "Labels",
-          tasks: "My Tasks",
+          all: t("dashboard.all-memos"),
+          favorites: t("dashboard.pinned"),
+          private: t("dashboard.private-memos"),
+          labels: t("common.labels"),
+          tasks: t("dashboard.my-tasks"),
+          today: t("common.today"),
+          week: t("dashboard.this-week"),
         }[section];
 
   return (
@@ -154,14 +189,41 @@ const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
             {isUserSettingsInitialized && <HomeSearchBar />}
           </div>
           <div className="gc-dashboard-tools">
-            <div className="gc-dashboard-layout-toggle" role="group" aria-label="Memo layout">
-              <button type="button" aria-label="Grid view" aria-pressed={dashboardGrid} onClick={() => setMaxColumns(0)}>
+            <MemoDisplaySettingMenu className="gc-dashboard-view-settings gc-dashboard-advanced-settings" />
+            <Select
+              value={timeBasis}
+              items={[
+                { value: "update_time", label: t("dashboard.date-modified") },
+                { value: "create_time", label: t("dashboard.date-created") },
+              ]}
+              onValueChange={(value) => setTimeBasis(value === "create_time" ? "create_time" : "update_time")}
+            >
+              <SelectTrigger
+                aria-label={t("dashboard.sort-memos")}
+                className="gc-dashboard-sort h-11 w-[154px] rounded-xl border border-border/75 bg-card px-3 text-sm shadow-sm"
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="update_time">{t("dashboard.date-modified")}</SelectItem>
+                <SelectItem value="create_time">{t("dashboard.date-created")}</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="gc-dashboard-layout-toggle" role="group" aria-label={t("dashboard.memo-layout")}>
+              <button type="button" aria-label={t("dashboard.grid-view")} aria-pressed={maxColumns === 0} onClick={() => setMaxColumns(0)}>
                 <Grid2X2Icon size={19} aria-hidden="true" />
               </button>
-              <button type="button" aria-label="List view" aria-pressed={!dashboardGrid} onClick={() => setMaxColumns(1)}>
+              <button type="button" aria-label={t("dashboard.list-view")} aria-pressed={maxColumns === 1} onClick={() => setMaxColumns(1)}>
                 <ListIcon size={19} aria-hidden="true" />
               </button>
-              <MemoDisplaySettingMenu className="gc-dashboard-view-settings" />
+              <button
+                type="button"
+                aria-label={t("dashboard.two-column-view")}
+                aria-pressed={maxColumns === 2}
+                onClick={() => setMaxColumns(2)}
+              >
+                <Columns2Icon size={19} aria-hidden="true" />
+              </button>
             </div>
           </div>
         </div>
@@ -189,9 +251,9 @@ const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
             <WelcomeArtwork />
           </section>
         )}
-        <section aria-label={hasSearch ? "Search results" : title} className="gc-dashboard-results">
+        <section aria-label={hasSearch ? t("dashboard.search-results") : title} className="gc-dashboard-results">
           <div className="gc-dashboard-section-heading">
-            <h2>{hasSearch ? "Search results" : title}</h2>
+            <h2>{hasSearch ? t("dashboard.search-results") : title}</h2>
             {isDashboard && (
               <button className="gc-dashboard-all" type="button" onClick={navigateToAll}>
                 View all <ChevronRightIcon size={18} aria-hidden="true" />
@@ -278,6 +340,12 @@ const Home = ({ allMemos = false }: { allMemos?: boolean }) => {
                 orderBy={orderBy}
                 filter={combineCELFilters(memoFilter, sectionFilter)}
                 contextFilter={contextFilter}
+                renderHeader={({ memoCount, hasMore }) => (
+                  <p className="gc-dashboard-count" aria-live="polite">
+                    {t(memoCount === 1 ? "dashboard.memo-count_one" : "dashboard.memo-count_other", { count: memoCount })}
+                    {hasMore ? ` · ${t("dashboard.more-to-load")}` : ""}
+                  </p>
+                )}
               />
             </div>
           )}

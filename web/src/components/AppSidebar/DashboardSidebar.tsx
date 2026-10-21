@@ -1,6 +1,7 @@
 import {
   ArchiveIcon,
   BellIcon,
+  CalendarDaysIcon,
   CheckSquare2Icon,
   Clock3Icon,
   FileAudioIcon,
@@ -23,9 +24,11 @@ import { type AttachmentSection, useAppSidebar } from "@/contexts/AppSidebarCont
 import { useSpaceContext } from "@/contexts/SpaceContext";
 import { useAttachmentLibraryStats } from "@/hooks/useAttachmentLibrary";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import { useFilteredMemoStats } from "@/hooks/useFilteredMemoStats";
 import { getProfileUsername } from "@/lib/memo-views";
 import { buildCollectionPath, ROUTES } from "@/router/routes";
 import { useTranslate } from "@/utils/i18n";
+import TagsSection from "./TagsSection";
 import "./DashboardSidebar.css";
 import { getSidebarRouteKind } from "./routes";
 
@@ -74,7 +77,7 @@ const DashboardSidebar = () => {
   const t = useTranslate();
   const currentUser = useCurrentUser();
   const { setMobileOpen } = useAppSidebar();
-  const { selectedSpaceName } = useSpaceContext();
+  const { selectedSpaceName, memoFilter } = useSpaceContext();
   const [params] = useSearchParams();
   const { pathname } = useLocation();
   const dashboard = params.get("dashboard") || (pathname === ROUTES.DASHBOARD ? "home" : "all");
@@ -82,22 +85,34 @@ const DashboardSidebar = () => {
   const attachments = buildCollectionPath(ROUTES.ATTACHMENTS, selectedSpaceName);
   const routeKind = getSidebarRouteKind(pathname);
   const isHome = routeKind === "home";
+  const { tags } = useFilteredMemoStats({
+    context: "home",
+    userName: currentUser?.name,
+    filter: memoFilter,
+    enabled: isHome && Boolean(currentUser),
+  });
   const isArchived = routeKind === "archived";
   const isAttachments = routeKind === "attachments";
   const isInbox = routeKind === "inbox";
   const isSettings = routeKind === "settings";
   const primary: NavigationItem[] = [
-    { id: "home", label: "Home", icon: HouseIcon, href: ROUTES.DASHBOARD },
-    { id: "all", label: "All Memos", icon: FileStackIcon, href: root },
-    { id: "favorites", label: "Pinned", icon: StarIcon, href: `${root}?dashboard=favorites` },
-    { id: "private", label: "Private", icon: LockKeyholeIcon, href: `${root}?dashboard=private` },
-    { id: "labels", label: "Labels", icon: TagIcon, href: `${root}?dashboard=labels` },
-    { id: "archived", label: "Archived", icon: ArchiveIcon, href: ROUTES.ARCHIVED },
+    { id: "home", label: t("common.home"), icon: HouseIcon, href: ROUTES.DASHBOARD },
+    { id: "all", label: t("dashboard.all-memos"), icon: FileStackIcon, href: root },
+    { id: "favorites", label: t("dashboard.pinned"), icon: StarIcon, href: `${root}?dashboard=favorites` },
+    { id: "private", label: t("memo.visibility.private"), icon: LockKeyholeIcon, href: `${root}?dashboard=private` },
+    { id: "labels", label: t("common.labels"), icon: TagIcon, href: `${root}?dashboard=labels` },
+    { id: "archived", label: t("common.archived"), icon: ArchiveIcon, href: ROUTES.ARCHIVED },
   ];
   const quick: NavigationItem[] = [
-    { id: "recent", label: "Recent", icon: Clock3Icon, href: `${root}?dashboard=recent` },
-    { id: "tasks", label: "My Tasks", icon: CheckSquare2Icon, href: `${root}?dashboard=tasks` },
+    { id: "recent", label: t("dashboard.recent"), icon: Clock3Icon, href: `${root}?dashboard=recent` },
+    { id: "tasks", label: t("dashboard.my-tasks"), icon: CheckSquare2Icon, href: `${root}?dashboard=tasks` },
+    { id: "today", label: t("common.today"), icon: CalendarDaysIcon, href: `${root}?dashboard=today` },
+    { id: "week", label: t("dashboard.this-week"), icon: CalendarDaysIcon, href: `${root}?dashboard=week` },
     { id: "attachments", label: t("common.attachments"), icon: PaperclipIcon, href: attachments },
+  ];
+  // Keep account and service routes available without pushing the owner's
+  // Labels section below the sidebar fold on normal desktop viewports.
+  const utilities: NavigationItem[] = [
     ...(currentUser?.username
       ? [{ id: "profile", label: t("common.profile"), icon: UserRoundIcon, href: `/u/${encodeURIComponent(currentUser.username)}` }]
       : []),
@@ -135,9 +150,22 @@ const DashboardSidebar = () => {
     <nav className="gc-dashboard-side-navigation" aria-label="Memos dashboard">
       <div className="gc-dashboard-side-main">{primary.map(row)}</div>
       <div className="gc-dashboard-side-separator" />
-      <h2 className="gc-dashboard-side-caption">Quick Filters</h2>
+      <h2 className="gc-dashboard-side-caption"> {t("dashboard.quick-filters")}</h2>
       <div className="gc-dashboard-side-main">{quick.map(row)}</div>
       {isAttachments && <AttachmentFilters />}
+      {isHome && currentUser && (
+        <div className="gc-dashboard-side-tags">
+          <div className="gc-dashboard-side-separator" />
+          <TagsSection
+            tagCount={tags}
+            scope={`${currentUser.name}${selectedSpaceName ? `:${selectedSpaceName}` : ""}`}
+            onSelect={() => setMobileOpen(false)}
+          />
+        </div>
+      )}
+      <div className="gc-dashboard-side-separator" />
+      <h2 className="gc-dashboard-side-caption">{t("setting.sso.account")}</h2>
+      <div className="gc-dashboard-side-main">{utilities.map(row)}</div>
       {/* Settings categories live inside the Settings page, not in global navigation. */}
     </nav>
   );

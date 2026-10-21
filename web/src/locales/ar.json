@@ -1,4 +1,25 @@
 {
+  "dashboard": {
+    "all-memos": "كل الملاحظات",
+    "recent-memos": "الملاحظات الأخيرة",
+    "pinned": "المثبّتة",
+    "private-memos": "الملاحظات الخاصة",
+    "my-tasks": "مهامي",
+    "quick-filters": "عوامل التصفية السريعة",
+    "recent": "الأخيرة",
+    "this-week": "هذا الأسبوع",
+    "date-modified": "تاريخ التعديل",
+    "date-created": "تاريخ الإنشاء",
+    "sort-memos": "ترتيب الملاحظات",
+    "memo-layout": "تخطيط الملاحظات",
+    "grid-view": "عرض الشبكة",
+    "list-view": "عرض القائمة",
+    "two-column-view": "عرض العمودين",
+    "memo-count_one": "{{count}} ملاحظة",
+    "memo-count_other": "{{count}} ملاحظات",
+    "more-to-load": "المزيد للتحميل",
+    "search-results": "نتائج البحث"
+  },
   "about": {
     "documents": "مستندات",
     "github-repository": "مستودع GitHub",

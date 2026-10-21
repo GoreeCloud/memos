@@ -1,4 +1,25 @@
 {
+  "dashboard": {
+    "all-memos": "すべてのメモ",
+    "recent-memos": "最近のメモ",
+    "pinned": "ピン留め",
+    "private-memos": "非公開メモ",
+    "my-tasks": "自分のタスク",
+    "quick-filters": "クイックフィルター",
+    "recent": "最近",
+    "this-week": "今週",
+    "date-modified": "更新日時",
+    "date-created": "作成日時",
+    "sort-memos": "メモを並べ替え",
+    "memo-layout": "メモのレイアウト",
+    "grid-view": "グリッド表示",
+    "list-view": "リスト表示",
+    "two-column-view": "2列表示",
+    "memo-count_one": "{{count}} 件のメモ",
+    "memo-count_other": "{{count}} 件のメモ",
+    "more-to-load": "さらに読み込む",
+    "search-results": "検索結果"
+  },
   "about": {
     "api-docs": "APIドキュメント",
     "api-docs-note": "RESTとgRPCのリファレンス",
