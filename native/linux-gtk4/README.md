@@ -110,3 +110,27 @@ in-memory `GcMemoStore` models before GTK renders them as native labels.
 This is a **synthetic-only native integration checkpoint**, not an authenticated
 server integration or native-complete release. Closing the native window still
 discards all changes. The existing web and Android previews are unaffected.
+
+
+## Native desktop visual and interaction pass (October 21, 2026)
+
+The GTK4 demo board now uses a more consistent GoreeCloud hierarchy: compact
+icon-and-label sidebar with selected-view highlighting, a blue primary compose
+action, header subtitle, searchable card board, functional grid/list toggle,
+natural-height cards, de-duplicated Markdown headings and an explicit empty
+search/filter state. Keyboard shortcuts are **Ctrl+F** to focus search and
+**Ctrl+N** to open the temporary native memo editor.
+
+The GTK source compiles with **GTK4 4.10 / GLib 2.72**, replacing two APIs
+that were only available in newer libraries. Light and Dark use explicit
+accessible-text palettes and respond to the GTK settings theme preference;
+`GTK_THEME=Adwaita:light` and `GTK_THEME=Adwaita:dark` were used for
+actual 1190x790 native Xvfb screenshot inspection on the Linux laptop.
+These screenshots are **visual QA evidence only**, not target-device
+acceptance. Real HiDPI, RTL, assistive-technology and varied desktop
+environment tests are still required.
+
+The existing security/data boundary is unchanged: the six sample memos are
+synthetic and ephemeral, with no HTTPS, credentials, user notes, file
+persistence, or production release. The Linux browser-access preview and
+Android WebView companion remain separate and unchanged.
