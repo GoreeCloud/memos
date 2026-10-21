@@ -85,3 +85,28 @@ input and is never interpreted as HTML. The native GTK4 app continues
 to display temporary synthetic notes only. The HTTPS transport,
 secure session handling and real-data integration remain separate
 unimplemented requirements under GitHub issue #157.
+
+
+## Synthetic protobuf-JSON demo adapter
+
+The native GTK4 window now exercises the same bounded response decoder as the
+future Memos transport. A **compiled, explicitly synthetic** six-memo page is
+decoded via `gc_remote_memo_page_parse()` and atomically adapted to temporary
+in-memory `GcMemoStore` models before GTK renders them as native labels.
+
+- Invalid JSON, unsafe tokens, invalid resource names or malformed entries
+  fail closed: the previous in-memory board is preserved without partial
+  replacement.
+- Pinned state, private-demo selection, tags and task text remain usable with
+  existing native sidebar filtering and editing controls. An empty synthetic
+  entry becomes a clearly labeled placeholder rather than disappearing.
+- No filesystem reads/writes, HTTPS connections, cookies, access tokens,
+  remote notes, or persisted metadata are involved.
+- Untrusted content is rendered with native `gtk_label_set_text()`, not parsed
+  as markup or HTML.
+- `make test` now runs **18** unit tests: 3 model, 6 API contract,
+  5 response schema and 4 atomic synthetic-adapter tests.
+
+This is a **synthetic-only native integration checkpoint**, not an authenticated
+server integration or native-complete release. Closing the native window still
+discards all changes. The existing web and Android previews are unaffected.

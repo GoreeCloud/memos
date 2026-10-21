@@ -1,5 +1,6 @@
 #include <gtk/gtk.h>
 #include "model.h"
+#include "demo-feed.h"
 
 typedef struct {
   GcMemoStore *store;
@@ -69,7 +70,7 @@ static GtkWidget *memo_card(NativeApp *app, GcMemo *m) {
   gtk_label_set_xalign(GTK_LABEL(content), 0);
   gtk_widget_add_css_class(content, "memo-content");
   gtk_box_append(GTK_BOX(card), content);
-  GtkWidget *meta = gtk_label_new(m->is_private ? "Private" : "Visible to server: not connected");
+  GtkWidget *meta = gtk_label_new(m->is_private ? "Private • synthetic only" : "Synthetic demo • local only");
   gtk_label_set_xalign(GTK_LABEL(meta), 0);
   gtk_widget_add_css_class(meta, "memo-meta");
   gtk_box_append(GTK_BOX(card), meta);
@@ -205,18 +206,11 @@ static void native_state_free(gpointer data) {
   g_free(app);
 }
 static void load_demo(GcMemoStore *store) {
-  const gchar *samples[] = {
-    "## Project overview\nThe native Linux app uses GTK widgets, not a browser.\n#Work",
-    "## Weekend ideas\nWalk outside and plan the week.\n#Personal",
-    "## Quick tasks\n- [ ] Review mockup\n- [ ] Run native tests\n#Tasks",
-    "## Architecture notes\nData remains in-memory until a secure API adapter is implemented.\n#Ideas",
-    "## Design details\nPadded cards, adaptive columns and accessible controls.\n#Design",
-    "## Testing reminders\n- [ ] Verify keyboard access\n- [ ] Test screenshots\n#Work"
-  };
-  for (guint i=0;i<G_N_ELEMENTS(samples);i++) {
-    GcMemo *memo=gc_memo_store_add(store,samples[i]);
-    if (i==0) memo->pinned=TRUE;
-    if (i==1) memo->is_private=TRUE;
+  GError *error = NULL;
+  if (!gc_demo_seed_fixture(store, &error)) {
+    /* No user data is loaded. Leave an empty, usable demo on failure. */
+    g_warning("Synthetic memo preview failed validation");
+    g_clear_error(&error);
   }
 }
 static void install_css(void) {
