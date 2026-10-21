@@ -147,5 +147,7 @@
   padding: 0 3px 8px;
 }
 @media (prefers-reduced-motion: reduce) {
-  .gc-dashboard-create { transition: none; }
+  .gc-dashboard-create {
+    transition: none;
+  }
 }
