@@ -52,6 +52,16 @@ GcApiClient *gc_api_client_new(const gchar *origin, GError **error) {
                    !g_uri_get_query(uri) && !g_uri_get_fragment(uri) &&
                    (!path || !*path || g_str_equal(path, "/")) &&
                    (port == -1 || (port > 0 && port <= 65535));
+  /* Reject percent-encoded delimiters and controls after URI decoding.
+   * Initial transport integration supports ASCII/punycode hosts only. */
+  if (host) {
+    for (const guchar *p = (const guchar *)host; *p; ++p) {
+      if (!g_ascii_isalnum(*p) && *p != '.' && *p != '-' && *p != ':') {
+        valid = FALSE;
+        break;
+      }
+    }
+  }
   if (!valid) {
     g_uri_unref(uri);
     g_set_error_literal(error, GC_API_ERROR, GC_API_ERROR_INVALID_SERVER,
@@ -147,7 +157,8 @@ GcApiRequest *gc_api_prepare_list_memos(const GcApiClient *client,
   GcApiMemoQuery empty = {0};
   if (!query) query = &empty;
   guint size = query->page_size ? query->page_size : 50;
-  if (size > 100 || query->facet > GC_API_MEMOS_ARCHIVED ||
+  if (size > 100 || query->facet < GC_API_MEMOS_ALL ||
+      query->facet > GC_API_MEMOS_ARCHIVED ||
       !valid_page_token(query->page_token)) {
     g_set_error_literal(error, GC_API_ERROR, GC_API_ERROR_INVALID_PAGE,
                         "Invalid bounded pagination or memo filter");

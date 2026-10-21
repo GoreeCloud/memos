@@ -15,7 +15,8 @@ static void test_https_origin(void) {
     "https://memos.example.org/secret", "https://memos.example.org/?a=1",
     "https://memos.example.org/#fragment", "https://memos.example.org\\other",
     "https://memos.example.org\r\nHeader", "https://memos.example.org:0",
-    "https://memos.example.org:99999", "https://"
+    "https://memos.example.org:99999", "https://memo%0As.example.org",
+    "https://"
   };
   for (guint i=0; i<G_N_ELEMENTS(invalid); ++i) {
     c = gc_api_client_new(invalid[i], &e);
@@ -100,6 +101,10 @@ static void test_page_restrictions(void) {
   g_assert_error(error,GC_API_ERROR,GC_API_ERROR_INVALID_PAGE);
   g_clear_error(&error);
   q.page_token=NULL;
+  q.facet=(GcApiMemoFacet)-1;
+  g_assert_null(gc_api_prepare_list_memos(client,&q,&error));
+  g_assert_error(error,GC_API_ERROR,GC_API_ERROR_INVALID_PAGE);
+  g_clear_error(&error);
   q.facet=GC_API_MEMOS_TASKS;
   GcApiRequest *req=gc_api_prepare_list_memos(client,&q,&error);
   g_assert_no_error(error);
