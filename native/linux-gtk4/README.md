@@ -62,3 +62,26 @@ have not been attached to its widgets. The next phase must use a tested native
 TLS transport with certificate and redirect protections, bounded JSON parsing,
 cancel/timeouts and isolated synthetic-server acceptance before connecting
 real data.
+
+
+## Native read-only memo response decoding (October 2026)
+
+`response.c` and `response.h` implement a **transport-independent**
+decoder for the protobuf-JSON `ListMemosResponse` returned by the
+GoreeCloud Memos API. The decoder uses JSON-GLib and validates UTF-8, an
+overall 4 MiB response limit, a maximum of 100 memo entries, bounded
+per-memo content and resource identifiers, visibility values, pinned
+boolean types, and opaque continuation tokens. The resulting objects are
+owned by the caller and must be freed after use.
+
+`make test` now includes five additional schema/limit tests alongside
+the original native memo-model and request-plan tests. The existing
+single GoreeCloud CI workflow installs `libjson-glib-dev` to run the
+same suite.
+
+**Important boundary:** This decoder neither connects to a server nor
+authenticates, saves or renders remote memos. JSON text remains untrusted
+input and is never interpreted as HTML. The native GTK4 app continues
+to display temporary synthetic notes only. The HTTPS transport,
+secure session handling and real-data integration remain separate
+unimplemented requirements under GitHub issue #157.
