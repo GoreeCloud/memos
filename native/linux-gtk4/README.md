@@ -31,3 +31,34 @@ The native GTK4 UI must later be connected to the existing Memos API through an 
 3. Keyboard, screen reader, HiDPI, RTL, dark mode, and real desktop session acceptance.
 4. Debian/Flatpak packaging, startup/stop, update and rollback and security review.
 5. Connection to a synthetic Development instance before any real-user data access.
+
+
+## API contract milestone (transport-independent)
+
+The `api.c` / `api.h` module defines a **non-networked request-plan and
+response-validation boundary** for a future authenticated native client:
+
+- Only `https://` origins are accepted. Embedded credentials, non-root paths,
+  query strings, fragments, whitespace, and unrecognized schemes are rejected.
+- Access-token input is checked for header control characters, remains in process
+  memory and is zeroed before replacement or removal. **This is not secure
+  persistent credential storage**, and the module intentionally never writes a
+  token to disk or constructs outbound authorization headers yet.
+- Private memo listing requires a token and bounds page size to 100. Returned
+  relative paths use percent-encoded opaque page tokens, fixed supported CEL
+  filter expressions and `update_time desc`; no arbitrary CEL from untrusted
+  input is executed.
+- Response classification explicitly separates sign-in-required, forbidden,
+  rate-limited, retryable, redirects/invalid response, and permanent errors.
+  The response body limit is 4 MiB. JSON decoding is not implemented.
+
+`make test` now runs the original three model tests **and six API-contract
+tests**. The same tests run inside the approved GoreeCloud CI workflow.
+
+**No actual HTTPS connection, cookies, token refresh, login, JSON decoding,
+network retries, or durable draft storage has been implemented.** The GTK
+prototype continues to use synthetic in-memory notes only, and server controls
+have not been attached to its widgets. The next phase must use a tested native
+TLS transport with certificate and redirect protections, bounded JSON parsing,
+cancel/timeouts and isolated synthetic-server acceptance before connecting
+real data.
