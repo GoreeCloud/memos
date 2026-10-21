@@ -310,7 +310,11 @@ static void install_css(void) {
     ".dark-theme .memo-meta { color: #a1b1c9; }"
     ".dark-theme .warning-text { color: #efc47b; }";
   GtkCssProvider *provider=gtk_css_provider_new();
+#if GTK_CHECK_VERSION(4, 12, 0)
+  gtk_css_provider_load_from_string(provider, css);
+#else
   gtk_css_provider_load_from_data(provider, css, -1);
+#endif
   gtk_style_context_add_provider_for_display(
       gdk_display_get_default(), GTK_STYLE_PROVIDER(provider),
       GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
