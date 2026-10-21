@@ -8,7 +8,7 @@ GoreeCloud Memos is the GoreeCloud quick-capture notes product. It is intentiona
 
 **Maintained Fork.** The project is based on `usememos/memos` and may remain fork-derived as long as the architecture stays maintainable, license-compatible, secure, privacy-compatible, and meaningfully GoreeCloud-controlled.
 
-Superficial rebranding is not sufficient. GoreeCloud owns the derivative product experience, privacy defaults, security posture, Glaze layer, ecosystem contracts, release evidence, update policy, and operational responsibility.
+Superficial rebranding is not sufficient. GoreeCloud owns the derivative product experience, privacy defaults, security posture, GoreeCloud UI target presentation layer, ecosystem contracts, release evidence, update policy, and operational responsibility.
 
 ## Required product properties
 
@@ -19,7 +19,7 @@ Superficial rebranding is not sufficient. GoreeCloud owns the derivative product
 5. Export/import and documented backup/restore.
 6. No required telemetry, advertising, proprietary hosted control plane, or third-party AI service for core operation.
 7. Responsive, keyboard-accessible, screen-reader-compatible, reduced-motion, reduced-transparency, high-contrast, and RTL-capable presentation.
-8. Current Glaze consumer target with product-local acceptance.
+8. Current [GoreeCloud UI](https://github.com/GoreeCloud/gc-ui) supported design contract with product-local migration and accessibility acceptance; legacy design-system inputs are not valid for new work.
 9. Explicit upstream provenance, update review, security-patch intake, and regression testing.
 10. Evaluation and evidence for all nine Integral Platform Systems.
 
