@@ -52,9 +52,9 @@ grep -Fxq 'Terminal=false' "$desktop"
 grep -Fxq 'Exec=goreecloud-memos-native-linux' "$desktop"
 grep -Fq 'synthetic' "$scratch/root/usr/share/doc/goreecloud-memos-native-preview/README.md"
 grep -Fq 'MIT License' "$scratch/root/usr/share/doc/goreecloud-memos-native-preview/copyright"
-# Enforce the current Ubuntu 22.04 / GTK 4.10 baseline for *CI-built* ELF,
-# even when CI compiles it with newer GTK headers.
-depends="$(dpkg-deb -f "$a" Depends)"
+# Bound symbol requirements for the GTK4 4.10-generation binary, even when
+# CI compiles on newer headers. Ubuntu 24.04 may name GLib libglib2.0-0t64;
+# this ABI check does NOT claim that its .deb installs on Ubuntu 22.04.
 for spec in "libc6 2.35.999" "libglib2.0-0 2.72.999" \
             "libgtk-4-1 4.10.999" "libjson-glib-1.0-0 1.6.999"; do
   package="${spec%% *}"
@@ -63,13 +63,13 @@ for spec in "libc6 2.35.999" "libglib2.0-0 2.72.999" \
      awk -v pkg="$package" -F ', ' '{
        for (i=1;i<=NF;i++) {
          split($i,v," ");
-         if (v[1]==pkg) {
+         if (v[1]==pkg || v[1]==pkg "t64") {
            gsub(/[()]/,"",v[3]); print v[3]
          }
        }
      }')"
   if test -z "$required" || ! dpkg --compare-versions "$required" le "$ceiling"; then
-    echo "Compiled native ABI exceeds $package baseline ($required > $ceiling)" >&2
+    echo "Compiled native ABI exceeds $package symbol ceiling ($required > $ceiling)" >&2
     exit 1
   fi
 done
