@@ -183,7 +183,11 @@ GcApiRequest *gc_api_prepare_list_memos(const GcApiClient *client,
   }
   GcApiRequest *result = g_new0(GcApiRequest, 1);
   result->method = "GET";
-  result->relative_uri = g_string_free(path, FALSE);
+  /* GLib >=2.76 rewrites g_string_free(str, FALSE) into the newer
+   * g_string_free_and_steal() symbol. Keep the GTK4 4.10 / GLib 2.72
+   * binary ABI by copying the bounded string and freeing its builder. */
+  result->relative_uri = g_strdup(path->str);
+  g_string_free(path, TRUE);
   return result;
 }
 
