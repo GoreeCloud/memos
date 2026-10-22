@@ -18,7 +18,7 @@ bash native/linux-gtk4/packaging/smoke-deb.sh
 ```
 
 The first script produces
-`native/linux-gtk4/dist/goreecloud-memos-native-preview_0.1.0~dev20261021-1_<arch>.deb`.
+`native/linux-gtk4/dist/goreecloud-memos-native-preview_0.1.0~dev20261021-2_<arch>.deb`.
 The second builds it twice with fixed `SOURCE_DATE_EPOCH`, compares archives,
 checks package metadata and the .desktop launcher, ensures there are **no
 maintainer lifecycle scripts**, unpacks to an isolated temporary directory,
@@ -34,8 +34,10 @@ the older Linux Development Debian artifact.
 - GTK4 native app (no browser engine, WebView, Electron or PWA wrapper).
 - The launcher is clearly labeled **Native Preview** and the app indicates
   that all data is synthetic, in memory only and lost at close.
-- No account login, HTTPS transport, real memos, private credentials, network
-  communication, file persistence, auto-updates, or data migration.
+- The executable links an opt-in HTTPS transport library, but the GTK4 UI
+  neither configures nor invokes it; launching the preview makes no requests.
+  No login, user memo sync, private credential storage, file persistence,
+  auto-updates, or data migration is included.
 - No root `postinst`, `preinst`, `prerm`, or `postrm` scripts.
 - Built for the host architecture; no cross-architecture claim.
 - Package `Depends` versions are computed with `dpkg-shlibdeps` from the

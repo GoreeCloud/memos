@@ -387,7 +387,7 @@ jobs:
       - name: Install native Linux GTK4 build dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends gcc make pkg-config binutils dpkg-dev libgtk-4-dev libjson-glib-dev xvfb desktop-file-utils
+          sudo apt-get install -y --no-install-recommends gcc make pkg-config binutils dpkg-dev libgtk-4-dev libjson-glib-dev libcurl4-openssl-dev openssl python3 xvfb desktop-file-utils
 
       - name: Strict-warning native build and GLib unit tests
         working-directory: native/linux-gtk4
