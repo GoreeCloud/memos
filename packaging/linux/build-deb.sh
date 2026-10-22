@@ -15,7 +15,7 @@ fi
 if [[ ! -d "$REPO/server/frontend/dist/assets" ]]; then
   echo 'Frontend production assets are missing.' >&2; exit 2
 fi
-VERSION="${MEMOS_LINUX_VERSION:-0.1.0~dev20261018}"
+VERSION="${MEMOS_LINUX_VERSION:-0.1.0~dev20261019}"
 PKG="goreecloud-memos-desktop_${VERSION}_amd64"
 DEST="$STAGE/$PKG"
 mkdir -p "$DEST/DEBIAN" "$DEST/usr/lib/goreecloud-memos" \
@@ -33,7 +33,7 @@ Architecture: amd64
 Maintainer: GoreeCloud <admin@goreecloud.com>
 Section: utils
 Priority: optional
-Depends: libc6, bash, curl, xdg-utils
+Depends: libc6, bash, curl, xdg-utils, python3, util-linux
 Description: GoreeCloud Memos local desktop preview
  Local-only Memos Go server with a browser-based desktop interface.
  Development package; does not replace an existing server installation.

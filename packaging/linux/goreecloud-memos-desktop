@@ -1,30 +1,165 @@
 #!/usr/bin/env bash
 set -euo pipefail
 umask 077
-PORT="${GOREECLOUD_MEMOS_DESKTOP_PORT:-18423}"
-if [[ ! "$PORT" =~ ^[0-9]+$ ]] || (( PORT < 1024 || PORT > 65535 )); then
-  echo "Invalid local-only port: $PORT" >&2; exit 2
-fi
-if (echo >"/dev/tcp/127.0.0.1/$PORT") 2>/dev/null; then
-  echo "Port $PORT is already in use. Memos will not connect to an unknown service." >&2
+
+usage() {
+  cat <<'EOF'
+GoreeCloud Memos Desktop — Development launcher
+
+Usage:
+  goreecloud-memos-desktop                 Choose a launch mode interactively
+  goreecloud-memos-desktop --connect URL   Open an existing Memos server
+  goreecloud-memos-desktop --local         Start your separate private local instance
+  goreecloud-memos-desktop --help
+
+Connecting uses the selected server's own sign-in page in your normal browser.
+Remote connections must use HTTPS. HTTP is allowed only for loopback testing.
+Never enter an existing server password into a new local instance.
+EOF
+}
+
+fail() {
+  echo "GoreeCloud Memos Desktop: $*" >&2
+  if [[ -t 0 ]]; then
+    read -r -p "Press Enter to close this window..." _ || :
+  fi
   exit 1
+}
+
+# Validate with a URL parser rather than shell substring checks. Never accept
+# credentials or other path/query components that could create a misleading
+# sign-in destination. Nothing about the target is stored locally.
+normalize_server_url() {
+  python3 - "$1" <<'PY'
+import sys
+from urllib.parse import urlsplit
+
+raw = sys.argv[1]
+try:
+    parsed = urlsplit(raw)
+    port = parsed.port
+    hostname = parsed.hostname
+except ValueError:
+    sys.exit(2)
+if (
+    raw != raw.strip()
+    or any(ord(ch) < 33 or ord(ch) == 127 for ch in raw)
+    or parsed.scheme not in ("http", "https")
+    or not hostname
+    or parsed.username is not None
+    or parsed.password is not None
+    or parsed.path not in ("", "/")
+    or parsed.query
+    or parsed.fragment
+    or parsed.netloc.endswith("@")
+    or (port is not None and port < 1)
+):
+    sys.exit(2)
+if parsed.scheme == "http" and hostname.lower() not in ("localhost", "127.0.0.1", "::1"):
+    sys.exit(2)
+if "\\" in raw or "%" in parsed.netloc:
+    sys.exit(2)
+print(f"{parsed.scheme}://{parsed.netloc}/")
+PY
+}
+
+open_browser() {
+  local url="$1"
+  if command -v xdg-open >/dev/null 2>&1; then
+    if xdg-open "$url" >/dev/null 2>&1; then
+      echo "Opened $url in your browser."
+      return 0
+    fi
+  fi
+  echo "Could not open a browser automatically. Open this URL yourself: $url" >&2
+  return 1
+}
+
+MODE=""
+TARGET=""
+case "$#" in
+  0)
+    if [[ ! -t 0 ]]; then
+      usage >&2
+      fail "Choose --connect URL or --local when not running interactively."
+    fi
+    echo "GoreeCloud Memos Desktop — Development preview"
+    echo "1) Connect to an existing Memos server (sign in to that server)"
+    echo "2) Start a separate private local instance (new instance setup, if needed)"
+    echo "3) Cancel"
+    read -r -p "Choose [1-3]: " selection || exit 0
+    case "$selection" in
+      1) MODE="connect"; read -r -p "Existing server URL (HTTPS, or local loopback HTTP): " TARGET || exit 0 ;;
+      2) MODE="local" ;;
+      3) exit 0 ;;
+      *) fail "Invalid selection. Select 1, 2 or 3." ;;
+    esac
+    ;;
+  1)
+    case "$1" in
+      --local) MODE="local" ;;
+      --help|-h) usage; exit 0 ;;
+      *) usage >&2; fail "Unrecognized option or missing URL." ;;
+    esac
+    ;;
+  2)
+    if [[ "$1" != "--connect" ]]; then
+      usage >&2
+      fail "Use --connect URL or --local."
+    fi
+    MODE="connect"
+    TARGET="$2"
+    ;;
+  *) usage >&2; fail "Too many arguments." ;;
+esac
+
+if [[ "$MODE" == "connect" ]]; then
+  if ! URL="$(normalize_server_url "$TARGET")"; then
+    fail "Invalid server URL. Use a trusted https://host/ URL, or http://127.0.0.1:PORT/ for a local instance. Do not include credentials, paths or queries."
+  fi
+  echo "Connecting to the existing server: $URL"
+  echo "Sign in only through that server's own browser page; no password is copied."
+  if ! curl --silent --fail --show-error --max-time 5 "$URL" >/dev/null 2>&1; then
+    echo "Warning: The server could not be reached right now. Verify its address and network connection." >&2
+  fi
+  open_browser "$URL" || fail "Open the address above in a browser."
+  exit 0
 fi
+
+PORT="${GOREECLOUD_MEMOS_DESKTOP_PORT:-18423}"
+if [[ ! "$PORT" =~ ^[0-9]+$ ]] || (( 10#$PORT < 1024 || 10#$PORT > 65535 )); then
+  fail "Invalid local-only port: $PORT"
+fi
+# Fail closed without forwarding requests to an unknown process on this port.
+if (: >"/dev/tcp/127.0.0.1/$PORT") 2>/dev/null; then
+  fail "Port $PORT is already in use. No additional server was started. To use an existing Memos account, relaunch and choose Connect, using its own URL."
+fi
+
 DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 DATA="$DATA_HOME/goreecloud-memos-desktop"
 if [[ -L "$DATA" ]]; then
-  echo "Refusing to use a symlinked Memos data directory: $DATA" >&2
-  exit 1
+  fail "Refusing to use a symlinked Memos data directory: $DATA"
 fi
 mkdir -p -- "$DATA"
-if [[ ! -d "$DATA" || -L "$DATA" ]]; then
-  echo "Unsafe Memos data directory: $DATA" >&2
-  exit 1
+if [[ ! -d "$DATA" || -L "$DATA" || ! -O "$DATA" ]]; then
+  fail "Unsafe Memos data directory (must be owned by this user): $DATA"
 fi
 chmod 700 -- "$DATA"
+# Prevent two launches of this installed profile even when different ports are
+# requested. The lock FD stays open for the duration of the child server.
+command -v flock >/dev/null 2>&1 || fail "Missing required flock utility."
+LOCK_PATH="$DATA/.launcher.lock"
+if [[ -L "$LOCK_PATH" || ( -e "$LOCK_PATH" && ( ! -f "$LOCK_PATH" || ! -O "$LOCK_PATH" ) ) ]]; then
+  fail "Unsafe local profile lock file: $LOCK_PATH"
+fi
+exec {LOCK_FD}>>"$LOCK_PATH"
+flock -n "$LOCK_FD" || fail "This local Memos profile is already running. Do not start two servers against the same database."
+
 URL="http://127.0.0.1:$PORT"
-echo "GoreeCloud Memos Desktop — local-only development build"
-echo "Notes are stored under: $DATA"
-echo "Closing this terminal stops the local server."
+echo "Starting a separate local-only GoreeCloud Memos instance."
+echo "Notes for this instance are stored under: $DATA"
+echo "This is not the sign-in screen for another server."
+echo "Closing this terminal stops this local server."
 /usr/lib/goreecloud-memos/memos --addr 127.0.0.1 --port "$PORT" --data "$DATA" \
   --trusted-proxies none --instance-url "$URL" &
 PID=$!
@@ -34,20 +169,16 @@ trap 'exit 0' INT TERM
 READY=0
 for attempt in $(seq 1 30); do
   if ! kill -0 "$PID" 2>/dev/null; then
-    echo "Memos stopped before the readiness check." >&2; exit 1
+    fail "Local server stopped before the readiness check."
   fi
-  if command -v curl >/dev/null 2>&1 && curl --silent --show-error --fail \
-      --max-time 1 "$URL/readyz" >/dev/null 2>&1; then
-    READY=1; break
+  if curl --silent --show-error --fail --max-time 1 "$URL/readyz" >/dev/null 2>&1; then
+    READY=1
+    break
   fi
   sleep 1
 done
 if [[ "$READY" != 1 ]]; then
-  echo "Local server did not become ready at $URL/readyz" >&2; exit 1
+  fail "Local server did not become ready at $URL/readyz"
 fi
-if command -v xdg-open >/dev/null 2>&1; then
-  xdg-open "$URL/" >/dev/null 2>&1 || echo "Open $URL/ in a browser."
-else
-  echo "Open $URL/ in a browser."
-fi
+open_browser "$URL/" || echo "Local instance remains available at $URL/"
 wait "$PID"
