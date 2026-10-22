@@ -310,11 +310,14 @@ static void install_css(void) {
     ".dark-theme .memo-meta { color: #a1b1c9; }"
     ".dark-theme .warning-text { color: #efc47b; }";
   GtkCssProvider *provider=gtk_css_provider_new();
-#if GTK_CHECK_VERSION(4, 12, 0)
-  gtk_css_provider_load_from_string(provider, css);
-#else
+  /* Keep the Debian preview compatible with GTK 4.10 (its declared ABI
+   * baseline), even when compiling against newer GTK development headers.
+   * GTK 4.12 deprecated this older API, but its symbol remains available
+   * across the supported range; suppress the warning for this call only.
+   * Do not disable -Werror for the rest of the native build. */
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   gtk_css_provider_load_from_data(provider, css, -1);
-#endif
+  G_GNUC_END_IGNORE_DEPRECATIONS
   gtk_style_context_add_provider_for_display(
       gdk_display_get_default(), GTK_STYLE_PROVIDER(provider),
       GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);

@@ -387,7 +387,7 @@ jobs:
       - name: Install native Linux GTK4 build dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends gcc make pkg-config libgtk-4-dev libjson-glib-dev xvfb
+          sudo apt-get install -y --no-install-recommends gcc make pkg-config binutils dpkg-dev libgtk-4-dev libjson-glib-dev xvfb desktop-file-utils
 
       - name: Strict-warning native build and GLib unit tests
         working-directory: native/linux-gtk4
@@ -397,6 +397,22 @@ jobs:
         working-directory: native/linux-gtk4
         run: make smoke
 
+      - name: Build native Debian Development preview
+        working-directory: native/linux-gtk4
+        run: bash packaging/build-deb.sh
+
+      - name: Audit reproducibility and extracted native package lifecycle
+        working-directory: native/linux-gtk4
+        run: bash packaging/smoke-deb.sh
+
+      - name: Upload genuine GTK4 native Development preview
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: goreecloud-memos-native-linux-preview-${{ github.run_id }}
+          path: native/linux-gtk4/dist/*.deb
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Declare prototype status
         run: |
-          echo "Native GTK4 in-memory prototype only; no API authentication, persistence or production claim." >> "$GITHUB_STEP_SUMMARY"
+          echo "GTK4-native Debian Development preview only: offline, synthetic notes, no authentication, persistent storage or production claim." >> "$GITHUB_STEP_SUMMARY"
