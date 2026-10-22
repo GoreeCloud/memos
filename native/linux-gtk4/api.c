@@ -474,7 +474,11 @@ static void gc_api_fetch_memos_async_impl(GcApiClient *client,
   g_return_if_fail(callback != NULL);
   g_return_if_fail(!cancel || G_IS_CANCELLABLE(cancel));
   GTask *task = g_task_new(NULL, cancel, callback, user_data);
-  g_task_set_source_tag(task, gc_api_fetch_memos_async);
+  /* GLib >=2.76 wraps this API in a macro that additionally calls
+   * g_task_get_name()/g_task_set_static_name(), both newer than the
+   * declared GLib 2.72 binary baseline. Use its existing 2.36-era
+   * function symbol directly (same behavior, no unsupported ABI). */
+  (g_task_set_source_tag)(task, gc_api_fetch_memos_async);
   /* Complete only once the worker is finished and has wiped its copy. */
   g_task_set_return_on_cancel(task, FALSE);
   GError *error = NULL;

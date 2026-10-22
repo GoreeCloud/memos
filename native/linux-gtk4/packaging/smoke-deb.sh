@@ -40,6 +40,12 @@ test -f "$scratch/control/control"
 test "$(find "$scratch/control" -type f | wc -l)" -eq 1
 exe="$scratch/root/usr/bin/goreecloud-memos-native-linux"
 test -x "$exe"
+# Guard the GLib 2.72 baseline: GLib >=2.76's task source-tag macro
+# silently injects a post-baseline g_task_set_static_name symbol.
+if nm -D "$exe" | grep -Fq 'g_task_set_static_name'; then
+  echo 'GLib async task code introduced a post-2.72 runtime dependency' >&2
+  exit 1
+fi
 # The certificate fixture override must never be compiled into distributed ELF.
 if nm "$exe" | grep -Eq 'gc_api_fetch_memos_https_test_ca|gc_api_fetch_memos_async_test_ca'; then
   echo 'Test-only certificate fixture support leaked into native package' >&2
