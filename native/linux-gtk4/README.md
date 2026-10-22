@@ -181,3 +181,43 @@ integration, credential revocation across devices and native signing
 remain separate release gates. A future GTK integration should initialize
 libcurl before starting concurrent worker threads, use bounded cancellable
 jobs and guard UI updates against closed windows or stale sessions.
+
+
+## GLib asynchronous HTTPS worker foundation (October 21, 2026)
+
+The read-only HTTPS transport also has `gc_api_fetch_memos_async()` and
+`gc_api_fetch_memos_finish()` helpers based on `GTask`. These **do not
+alter the current synthetic GTK4 window**: the native demo still performs
+no network requests and still stores no real notes or credentials.
+
+At dispatch, the caller's thread copies the validated HTTPS origin, bounded
+query and bearer token into a separately owned session snapshot. The worker
+owns that snapshot; it does not reference the original client or GTK
+widgets. It runs the already bounded/certificate-verified synchronous GET in
+a GLib worker pool and returns the parsed result or a sanitized error to
+the caller's thread-default `GMainContext`. The worker's bearer copy is
+zeroed as part of its disposal. libcurl's global initialization happens
+once before any worker is started.
+
+The caller **must** own and cancel its `GCancellable` on sign-out, window
+destruction and session generation changes. Cancellation and TLS failures
+are not login success. HTTP 401 is returned as an auth-required result from
+the snapshot: the UI/session controller must recheck its current session
+generation before clearing an original, possibly rotated token. No worker
+ever mutates or holds an unsafe pointer to that original session.
+
+`make test` now adds **ten synthetic async fixture cases** alongside
+the 13 synchronous HTTPS scenarios and the original 18 native model/API/
+response/adapter tests. The async cases validate caller-context callback
+dispatch, slow-response main-loop responsiveness, HTTP 401 semantics, TLS
+CA and hostname failure, pre-dispatch/in-flight cancellation, rejected
+unauthenticated/bad-page requests without network I/O, and safe completion
+after the original client is freed. Test-only synthetic CA injection remains
+excluded from distributed builds by `GC_API_TESTING`, and the Debian
+package audit rejects both test-only transport entrypoints.
+
+No GTK screen, login prompt, Secret Service keyring, durable memo storage,
+refresh-token management, real server interoperability or account-level
+session revocation is implemented yet. The next GUI integration should own
+per-window session generations, cancellables and callback disposal and
+should never display a response from an outdated session/window.

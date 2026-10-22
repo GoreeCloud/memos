@@ -8,7 +8,7 @@ trap 'rm -rf -- "$scratch"' EXIT
 bash "$HERE/build-deb.sh" "$scratch/a" >/dev/null
 bash "$HERE/build-deb.sh" "$scratch/b" >/dev/null
 arch="$(dpkg --print-architecture)"
-filename="goreecloud-memos-native-preview_0.1.0~dev20261021-2_${arch}.deb"
+filename="goreecloud-memos-native-preview_0.1.0~dev20261021-3_${arch}.deb"
 a="$scratch/a/$filename"
 b="$scratch/b/$filename"
 cmp -s "$a" "$b" || { echo 'Non-reproducible native Debian archives' >&2; exit 1; }
@@ -41,7 +41,7 @@ test "$(find "$scratch/control" -type f | wc -l)" -eq 1
 exe="$scratch/root/usr/bin/goreecloud-memos-native-linux"
 test -x "$exe"
 # The certificate fixture override must never be compiled into distributed ELF.
-if nm "$exe" | grep -Fq 'gc_api_fetch_memos_https_test_ca'; then
+if nm "$exe" | grep -Eq 'gc_api_fetch_memos_https_test_ca|gc_api_fetch_memos_async_test_ca'; then
   echo 'Test-only certificate fixture support leaked into native package' >&2
   exit 1
 fi

@@ -18,7 +18,7 @@ bash native/linux-gtk4/packaging/smoke-deb.sh
 ```
 
 The first script produces
-`native/linux-gtk4/dist/goreecloud-memos-native-preview_0.1.0~dev20261021-2_<arch>.deb`.
+`native/linux-gtk4/dist/goreecloud-memos-native-preview_0.1.0~dev20261021-3_<arch>.deb`.
 The second builds it twice with fixed `SOURCE_DATE_EPOCH`, compares archives,
 checks package metadata and the .desktop launcher, ensures there are **no
 maintainer lifecycle scripts**, unpacks to an isolated temporary directory,

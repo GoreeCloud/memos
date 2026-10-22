@@ -37,6 +37,8 @@ class FixtureHandler(http.server.BaseHTTPRequestHandler):
         if scenario == "cancel-midflight":
             # Keep headers pending so the client can cancel an active request.
             time.sleep(2.3)
+        elif scenario == "async-slow":
+            time.sleep(0.65)
         if scenario == "unauthorized":
             status = 401
             content = b'{"code":401}'
@@ -53,7 +55,8 @@ class FixtureHandler(http.server.BaseHTTPRequestHandler):
             content = b'{"memos":"oops"}'
         elif scenario == "oversize":
             content = b"X" * (4 * 1024 * 1024 + 1)
-        elif scenario not in ("ok", "invalid-ca", "unauthenticated", "cancel-midflight"):
+        elif scenario not in ("ok", "invalid-ca", "unauthenticated",
+                              "cancel-midflight", "async-slow", "async-early-free", "invalid-page"):
             status = 404
         try:
             self.send_response(status)
@@ -69,8 +72,9 @@ class FixtureHandler(http.server.BaseHTTPRequestHandler):
 
 
 def main():
-    assert len(sys.argv) == 2, "usage: test-https-fixture.py ./build/test-transport"
+    assert len(sys.argv) in (2, 3), "usage: test-https-fixture.py ./build/test-transport [./build/test-async]"
     binary = str(pathlib.Path(sys.argv[1]).resolve())
+    async_binary = str(pathlib.Path(sys.argv[2]).resolve()) if len(sys.argv) == 3 else None
     with tempfile.TemporaryDirectory(prefix="gc-native-https-fixture-") as temp:
         cert = os.path.join(temp, "cert.pem")
         key = os.path.join(temp, "key.pem")
@@ -95,17 +99,26 @@ def main():
                 "redirect", "wrong-mime", "invalid-json", "oversize",
                 "invalid-ca", "wrong-host", "unauthenticated", "cancel-before", "cancel-midflight"
             )
-            for scenario in scenarios:
+            cases = [(binary, scenario) for scenario in scenarios]
+            if async_binary:
+                cases += [
+                    (async_binary, scenario) for scenario in (
+                        "ok", "async-slow", "unauthorized", "invalid-ca",
+                        "wrong-host", "cancel-before", "cancel-midflight",
+                        "async-early-free", "unauthenticated", "invalid-page"
+                    )
+                ]
+            for executable, scenario in cases:
                 FixtureHandler.scenario = scenario
                 FixtureHandler.seen = []
                 scenario_origin = origin.replace("127.0.0.1", "localhost") if scenario == "wrong-host" else origin
-                result = subprocess.run([binary, scenario_origin, cert, scenario],
+                result = subprocess.run([executable, scenario_origin, cert, scenario],
                                         capture_output=True, text=True, timeout=12)
                 if result.returncode:
                     raise AssertionError("%s failed (%d): %s" %
                                          (scenario, result.returncode, result.stderr[:700]))
                 seen = list(FixtureHandler.seen)
-                if scenario in ("invalid-ca", "wrong-host", "unauthenticated", "cancel-before"):
+                if scenario in ("invalid-ca", "wrong-host", "unauthenticated", "cancel-before", "invalid-page"):
                     assert not seen, scenario
                 else:
                     assert len(seen) == 1, (scenario, seen)
@@ -116,7 +129,7 @@ def main():
                     assert "state=NORMAL" in req["path"], scenario
                     assert "page_token=x%2B1" in req["path"], scenario
                     assert "synthetic-test-token" not in req["path"], scenario
-                print("ok: synthetic HTTPS", scenario)
+                print("ok: synthetic HTTPS", "async" if executable == async_binary else "sync", scenario)
         finally:
             server.shutdown()
             server.server_close()

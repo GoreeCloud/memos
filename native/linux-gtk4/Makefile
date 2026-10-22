@@ -26,12 +26,14 @@ build/test-demo-feed: tests/test-demo-feed.c demo-feed.c demo-feed.h response.c 
 	$(CC) $(CFLAGS) $(JSON_CFLAGS) -o $@ tests/test-demo-feed.c demo-feed.c response.c model.c $(JSON_LIBS)
 build/test-transport: tests/test-transport.c api.c api.h response.c response.h | build
 	$(CC) $(CFLAGS) -DGC_API_TESTING $(GIO_CFLAGS) $(JSON_CFLAGS) $(CURL_CFLAGS) -o $@ tests/test-transport.c api.c response.c $(GIO_LIBS) $(JSON_LIBS) $(CURL_LIBS)
-test: build/test-model build/test-api build/test-response build/test-demo-feed build/test-transport
+build/test-async: tests/test-async.c api.c api.h response.c response.h | build
+	$(CC) $(CFLAGS) -DGC_API_TESTING $(GIO_CFLAGS) $(JSON_CFLAGS) $(CURL_CFLAGS) -o $@ tests/test-async.c api.c response.c $(GIO_LIBS) $(JSON_LIBS) $(CURL_LIBS)
+test: build/test-model build/test-api build/test-response build/test-demo-feed build/test-transport build/test-async
 	./build/test-model
 	./build/test-api
 	./build/test-response
 	./build/test-demo-feed
-	python3 tests/test-https-fixture.py ./build/test-transport
+	python3 tests/test-https-fixture.py ./build/test-transport ./build/test-async
 smoke: all
 	@timeout 5 xvfb-run -a ./build/goreecloud-memos-native-linux >/dev/null 2>build/smoke-stderr.log; result=$$?; if [ $$result -eq 124 ]; then echo 'Native GTK4 window stayed alive for 5 seconds'; else cat build/smoke-stderr.log; exit $$result; fi
 clean:
