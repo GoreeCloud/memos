@@ -8,7 +8,8 @@ existing application.
 ## Build, inspect and smoke
 
 On Debian/Ubuntu with GCC, pkg-config, GTK 4.10+, GLib 2.72+,
-JSON-GLib 1.6+, `dpkg-deb`, `desktop-file-validate` and Xvfb:
+JSON-GLib 1.6+, `dpkg-deb`, `dpkg-shlibdeps` (from dpkg-dev),
+`desktop-file-validate` and Xvfb:
 
 ```bash
 make -C native/linux-gtk4 all test
@@ -37,6 +38,16 @@ the older Linux Development Debian artifact.
   communication, file persistence, auto-updates, or data migration.
 - No root `postinst`, `preinst`, `prerm`, or `postrm` scripts.
 - Built for the host architecture; no cross-architecture claim.
+- Package `Depends` versions are computed with `dpkg-shlibdeps` from the
+  compiled ELF's actual required library symbols. They are constrained
+  to **at least** the documented tested GTK4 4.10 / GLib 2.72 /
+  JSON-GLib 1.6 baselines, without lowering newer library requirements.
+  The package smoke test also rejects the GTK 4.12-only
+  `gtk_css_provider_load_from_string` symbol: the app deliberately uses
+  its GTK 4.10-compatible counterpart even when compiled on GTK 4.18.
+  CI-built artifacts still require cross-runtime verification; examine
+  `dpkg-deb -f path/to/package.deb Depends` before installation and never
+  bypass dependency checks.
 - This artifact is **unsigned and not a Stable/native-complete distribution**.
   Actual OS package installation, removal and upgrade/rollback, real desktop
   accessibility, HiDPI and user-device acceptance remain outstanding.
