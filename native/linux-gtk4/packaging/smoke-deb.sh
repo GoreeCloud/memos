@@ -8,7 +8,7 @@ trap 'rm -rf -- "$scratch"' EXIT
 bash "$HERE/build-deb.sh" "$scratch/a" >/dev/null
 bash "$HERE/build-deb.sh" "$scratch/b" >/dev/null
 arch="$(dpkg --print-architecture)"
-filename="goreecloud-memos-native-preview_0.1.0~dev20261021-2_${arch}.deb"
+filename="goreecloud-memos-native-preview_0.1.0~dev20261021-3_${arch}.deb"
 a="$scratch/a/$filename"
 b="$scratch/b/$filename"
 cmp -s "$a" "$b" || { echo 'Non-reproducible native Debian archives' >&2; exit 1; }
@@ -40,8 +40,14 @@ test -f "$scratch/control/control"
 test "$(find "$scratch/control" -type f | wc -l)" -eq 1
 exe="$scratch/root/usr/bin/goreecloud-memos-native-linux"
 test -x "$exe"
+# Guard the GLib 2.72 baseline: GLib >=2.76's task source-tag macro
+# silently injects a post-baseline g_task_set_static_name symbol.
+if nm -D "$exe" | grep -Fq 'g_task_set_static_name'; then
+  echo 'GLib async task code introduced a post-2.72 runtime dependency' >&2
+  exit 1
+fi
 # The certificate fixture override must never be compiled into distributed ELF.
-if nm "$exe" | grep -Fq 'gc_api_fetch_memos_https_test_ca'; then
+if nm "$exe" | grep -Eq 'gc_api_fetch_memos_https_test_ca|gc_api_fetch_memos_async_test_ca'; then
   echo 'Test-only certificate fixture support leaked into native package' >&2
   exit 1
 fi

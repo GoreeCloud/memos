@@ -408,3 +408,143 @@ GcApiHttpsResult *gc_api_fetch_memos_https_test_ca_cancellable(
   return gc_api_fetch_impl(client, query, ca_file, cancel, error);
 }
 #endif
+
+
+/* The async client owns an immutable snapshot, preventing use-after-free when
+ * the original session/window is destroyed while HTTPS is in flight.
+ * Its original source client is NEVER dereferenced from a worker. */
+typedef struct {
+  GcApiClient *snapshot;
+  GcApiMemoQuery query;
+  gchar *page_token;
+#ifdef GC_API_TESTING
+  gchar *fixture_ca;
+#endif
+} GcAsyncMemoCall;
+
+static void gc_async_memo_call_free(GcAsyncMemoCall *call) {
+  if (!call) return;
+  gc_api_client_free(call->snapshot); /* wipes the copied bearer */
+  g_free(call->page_token);
+#ifdef GC_API_TESTING
+  g_free(call->fixture_ca);
+#endif
+  g_free(call);
+}
+
+static void gc_async_memo_worker(GTask *task, gpointer source_object,
+                                 gpointer task_data, GCancellable *cancel) {
+  (void) source_object;
+  GcAsyncMemoCall *call = task_data;
+  GError *error = NULL;
+  GcApiHttpsResult *result = NULL;
+#ifdef GC_API_TESTING
+  result = gc_api_fetch_impl(call->snapshot, &call->query,
+                             call->fixture_ca, cancel, &error);
+#else
+  result = gc_api_fetch_memos_https_cancellable(call->snapshot,
+                                                 &call->query, cancel, &error);
+#endif
+  if (error) {
+    g_task_return_error(task, error);
+  } else if (result) {
+    g_task_return_pointer(task, result, (GDestroyNotify) gc_api_https_result_free);
+  } else {
+    g_task_return_new_error(task, GC_API_ERROR, GC_API_ERROR_TRANSPORT,
+                            "Native HTTPS worker returned no result");
+  }
+}
+
+/* Initialize curl only once, before dispatching any of our worker tasks. */
+static gboolean gc_async_curl_ready(void) {
+  static gsize initialized = 0;
+  if (g_once_init_enter(&initialized)) {
+    CURLcode code = curl_global_init(CURL_GLOBAL_DEFAULT);
+    g_once_init_leave(&initialized, code == CURLE_OK ? 1 : 2);
+  }
+  return initialized == 1;
+}
+
+static void gc_api_fetch_memos_async_impl(GcApiClient *client,
+                                           const GcApiMemoQuery *query,
+                                           GCancellable *cancel,
+                                           GAsyncReadyCallback callback,
+                                           gpointer user_data,
+                                           const gchar *test_ca) {
+  g_return_if_fail(callback != NULL);
+  g_return_if_fail(!cancel || G_IS_CANCELLABLE(cancel));
+  GTask *task = g_task_new(NULL, cancel, callback, user_data);
+  /* GLib >=2.76 wraps this API in a macro that additionally calls
+   * g_task_get_name()/g_task_set_static_name(), both newer than the
+   * declared GLib 2.72 binary baseline. Use its existing 2.36-era
+   * function symbol directly (same behavior, no unsupported ABI). */
+  (g_task_set_source_tag)(task, gc_api_fetch_memos_async);
+  /* Complete only once the worker is finished and has wiped its copy. */
+  g_task_set_return_on_cancel(task, FALSE);
+  GError *error = NULL;
+  GcApiRequest *plan = gc_api_prepare_list_memos(client, query, &error);
+  if (!plan) {
+    g_task_return_error(task, error);
+    g_object_unref(task);
+    return;
+  }
+  gc_api_request_free(plan);
+  if (!gc_async_curl_ready()) {
+    g_task_return_new_error(task, GC_API_ERROR, GC_API_ERROR_TRANSPORT,
+                            "HTTPS transport could not initialize");
+    g_object_unref(task);
+    return;
+  }
+  GcAsyncMemoCall *call = g_new0(GcAsyncMemoCall, 1);
+  call->snapshot = gc_api_client_new(client->origin, &error);
+  if (call->snapshot && client->access_token)
+    gc_api_client_set_access_token(call->snapshot, client->access_token, &error);
+  if (error) {
+    gc_async_memo_call_free(call);
+    g_task_return_error(task, error);
+    g_object_unref(task);
+    return;
+  }
+  if (query) call->query = *query;
+  if (query && query->page_token) {
+    call->page_token = g_strdup(query->page_token);
+    call->query.page_token = call->page_token;
+  }
+#ifdef GC_API_TESTING
+  if (test_ca) call->fixture_ca = g_strdup(test_ca);
+#else
+  (void) test_ca;
+#endif
+  g_task_set_task_data(task, call, (GDestroyNotify) gc_async_memo_call_free);
+  g_task_run_in_thread(task, gc_async_memo_worker);
+  g_object_unref(task);
+}
+
+void gc_api_fetch_memos_async(GcApiClient *client,
+                              const GcApiMemoQuery *query,
+                              GCancellable *cancel,
+                              GAsyncReadyCallback callback,
+                              gpointer user_data) {
+  gc_api_fetch_memos_async_impl(client, query, cancel, callback,
+                                 user_data, NULL);
+}
+
+GcApiHttpsResult *gc_api_fetch_memos_finish(GAsyncResult *result,
+                                           GError **error) {
+  g_return_val_if_fail(G_IS_TASK(result), NULL);
+  g_return_val_if_fail(g_task_get_source_tag(G_TASK(result)) ==
+                       gc_api_fetch_memos_async, NULL);
+  return g_task_propagate_pointer(G_TASK(result), error);
+}
+
+#ifdef GC_API_TESTING
+void gc_api_fetch_memos_async_test_ca(GcApiClient *client,
+                                      const GcApiMemoQuery *query,
+                                      const gchar *ca_file,
+                                      GCancellable *cancel,
+                                      GAsyncReadyCallback callback,
+                                      gpointer user_data) {
+  gc_api_fetch_memos_async_impl(client, query, cancel, callback,
+                                 user_data, ca_file);
+}
+#endif

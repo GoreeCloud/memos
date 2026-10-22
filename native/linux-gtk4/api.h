@@ -83,7 +83,28 @@ GcApiHttpsResult *gc_api_fetch_memos_https_cancellable(GcApiClient *client,
                                                        GCancellable *cancel,
                                                        GError **error);
 void gc_api_https_result_free(GcApiHttpsResult *result);
+
+/* Async read-only transport. Snapshot origin/token/query on the calling
+ * thread, then run HTTPS in a GLib worker; callback dispatches on the caller's
+ * thread-default GMainContext. The caller owns a GCancellable and MUST cancel
+ * on sign-out/window destruction. Never share a mutable GcApiClient across
+ * threads. Auth-required status does not change the original client: the
+ * owner must revoke its current session in its callback if still relevant. */
+void gc_api_fetch_memos_async(GcApiClient *client,
+                              const GcApiMemoQuery *query,
+                              GCancellable *cancel,
+                              GAsyncReadyCallback callback,
+                              gpointer user_data);
+GcApiHttpsResult *gc_api_fetch_memos_finish(GAsyncResult *result,
+                                           GError **error);
 #ifdef GC_API_TESTING
+/* Synthetic TLS fixture only. Excluded from release builds. */
+void gc_api_fetch_memos_async_test_ca(GcApiClient *client,
+                                      const GcApiMemoQuery *query,
+                                      const gchar *ca_file,
+                                      GCancellable *cancel,
+                                      GAsyncReadyCallback callback,
+                                      gpointer user_data);
 /* Certificate authority injection exists only in test builds, never in the
  * distributed application; no TLS verification bypass is exposed. */
 GcApiHttpsResult *gc_api_fetch_memos_https_test_ca(GcApiClient *client,

@@ -5,7 +5,7 @@ set -euo pipefail
 HERE="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 NATIVE="$(cd -- "$HERE/.." && pwd)"
 REPO="$(cd -- "$NATIVE/../.." && pwd)"
-VERSION="0.1.0~dev20261021-2"
+VERSION="0.1.0~dev20261021-3"
 ARCH="$(dpkg --print-architecture)"
 NAME="goreecloud-memos-native-preview"
 OUT="${1:-$NATIVE/dist}"
