@@ -8,7 +8,7 @@ trap 'rm -rf -- "$scratch"' EXIT
 bash "$HERE/build-deb.sh" "$scratch/a" >/dev/null
 bash "$HERE/build-deb.sh" "$scratch/b" >/dev/null
 arch="$(dpkg --print-architecture)"
-filename="goreecloud-memos-native-preview_0.1.0~dev20261021-1_${arch}.deb"
+filename="goreecloud-memos-native-preview_0.1.0~dev20261021-2_${arch}.deb"
 a="$scratch/a/$filename"
 b="$scratch/b/$filename"
 cmp -s "$a" "$b" || { echo 'Non-reproducible native Debian archives' >&2; exit 1; }
@@ -40,6 +40,11 @@ test -f "$scratch/control/control"
 test "$(find "$scratch/control" -type f | wc -l)" -eq 1
 exe="$scratch/root/usr/bin/goreecloud-memos-native-linux"
 test -x "$exe"
+# The certificate fixture override must never be compiled into distributed ELF.
+if nm "$exe" | grep -Fq 'gc_api_fetch_memos_https_test_ca'; then
+  echo 'Test-only certificate fixture support leaked into native package' >&2
+  exit 1
+fi
 # This symbol first became available in GTK 4.12, but this package
 # supports the older GTK 4.10 ABI. Fail closed on accidental regression.
 if nm -D "$exe" | grep -Fq 'gtk_css_provider_load_from_string'; then
