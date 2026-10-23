@@ -252,6 +252,31 @@ describe("<PagedMemoList>", () => {
     });
   });
 
+  it("does not auto-fetch an old filter after its delayed short-page check resumes", async () => {
+    vi.useFakeTimers();
+    try {
+      feed.memos = [memo];
+      feed.hasNextPage = true;
+      const client = new QueryClient();
+      const listFor = (filter: string) => (
+        <QueryClientProvider client={client}>
+          <PagedMemoList filter={filter} renderer={(entry) => <div>{entry.content}</div>} />
+        </QueryClientProvider>
+      );
+
+      const { rerender, unmount } = render(listFor('content.contains("alpha")'));
+      rerender(listFor('content.contains("beta")'));
+
+      // Both delayed checks wake after 200 ms. Only the current filter may fetch.
+      await act(async () => vi.advanceTimersByTimeAsync(250));
+      expect(feed.fetchNextPage).toHaveBeenCalledOnce();
+      expect(memoQuery.request?.filter).toContain("beta");
+      unmount();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("does not block a new filter while an older page request is unresolved", async () => {
     feed.memos = [memo];
     feed.hasNextPage = true;

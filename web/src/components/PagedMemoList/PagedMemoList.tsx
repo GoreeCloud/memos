@@ -65,17 +65,21 @@ function useAutoFetchWhenNotScrollable({
   isFetchingNextPage,
   memoCount,
   onFetchNext,
+  requestKey,
 }: {
   enabled: boolean;
   hasNextPage: boolean | undefined;
   isFetchingNextPage: boolean;
   memoCount: number;
   onFetchNext: () => Promise<unknown>;
+  requestKey: string;
 }) {
   const autoFetchTimeoutRef = useRef<number | null>(null);
   const mountedRef = useRef(false);
   const enabledRef = useRef(enabled);
+  const activeRequestKeyRef = useRef(requestKey);
   enabledRef.current = enabled;
+  activeRequestKeyRef.current = requestKey;
 
   const isPageScrollable = useCallback(() => {
     const documentHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
@@ -89,9 +93,9 @@ function useAutoFetchWhenNotScrollable({
 
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    // A pending async check may resume after the list unmounts (including
-    // during route changes). Never read the DOM or fetch after cleanup.
-    if (!mountedRef.current || !enabledRef.current) return;
+    // A pending check may resume after unmount or after the user switches
+    // Space/filter without unmounting. Never paginate the stale query.
+    if (!mountedRef.current || !enabledRef.current || activeRequestKeyRef.current !== requestKey) return;
 
     const shouldFetch = !isPageScrollable() && hasNextPage && !isFetchingNextPage && memoCount > 0;
 
@@ -104,7 +108,7 @@ function useAutoFetchWhenNotScrollable({
         }, 500);
       }
     }
-  }, [enabled, hasNextPage, isFetchingNextPage, memoCount, isPageScrollable, onFetchNext]);
+  }, [enabled, hasNextPage, isFetchingNextPage, memoCount, isPageScrollable, onFetchNext, requestKey]);
 
   useEffect(() => {
     if (enabled && !isFetchingNextPage && memoCount > 0) {
@@ -118,6 +122,14 @@ function useAutoFetchWhenNotScrollable({
       autoFetchTimeoutRef.current = null;
     }
   }, [enabled]);
+
+  useEffect(() => {
+    // The timeout belongs to the old query; the new one starts its own check.
+    if (autoFetchTimeoutRef.current) {
+      clearTimeout(autoFetchTimeoutRef.current);
+      autoFetchTimeoutRef.current = null;
+    }
+  }, [requestKey]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -216,6 +228,7 @@ const PagedMemoList = (props: Props) => {
     isFetchingNextPage,
     memoCount: sortedMemoList.length,
     onFetchNext: fetchNextPageOnce,
+    requestKey: listRequestKey,
   });
 
   // Infinite scroll: fetch more when user scrolls near bottom
