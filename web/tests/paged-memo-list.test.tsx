@@ -1,6 +1,7 @@
 import { Code, ConnectError } from "@connectrpc/connect";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import PagedMemoList from "@/components/PagedMemoList";
 import type { Memo } from "@/types/proto/api/v1/memo_service_pb";
@@ -96,6 +97,45 @@ describe("<PagedMemoList>", () => {
     filterContext.removeFilter.mockClear();
     readiness.userSettings = true;
     memoQuery.request = undefined;
+  });
+
+  it("preserves editable memo identity when another memo is inserted ahead in list mode", () => {
+    view.maxColumns = 1;
+    const queryClient = new QueryClient();
+    const Editor = ({ entry }: { entry: Memo }) => {
+      const [draft, setDraft] = useState("");
+      return (
+        <input
+          aria-label={entry.name}
+          data-testid={`editor-${entry.name}`}
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+        />
+      );
+    };
+    const build = () => (
+      <QueryClientProvider client={queryClient}>
+        <PagedMemoList renderer={(entry) => <Editor entry={entry} />} />
+      </QueryClientProvider>
+    );
+    feed.memos = [
+      { name: "memos/a", content: "A" },
+      { name: "memos/b", content: "B" },
+    ];
+    const { rerender } = render(build());
+    const originalEditor = screen.getByTestId("editor-memos/a");
+    fireEvent.change(originalEditor, { target: { value: "unsaved draft" } });
+
+    feed.memos = [
+      { name: "memos/new", content: "New" },
+      { name: "memos/a", content: "A" },
+      { name: "memos/b", content: "B" },
+    ];
+    rerender(build());
+
+    expect(screen.getByTestId("editor-memos/a")).toBe(originalEditor);
+    expect(screen.getByTestId("editor-memos/a")).toHaveValue("unsaved draft");
+    expect(screen.getByTestId("editor-memos/new")).toHaveValue("");
   });
 
   it.each([1, 0] as const)("separates loaded pinned notes from the ordinary feed in layout %i", (columns) => {

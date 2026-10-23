@@ -1,5 +1,5 @@
 import { ArrowUpIcon, LoaderCircleIcon } from "lucide-react";
-import { type ReactElement, type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Fragment, type ReactElement, type ReactNode, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { MentionResolutionProvider } from "@/components/MemoContent/MentionResolutionContext";
 import { Button } from "@/components/ui/button";
 import { useAppSidebar } from "@/contexts/AppSidebarContext";
@@ -347,7 +347,9 @@ const PagedMemoList = (props: Props) => {
               {initialError}
               {newlyCreatedCard}
               {pinnedSection}
-              {ordinaryMemos.map((memo) => props.renderer(memo, { compact: effectiveCompact }))}
+              {ordinaryMemos.map((memo) => (
+                <Fragment key={getMemoKey(memo)}>{props.renderer(memo, { compact: effectiveCompact })}</Fragment>
+              ))}
               {emptyPlaceholder}
               {!isDisplayPending && footer}
             </>
