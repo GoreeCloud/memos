@@ -11,30 +11,33 @@ const percentile = (values: number[], percentileValue: number): number => {
   return ordered[index] ?? Number.POSITIVE_INFINITY;
 };
 
+// Measure entirely in the browser. The previous harness awaited a Playwright
+// click round trip and then created two RAFs from a *new* automation command;
+// this incorrectly charged host automation scheduling/transport time to the UI.
 const measureClickToPaint = async (page: Page, target: Locator): Promise<number> => {
   await page.evaluate(() => {
-    const perfWindow = window as typeof window & { __goreecloudInteractionStart?: number };
-    perfWindow.__goreecloudInteractionStart = undefined;
-    document.addEventListener(
-      "click",
-      () => {
-        perfWindow.__goreecloudInteractionStart = performance.now();
-      },
-      { capture: true, once: true },
-    );
+    const perfWindow = window as typeof window & { __goreecloudClickPaint?: Promise<number> };
+    perfWindow.__goreecloudClickPaint = new Promise<number>((resolve) => {
+      document.addEventListener(
+        "click",
+        () => {
+          const start = performance.now();
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve(performance.now() - start)));
+        },
+        { capture: true, once: true },
+      );
+    });
   });
 
   await target.click();
 
   return page.evaluate(async () => {
-    const perfWindow = window as typeof window & { __goreecloudInteractionStart?: number };
-    await new Promise<void>((resolve) => {
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-    });
-    if (typeof perfWindow.__goreecloudInteractionStart !== "number") {
-      throw new Error("Interaction start was not captured");
-    }
-    return performance.now() - perfWindow.__goreecloudInteractionStart;
+    const perfWindow = window as typeof window & { __goreecloudClickPaint?: Promise<number> };
+    const measurement = perfWindow.__goreecloudClickPaint;
+    if (!measurement) throw new Error("Browser-owned click-to-paint measurement was not installed");
+    const duration = await measurement;
+    delete perfWindow.__goreecloudClickPaint;
+    return duration;
   });
 };
 
@@ -70,7 +73,7 @@ test("bounded Glaze interaction-to-painted-update stays within the approved Deve
       p95Ms: GLAZE_INTERACTION_P95_BUDGET_MS,
       p99Ms: GLAZE_INTERACTION_P99_BUDGET_MS,
     },
-    scope: "Home grid/list layout transitions; Development evidence only",
+    scope: "In-page click-to-two-animation-frames for real Home layout transitions; Development evidence only",
   };
 
   await testInfo.attach("glaze-interaction-performance.json", {

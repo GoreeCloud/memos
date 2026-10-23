@@ -166,7 +166,22 @@ vi.mock("@/i18n", () => ({
 }));
 
 vi.mock("@/utils/i18n", () => ({
-  useTranslate: () => (key: string) => key,
+  useTranslate: () => (key: string) =>
+    (
+      ({
+        "common.home": "Home",
+        "common.labels": "Labels",
+        "common.archived": "Archived",
+        "common.today": "Today",
+        "memo.visibility.private": "Private",
+        "dashboard.all-memos": "All Memos",
+        "dashboard.pinned": "Pinned",
+        "dashboard.my-tasks": "My Tasks",
+        "dashboard.recent": "Recent",
+        "dashboard.this-week": "This Week",
+        "dashboard.quick-filters": "Quick Filters",
+      }) as Record<string, string>
+    )[key] ?? key,
 }));
 
 const render = (ui: Parameters<typeof testingLibraryRender>[0]) =>
@@ -576,7 +591,7 @@ describe("App sidebar logo", () => {
     );
 
     const dashboard = within(screen.getByRole("navigation", { name: "Memos dashboard" }));
-    expect(screen.queryByRole("button", { name: "editor.new-memo" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "editor.new-memo" })).toHaveClass("gc-dashboard-create");
     expect(dashboard.getByRole("link", { name: "All Memos" })).toHaveAttribute("aria-current", "page");
     for (const label of [
       "All Memos",
@@ -586,6 +601,8 @@ describe("App sidebar logo", () => {
       "Archived",
       "Recent",
       "My Tasks",
+      "Today",
+      "This Week",
       "common.attachments",
       "common.settings",
     ]) {

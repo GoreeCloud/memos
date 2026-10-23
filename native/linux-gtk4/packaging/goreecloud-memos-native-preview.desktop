@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=GoreeCloud Memos (Native Preview)
+GenericName=Notes (Development Preview)
+Comment=GTK4 native prototype with temporary synthetic notes only
+Exec=goreecloud-memos-native-linux
+Icon=accessories-text-editor
+Terminal=false
+Categories=Office;
+Keywords=memos;notes;preview;offline;
+StartupNotify=true

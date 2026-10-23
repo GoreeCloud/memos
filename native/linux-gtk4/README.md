@@ -1,0 +1,223 @@
+# GoreeCloud Memos — native Linux GTK4 foundation
+
+**Development prototype only; NOT native-complete, production-ready, or a replacement for the current web client.**
+
+This code creates a genuinely native GTK4 window with native text editing, sidebar navigation, responsive card flow, search, pin/private/archive and native memo creation. It does **not** contain WebView, Electron, an embedded browser, an HTTP server or a browser-opening launcher.
+
+## Critical data and security boundary
+
+All memo content is **synthetic demo data or temporary in-memory edits only**. No content, credentials, tokens, cookies, or private user files are written to disk or sent over the network. The label "Private" in this prototype is a local visual filter, **not an authenticated server visibility change**. Closing the app discards edits.
+
+Do not use for real private notes or describe it as a working authenticated Memos client. No offline persistence, login, API integration, attachment picker, OS installer, update service or signing is implemented. These are tracked in [Native client issue #157](https://github.com/GoreeCloud/memos/issues/157).
+
+## Build and test
+
+Requires Linux, GTK4 development headers, GLib, GCC, Make, Xvfb for headless smoke. On Debian, dependencies normally include `libgtk-4-dev`, `build-essential`, `pkg-config`, `xvfb`.
+
+```bash
+cd native/linux-gtk4
+make
+make test
+make smoke
+./build/goreecloud-memos-native-linux
+```
+
+The native GTK4 UI must later be connected to the existing Memos API through an authenticated, tested client layer with secure local token storage and network failure handling; only then add real-data acceptance. The legacy browser-opening Debian preview remains at `packaging/linux/` and is unchanged.
+
+## Next acceptance steps
+
+1. API/client model contracts and safe authentication in a separate change.
+2. Secure native persistent drafts and attachment/system picker.
+3. Keyboard, screen reader, HiDPI, RTL, dark mode, and real desktop session acceptance.
+4. Debian/Flatpak packaging, startup/stop, update and rollback and security review.
+5. Connection to a synthetic Development instance before any real-user data access.
+
+
+## API contract milestone (transport-independent)
+
+The original `api.c` / `api.h` milestone established a strict
+request-plan and response-validation boundary; a separate opt-in HTTPS
+transport was subsequently added (see the latest section below):
+
+- Only `https://` origins are accepted. Embedded credentials, non-root paths,
+  query strings, fragments, whitespace, and unrecognized schemes are rejected.
+- Access-token input is checked for header control characters, remains in process
+  memory and is zeroed before replacement or removal. **This is not secure
+  persistent credential storage**, and the module intentionally never writes a
+  token to disk. The later HTTPS transport attaches a bearer header only
+  when explicitly called, never as a URL parameter.
+- Private memo listing requires a token and bounds page size to 100. Returned
+  relative paths use percent-encoded opaque page tokens, fixed supported CEL
+  filter expressions and `update_time desc`; no arbitrary CEL from untrusted
+  input is executed.
+- Response classification explicitly separates sign-in-required, forbidden,
+  rate-limited, retryable, redirects/invalid response, and permanent errors.
+  The response body limit is 4 MiB; later parsing was added in `response.c`.
+
+`make test` now runs the original three model tests **and six API-contract
+tests**. The same tests run inside the approved GoreeCloud CI workflow.
+
+**The former no-HTTPS planning phase is superseded by the transport tests below;**
+the latest module has bounded TLS GETs, certificate and hostname verification,
+HTTP status classification and cancellation. The GTK interface remains
+synthetic and disconnected. Login, token refresh, encrypted credential storage,
+real-memo synchronization, durable drafts, and retry policy are not implemented.
+
+
+## Native read-only memo response decoding (October 2026)
+
+`response.c` and `response.h` implement a **transport-independent**
+decoder for the protobuf-JSON `ListMemosResponse` returned by the
+GoreeCloud Memos API. The decoder uses JSON-GLib and validates UTF-8, an
+overall 4 MiB response limit, a maximum of 100 memo entries, bounded
+per-memo content and resource identifiers, visibility values, pinned
+boolean types, and opaque continuation tokens. The resulting objects are
+owned by the caller and must be freed after use.
+
+`make test` now includes five additional schema/limit tests alongside
+the original native memo-model and request-plan tests. The existing
+single GoreeCloud CI workflow installs `libjson-glib-dev` to run the
+same suite.
+
+**Important boundary:** This decoder neither connects to a server nor
+authenticates, saves or renders remote memos. JSON text remains untrusted
+input and is never interpreted as HTML. The native GTK4 app continues
+to display temporary synthetic notes only. The HTTPS transport,
+secure session handling and real-data integration remain separate
+unimplemented requirements under GitHub issue #157.
+
+
+## Synthetic protobuf-JSON demo adapter
+
+The native GTK4 window now exercises the same bounded response decoder as the
+future Memos transport. A **compiled, explicitly synthetic** six-memo page is
+decoded via `gc_remote_memo_page_parse()` and atomically adapted to temporary
+in-memory `GcMemoStore` models before GTK renders them as native labels.
+
+- Invalid JSON, unsafe tokens, invalid resource names or malformed entries
+  fail closed: the previous in-memory board is preserved without partial
+  replacement.
+- Pinned state, private-demo selection, tags and task text remain usable with
+  existing native sidebar filtering and editing controls. An empty synthetic
+  entry becomes a clearly labeled placeholder rather than disappearing.
+- No filesystem reads/writes, HTTPS connections, cookies, access tokens,
+  remote notes, or persisted metadata are involved.
+- Untrusted content is rendered with native `gtk_label_set_text()`, not parsed
+  as markup or HTML.
+- `make test` now runs **18** unit tests: 3 model, 6 API contract,
+  5 response schema and 4 atomic synthetic-adapter tests.
+
+This is a **synthetic-only native integration checkpoint**, not an authenticated
+server integration or native-complete release. Closing the native window still
+discards all changes. The existing web and Android previews are unaffected.
+
+
+## Native desktop visual and interaction pass (October 21, 2026)
+
+The GTK4 demo board now uses a more consistent GoreeCloud hierarchy: compact
+icon-and-label sidebar with selected-view highlighting, a blue primary compose
+action, header subtitle, searchable card board, functional grid/list toggle,
+natural-height cards, de-duplicated Markdown headings and an explicit empty
+search/filter state. Keyboard shortcuts are **Ctrl+F** to focus search and
+**Ctrl+N** to open the temporary native memo editor.
+
+The GTK source compiles with **GTK4 4.10 / GLib 2.72**, replacing two APIs
+that were only available in newer libraries. Light and Dark use explicit
+accessible-text palettes and respond to the GTK settings theme preference;
+`GTK_THEME=Adwaita:light` and `GTK_THEME=Adwaita:dark` were used for
+actual 1190x790 native Xvfb screenshot inspection on the Linux laptop.
+These screenshots are **visual QA evidence only**, not target-device
+acceptance. Real HiDPI, RTL, assistive-technology and varied desktop
+environment tests are still required.
+
+The existing security/data boundary is unchanged: the six sample memos are
+synthetic and ephemeral, with no HTTPS, credentials, user notes, file
+persistence, or production release. The Linux browser-access preview and
+Android WebView companion remain separate and unchanged.
+
+
+## Opt-in native HTTPS memo listing (October 21, 2026)
+
+The native `api.c` client now exposes a **strictly opt-in, read-only**
+HTTPS GET transport. The existing GTK4 interface does **not** call the
+transport, prompt for credentials, or connect to any user or GoreeCloud
+server. The preview remains an offline synthetic-notes application.
+
+The transport reuses the existing HTTPS-only origin validator, bounded
+memo-list query planner and in-memory bearer-token lifecycle. libcurl
+enforces system certificate trust, hostname verification and TLS 1.2+
+as a minimum; every transport security option must initialize successfully
+before a request is dispatched. It cannot follow redirects, accept HTTP URLs,
+use proxy settings, or store cookies.
+Requests are time-bounded (2.5-second connection and 8-second overall
+deadline), limit the response body to 4 MiB, require the expected JSON
+content type on success, and decode the response with the existing strict
+JSON-GLib schema and page-size checks. HTTP 401 wipes the in-memory
+token after the request handle is released. Failures never include tokens
+or raw response bodies in the returned error messages.
+
+`gc_api_fetch_memos_https_cancellable()` accepts a GLib `GCancellable`.
+Call it **off the GTK main thread**, and keep each `GcApiClient` in a
+single request/session context; concurrent access-token rotation or
+client destruction is not supported. The current isolated transport is
+synchronous and does not perform automatic retries.
+
+Run `make test` to execute the original 18 native model/API/parser/demo
+unit tests plus **13 local HTTPS fixture cases**, covering successful
+authenticated retrieval, 401/403/429, redirect refusal, MIME validation,
+invalid JSON, the 4 MiB body cap, invalid CA and hostname rejection, missing sign-in,
+cancellation before dispatch and cancellation during an in-flight HTTPS
+request. Tests generate a temporary self-signed certificate with OpenSSL
+and bind only to `127.0.0.1`. Test-only CA injection is guarded by
+`GC_API_TESTING` and is not present in the shipping ELF. No real
+credentials, real Memos endpoints, cloud data or disk-persisted notes
+are used.
+
+This is a **client transport foundation**, not a complete authenticated
+application: login and refresh flows, OS secret storage, server discovery,
+real-server interoperability, pagination across pages, robust
+application-lifecycle cancellation, sync conflicts, persistence, UI
+integration, credential revocation across devices and native signing
+remain separate release gates. A future GTK integration should initialize
+libcurl before starting concurrent worker threads, use bounded cancellable
+jobs and guard UI updates against closed windows or stale sessions.
+
+
+## GLib asynchronous HTTPS worker foundation (October 21, 2026)
+
+The read-only HTTPS transport also has `gc_api_fetch_memos_async()` and
+`gc_api_fetch_memos_finish()` helpers based on `GTask`. These **do not
+alter the current synthetic GTK4 window**: the native demo still performs
+no network requests and still stores no real notes or credentials.
+
+At dispatch, the caller's thread copies the validated HTTPS origin, bounded
+query and bearer token into a separately owned session snapshot. The worker
+owns that snapshot; it does not reference the original client or GTK
+widgets. It runs the already bounded/certificate-verified synchronous GET in
+a GLib worker pool and returns the parsed result or a sanitized error to
+the caller's thread-default `GMainContext`. The worker's bearer copy is
+zeroed as part of its disposal. libcurl's global initialization happens
+once before any worker is started.
+
+The caller **must** own and cancel its `GCancellable` on sign-out, window
+destruction and session generation changes. Cancellation and TLS failures
+are not login success. HTTP 401 is returned as an auth-required result from
+the snapshot: the UI/session controller must recheck its current session
+generation before clearing an original, possibly rotated token. No worker
+ever mutates or holds an unsafe pointer to that original session.
+
+`make test` now adds **ten synthetic async fixture cases** alongside
+the 13 synchronous HTTPS scenarios and the original 18 native model/API/
+response/adapter tests. The async cases validate caller-context callback
+dispatch, slow-response main-loop responsiveness, HTTP 401 semantics, TLS
+CA and hostname failure, pre-dispatch/in-flight cancellation, rejected
+unauthenticated/bad-page requests without network I/O, and safe completion
+after the original client is freed. Test-only synthetic CA injection remains
+excluded from distributed builds by `GC_API_TESTING`, and the Debian
+package audit rejects both test-only transport entrypoints.
+
+No GTK screen, login prompt, Secret Service keyring, durable memo storage,
+refresh-token management, real server interoperability or account-level
+session revocation is implemented yet. The next GUI integration should own
+per-window session generations, cancellables and callback disposal and
+should never display a response from an outdated session/window.
