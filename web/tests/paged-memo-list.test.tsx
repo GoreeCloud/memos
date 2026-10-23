@@ -88,7 +88,8 @@ describe("<PagedMemoList>", () => {
     feed.memos = [];
     feed.hasNextPage = false;
     feed.isLoading = false;
-    feed.fetchNextPage.mockClear();
+    feed.fetchNextPage.mockReset();
+    feed.fetchNextPage.mockResolvedValue(undefined);
     feed.refetch.mockClear();
     feed.error = null;
     feed.isFetchNextPageError = false;
@@ -221,6 +222,97 @@ describe("<PagedMemoList>", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("coalesces repeated near-bottom scroll events while a page request is pending", async () => {
+    feed.memos = [memo];
+    feed.hasNextPage = true;
+    let finishRequest: (() => void) | undefined;
+    feed.fetchNextPage.mockImplementation(
+      () =>
+        new Promise<undefined>((resolve) => {
+          finishRequest = () => resolve(undefined);
+        }),
+    );
+
+    renderList((entry) => <div>{entry.content}</div>);
+    fireEvent.scroll(window);
+    fireEvent.scroll(window);
+    fireEvent.scroll(window);
+
+    expect(feed.fetchNextPage).toHaveBeenCalledOnce();
+    await act(async () => {
+      finishRequest?.();
+    });
+
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      finishRequest?.();
+    });
+  });
+
+  it("does not auto-fetch an old filter after its delayed short-page check resumes", async () => {
+    vi.useFakeTimers();
+    try {
+      feed.memos = [memo];
+      feed.hasNextPage = true;
+      const client = new QueryClient();
+      const listFor = (filter: string) => (
+        <QueryClientProvider client={client}>
+          <PagedMemoList filter={filter} renderer={(entry) => <div>{entry.content}</div>} />
+        </QueryClientProvider>
+      );
+
+      const { rerender, unmount } = render(listFor('content.contains("alpha")'));
+      rerender(listFor('content.contains("beta")'));
+
+      // Both delayed checks wake after 200 ms. Only the current filter may fetch.
+      await act(async () => vi.advanceTimersByTimeAsync(250));
+      expect(feed.fetchNextPage).toHaveBeenCalledOnce();
+      expect(memoQuery.request?.filter).toContain("beta");
+      unmount();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("does not block a new filter while an older page request is unresolved", async () => {
+    feed.memos = [memo];
+    feed.hasNextPage = true;
+    const finishRequests: Array<() => void> = [];
+    feed.fetchNextPage.mockImplementation(
+      () =>
+        new Promise<undefined>((resolve) => {
+          finishRequests.push(() => resolve(undefined));
+        }),
+    );
+
+    const client = new QueryClient();
+    const listFor = (filter: string) => (
+      <QueryClientProvider client={client}>
+        <PagedMemoList filter={filter} renderer={(entry) => <div>{entry.content}</div>} />
+      </QueryClientProvider>
+    );
+
+    const { rerender } = render(listFor('content.contains("alpha")'));
+    fireEvent.scroll(window);
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledOnce();
+
+    rerender(listFor('content.contains("beta")'));
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(2);
+
+    // Completion of the previous filter must not reopen the current gate.
+    await act(async () => finishRequests[0]?.());
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(2);
+
+    await act(async () => finishRequests[1]?.());
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(3);
+    await act(async () => finishRequests[2]?.());
   });
 
   it("reveals Back to top at restored scroll and follows changes in reduced-motion preference", () => {

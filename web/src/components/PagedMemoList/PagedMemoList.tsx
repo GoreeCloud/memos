@@ -65,17 +65,21 @@ function useAutoFetchWhenNotScrollable({
   isFetchingNextPage,
   memoCount,
   onFetchNext,
+  requestKey,
 }: {
   enabled: boolean;
   hasNextPage: boolean | undefined;
   isFetchingNextPage: boolean;
   memoCount: number;
   onFetchNext: () => Promise<unknown>;
+  requestKey: string;
 }) {
   const autoFetchTimeoutRef = useRef<number | null>(null);
   const mountedRef = useRef(false);
   const enabledRef = useRef(enabled);
+  const activeRequestKeyRef = useRef(requestKey);
   enabledRef.current = enabled;
+  activeRequestKeyRef.current = requestKey;
 
   const isPageScrollable = useCallback(() => {
     const documentHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
@@ -89,9 +93,9 @@ function useAutoFetchWhenNotScrollable({
 
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    // A pending async check may resume after the list unmounts (including
-    // during route changes). Never read the DOM or fetch after cleanup.
-    if (!mountedRef.current || !enabledRef.current) return;
+    // A pending check may resume after unmount or after the user switches
+    // Space/filter without unmounting. Never paginate the stale query.
+    if (!mountedRef.current || !enabledRef.current || activeRequestKeyRef.current !== requestKey) return;
 
     const shouldFetch = !isPageScrollable() && hasNextPage && !isFetchingNextPage && memoCount > 0;
 
@@ -104,7 +108,7 @@ function useAutoFetchWhenNotScrollable({
         }, 500);
       }
     }
-  }, [enabled, hasNextPage, isFetchingNextPage, memoCount, isPageScrollable, onFetchNext]);
+  }, [enabled, hasNextPage, isFetchingNextPage, memoCount, isPageScrollable, onFetchNext, requestKey]);
 
   useEffect(() => {
     if (enabled && !isFetchingNextPage && memoCount > 0) {
@@ -118,6 +122,14 @@ function useAutoFetchWhenNotScrollable({
       autoFetchTimeoutRef.current = null;
     }
   }, [enabled]);
+
+  useEffect(() => {
+    // The timeout belongs to the old query; the new one starts its own check.
+    if (autoFetchTimeoutRef.current) {
+      clearTimeout(autoFetchTimeoutRef.current);
+      autoFetchTimeoutRef.current = null;
+    }
+  }, [requestKey]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -163,16 +175,31 @@ const PagedMemoList = (props: Props) => {
   // pages don't each repeat the policy.
   const effectiveCompact = compactMode || useGrid;
 
+  const listRequest = {
+    state: props.state || State.NORMAL,
+    orderBy: props.orderBy || "create_time desc",
+    filter: combineCELFilters(props.contextFilter, props.filter),
+    pageSize: props.pageSize || DEFAULT_LIST_MEMOS_PAGE_SIZE,
+  };
+  // This matches the request fields used by useInfiniteMemos' React Query key.
+  // A request for a prior filter must not block pagination for the current filter.
+  const listRequestKey = JSON.stringify(listRequest);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error, isFetchNextPageError, refetch } =
-    useInfiniteMemos(
-      {
-        state: props.state || State.NORMAL,
-        orderBy: props.orderBy || "create_time desc",
-        filter: combineCELFilters(props.contextFilter, props.filter),
-        pageSize: props.pageSize || DEFAULT_LIST_MEMOS_PAGE_SIZE,
-      },
-      { enabled: props.enabled ?? true },
-    );
+    useInfiniteMemos(listRequest, { enabled: props.enabled ?? true });
+
+  // Scroll events and short-page auto-fill can fire before query state updates.
+  // Coalesce only within the same query, retaining separate in-flight identities
+  // when the Space, filter, sorting, or page size changes without a remount.
+  const pageRequestsInFlight = useRef(new Set<string>());
+  const fetchNextPageOnce = useCallback(async () => {
+    if (pageRequestsInFlight.current.has(listRequestKey)) return;
+    pageRequestsInFlight.current.add(listRequestKey);
+    try {
+      await fetchNextPage();
+    } finally {
+      pageRequestsInFlight.current.delete(listRequestKey);
+    }
+  }, [fetchNextPage, listRequestKey]);
 
   // Tag settings decide whether sensitive memo content must be blurred. Keep that
   // privacy boundary, but do not wait for unrelated memo views or instance settings.
@@ -200,7 +227,8 @@ const PagedMemoList = (props: Props) => {
     hasNextPage,
     isFetchingNextPage,
     memoCount: sortedMemoList.length,
-    onFetchNext: fetchNextPage,
+    onFetchNext: fetchNextPageOnce,
+    requestKey: listRequestKey,
   });
 
   // Infinite scroll: fetch more when user scrolls near bottom
@@ -210,13 +238,13 @@ const PagedMemoList = (props: Props) => {
     const handleScroll = () => {
       const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
       if (nearBottom && !isFetchingNextPage) {
-        fetchNextPage();
+        void fetchNextPageOnce();
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [canPaginate, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [canPaginate, hasNextPage, isFetchingNextPage, fetchNextPageOnce]);
 
   const leadingContent = props.renderLeading?.({ useGrid });
   const headerContent = props.renderHeader?.({ useGrid, memoCount: sortedMemoList.length, hasMore: Boolean(hasNextPage) });
