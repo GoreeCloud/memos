@@ -1,5 +1,6 @@
 #include "../model.h"
 #include <glib.h>
+#include <string.h>
 
 static void test_store(void) {
   GcMemoStore *s=gc_memo_store_new();
@@ -41,10 +42,39 @@ static void test_unicode(void) {
   g_assert_false(gc_memo_store_update(m,"\xFF"));
   gc_memo_store_free(s);
 }
+static void test_title_utf8_boundary(void) {
+  GcMemoStore *s=gc_memo_store_new();
+  gchar *prefix89=g_strnfill(89,'x');
+  gchar *content=g_strconcat("# ",prefix89,"é later",NULL);
+  GcMemo *m=gc_memo_store_add(s,content);
+  g_assert_nonnull(m);
+  gchar *title=gc_memo_title(m);
+  g_assert_true(g_utf8_validate(title,-1,NULL));
+  g_assert_cmpstr(title,==,prefix89);
+  g_assert_cmpuint(strlen(title),==,89);
+  g_free(title);
+  g_free(content);
+  g_free(prefix89);
+
+  gchar *prefix88=g_strnfill(88,'x');
+  content=g_strconcat("# ",prefix88,"é later",NULL);
+  g_assert_true(gc_memo_store_update(m,content));
+  title=gc_memo_title(m);
+  g_assert_true(g_utf8_validate(title,-1,NULL));
+  gchar *expected=g_strconcat(prefix88,"é",NULL);
+  g_assert_cmpstr(title,==,expected);
+  g_assert_cmpuint(strlen(title),==,90);
+  g_free(expected);
+  g_free(title);
+  g_free(content);
+  g_free(prefix88);
+  gc_memo_store_free(s);
+}
 int main(int argc,char **argv) {
   g_test_init(&argc,&argv,NULL);
   g_test_add_func("/native/store",test_store);
   g_test_add_func("/native/filters",test_filters);
   g_test_add_func("/native/unicode",test_unicode);
+  g_test_add_func("/native/title-utf8-boundary",test_title_utf8_boundary);
   return g_test_run();
 }

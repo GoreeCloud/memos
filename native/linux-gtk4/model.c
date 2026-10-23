@@ -107,7 +107,10 @@ gchar *gc_memo_title(const GcMemo *m) {
   const gchar *p=m->content;
   while (*p=='#' || *p==' ' || *p=='\t') ++p;
   const gchar *end=strchr(p,'\n');
-  gchar *title=g_strndup(p,MIN(end?(gsize)(end-p):strlen(p),90));
+  gsize length=MIN(end?(gsize)(end-p):strlen(p),90);
+  /* Do not cut a multibyte UTF-8 code point at the 90-byte limit. */
+  while (length>0 && ((guchar)p[length] & 0xC0)==0x80) --length;
+  gchar *title=g_strndup(p,length);
   if (!*title) {g_free(title);return g_strdup("Untitled memo");}
   return title;
 }
