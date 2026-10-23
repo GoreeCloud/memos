@@ -2,12 +2,13 @@ import { CheckIcon, CornerDownLeftIcon, LoaderIcon } from "lucide-react";
 import type { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { composeMemoTitle } from "@/lib/memo-title";
 import { cn } from "@/lib/utils";
 import type { Location, Visibility } from "@/types/proto/api/v1/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
 import { primaryModifierGlyph } from "@/utils/platform";
 import { validationService } from "../services";
-import { useEditorContext, useEditorSelector } from "../state";
+import { type EditorState, useEditorContext, useEditorSelector } from "../state";
 import type { EditorToolbarProps } from "../types";
 import ComposerLabelSelector from "./ComposerLabelSelector";
 import InsertMenu from "./InsertMenu";
@@ -32,6 +33,7 @@ const ShortcutChip: FC<{ busy: boolean }> = ({ busy }) => (
 );
 
 export const EditorToolbar: FC<EditorToolbarProps> = ({
+  title,
   onSave,
   onCancel,
   memoName,
@@ -47,9 +49,10 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({
   // Subscribe to narrow/derived slices so typing (which only changes content)
   // doesn't re-render the toolbar or the heavy InsertMenu it hosts. `valid`
   // flips only on empty↔non-empty / loading transitions, not per keystroke.
-  const valid = useEditorSelector((s) => validationService.canSave(s).valid);
-  const blockedReason = useEditorSelector((s) => validationService.canSave(s).reason);
-  const blockedReasonDetail = useEditorSelector((s) => validationService.canSave(s).detail);
+  const validate = (s: EditorState) => validationService.canSave({ ...s, content: composeMemoTitle(title ?? "", s.content) });
+  const valid = useEditorSelector((s) => validate(s).valid);
+  const blockedReason = useEditorSelector((s) => validate(s).reason);
+  const blockedReasonDetail = useEditorSelector((s) => validate(s).detail);
   const isSaving = useEditorSelector((s) => s.ui.isLoading.saving);
   const justSaved = useEditorSelector((s) => s.ui.justSaved);
   const isUploading = useEditorSelector((s) => s.ui.isLoading.uploading);

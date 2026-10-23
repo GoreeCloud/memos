@@ -252,6 +252,79 @@ describe("<PagedMemoList>", () => {
     });
   });
 
+  it("does not block a new filter while an older page request is unresolved", async () => {
+    feed.memos = [memo];
+    feed.hasNextPage = true;
+    const finishRequests: Array<() => void> = [];
+    feed.fetchNextPage.mockImplementation(
+      () =>
+        new Promise<undefined>((resolve) => {
+          finishRequests.push(() => resolve(undefined));
+        }),
+    );
+
+    const client = new QueryClient();
+    const listFor = (filter: string) => (
+      <QueryClientProvider client={client}>
+        <PagedMemoList filter={filter} renderer={(entry) => <div>{entry.content}</div>} />
+      </QueryClientProvider>
+    );
+
+    const { rerender } = render(listFor('content.contains("alpha")'));
+    fireEvent.scroll(window);
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledOnce();
+
+    rerender(listFor('content.contains("beta")'));
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(2);
+
+    // Completion of the previous filter must not reopen the current gate.
+    await act(async () => finishRequests[0]?.());
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(2);
+
+    await act(async () => finishRequests[1]?.());
+    fireEvent.scroll(window);
+    expect(feed.fetchNextPage).toHaveBeenCalledTimes(3);
+    await act(async () => finishRequests[2]?.());
+  });
+
+  it("reveals Back to top at restored scroll and follows changes in reduced-motion preference", () => {
+    feed.memos = [memo];
+    const originalScrollY = Object.getOwnPropertyDescriptor(window, "scrollY");
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    Object.defineProperty(window, "scrollY", { configurable: true, value: 650 });
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({ matches: true })),
+    );
+
+    try {
+      renderList();
+      const button = screen.getByRole("button", { name: "router.back-to-top" });
+      fireEvent.click(button);
+      expect(scrollTo).toHaveBeenLastCalledWith({ top: 0, behavior: "auto" });
+
+      // The setting must be checked at click time, not captured at mount.
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn(() => ({ matches: false })),
+      );
+      fireEvent.click(button);
+      expect(scrollTo).toHaveBeenLastCalledWith({ top: 0, behavior: "smooth" });
+
+      Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
+      fireEvent.scroll(window);
+      expect(screen.queryByRole("button", { name: "router.back-to-top" })).not.toBeInTheDocument();
+    } finally {
+      if (originalScrollY) Object.defineProperty(window, "scrollY", originalScrollY);
+      else Reflect.deleteProperty(window, "scrollY");
+      scrollTo.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("does not resume automatic page fetching after unmount", async () => {
     vi.useFakeTimers();
     try {

@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useContext, useState } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
 
 export type MemoTimeBasis = "create_time" | "update_time";
 
@@ -13,6 +13,8 @@ interface ViewState {
   compactMode: boolean;
   linkPreview: boolean;
   maxColumns: MemoMaxColumns;
+  /** Marks an intentional list/grid selection after the masonry-default migration. */
+  layoutPreferenceVersion?: 2;
 }
 
 interface ViewContextValue {
@@ -26,41 +28,77 @@ interface ViewContextValue {
   setCompactMode: (value: boolean) => void;
   setLinkPreview: (value: boolean) => void;
   setMaxColumns: (value: MemoMaxColumns) => void;
+  resetViewSettings: () => void;
 }
 
 const ViewContext = createContext<ViewContextValue | null>(null);
 
 const LOCAL_STORAGE_KEY = "memos-view-setting";
 
-const DEFAULT_VIEW_STATE: ViewState = { orderByTimeAsc: false, compactMode: false, linkPreview: true, maxColumns: 1 };
+const DEFAULT_VIEW_STATE: ViewState = {
+  orderByTimeAsc: false,
+  timeBasis: "update_time",
+  compactMode: false,
+  linkPreview: true,
+  maxColumns: 0,
+};
 
-export function ViewProvider({ children }: { children: ReactNode }) {
-  const getInitialState = (): ViewState => {
-    try {
-      const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (cached) {
-        const data = JSON.parse(cached) as Partial<ViewState>;
-        const cachedTimeBasis = data.timeBasis ?? data.sortTimeField;
-        const timeBasis = cachedTimeBasis === "create_time" || cachedTimeBasis === "update_time" ? cachedTimeBasis : undefined;
-        const maxColumns = MAX_COLUMNS_VALUES.includes(data.maxColumns as MemoMaxColumns)
+/** Parse both initial preferences and cross-tab updates without trusting stored values. */
+function parseStoredViewState(raw: string | null): ViewState {
+  if (!raw) return { ...DEFAULT_VIEW_STATE };
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return { ...DEFAULT_VIEW_STATE };
+    const data = parsed as Partial<ViewState>;
+    const timeBasis =
+      data.timeBasis === "create_time" || data.timeBasis === "update_time"
+        ? data.timeBasis
+        : data.sortTimeField === "create_time" || data.sortTimeField === "update_time"
+          ? data.sortTimeField
+          : undefined;
+    // An unversioned single column represented an old default, not a user selection.
+    const maxColumns =
+      data.maxColumns === 1 && data.layoutPreferenceVersion !== 2
+        ? DEFAULT_VIEW_STATE.maxColumns
+        : MAX_COLUMNS_VALUES.includes(data.maxColumns as MemoMaxColumns)
           ? (data.maxColumns as MemoMaxColumns)
           : DEFAULT_VIEW_STATE.maxColumns;
-        return {
-          orderByTimeAsc: Boolean(data.orderByTimeAsc ?? DEFAULT_VIEW_STATE.orderByTimeAsc),
-          timeBasis,
-          compactMode: Boolean(data.compactMode ?? DEFAULT_VIEW_STATE.compactMode),
-          linkPreview: Boolean(data.linkPreview ?? DEFAULT_VIEW_STATE.linkPreview),
-          maxColumns,
-        };
-      }
-    } catch (error) {
-      console.warn("Failed to load view settings from localStorage:", error);
-    }
+    return {
+      orderByTimeAsc: typeof data.orderByTimeAsc === "boolean" ? data.orderByTimeAsc : DEFAULT_VIEW_STATE.orderByTimeAsc,
+      timeBasis,
+      compactMode: typeof data.compactMode === "boolean" ? data.compactMode : DEFAULT_VIEW_STATE.compactMode,
+      linkPreview: typeof data.linkPreview === "boolean" ? data.linkPreview : DEFAULT_VIEW_STATE.linkPreview,
+      maxColumns,
+      layoutPreferenceVersion: data.layoutPreferenceVersion === 2 ? 2 : undefined,
+    };
+  } catch {
+    // Malformed browser-local preferences are not fatal and should not be logged.
     return { ...DEFAULT_VIEW_STATE };
-  };
+  }
+}
 
-  const [viewState, setViewState] = useState(getInitialState);
-  const timeBasis = viewState.timeBasis ?? "create_time";
+function getInitialViewState(): ViewState {
+  try {
+    return parseStoredViewState(localStorage.getItem(LOCAL_STORAGE_KEY));
+  } catch {
+    return { ...DEFAULT_VIEW_STATE };
+  }
+}
+
+export function ViewProvider({ children }: { children: ReactNode }) {
+  const [viewState, setViewState] = useState(getInitialViewState);
+
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      // Ignore sessionStorage, unrelated keys, and other storage areas.
+      if (event.storageArea !== localStorage || (event.key !== LOCAL_STORAGE_KEY && event.key !== null)) return;
+      // A remote update, removal or clear updates React state but never echoes a write.
+      setViewState(parseStoredViewState(event.newValue));
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+  const timeBasis = viewState.timeBasis ?? "update_time";
 
   const persistToStorage = (newState: ViewState) => {
     try {
@@ -82,7 +120,14 @@ export function ViewProvider({ children }: { children: ReactNode }) {
   const setTimeBasis = (field: MemoTimeBasis) => updateState({ timeBasis: field });
   const setCompactMode = (value: boolean) => updateState({ compactMode: value });
   const setLinkPreview = (value: boolean) => updateState({ linkPreview: value });
-  const setMaxColumns = (value: MemoMaxColumns) => updateState({ maxColumns: value });
+  const setMaxColumns = (value: MemoMaxColumns) => updateState({ maxColumns: value, layoutPreferenceVersion: 2 });
+  const resetViewSettings = () => {
+    // Reset in one state/storage write so legacy sort aliases and stale values
+    // cannot survive a sequence of partial setter updates.
+    const defaults = { ...DEFAULT_VIEW_STATE };
+    setViewState(defaults);
+    persistToStorage(defaults);
+  };
 
   return (
     <ViewContext.Provider
@@ -97,6 +142,7 @@ export function ViewProvider({ children }: { children: ReactNode }) {
         setCompactMode,
         setLinkPreview,
         setMaxColumns,
+        resetViewSettings,
       }}
     >
       {children}

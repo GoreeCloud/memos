@@ -1,0 +1,238 @@
+/* Pinterest-style memo cards retain intrinsic heights in the measured masonry engine. */
+.gc-dashboard .gc-dashboard-memos-masonry {
+  display: block;
+  min-width: 0;
+}
+
+.gc-dashboard .gc-dashboard-memos-masonry .gc-dashboard-memo {
+  min-height: 0;
+  height: auto;
+  min-width: 0;
+  max-width: 100%;
+  padding: 14px;
+  overflow-wrap: anywhere;
+}
+
+.gc-dashboard .gc-dashboard-memos-masonry .gc-dashboard-memo :where(p, li, pre) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.gc-dashboard .gc-dashboard-memos-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container (max-width: 720px) {
+  /* The masonry engine can fit two readable note columns; allow natural heights
+     instead of the old tall forced grid cells. */
+  .gc-dashboard .gc-dashboard-memos-masonry .gc-dashboard-memo {
+    min-height: 0;
+    height: auto;
+    padding: 12px;
+  }
+
+  .gc-dashboard .gc-dashboard-memos-masonry .gc-dashboard-memo [data-slot="memo-header-meta"] {
+    min-width: 0;
+    overflow-wrap: normal;
+  }
+
+  .gc-dashboard .gc-dashboard-memos-masonry .gc-dashboard-memo [data-slot="memo-header-actions"] {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  /* Let the user select an explicit readable single-column list on a phone. */
+  .gc-dashboard .gc-dashboard-layout-toggle > button[aria-label="Grid view"],
+  .gc-dashboard .gc-dashboard-layout-toggle > button[aria-label="List view"] {
+    display: grid;
+  }
+}
+
+/* Full feed uses the same measured board and must protect actions and long
+   attachment filenames when each phone tile is about 160–190px wide. */
+@container (max-width: 720px) {
+  .gc-dashboard .gc-dashboard-feed :has(> [data-slot="memo-header-actions"]) {
+    height: auto;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .gc-dashboard .gc-dashboard-feed [data-slot="memo-header-actions"] {
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .gc-dashboard .gc-dashboard-feed .goreecloud-memo-card {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    padding: 12px;
+  }
+
+  .gc-dashboard .gc-dashboard-feed :where(pre, img, video) {
+    max-width: 100%;
+  }
+}
+
+/* GoreeCloud owner's All Memos mockup: responsive toolbar and softly elevated note board. */
+.gc-dashboard .gc-dashboard-controls {
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.gc-dashboard .gc-dashboard-search {
+  width: auto;
+  flex: 1 1 340px;
+}
+.gc-dashboard .gc-dashboard-tools {
+  gap: 9px;
+}
+.gc-dashboard .gc-dashboard-advanced-settings {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #dce5f1;
+  border-radius: 12px;
+  background: #fff;
+  color: #27364f;
+}
+.gc-dashboard .gc-dashboard-advanced-settings:hover {
+  background: #f1f6ff;
+}
+.gc-dashboard .gc-dashboard-sort {
+  flex-shrink: 0;
+  background: #fff;
+}
+.gc-dashboard .gc-dashboard-layout-toggle {
+  flex-shrink: 0;
+}
+.gc-dashboard .gc-dashboard-layout-toggle > button[aria-pressed="true"] {
+  background: #3478ff;
+  color: #fff;
+}
+.gc-dashboard .gc-dashboard-results .gc-dashboard-count {
+  font-size: 13px;
+  color: #60718b;
+  padding: 0 0 10px;
+  margin: 0;
+}
+.gc-dashboard .gc-dashboard-feed .goreecloud-memo-card,
+.gc-dashboard .gc-dashboard-memo {
+  border-radius: 16px;
+  border: 1px solid #e4ebf4;
+  background: var(--card);
+  box-shadow: 0 12px 32px -26px rgba(27, 53, 104, 0.22);
+}
+.gc-dashboard .goreecloud-memo-card[data-pinned="true"] {
+  background: linear-gradient(145deg, #fff9e9, var(--card) 68%);
+  border-color: #f5e5c5;
+}
+/* Reuse the application's single global composer FAB. A second fixed button
+   would overlap it and fail WCAG 2.2 target-size/hit-testing checks. */
+body:has([data-dashboard-home]) [data-new-memo-trigger] {
+  width: 59px;
+  height: 59px;
+  inset-inline-end: 28px;
+  bottom: max(28px, env(safe-area-inset-bottom));
+  background: #1363ef;
+  color: #fff;
+  box-shadow: 0 13px 31px -12px rgba(19, 84, 209, 0.45);
+}
+body:has([data-dashboard-home]) [data-new-memo-trigger]:hover {
+  background: #0c50d5;
+}
+/* Compact memo heading hierarchy matches the owner's dense board. In two
+   narrow mobile columns, large Markdown H1s otherwise break at every few letters. */
+.gc-dashboard .goreecloud-memo-card [data-slot="memo-body"] :where(h1, h2) {
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+  font-weight: 750;
+  line-height: 1.38;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+/* GoreeCloud themes are selected by data-theme (for example default-dark),
+   not by a .dark class. Match the rendered theme so text is never white on
+   the light fallback background of native toolbar controls. */
+/* Existing Home.css assigns a hard-coded navy h2. This override needs
+   explicit heading specificity to win under data-theme=default-dark. */
+:root[data-theme*="dark"] .gc-dashboard .gc-dashboard-section-heading h2,
+:root[data-theme*="dark"] .gc-dashboard .gc-dashboard-quick h2 {
+  color: var(--foreground);
+}
+:root[data-theme*="dark"] .goreecloud-main-layout:has([data-dashboard-home]),
+:root[data-theme*="dark"] .gc-dashboard {
+  background: var(--background);
+  color: var(--foreground);
+}
+:root[data-theme*="dark"] .gc-dashboard .gc-dashboard-search form,
+:root[data-theme*="dark"] .gc-dashboard .gc-dashboard-layout-toggle {
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--card-foreground);
+}
+:root[data-theme*="dark"] .gc-dashboard .gc-dashboard-layout-toggle > button {
+  color: var(--card-foreground);
+}
+:root[data-theme*="dark"] .gc-dashboard .gc-dashboard-layout-toggle > button[aria-pressed="true"] {
+  background: #3478ff;
+  color: #fff;
+}
+:root[data-theme*="dark"] .gc-dashboard .gc-dashboard-advanced-settings,
+:root[data-theme*="dark"] .gc-dashboard .gc-dashboard-sort {
+  background: var(--card);
+  color: var(--card-foreground);
+  border-color: var(--border);
+}
+:root[data-theme*="dark"] .gc-dashboard .goreecloud-memo-card[data-pinned="true"] {
+  background: linear-gradient(145deg, rgba(245, 166, 47, 0.13), var(--card) 70%);
+  border-color: rgba(245, 166, 47, 0.31);
+}
+:root[data-theme*="dark"] .gc-dashboard .gc-dashboard-results .gc-dashboard-count {
+  color: var(--muted-foreground);
+}
+@media (max-width: 1070px) {
+  .gc-dashboard .gc-dashboard-controls {
+    flex-wrap: wrap;
+  }
+  .gc-dashboard .gc-dashboard-search {
+    flex-basis: 100%;
+  }
+  .gc-dashboard .gc-dashboard-tools {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+@media (max-width: 460px) {
+  .gc-dashboard .gc-dashboard-sort {
+    width: 132px;
+  }
+  .gc-dashboard .gc-dashboard-tools {
+    gap: 5px;
+  }
+  .gc-dashboard .gc-dashboard-layout-toggle > button {
+    min-width: 33px;
+  }
+  body:has([data-dashboard-home]) [data-new-memo-trigger] {
+    inset-inline-end: 18px;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    width: 54px;
+    height: 54px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body:has([data-dashboard-home]) [data-new-memo-trigger] {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  .gc-dashboard .goreecloud-memo-card[data-pinned="true"] {
+    border: 2px solid Highlight;
+    background: Canvas;
+  }
+  body:has([data-dashboard-home]) [data-new-memo-trigger] {
+    border: 1px solid ButtonText;
+  }
+}

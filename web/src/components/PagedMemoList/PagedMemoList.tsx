@@ -54,7 +54,7 @@ interface Props {
   /** Route-owned content rendered before the list and inside column one in grid mode. */
   renderLeading?: (options: { useGrid: boolean }) => ReactNode;
   /** Route-owned content spanning the full list width above every column (e.g. a page identity block). */
-  renderHeader?: (options: { useGrid: boolean }) => ReactNode;
+  renderHeader?: (options: { useGrid: boolean; memoCount: number; hasMore: boolean }) => ReactNode;
   /** Replaces the generic empty-state message when the route knows why the list is empty. */
   emptyMessage?: string;
 }
@@ -134,7 +134,9 @@ const PagedMemoList = (props: Props) => {
   const { isUserSettingsInitialized } = useAuth();
   const { filters, memoView, removeFilter } = useMemoFilterContext();
   const { setQuickFindOpen } = useAppSidebar();
-  const { maxColumns, compactMode } = useView();
+  const { compactMode, maxColumns } = useView();
+  // Responsive masonry remains the default; deliberate list/column selections
+  // now follow the saved view preferences, including cross-tab updates.
   // maxColumns is a ceiling: 1 = single reading column, 0 = as many as fit. The single
   // column renders in normal document flow; anything wider becomes the packed grid.
   const multiColumn = maxColumns !== 1;
@@ -161,29 +163,31 @@ const PagedMemoList = (props: Props) => {
   // pages don't each repeat the policy.
   const effectiveCompact = compactMode || useGrid;
 
+  const listRequest = {
+    state: props.state || State.NORMAL,
+    orderBy: props.orderBy || "create_time desc",
+    filter: combineCELFilters(props.contextFilter, props.filter),
+    pageSize: props.pageSize || DEFAULT_LIST_MEMOS_PAGE_SIZE,
+  };
+  // This matches the request fields used by useInfiniteMemos' React Query key.
+  // A request for a prior filter must not block pagination for the current filter.
+  const listRequestKey = JSON.stringify(listRequest);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError, error, isFetchNextPageError, refetch } =
-    useInfiniteMemos(
-      {
-        state: props.state || State.NORMAL,
-        orderBy: props.orderBy || "create_time desc",
-        filter: combineCELFilters(props.contextFilter, props.filter),
-        pageSize: props.pageSize || DEFAULT_LIST_MEMOS_PAGE_SIZE,
-      },
-      { enabled: props.enabled ?? true },
-    );
+    useInfiniteMemos(listRequest, { enabled: props.enabled ?? true });
 
   // Scroll events and short-page auto-fill can fire before query state updates.
-  // Share one in-flight guard to avoid duplicate page requests in that gap.
-  const pageRequestInFlight = useRef(false);
+  // Coalesce only within the same query, retaining separate in-flight identities
+  // when the Space, filter, sorting, or page size changes without a remount.
+  const pageRequestsInFlight = useRef(new Set<string>());
   const fetchNextPageOnce = useCallback(async () => {
-    if (pageRequestInFlight.current) return;
-    pageRequestInFlight.current = true;
+    if (pageRequestsInFlight.current.has(listRequestKey)) return;
+    pageRequestsInFlight.current.add(listRequestKey);
     try {
       await fetchNextPage();
     } finally {
-      pageRequestInFlight.current = false;
+      pageRequestsInFlight.current.delete(listRequestKey);
     }
-  }, [fetchNextPage]);
+  }, [fetchNextPage, listRequestKey]);
 
   // Tag settings decide whether sensitive memo content must be blurred. Keep that
   // privacy boundary, but do not wait for unrelated memo views or instance settings.
@@ -230,7 +234,7 @@ const PagedMemoList = (props: Props) => {
   }, [canPaginate, hasNextPage, isFetchingNextPage, fetchNextPageOnce]);
 
   const leadingContent = props.renderLeading?.({ useGrid });
-  const headerContent = props.renderHeader?.({ useGrid });
+  const headerContent = props.renderHeader?.({ useGrid, memoCount: sortedMemoList.length, hasMore: Boolean(hasNextPage) });
 
   // A freshly created memo is hoisted to the front; pin it to the top of column one so it
   // appears right under the composer instead of dropping into a random (shortest) column.
@@ -294,7 +298,9 @@ const PagedMemoList = (props: Props) => {
       </div>
     ) : undefined;
 
-  const pinnedSection = <PinnedMemoSection memos={pinnedMemos} renderer={props.renderer} compact={effectiveCompact} useGrid={useGrid} />;
+  const pinnedSection = (
+    <PinnedMemoSection memos={pinnedMemos} renderer={props.renderer} compact={effectiveCompact} useGrid={useGrid} maxColumns={maxColumns} />
+  );
   const newlyCreatedCard = newlyCreatedMemo ? (
     <div className="mx-auto w-full max-w-2xl">{props.renderer(newlyCreatedMemo, { compact: effectiveCompact })}</div>
   ) : null;
@@ -379,14 +385,18 @@ const BackToTop = () => {
       setIsVisible(shouldShow);
     };
 
+    // A restored page can already be scrolled before the button mounts.
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
+    // Check at activation time to honor changes to the user's motion preference.
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
+      behavior: reducedMotion ? "auto" : "smooth",
     });
   };
 

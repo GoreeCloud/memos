@@ -1,5 +1,32 @@
 # Changelog
 
+## Development Inbox revamp — 2026-10-18
+
+- Replaced the minimal Inbox notification panel with a responsive GoreeCloud dashboard view: notification summary, inline All/Unread/Archived filtering, explicit refresh/retry, distinct loading/failure/empty states, and more useful empty-state guidance.
+- Preserved existing comment, mention and space-invitation interactions and notification state; moved Inbox into the persistent sidebar for consistent navigation without duplicating it in the account dropdown.
+- Added locale-catalog English fallbacks for new Inbox labels pending translated copy, component/route tests and authenticated browser coverage for responsive filtering and accessibility.
+
+## Account-menu cleanup — 2026-10-18
+
+- Remove Profile, Archived and Settings links duplicated in the main sidebar, while keeping Inbox, Language, Theme, About and Sign out in the account menu.
+
+## Responsive UI integration acceptance — 2026-10-18
+
+- Preserved Home Grid/List options and the separate View settings while retaining All Memos as the root route.
+- Removed the duplicate rectangular dashboard New Memo control, keeping the floating circular action.
+- Fixed dark-mode timestamp contrast and mobile 200% text reflow for the Show more control.
+- The isolated PR #141 baseline passed 10 authenticated and 8 anonymous Chromium tests. Combined integration into main requires fresh exact-head validation before any deployment.
+
+## Memo creation and navigation Development UX — 2026-10-18
+
+- Introduced optional, editable H1-backed titles without changing the memo server schema, enabled single-click text editing with interactive-target guards, placed real memo-facet filters inside search while retaining separate view options, added a responsive floating compose button and made All Memos the root route while retaining Home at `/dashboard`.
+- This source-level Development work requires exact-head CI, authenticated/browser/device accessibility and dashboard-branch integration review before any deployment or acceptance claim.
+
+## Development packaging checkpoint — 2026-10-18
+
+- Added a signed, isolated Android WebView Development companion build for explicit HTTPS Memos origins; no offline-native store or production acceptance is claimed.
+- Added Debian AMD64 local desktop Development packaging with private per-user data, loopback-only service launch, symlinked-data-path rejection, isolated smoke acceptance and single-workflow Linux package artifact validation. Development builds are not Stable or production qualified.
+
 ## 0.1.0-dev — 2026-10-07
 
 - Recreated GoreeCloud Memos as a maintained fork of Memos v0.31.0 while preserving upstream history.

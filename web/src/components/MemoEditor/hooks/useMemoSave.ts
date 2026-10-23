@@ -1,11 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { toast } from "react-hot-toast";
 import { useNewMemo } from "@/contexts/NewMemoContext";
 import { attachmentKeys } from "@/hooks/useAttachmentQueries";
 import { memoKeys } from "@/hooks/useMemoQueries";
 import { userKeys } from "@/hooks/useUserQueries";
 import { handleError } from "@/lib/error";
+import { composeMemoTitle } from "@/lib/memo-title";
 import type { Visibility } from "@/types/proto/api/v1/memo_service_pb";
 import { useTranslate } from "@/utils/i18n";
 import { errorService, memoService, validationService } from "../services";
@@ -21,6 +22,8 @@ interface UseMemoSaveOptions {
   defaultVisibility?: Visibility;
   defaultCreateTime?: Date;
   discardDraft: () => void;
+  getTitle?: () => string;
+  onSaved?: () => void;
   onConfirm?: (memoName: string) => void;
   onCancel?: () => void;
 }
@@ -37,6 +40,8 @@ export function useMemoSave({
   defaultVisibility,
   defaultCreateTime,
   discardDraft,
+  getTitle,
+  onSaved,
   onConfirm,
   onCancel,
 }: UseMemoSaveOptions): () => Promise<void> {
@@ -44,22 +49,31 @@ export function useMemoSave({
   const queryClient = useQueryClient();
   const { markNewMemo } = useNewMemo();
   const { actions, dispatch, getState } = useEditorContext();
+  const saveInFlightRef = useRef(false);
 
   return useCallback(async () => {
+    // Multiple shortcut/toolbar events can arrive before the saving state
+    // propagates through React. Lock synchronously for this editor instance.
+    if (saveInFlightRef.current) return;
     const state = getState();
     // A repeated shortcut during the saved confirmation is not an error worth
     // a toast; the save already landed and the host is closing.
-    if (state.ui.justSaved) return;
-    const { valid, reason, detail } = validationService.canSave(state);
+    if (state.ui.justSaved || state.ui.isLoading.saving) return;
+    const stateToSave = {
+      ...state,
+      content: getTitle ? composeMemoTitle(getTitle(), state.content) : state.content,
+    };
+    const { valid, reason, detail } = validationService.canSave(stateToSave);
     if (!valid) {
       toast.error(reason ? t(reason, detail ? { url: detail } : undefined) : t("editor.validation.cannot-save"));
       return;
     }
 
-    dispatch(actions.setLoading("saving", true));
+    saveInFlightRef.current = true;
 
     try {
-      const result = await memoService.save(state, { memoName, parentMemoName, space: defaultSpace });
+      dispatch(actions.setLoading("saving", true));
+      const result = await memoService.save(stateToSave, { memoName, parentMemoName, space: defaultSpace });
 
       if (!result.hasChanges) {
         toast.error(t("editor.no-changes-detected"));
@@ -69,6 +83,7 @@ export function useMemoSave({
 
       // Prevent the autosave unmount flush from restoring the saved draft.
       discardDraft();
+      onSaved?.();
 
       const invalidationPromises: Promise<unknown>[] = [
         queryClient.invalidateQueries({ queryKey: memoKeys.lists() }),
@@ -114,6 +129,7 @@ export function useMemoSave({
     } finally {
       dispatch(actions.setLoading("saving", false));
       dispatch(actions.setJustSaved(false));
+      saveInFlightRef.current = false;
     }
   }, [
     actions,
@@ -121,6 +137,8 @@ export function useMemoSave({
     defaultSpace,
     defaultVisibility,
     discardDraft,
+    getTitle,
+    onSaved,
     dispatch,
     getState,
     markNewMemo,

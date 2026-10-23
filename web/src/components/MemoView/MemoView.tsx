@@ -186,6 +186,7 @@ const MemoView = forwardRef<MemoViewHandle, MemoViewProps>((props, ref) => {
     <article
       className={cn(MEMO_CARD_BASE_CLASSES, showCommentPreview ? "mb-0 rounded-b-none" : "mb-2", className)}
       ref={cardRef}
+      data-pinned={memoData.pinned ? "true" : undefined}
       tabIndex={readonly ? -1 : 0}
     >
       <MemoHeader

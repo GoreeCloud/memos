@@ -12,6 +12,18 @@
 - Docker-oriented self-hosting foundation.
 - Optional AI/provider integrations that are inactive until configured.
 
+## Memo title and navigation Development UX
+
+- Optional memo title field on the shared create/edit composer. Titles are persisted as the leading Markdown H1, compatible with the existing `Memo.property.title` derivation, API, exports and backup formats without adding a new database field. An empty title leaves the memo body unchanged; legacy untitled memos remain untitled. This is *not* a separately stored title schema.
+- Single primary-click on regular editable memo text enters the existing editor; links, images, action buttons and read-only memos retain their respective behavior.
+- A persistent circular New Memo floating action appears at the bottom-end of authenticated desktop/mobile views. Its existing modal composer preserves focus restoration, session and Space boundaries.
+- A real memo-facet Filter menu (links, task lists, code, and locations) lives inside the right end of the search bar; changing facets preserves the text search, and layout settings remain available from the sidebar. The signed-in root `/` becomes the All Memos collection; `/dashboard` preserves the existing Home composer/dashboard view and `/home` remains an alias to it. No production acceptance claim.
+
+## Development platform packaging (not Stable)
+
+- Android API 26+ HTTPS-only WebView companion build, using a distinct Development application ID, a persistent locally managed signing identity, user-selected server origin, and local physical-device cold-launch evidence. It is not an offline native store and is not accepted for login/uploads/accessibility/production.
+- Debian AMD64 desktop preview that embeds the web UI into a loopback-only local Go Memos service, launches through a desktop entry, uses a dedicated private per-user data directory, rejects symlinked data targets, and passes isolated package extraction/readiness/HTTP smoke testing. Upgrade/rollback, independent visual/assistive-technology, installation on broader Linux distributions, and production acceptance remain open.
+
 ## GoreeCloud rebuild foundation
 
 - Maintained-fork provenance with full upstream Git history.
@@ -27,6 +39,8 @@
 - Home-only "/" keyboard focus shortcut with input/IME/dialog safety guards, an accessible advertised shortcut, a responsive visual hint, and regression coverage; Ctrl+K / ⌘K continues to open Quick Find.
 - Development-source language picker now exposes native keyboard-activatable locale options, search-to-option ArrowDown focus and roving Arrow/Home/End navigation with single-tab-stop list semantics; component regression coverage is added. Independent screen-reader, physical-device, translation and in-app acceptance remain open.
 - Development implementation of an authenticated-browser-tested sticky Home search header above the paginated memo feed; the composer remains in the feed, and physical-device and screen-reader review is not yet accepted.
+- Development-source memo view options include an accessible one-action Restore control that atomically resets column layout, sort field/direction, compact mode, and link previews to local defaults while removing legacy persisted sort aliases. The control is disabled at defaults and does not change memo content or server settings; component/context tests added. Independent device/assistive-tech acceptance remains open.
+- Development-source layout radiogroup additionally supports Home/End keyboard shortcuts to select and focus its first/last layout options, complementing arrow-key/RTL movement. Source regression coverage is included; independent keyboard and screen-reader acceptance remains open.
 
 - Separate HTTP liveness (/healthz) and database-backed readiness (/readyz) probes for operations and future Manager integration.
 
@@ -73,12 +87,14 @@
 - Search and filter chips now name their removal action using each filter’s label rather than sharing an ambiguous generic accessible name. Focus/navigation and distinct filter controls have regression test coverage; independent assistive-technology and rendered-browser acceptance remain open.
 - Saved-view Validate/Create/Update forms reject empty or whitespace-only names and expressions locally before submission, with shared guard and unit regression coverage; server-side filter semantics and authorization remain authoritative.
 - Calendar view/filter scope recognition now follows the registered month/day route grammar, including valid Space-scoped calendar URLs, instead of treating unsupported extra path segments as collections.
+- Development-source memo filter chips offer a bulk **Clear filters** action when multiple visible facets are active, while preserving current Space and unrelated URL parameters, retaining the distinct search-only clear action, and not deleting dormant saved views on non-collection routes. Source regression coverage added; independent device and translation acceptance remains open.
 - The Labels sidebar allows creating a persisted exact-name hashtag-backed label without leaving the memo collection, and configured literal labels appear before they are used. Regex tag-metadata rules are not shown as literal labels. This is not yet a complete independent managed-label identity/rename/delete system.
 - The Labels sidebar now displays configured pastel color markers for exact labels in both flat and hierarchical views while preserving text labels, selection, counts, and keyboard behavior. Regex metadata rules are not shown as distinct labels, and no memo data or permissions change.
 - Home groups loaded and authorized pinned memos into a dedicated Pinned memos section above ordinary feed cards in both grid and list layouts. The composer stays above the section, preserving source ordering, pagination, and existing memo actions without claiming a global count across unloaded pages.
 - Development-source pagination coalesces overlapping near-bottom scroll and short-page auto-fill requests before query fetching state updates, avoiding duplicate next-page fetch attempts while preserving later page requests and the existing Retry UI. Rapid-scroll regression coverage added; independent offline/network/device acceptance remains open.
 - The Labels sidebar's New Label dialog offers the same seven named pastel swatches as tag metadata Settings, with a color-neutral default; the selected palette color is saved in the user's existing tag metadata without changing other labels. Full independent label rename/delete and per-memo color persistence remain planned.
 - The memo editor offers an accessible Labels selector beside visibility: search existing labels, select several for one edit, or create a new literal hashtag-backed metadata label inline. Applying inserts only missing, valid hashtag tokens as an undoable Markdown edit; normal save/draft flows preserve user content. This additive control does not remove existing inline label text, create independent managed label IDs, or change memo sharing.
+- Development-source memo editor save handling synchronously coalesces overlapping toolbar and keyboard save submissions during one active save, while releasing the lock on success or error so a later edit or retry can be saved. Hook regressions cover duplicate submissions and recovery; this is client-side protection, not an API-wide idempotency guarantee or production acceptance.
 - GoreeCloud Memos presentation uses a restrained cool-neutral canvas and coordinated sapphire accents across light/dark themes, with softer rounded memo cards. Tag metadata settings offer seven named pastel swatches and retain the custom hex picker. This is label metadata color selection, not yet independent persisted memo color or managed label identity.
 - Home library UX now provides a dedicated content search above the composer; searches clear prior label/view/Space restrictions and query all authorized normal memos, while private data remains backend-authorized. The search header also exposes the existing persistent display-settings menu for accessible list/2-column/3-column/automatic layout selection without submitting a search. A new Glaze-styled welcome/no-results panel replaces the retro empty-list sprite. The sidebar shows a persistent Labels section backed by existing memo tags and no longer shows either the calendar heatmap or calendar shortcut; the standalone calendar route remains available.
 

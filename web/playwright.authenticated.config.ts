@@ -25,7 +25,7 @@ export default defineConfig({
     },
     {
       name: "authenticated-desktop-light",
-      testMatch: /authenticated-home\.spec\.ts/,
+      testMatch: [/authenticated-home\.spec\.ts/, /authenticated-view-sync\.spec\.ts/],
       dependencies: ["authenticated-setup"],
       use: { storageState, viewport: { width: 1440, height: 900 }, colorScheme: "light" },
     },

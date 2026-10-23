@@ -24,6 +24,7 @@ export interface RouteActionPolicy {
 
 export const getSidebarRouteKind = (path: string): SidebarRouteKind => {
   const normalizedPath = resolveCollectionRoute(path).pathname;
+  if (normalizedPath === ROUTES.DASHBOARD) return "home";
   if (isMemoScopeRoute(normalizedPath)) return resolveMemoScope(normalizedPath);
   if (getProfileUsername(normalizedPath) !== undefined) return "profile";
   if (matchPath(ROUTES.VIEWS, normalizedPath)) return "views";

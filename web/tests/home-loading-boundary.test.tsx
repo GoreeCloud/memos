@@ -1,111 +1,101 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
+import { MemoryRouter } from "react-router-dom";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import Home from "@/pages/Home";
 
 const state = vi.hoisted(() => ({
   selectedSpaceName: undefined as string | undefined,
-  editorProps: undefined as Record<string, unknown> | undefined,
-  listProps: undefined as Record<string, unknown> | undefined,
+  query: undefined as Record<string, unknown> | undefined,
+  ready: true,
+  openEditor: vi.fn(),
 }));
-
 vi.mock("@/components/HomeSearchBar", () => ({
-  default: () => <div data-testid="home-search-bar" />,
+  default: () => <div role="search" data-testid="home-search-bar" />,
 }));
-
-vi.mock("@/components/MemoEditor", () => ({
-  default: (props: Record<string, unknown>) => {
-    state.editorProps = props;
-    return <div data-testid="memo-editor" />;
-  },
-}));
-
 vi.mock("@/components/MemoView", () => ({
-  default: () => <div data-testid="memo-view" />,
+  default: ({ memo }: { memo: { name: string } }) => <article data-testid="memo-view">{memo.name}</article>,
 }));
-
 vi.mock("@/components/PagedMemoList", () => ({
-  default: ({
-    renderer,
-    renderLeading,
-    renderHeader,
-    ...props
-  }: {
-    renderer: (memo: { name: string }, options: { compact: boolean }) => React.ReactNode;
-    renderLeading: (options: { useGrid: boolean }) => React.ReactNode;
-    renderHeader?: (options: { useGrid: boolean }) => React.ReactNode;
-  } & Record<string, unknown>) => {
-    state.listProps = props;
-    return (
-      <>
-        {renderHeader?.({ useGrid: false })}
-        {renderLeading({ useGrid: false })}
-        {renderer({ name: "memos/1" }, { compact: false })}
-      </>
-    );
-  },
+  default: () => <section data-testid="memo-feed">Full feed</section>,
   getMemoKey: (memo: { name: string }) => memo.name,
 }));
-
 vi.mock("@/contexts/AuthContext", () => ({
-  useAuth: () => ({ isUserSettingsInitialized: true }),
+  useAuth: () => ({ isUserSettingsInitialized: state.ready, userTagsSetting: { tags: {} } }),
 }));
-
 vi.mock("@/contexts/GlobalMemoEditorContext", () => ({
-  useGlobalMemoEditor: () => ({ claimHomeAutoFocus: () => true }),
+  useGlobalMemoEditor: () => ({ canOpen: true, openEditor: state.openEditor }),
 }));
-
+vi.mock("@/contexts/ViewContext", () => ({
+  useView: () => ({ maxColumns: 1, setMaxColumns: vi.fn() }),
+}));
 vi.mock("@/contexts/MemoFilterContext", () => ({
   isSearchFilter: (filter: { factor: string }) => filter.factor === "contentSearch" || filter.factor === "celSearch",
-  useMemoFilterContext: () => ({ filters: [] }),
+  useMemoFilterContext: () => ({ filters: [], setMemoView: vi.fn() }),
+  getFilterSearch: () => "",
 }));
-
 vi.mock("@/contexts/NewMemoContext", () => ({
-  NewMemoProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  NewMemoProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
-
 vi.mock("@/contexts/SpaceContext", () => ({
   useSpaceContext: () => ({
     selectedSpaceName: state.selectedSpaceName,
     memoFilter: state.selectedSpaceName ? `space == "${state.selectedSpaceName}"` : undefined,
   }),
 }));
-
 vi.mock("@/hooks", () => ({
   useMemoFilters: () => "",
   useMemoSorting: () => ({ listSort: undefined, orderBy: "create_time desc" }),
 }));
-
 vi.mock("@/hooks/useCurrentUser", () => ({
   default: () => ({ name: "users/1" }),
 }));
-
+vi.mock("@/hooks/useMemoQueries", () => ({
+  useInfiniteMemos: (options: Record<string, unknown>) => {
+    state.query = options;
+    return { data: { pages: [{ memos: [{ name: "memos/1" }] }] }, isLoading: false, isError: false, refetch: vi.fn() };
+  },
+}));
+vi.mock("@/lib/cel-filter", () => ({
+  combineCELFilters: (...parts: Array<string | undefined>) => parts.filter(Boolean).join(" && "),
+}));
 vi.mock("@/utils/i18n", () => ({
   useTranslate: () => (key: string) => key,
 }));
 
-describe("<Home>", () => {
-  it("renders the editor and memo cards synchronously without blank placeholders", () => {
-    state.selectedSpaceName = undefined;
-    render(<Home />);
+const show = () =>
+  render(
+    <MemoryRouter>
+      <Home />
+    </MemoryRouter>,
+  );
 
-    const search = screen.getByTestId("home-search-bar");
-    const editor = screen.getByTestId("memo-editor");
-    expect(search.compareDocumentPosition(editor) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByTestId("memo-editor")).toBeInTheDocument();
-    expect(screen.getByTestId("memo-view")).toBeInTheDocument();
-    expect(state.listProps).toMatchObject({ contextFilter: undefined });
-    expect(state.editorProps).toMatchObject({ cacheKey: "home-memo-editor", defaultSpace: undefined });
-    expect(state.editorProps?.autoFocus).toEqual(expect.any(Function));
+describe("Home dashboard loading and Space boundaries", () => {
+  beforeEach(() => {
+    state.selectedSpaceName = undefined;
+    state.query = undefined;
+    state.ready = true;
+    state.openEditor.mockClear();
   });
 
-  it("filters the feed and sets new memo placement to the selected Space", () => {
-    state.selectedSpaceName = "spaces/product";
-    render(<Home />);
+  it("renders real memo previews with a functioning New Memo action instead of an inline composer", () => {
+    show();
+    const search = screen.getByTestId("home-search-bar");
+    const memo = screen.getByTestId("memo-view");
+    expect(search.compareDocumentPosition(memo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getAllByTestId("memo-view")).toHaveLength(1);
+    // The singleton floating action is owned by GlobalMemoEditorProvider;
+    // Home must not create a duplicate.
+    expect(document.querySelector(".gc-dashboard-fab")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^New Memo/ }));
+    expect(state.openEditor).toHaveBeenCalledOnce();
+    expect(state.query).toMatchObject({ state: 1, pageSize: 3 });
+  });
 
-    expect(state.listProps).toMatchObject({ contextFilter: 'space == "spaces/product"' });
-    expect(state.editorProps).toMatchObject({
-      cacheKey: "home-memo-editor:spaces/product",
-      defaultSpace: "spaces/product",
-    });
+  it("passes selected Space restrictions through to the server-backed preview query", () => {
+    state.selectedSpaceName = "spaces/product";
+    show();
+    expect(state.query?.filter).toContain('space == "spaces/product"');
+    expect(screen.getByTestId("memo-view")).toBeInTheDocument();
   });
 });

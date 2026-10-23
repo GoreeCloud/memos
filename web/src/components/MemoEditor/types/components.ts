@@ -64,6 +64,8 @@ export interface EditorViewToggles {
 }
 
 export interface EditorToolbarProps {
+  /** Optional title is included in save eligibility, even with an empty body. */
+  title?: string;
   onSave: () => void;
   onCancel?: () => void;
   memoName?: string;

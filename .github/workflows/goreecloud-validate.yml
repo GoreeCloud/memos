@@ -66,6 +66,9 @@ jobs:
         working-directory: web
         run: pnpm install --frozen-lockfile
 
+      - name: Verify upstream GC UI Foundations release checksum
+        run: node web/scripts/verify-gc-ui-foundations.mjs
+
       - name: Lint and typecheck
         working-directory: web
         run: pnpm lint
@@ -275,8 +278,141 @@ jobs:
       - name: Vet backend
         run: go vet ./...
 
-      - name: Run backend test suite
-        run: go test ./...
+      - name: Run all non-store-driver backend tests
+        run: |
+          # Each store driver is exercised by the matrix below; keep all other packages.
+          all_packages="$(go list ./...)"
+          store_package="github.com/usememos/memos/store/test"
+          printf '%s\n' "$all_packages" | grep -Fx "$store_package"
+          other_packages="$(printf '%s\n' "$all_packages" | grep -Fvx "$store_package")"
+          test -n "$other_packages"
+          printf '%s\n' "$other_packages" | xargs go test -count=1 -p 2
 
       - name: Build backend
         run: go build ./cmd/memos
+
+  store-driver-tests:
+    name: Store integration (${{ matrix.driver }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        driver:
+          - sqlite
+          - mysql
+          - postgres
+    steps:
+      - name: Check out exact source revision
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: "1.27.0"
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Run complete store integration suite for selected database
+        env:
+          DRIVER: ${{ matrix.driver }}
+        run: go test -count=1 -timeout=15m ./store/test/...
+
+  development-linux-package:
+    name: Linux Development package and loopback smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Check out exact source revision
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+        with:
+          version: "11.0.1"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24"
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Set up Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: "1.27.0"
+          cache: true
+          cache-dependency-path: go.sum
+
+      - name: Install locked web dependencies
+        working-directory: web
+        run: pnpm install --frozen-lockfile
+
+      - name: Build embedded production frontend
+        working-directory: web
+        run: pnpm release
+
+      - name: Package Development Debian build
+        run: bash packaging/linux/build-deb.sh
+
+      - name: Verify Debian package and local-only web server
+        run: bash packaging/linux/smoke-test.sh
+
+      - name: Upload Development Debian artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: goreecloud-memos-linux-dev-${{ github.run_id }}
+          path: packaging/linux/out/*.deb
+          if-no-files-found: error
+          retention-days: 7
+
+  native-linux-gtk4:
+    name: Native Linux GTK4 build, tests and headless launch
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact source revision
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Install native Linux GTK4 build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends gcc make pkg-config binutils dpkg-dev libgtk-4-dev libjson-glib-dev libcurl4-openssl-dev openssl python3 xvfb desktop-file-utils
+
+      - name: Strict-warning native build and GLib unit tests
+        working-directory: native/linux-gtk4
+        run: make all test
+
+      - name: Headless GTK4 application lifecycle smoke
+        working-directory: native/linux-gtk4
+        run: make smoke
+
+      - name: Build native Debian Development preview
+        working-directory: native/linux-gtk4
+        run: bash packaging/build-deb.sh
+
+      - name: Audit reproducibility and extracted native package lifecycle
+        working-directory: native/linux-gtk4
+        run: bash packaging/smoke-deb.sh
+
+      - name: Upload genuine GTK4 native Development preview
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: goreecloud-memos-native-linux-preview-${{ github.run_id }}
+          path: native/linux-gtk4/dist/*.deb
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Declare prototype status
+        run: |
+          echo "GTK4-native Debian Development preview only: offline, synthetic notes, no authentication, persistent storage or production claim." >> "$GITHUB_STEP_SUMMARY"

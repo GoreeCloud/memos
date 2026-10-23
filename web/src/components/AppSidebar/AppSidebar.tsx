@@ -21,10 +21,9 @@ import {
   Trash2Icon,
   UserRoundIcon,
 } from "lucide-react";
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, Suspense, useEffect } from "react";
 import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { MAP_MEMO_FILTER } from "@/components/MapView/useMapMemos";
-import { MemoDetailSidebar } from "@/components/MemoDetailSidebar";
 import { DEFAULT_SETTING_SECTION, SETTINGS_SECTIONS } from "@/components/Settings/settingSections";
 import UserMenu from "@/components/UserMenu";
 import { Button } from "@/components/ui/button";
@@ -50,8 +49,10 @@ import { collectionPathForLocation, ROUTES } from "@/router/routes";
 import { State } from "@/types/proto/api/v1/common_pb";
 import { User_Role, UserNotification_Status } from "@/types/proto/api/v1/user_service_pb";
 import { useTranslate } from "@/utils/i18n";
+import { lazyWithReload } from "@/utils/lazy";
 import MemosLogo from "../MemosLogo";
 import CommonSidebarContent from "./CommonSidebarContent";
+import DashboardSidebar from "./DashboardSidebar";
 import { getSidebarRouteKind } from "./routes";
 import SidebarRow, { SIDEBAR_ROW_CLASSES, SIDEBAR_ROW_FOCUS_CLASSES, SidebarRowIconSlot, sidebarRowStateClasses } from "./SidebarRow";
 import SidebarSection, { SIDEBAR_SECTION_STACK_CLASSES } from "./SidebarSection";
@@ -65,19 +66,10 @@ import {
 import TagsSection from "./TagsSection";
 import ViewsSection from "./ViewsSection";
 
-const NewMemoAction = ({ onClick }: { onClick: () => void }) => {
-  const t = useTranslate();
-  const label = t("editor.new-memo");
-
-  return (
-    <Tooltip>
-      <TooltipTrigger render={<Button variant="outline" size="icon-compact" onClick={onClick} aria-label={label} data-new-memo-trigger />}>
-        <SquarePenIcon className="size-4" strokeWidth={1.8} />
-      </TooltipTrigger>
-      <TooltipContent side="bottom">{label}</TooltipContent>
-    </Tooltip>
-  );
-};
+// Keep memo detail panel code out of the initial Home and Settings bundles.
+const MemoDetailSidebar = lazyWithReload(() =>
+  import("@/components/MemoDetailSidebar").then(({ MemoDetailSidebar }) => ({ default: MemoDetailSidebar })),
+);
 
 const ProfileNavigation = () => {
   const t = useTranslate();
@@ -273,7 +265,9 @@ const MemoDetailSidebarContent = () => {
 
 const RouteSidebarContent = () => {
   const location = useLocation();
-  const kind = getSidebarRouteKind(location.pathname);
+  // The dedicated Home dashboard retains the same contextual memo sidebar
+  // even though All Memos owns the signed-in root route.
+  const kind = location.pathname === ROUTES.DASHBOARD ? "home" : getSidebarRouteKind(location.pathname);
   if (kind === "home" || kind === "archived" || kind === "explore" || kind === "profile") {
     return <CollectionSidebarContent context={kind} />;
   }
@@ -283,7 +277,13 @@ const RouteSidebarContent = () => {
   if (kind === "attachments") return <AttachmentsSidebarContent />;
   if (kind === "inbox") return <InboxSidebarContent />;
   if (kind === "settings") return <SettingsSidebarContent />;
-  if (kind === "memo") return <MemoDetailSidebarContent />;
+  if (kind === "memo") {
+    return (
+      <Suspense fallback={<div className="mx-3 h-24 animate-pulse rounded-lg bg-muted/30" aria-hidden="true" />}>
+        <MemoDetailSidebarContent />
+      </Suspense>
+    );
+  }
   if (kind === "common") return <CommonSidebarContent />;
   return null;
 };
@@ -355,7 +355,7 @@ const GlobalNavigation = () => {
   }, [memoScope, primaryScope, routeOwnsPrimaryScope, setMemoScope]);
 
   const scopeItems: Array<{ id: PrimaryMemoScope; label: string; icon: LucideIcon }> = [
-    { id: "home", label: t("common.home"), icon: HouseIcon },
+    { id: "home", label: `${t("common.all")} ${t("common.memos")}`, icon: LayoutListIcon },
     { id: "explore", label: t("common.explore"), icon: EarthIcon },
   ];
   const activeScopeItem = scopeItems.find((item) => item.id === primaryScope) ?? scopeItems[0];
@@ -369,6 +369,13 @@ const GlobalNavigation = () => {
 
   const items: GlobalNavItem[] = currentUser
     ? [
+        {
+          id: "dashboard",
+          label: t("common.home"),
+          path: ROUTES.DASHBOARD,
+          icon: HouseIcon,
+          active: location.pathname === ROUTES.DASHBOARD,
+        },
         {
           id: "map",
           label: t("common.map"),
@@ -566,18 +573,35 @@ const AppSidebar = ({ className }: { className?: string }) => {
   const currentUser = useCurrentUser();
   const { setMobileOpen } = useAppSidebar();
   const { canOpen: canCompose, openEditor } = useGlobalMemoEditor();
+  const routeKind = getSidebarRouteKind(useLocation().pathname);
+  const dashboard =
+    ["home", "archived", "attachments", "settings", "inbox"].includes(routeKind) || (routeKind === "profile" && !!currentUser);
   return (
-    <aside className={cn("goreecloud-sidebar flex h-full w-full select-none flex-col bg-sidebar text-sidebar-foreground", className)}>
+    <aside
+      className={cn(
+        "goreecloud-sidebar flex h-full w-full select-none flex-col bg-sidebar text-sidebar-foreground",
+        dashboard && "gc-dashboard-sidebar",
+        className,
+      )}
+    >
       <div data-sidebar-header className={cn("flex h-13 shrink-0 items-center justify-between gap-2", SIDEBAR_RAIL_CLASSES)}>
-        <SidebarBrand className="min-w-0" size="header" />
-        {canCompose && <NewMemoAction onClick={openEditor} />}
+        <SidebarBrand className={cn("min-w-0", dashboard && "flex-1")} size="header" />
       </div>
-      <GlobalNavigation />
+      {dashboard && currentUser && canCompose && (
+        <div className="gc-dashboard-create-wrap">
+          <button type="button" className="gc-dashboard-create" onClick={openEditor} aria-label={t("editor.new-memo")}>
+            <SquarePenIcon size={19} strokeWidth={1.9} aria-hidden="true" />
+            <span>{t("editor.new-memo")}</span>
+            <ChevronDownIcon size={18} aria-hidden="true" />
+          </button>
+        </div>
+      )}
+      {!dashboard && <GlobalNavigation />}
       <div className="mx-3 mt-2 border-t border-border/70" />
       <div className={cn("min-h-0 flex-1 overflow-y-auto overflow-x-hidden pt-2 pb-3 [scrollbar-width:thin]", SIDEBAR_RAIL_CLASSES)}>
-        <RouteSidebarContent />
+        {dashboard ? <DashboardSidebar /> : <RouteSidebarContent />}
       </div>
-      <footer className="shrink-0 border-t border-border/70">
+      <footer className="shrink-0 border-t border-border/70 p-2">
         {currentUser ? (
           <UserMenu />
         ) : (

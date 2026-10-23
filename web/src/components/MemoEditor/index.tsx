@@ -5,6 +5,7 @@ import { useInstance } from "@/contexts/InstanceContext";
 import { useLocalStorage } from "@/hooks";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { getMissingLabels } from "@/lib/memo-labels";
+import { splitMemoTitle } from "@/lib/memo-title";
 import { cn } from "@/lib/utils";
 import { InstanceSetting_Key } from "@/types/proto/api/v1/instance_service_pb";
 import { useTranslate } from "@/utils/i18n";
@@ -93,10 +94,15 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
   // Get default visibility from user settings
   const defaultVisibility = userGeneralSetting?.memoVisibility ? convertVisibilityFromString(userGeneralSetting.memoVisibility) : undefined;
   const editorCacheKey = cacheService.key(currentUser?.name ?? "", cacheKey);
+  const titleCacheKey = `goreecloud-memo-title:${editorCacheKey}`;
+  const [title, setTitle] = useState(() => (memo ? splitMemoTitle(memo.content).title : (localStorage.getItem(titleCacheKey) ?? "")));
+  const titleRef = useRef(title);
+  titleRef.current = title;
+  const memoForEditor = useMemo(() => (memo ? { ...memo, content: splitMemoTitle(memo.content).body } : undefined), [memo]);
 
   const { isInitialized } = useMemoInit({
     editorRef,
-    memo,
+    memo: memoForEditor,
     cacheKey,
     username: currentUser?.name ?? "",
     autoFocus,
@@ -105,6 +111,9 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
     defaultLocation,
   });
   const isDraftCacheEnabled = !memo;
+  useEffect(() => {
+    if (!memo && isInitialized) localStorage.setItem(titleCacheKey, title);
+  }, [title, memo, titleCacheKey, isInitialized]);
 
   useEffect(() => {
     onSavingChange?.(isSaving);
@@ -330,6 +339,13 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
     defaultVisibility,
     defaultCreateTime,
     discardDraft,
+    getTitle: () => titleRef.current,
+    onSaved: () => {
+      if (!memo) {
+        localStorage.removeItem(titleCacheKey);
+        setTitle("");
+      }
+    },
     onConfirm,
     onCancel: onCancel ? handleCancel : undefined,
   });
@@ -374,6 +390,20 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
           </div>
         )}
 
+        <label className="block w-full min-w-0">
+          <span className="sr-only">{t("common.title")}</span>
+          <input
+            type="text"
+            value={title}
+            maxLength={240}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder={t("common.title")}
+            aria-label={t("common.title")}
+            data-memo-title
+            disabled={isSaving}
+            className="w-full rounded-md border-0 bg-transparent px-1 py-2 text-lg font-semibold text-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/50"
+          />
+        </label>
         {/* Editor content grows to fill available space in focus mode */}
         <EditorContent ref={editorRef} placeholder={placeholder} onSubmit={handleSave} onFiles={handleEditorFiles} />
 
@@ -398,6 +428,7 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
             onInsertLocalFiles={inlineImageUpload.insertLocalImages}
           />
           <EditorToolbar
+            title={title}
             onSave={handleSave}
             onCancel={onCancel ? handleCancel : undefined}
             memoName={memoName}

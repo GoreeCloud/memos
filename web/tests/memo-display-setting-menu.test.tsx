@@ -9,6 +9,7 @@ vi.mock("@/utils/i18n", () => ({
   useTranslate: () => (key: string, params?: Record<string, number>) => {
     const labels: Record<string, string> = {
       "common.created-at": "Created",
+      "common.restore": "Restore",
       "common.last-updated-at": "Last updated",
       "memo.compact-mode": "Compact mode",
       "memo.direction": "Direction",
@@ -49,18 +50,52 @@ describe("MemoDisplaySettingMenu", () => {
 
     fireEvent.click(trigger);
 
-    const compactMode = screen.getByRole("switch", { name: "Compact mode" });
-    expect(compactMode).not.toBeChecked();
-    expect(compactMode).toBeEnabled();
+    expect(screen.queryByRole("switch", { name: "Compact mode" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("radiogroup")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("radio", { name: "2 columns" }));
-
-    expect(compactMode).toBeChecked();
-    expect(compactMode).toHaveAttribute("aria-disabled", "true");
-    expect(screen.getByText("Grid layouts always use compact cards.")).toBeInTheDocument();
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
+    expect(screen.getByRole("switch", { name: "Link preview" })).toBeChecked();
   });
 
-  it("moves horizontally in the visual direction for RTL layouts", () => {
+  it("restores user-selected view settings and disables the action at defaults", () => {
+    render(
+      <ViewProvider>
+        <MemoDisplaySettingMenu />
+      </ViewProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "View options" }));
+    const reset = screen.getByRole("button", { name: "Restore View options" });
+    expect(reset).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("switch", { name: "Link preview" }));
+    expect(reset).toBeEnabled();
+
+    fireEvent.click(reset);
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
+    expect(screen.getByRole("switch", { name: "Link preview" })).toBeChecked();
+    expect(reset).toBeDisabled();
+
+    const saved = JSON.parse(localStorage.getItem("memos-view-setting") ?? "{}");
+    expect(saved).toMatchObject({
+      orderByTimeAsc: false,
+      compactMode: false,
+      linkPreview: true,
+      maxColumns: 0,
+    });
+  });
+
+  it("exposes no fixed-column or list options in LTR", () => {
+    render(
+      <ViewProvider>
+        <MemoDisplaySettingMenu />
+      </ViewProvider>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "View options" }));
+    expect(screen.queryByRole("radiogroup")).not.toBeInTheDocument();
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
+  });
+
+  it("exposes no fixed-column or list options in RTL", () => {
     render(
       <DirectionProvider direction="rtl">
         <ViewProvider>
@@ -70,8 +105,7 @@ describe("MemoDisplaySettingMenu", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "View options" }));
-    fireEvent.keyDown(screen.getByRole("radiogroup", { name: "Layout" }), { key: "ArrowLeft" });
-
-    expect(screen.getByRole("radio", { name: "2 columns" })).toBeChecked();
+    expect(screen.queryByRole("radiogroup")).not.toBeInTheDocument();
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,9 @@
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
-import { resolve } from "path";
 import { defineConfig } from "vitest/config";
+
+const configDirectory = dirname(fileURLToPath(import.meta.url));
 
 // Vitest configuration. Kept separate from `vite.config.mts` so the dev/build
 // pipelines stay lean and so tests can opt into jsdom + @testing-library
@@ -11,7 +14,7 @@ export default defineConfig({
     // Keep in sync with the `@/` alias declared in `vite.config.mts` so that
     // test-time module resolution matches production/build.
     alias: {
-      "@/": `${resolve(__dirname, "src")}/`,
+      "@/": `${resolve(configDirectory, "src")}/`,
     },
   },
   test: {

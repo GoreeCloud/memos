@@ -22,3 +22,7 @@ dist/
 # when --config.store-dir is set without an existing store; it contains a
 # symlink back to the workspace.
 .pnpm-store/
+
+# Platform build outputs and signatures must not be committed.
+/packaging/android/out/
+/packaging/linux/out/

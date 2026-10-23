@@ -11,30 +11,33 @@ const percentile = (values: number[], percentileValue: number): number => {
   return ordered[index] ?? Number.POSITIVE_INFINITY;
 };
 
+// Measure entirely in the browser. The previous harness awaited a Playwright
+// click round trip and then created two RAFs from a *new* automation command;
+// this incorrectly charged host automation scheduling/transport time to the UI.
 const measureClickToPaint = async (page: Page, target: Locator): Promise<number> => {
   await page.evaluate(() => {
-    const perfWindow = window as typeof window & { __goreecloudInteractionStart?: number };
-    perfWindow.__goreecloudInteractionStart = undefined;
-    document.addEventListener(
-      "click",
-      () => {
-        perfWindow.__goreecloudInteractionStart = performance.now();
-      },
-      { capture: true, once: true },
-    );
+    const perfWindow = window as typeof window & { __goreecloudClickPaint?: Promise<number> };
+    perfWindow.__goreecloudClickPaint = new Promise<number>((resolve) => {
+      document.addEventListener(
+        "click",
+        () => {
+          const start = performance.now();
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve(performance.now() - start)));
+        },
+        { capture: true, once: true },
+      );
+    });
   });
 
   await target.click();
 
   return page.evaluate(async () => {
-    const perfWindow = window as typeof window & { __goreecloudInteractionStart?: number };
-    await new Promise<void>((resolve) => {
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-    });
-    if (typeof perfWindow.__goreecloudInteractionStart !== "number") {
-      throw new Error("Interaction start was not captured");
-    }
-    return performance.now() - perfWindow.__goreecloudInteractionStart;
+    const perfWindow = window as typeof window & { __goreecloudClickPaint?: Promise<number> };
+    const measurement = perfWindow.__goreecloudClickPaint;
+    if (!measurement) throw new Error("Browser-owned click-to-paint measurement was not installed");
+    const duration = await measurement;
+    delete perfWindow.__goreecloudClickPaint;
+    return duration;
   });
 };
 
@@ -42,21 +45,21 @@ test("bounded Glaze interaction-to-painted-update stays within the approved Deve
   await page.goto("/");
   await expect(page.locator('.goreecloud-shell[data-glaze-consumer="GoreeCloud Memos"][data-glaze-version="1.7.0"]')).toBeVisible();
 
-  const searchTrigger = page.locator("nav").getByRole("button", { name: "Search", exact: true }).first();
-  await expect(searchTrigger).toBeVisible();
-  await searchTrigger.click();
-
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
-  const textTab = dialog.getByRole("tab", { name: "Text", exact: true });
-  const expressionTab = dialog.getByRole("tab", { name: "Expression", exact: true });
-  await expect(textTab).toHaveAttribute("aria-selected", "true");
+  // The redesigned dashboard has persistent Grid/List controls in place of
+  // the former navigation Search dialog. Measure real user-visible layout
+  // transitions rather than timing an obsolete trigger or an inert control.
+  const layout = page.getByRole("group", { name: "Memo layout" });
+  const grid = layout.getByRole("button", { name: "Grid view" });
+  const list = layout.getByRole("button", { name: "List view" });
+  await expect(grid).toBeVisible();
+  await expect(list).toBeVisible();
+  await expect(grid).toHaveAttribute("aria-pressed", "true");
 
   const durations: number[] = [];
   for (let index = 0; index < SAMPLE_COUNT; index += 1) {
-    const target = index % 2 === 0 ? expressionTab : textTab;
+    const target = index % 2 === 0 ? list : grid;
     durations.push(await measureClickToPaint(page, target));
-    await expect(target).toHaveAttribute("aria-selected", "true");
+    await expect(target).toHaveAttribute("aria-pressed", "true");
   }
 
   const metrics = {
@@ -70,7 +73,7 @@ test("bounded Glaze interaction-to-painted-update stays within the approved Deve
       p95Ms: GLAZE_INTERACTION_P95_BUDGET_MS,
       p99Ms: GLAZE_INTERACTION_P99_BUDGET_MS,
     },
-    scope: "Search text/expression mode transitions; Development evidence only",
+    scope: "In-page click-to-two-animation-frames for real Home layout transitions; Development evidence only",
   };
 
   await testInfo.attach("glaze-interaction-performance.json", {
