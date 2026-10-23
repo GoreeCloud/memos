@@ -6,7 +6,7 @@ GoreeCloud Memos is in Forge / Development. A green pull request or merged `main
 
 The repository currently has exact-revision validation and release-versioning metadata, but there is no active GoreeCloud release/deployment workflow that authorizes production publication from this repository. `release-please-config.json` is preparatory version/changelog configuration only; it is not release authority.
 
-Production release remains blocked until the applicable GoreeCloud lifecycle, security, privacy, accessibility, Glaze, recovery, platform-integration, artifact-signing/provenance, deployment, and production-acceptance gates are satisfied.
+Production release remains blocked until the applicable GoreeCloud lifecycle, security, privacy, GC UI migration/conformance, accessibility, recovery, platform-integration, artifact-signing/provenance, deployment, and production-acceptance gates are satisfied.
 
 ## Development-only update visibility
 
@@ -16,7 +16,7 @@ The Memos web client has an opt-in Development update notice to make a tested De
 VITE_GOREECLOUD_DEVELOPMENT_PREVIEW=true VITE_GOREECLOUD_SOURCE_REVISION=<exact-40-character-commit-sha> pnpm release
 ```
 
-The notice shows the abbreviated exact commit and a concise summary of shipped search interactions. It is collapsible, contains no user content, and does not authorize production publication. The flag is never set for general-release/production builds. Verify the served hashed entrypoint asset against the exact compiled distribution, plus the rendered notice and revision on the isolated Development URL. Keep existing private data, backup, rollback, and provider gates intact.
+The notice shows the current source-qualified **Forge** lifecycle stage from `goreecloud.platform.yaml` and `docs/PROJECT-RECORD.md`, a neutral informational icon (not a success or release certification), the abbreviated exact commit, and a concise Development feature preview. It explicitly says the build is not Seal- or Anchor-qualified. If the canonical lifecycle stage changes, update the notice and tests in the same reviewed promotion. It is collapsible, contains no user content, and does not authorize production publication. The flag is never set for general-release/production builds. Verify the served hashed entrypoint asset against the exact compiled distribution, plus the rendered notice and revision on the isolated Development URL. Keep existing private data, backup, rollback, and provider gates intact.
 
 ## State model
 
@@ -54,7 +54,7 @@ After merge, verify the exact `main` revision and its post-merge checks. This co
 Before designating an exact merged revision as a release candidate, evidence must cover the applicable product risks, including:
 
 - security and privacy acceptance;
-- rendered Glaze/accessibility and representative browser/form-factor acceptance;
+- rendered GC UI migration/accessibility and representative browser/form-factor acceptance;
 - compatibility and database-upgrade behavior;
 - representative performance evidence and governed budgets;
 - full recovery prerequisites appropriate to the target environment;
