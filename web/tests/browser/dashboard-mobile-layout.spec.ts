@@ -46,3 +46,39 @@ test("memo dashboard adapts to phone widths and narrow panes", async ({ page }) 
   });
   expect((await measure()).memoColumns).toBe(3);
 });
+
+test("mobile user pinch-to-zoom works in the served application", async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== "phone-dark", "One real Chromium touch run covers the mobile zoom contract");
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  });
+  try {
+    const page = await context.newPage();
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const viewport = await page.locator('meta[name="viewport"]').getAttribute("content");
+    expect(viewport).toContain("width=device-width");
+    expect(viewport).not.toMatch(/user-scalable\s*=\s*no|maximum-scale\s*=\s*1/i);
+
+    const client = await context.newCDPSession(page);
+    await client.send("Input.synthesizePinchGesture", { x: 180, y: 320, scaleFactor: 2, relativeSpeed: 400 });
+    await expect.poll(async () => page.evaluate(() => window.visualViewport?.scale ?? 1), { timeout: 5000 }).toBeGreaterThan(1.2);
+
+    await client.send("Input.synthesizePinchGesture", { x: 180, y: 320, scaleFactor: 2, relativeSpeed: 400 });
+    await expect.poll(async () => page.evaluate(() => window.visualViewport?.scale ?? 1), { timeout: 5000 }).toBeGreaterThan(3.2);
+
+    // Recheck CSS layout at a narrow logical width; this unauthenticated browser run does not accept the dashboard UI.
+    await page.setViewportSize({ width: 320, height: 720 });
+    await page.reload({ waitUntil: "domcontentloaded" });
+    const narrow = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(narrow.clientWidth).toBe(320);
+    expect(narrow.scrollWidth).toBeLessThanOrEqual(narrow.clientWidth + 1);
+  } finally {
+    await context.close();
+  }
+});
