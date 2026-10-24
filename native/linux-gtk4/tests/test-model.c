@@ -15,6 +15,21 @@ static void test_store(void) {
   g_assert_null(gc_memo_store_find(s,id));
   gc_memo_store_free(s);
 }
+static void test_update_aliased_content(void) {
+  GcMemoStore *s=gc_memo_store_new();
+  GcMemo *m=gc_memo_store_add(s,"Original memo");
+  g_assert_nonnull(m);
+
+  /* The model owns both pointers; neither may be read after its free. */
+  g_assert_true(gc_memo_store_update(m,m->content));
+  g_assert_cmpstr(m->content,==,"Original memo");
+  g_assert_true(gc_memo_store_update(m,m->content+9));
+  g_assert_cmpstr(m->content,==,"memo");
+  g_assert_false(gc_memo_store_update(m,m->content+4));
+  g_assert_cmpstr(m->content,==,"memo");
+
+  gc_memo_store_free(s);
+}
 static void test_filters(void) {
   GcMemoStore *s=gc_memo_store_new();
   GcMemo *m=gc_memo_store_add(s,"# Demo\n- [ ] task #Work");
@@ -44,6 +59,7 @@ static void test_unicode(void) {
 int main(int argc,char **argv) {
   g_test_init(&argc,&argv,NULL);
   g_test_add_func("/native/store",test_store);
+  g_test_add_func("/native/update-aliased-content",test_update_aliased_content);
   g_test_add_func("/native/filters",test_filters);
   g_test_add_func("/native/unicode",test_unicode);
   return g_test_run();
