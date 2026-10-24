@@ -35,7 +35,7 @@ const App = () => {
 
   // GoreeCloud does not execute instance-provided CSS or JavaScript in the
   // trusted application shell. Branding and presentation remain constrained to
-  // reviewed product settings and the Glaze design authority.
+  // reviewed product settings and the GoreeCloud UI (GC UI) authority.
 
   // GoreeCloud security boundary: instance-provided JavaScript is intentionally
   // not executed by the browser client. Administrative customization must not
@@ -59,6 +59,8 @@ const App = () => {
       <DevelopmentUpdateNotice
         enabled={import.meta.env.VITE_GOREECLOUD_DEVELOPMENT_PREVIEW === "true"}
         revision={import.meta.env.VITE_GOREECLOUD_SOURCE_REVISION}
+        stage={import.meta.env.VITE_GOREECLOUD_PLATFORM_LIFECYCLE}
+        qualification={import.meta.env.VITE_GOREECLOUD_PLATFORM_QUALIFICATION}
       />
     </DirectionProvider>
   );
