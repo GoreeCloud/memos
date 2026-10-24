@@ -35,8 +35,10 @@ GcMemo *gc_memo_store_add(GcMemoStore *s, const gchar *content) {
 }
 gboolean gc_memo_store_update(GcMemo *m, const gchar *c) {
   if (!m || !valid_content(c)) return FALSE;
+  /* Callers may pass m->content (or a slice of it): copy before freeing. */
+  gchar *replacement = g_strdup(c);
   g_free(m->content);
-  m->content = g_strdup(c);
+  m->content = replacement;
   m->updated_at = g_get_real_time()/G_USEC_PER_SEC;
   return TRUE;
 }
