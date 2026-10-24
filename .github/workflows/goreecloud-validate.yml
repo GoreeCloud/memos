@@ -39,6 +39,11 @@ jobs:
       - name: Verify whitespace
         run: git diff --check
 
+      - name: Test offline Memos Development source parity gate
+        run: |
+          python3 -m unittest discover -s scripts/qa/memos-source-parity -p 'test_parity_gate.py' -v
+          (cd scripts/qa/memos-source-parity && sha256sum -c SHA256SUMS)
+
   frontend:
     name: Frontend quality and build
     runs-on: ubuntu-24.04

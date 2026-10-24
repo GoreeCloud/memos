@@ -1,0 +1,69 @@
+{
+  "schema": "goreecloud-memos-source-parity-baseline-v1",
+  "repository": "GoreeCloud/memos",
+  "baseline": "cdde8274d6ec87327793caed9d4630ccf80db7eb",
+  "candidate": "978f60d05c86efa9c42f790a24752497e1a53f08",
+  "expected_changes": 95,
+  "critical_ui": [
+    {
+      "path": "web/src/components/AppSidebar/AppSidebar.tsx",
+      "old_blob": "08972c94cdf9eaaf3c2c494a6a626070630cb90a",
+      "new_blob": "2e7a58b32e546806a7dd6c05fece2be58e2af2a7"
+    },
+    {
+      "path": "web/src/components/AppSidebar/DashboardSidebar.css",
+      "old_blob": "94dffb5aab7715757e703cde02e8998527818bb6",
+      "new_blob": "73b6b01457dae13d4a43ca84041a405e062c4509"
+    },
+    {
+      "path": "web/src/components/AppSidebar/DashboardSidebar.tsx",
+      "old_blob": "002459b2322c11547af32807cccd2d7094b031ed",
+      "new_blob": "08a3c8bcbc2860ee71cc8f92078e723872484cc6"
+    },
+    {
+      "path": "web/src/components/MemoContent/useSearchMatchHighlight.ts",
+      "old_blob": "e152ff5eab0d2202fdfdf8cdae022a63cc80babb",
+      "new_blob": "e7a04865e6e9460a6c0ed2ec24aa332abd42b0cd"
+    },
+    {
+      "path": "web/src/components/MemoDisplaySettingMenu.tsx",
+      "old_blob": "bd78f2666982247eb270cedd4f702386a052961c",
+      "new_blob": "4eb9b0ce43990a8c278ab101719f701f8b6dad95"
+    },
+    {
+      "path": "web/src/components/MemoView/MemoView.tsx",
+      "old_blob": "1443c7e284c10ed2276bc45cb1aa7ed7c046d023",
+      "new_blob": "bb105fe291b8580b1a70a6db0f88926c97d21abd"
+    },
+    {
+      "path": "web/src/components/PagedMemoList/PagedMemoList.tsx",
+      "old_blob": "cc327e4032196e68603066d7bf434c82b2d8261c",
+      "new_blob": "e893cf9705062e8f669b8ceae380b8841339e659"
+    },
+    {
+      "path": "web/src/contexts/ViewContext.tsx",
+      "old_blob": "dfee1543a8c934e05d06402ddf7ae1dc7b7c3c11",
+      "new_blob": "9d93f4a55e089b7b6b5445532759833714c63dce"
+    },
+    {
+      "path": "web/src/pages/Home.masonry.css",
+      "old_blob": "1661252f131a0e343e309b1994bfd1905aaad40e",
+      "new_blob": "1d07a2f4d20286f9242413d566b181349f964a0a"
+    },
+    {
+      "path": "web/src/pages/Home.tsx",
+      "old_blob": "1e75db85aa19a433b8f42f330ff961ab83555cc4",
+      "new_blob": "0ad44cd8473cad10ce28e30e5b7a869bc34f9bbc"
+    }
+  ],
+  "verification_scope": "GitHub exact source revisions only; recorded OCI source may differ from current runtime filesystem; no deployment or recovery claims",
+  "expected_categories": {
+    "web_ui": 10,
+    "web_tests_config": 11,
+    "native_linux": 23,
+    "translations": 45,
+    "ci": 1,
+    "documentation": 3,
+    "other": 2
+  }
+}

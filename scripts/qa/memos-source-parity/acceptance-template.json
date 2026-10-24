@@ -1,0 +1,16 @@
+{
+  "baseline": "cdde8274d6ec87327793caed9d4630ccf80db7eb",
+  "candidate": "978f60d05c86efa9c42f790a24752497e1a53f08",
+  "gates": {
+    "source_review_all_changed_paths": { "status": "pending", "evidence_uri": "" },
+    "owner_visible_authenticated_ui_parity": { "status": "pending", "evidence_uri": "" },
+    "exact_candidate_full_validation": { "status": "pending", "evidence_uri": "" },
+    "image_source_and_asset_provenance": { "status": "pending", "evidence_uri": "" },
+    "scoped_backup_integrity": { "status": "pending", "evidence_uri": "" },
+    "clean_target_restore_and_attachment_readback": { "status": "pending", "evidence_uri": "" },
+    "external_non_overlay_deny_and_authorized_tls": { "status": "pending", "evidence_uri": "" },
+    "anonymous_content_access_denied": { "status": "pending", "evidence_uri": "" },
+    "rollback_and_post_cutover_write_safety": { "status": "pending", "evidence_uri": "" }
+  },
+  "reviewed_ui_paths": {}
+}
