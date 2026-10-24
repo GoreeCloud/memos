@@ -1,5 +1,12 @@
 # GoreeCloud Memos Release and Rollback
 
+- **Document type:** Engineering release and recovery procedure
+- **Owner:** GoreeCloud
+- **Status:** Active Development guidance; not a release authorization
+- **Revision verified:** October 23, 2026
+- **Canonical Markdown source:** `docs/RELEASE-AND-ROLLBACK.md`
+- **Derived portable export:** `docs/RELEASE-AND-ROLLBACK.pdf`
+
 ## Current boundary
 
 GoreeCloud Memos is in Forge / Development. A green pull request or merged `main` revision is not a release, deployment, Production Acceptance result, Seal qualification, or Anchor qualification.
@@ -16,7 +23,7 @@ The Memos web client has an opt-in Development update notice to make a tested De
 VITE_GOREECLOUD_DEVELOPMENT_PREVIEW=true VITE_GOREECLOUD_SOURCE_REVISION=<exact-40-character-commit-sha> pnpm release
 ```
 
-The notice shows the current source-qualified **Forge** lifecycle stage from `goreecloud.platform.yaml` and `docs/PROJECT-RECORD.md`, a neutral informational icon (not a success or release certification), the abbreviated exact commit, and a concise Development feature preview. It explicitly says the build is not Seal- or Anchor-qualified. If the canonical lifecycle stage changes, update the notice and tests in the same reviewed promotion. It is collapsible, contains no user content, and does not authorize production publication. The flag is never set for general-release/production builds. Verify the served hashed entrypoint asset against the exact compiled distribution, plus the rendered notice and revision on the isolated Development URL. Keep existing private data, backup, rollback, and provider gates intact.
+The notice reads the declared lifecycle stage and qualification state from `goreecloud.platform.yaml` at frontend build time, displaying **source metadata** rather than verified live runtime status. The build fails if either required manifest field is absent, duplicated, or unsupported. The current manifest declares **Forge** and **not-qualified**; the display also explicitly says runtime qualification is not verified. A reviewed source lifecycle transition must update the authoritative manifest and trigger a fresh build, exact-head validation, rendered acceptance, and deployment-source parity checks before any new status is communicated as runtime fact. The notice uses a neutral informational icon (not a success or release certification), may show an abbreviated valid commit, and provides a concise Development feature preview. It is collapsible, contains no user content, and does not authorize production publication. The flag must not be set for general-release/production builds. Verify the served hashed entrypoint asset against the exact compiled distribution, plus the rendered notice and revision on the isolated Development URL. Keep existing private data, backup, rollback, and provider gates intact.
 
 ## State model
 
@@ -40,7 +47,7 @@ Before merging a material change:
 - use current protected `main` as the base;
 - identify the exact candidate head;
 - review scope, dependencies, privacy/security impact, migration impact, documentation, and rollback considerations;
-- require all six GoreeCloud exact-head jobs to pass;
+- require all applicable provider-enforced and GoreeCloud exact-head validation checks to pass;
 - resolve required review threads and specialized review;
 - treat any changed head as a new candidate; and
 - merge only through repository protection.
@@ -134,7 +141,7 @@ Validate the actual runtime, including the applicable subset of:
 - database integrity and migration state;
 - required GoreeCloud integrations;
 - privacy/security boundaries and security headers;
-- representative Glaze/accessibility behavior;
+- representative GoreeCloud UI (GC UI) and accessibility behavior;
 - performance/resource behavior;
 - observability and alerting; and
 - backup/recovery continuity.
