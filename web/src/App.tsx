@@ -59,6 +59,8 @@ const App = () => {
       <DevelopmentUpdateNotice
         enabled={import.meta.env.VITE_GOREECLOUD_DEVELOPMENT_PREVIEW === "true"}
         revision={import.meta.env.VITE_GOREECLOUD_SOURCE_REVISION}
+        stage={import.meta.env.VITE_GOREECLOUD_PLATFORM_LIFECYCLE}
+        qualification={import.meta.env.VITE_GOREECLOUD_PLATFORM_QUALIFICATION}
       />
     </DirectionProvider>
   );

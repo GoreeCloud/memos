@@ -4,16 +4,20 @@ import { useState } from "react";
 interface Props {
   enabled: boolean;
   revision?: string;
+  stage?: string;
+  qualification?: string;
 }
 
 /** Build-gated, informational only: never expose deployment data, user content, or credentials. */
-const DevelopmentUpdateNotice = ({ enabled, revision }: Props) => {
+const DevelopmentUpdateNotice = ({ enabled, revision, stage, qualification }: Props) => {
   // Keep the development notice available without obscuring the memo feed on phones.
   // Visitors can expand it when they want build details.
   const [expanded, setExpanded] = useState(false);
   if (!enabled) return null;
 
   const buildLabel = revision?.match(/^[0-9a-f]{40}$/i) ? revision.slice(0, 8) : "Development";
+  const stageLabel = /^(forge|seal|anchor)$/.test(stage ?? "") ? `${stage?.slice(0, 1).toUpperCase()}${stage?.slice(1)}` : "Unknown";
+  const qualificationLabel = /^(qualified|not-qualified)$/.test(qualification ?? "") ? qualification : "unverified";
 
   return (
     <aside
@@ -27,10 +31,10 @@ const DevelopmentUpdateNotice = ({ enabled, revision }: Props) => {
           <span className="truncate text-sm font-semibold">Development preview</span>
           <span
             role="status"
-            aria-label="Release stage: Forge"
+            aria-label={`Source lifecycle: ${stageLabel}`}
             className="shrink-0 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground"
           >
-            Forge
+            {stageLabel}
           </span>
         </div>
         <button
@@ -49,7 +53,9 @@ const DevelopmentUpdateNotice = ({ enabled, revision }: Props) => {
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
           Open Quick Find with Ctrl+K or ⌘K. Edit search chips or clear multiple search terms at once.
         </p>
-        <p className="mt-2 text-xs text-muted-foreground">Forge stage · Not qualified for Seal or Anchor</p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Source metadata: {stageLabel} · {qualificationLabel} · Runtime not verified
+        </p>
         <p className="mt-1 font-mono text-[11px] text-muted-foreground">Build {buildLabel} · Development only</p>
       </div>
     </aside>
