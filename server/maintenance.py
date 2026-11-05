@@ -46,6 +46,21 @@ def verify_database(path):
         """).fetchone()
         if bad_revision:
             raise ValueError("Orphaned or invalid memo revision history")
+        # Every update saves exactly one prior version. Because revision
+        # versions are unique per memo and bounded to [1, current-1] above,
+        # matching the count proves the history has no missing versions.
+        incomplete_history = db.execute("""
+            SELECT 1 FROM memos m
+            LEFT JOIN (
+                SELECT memo_id, COUNT(*) AS saved_versions
+                FROM revisions GROUP BY memo_id
+            ) h ON h.memo_id = m.id
+            WHERE m.version < 1
+               OR COALESCE(h.saved_versions, 0) <> m.version - 1
+            LIMIT 1
+        """).fetchone()
+        if incomplete_history:
+            raise ValueError("Incomplete memo revision history")
         notes = db.execute("SELECT count(*) FROM memos").fetchone()[0]
         versions = db.execute("SELECT count(*) FROM revisions").fetchone()[0]
     return {"integrity": "ok", "memos": notes, "revisions": versions}
