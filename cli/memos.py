@@ -178,6 +178,7 @@ def main():
     listing = sub.add_parser("list", help="List memos")
     listing.add_argument("--folder", choices=["active", "archive", "trash", "all"], default="active")
     listing.add_argument("--search", default="")
+    listing.add_argument("--tag", default="", help="Require this hashtag (without #)")
     show = sub.add_parser("show", help="Read one memo by its UUID")
     show.add_argument("id")
     history = sub.add_parser("history", help="Read prior text revisions of one memo")
@@ -189,6 +190,8 @@ def main():
     revert.add_argument("id")
     revert.add_argument("--version", type=int, required=True,
                         help="Prior revision version to restore (positive integer)")
+    duplicate = sub.add_parser("duplicate", help="Make a new memo from an existing UUID")
+    duplicate.add_argument("id")
     create = sub.add_parser("create", help="Create a memo")
     create.add_argument("content", nargs="?", help="Text (or pipe through standard input)")
     create.add_argument("--title", default="")
@@ -211,7 +214,11 @@ def main():
     try:
         if args.command == "list":
             result = request(args.url, token, "/api/v1/memos?" +
-                             urlencode({"folder": args.folder, "q": args.search}))
+                             urlencode({"folder": args.folder, "q": args.search,
+                                        "tag": args.tag.lstrip("#")}))
+        elif args.command == "duplicate":
+            result = request(args.url, token,
+                             memo_path(args.id) + "/duplicate", "POST", {})
         elif args.command == "show":
             result = request(args.url, token, memo_path(args.id))
         elif args.command == "history":
