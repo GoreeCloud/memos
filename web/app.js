@@ -83,7 +83,67 @@
     const params=new URLSearchParams({folder:state.folder==="pinned"?"active":state.folder,q:state.q,tag:state.tag});
     try{const notes=await api("/api/v1/memos?"+params.toString());if(request!==state.request)return;state.memos=notes;render();}catch(err){fail(err);}
   }
+  async function loadRevisions(memo){
+    const list=el("revisionList");
+    list.replaceChildren(make("p","revision-message","Loading previous versions…"));
+    try{
+      const response=await api("/api/v1/memos/"+memo.id+"/revisions");
+      // A delayed response must never expose another memo's history in this editor.
+      if(state.editing?.id!==memo.id||!el("revisionPanel").open)return;
+      if(!Array.isArray(response))throw new Error("Unexpected revision history response");
+      const revisions=response.filter(r=>r&&Number.isInteger(r.version)&&r.version>0&&
+        typeof r.title==="string"&&typeof r.content==="string");
+      list.replaceChildren();
+      if(!revisions.length){
+        list.append(make("p","revision-message","No previous versions yet."));
+        return;
+      }
+      for(const revision of revisions){
+        const row=make("section","revision-row");
+        const head=make("div","revision-head");
+        head.append(make("strong","", "Version "+revision.version));
+        const when=new Date(revision.saved_at);
+        if(!Number.isNaN(when.getTime()))
+          head.append(make("span","revision-date",when.toLocaleString()));
+        row.append(head);
+        if(revision.title)row.append(make("div","revision-title",revision.title));
+        const excerpt=revision.content.length>650?
+          revision.content.slice(0,650)+"…":revision.content;
+        row.append(make("pre","revision-text",excerpt));
+        const restore=make("button","subtle revision-restore","Restore this version");
+        restore.type="button";
+        restore.addEventListener("click",async()=>{
+          if(state.editing?.id!==memo.id)return;
+          if(!window.confirm("Restore version "+revision.version+" as a NEW memo version? "+
+            "Current title/content will change, and unsaved editor text will be discarded. "+
+            "Earlier versions will be preserved."))return;
+          restore.disabled=true;
+          try{
+            await api("/api/v1/memos/"+memo.id,{method:"PATCH",
+              body:JSON.stringify({version:memo.version,title:revision.title,
+                content:revision.content})});
+            if(state.editing?.id===memo.id){
+              clearDraft();el("editor").close();
+              toast("Earlier text restored as a new memo version");
+            }
+            await load();
+          }catch(err){
+            if(err.status===409)toast("Memo changed elsewhere. Copy your draft before refreshing.");
+            else fail(err);
+          }finally{restore.disabled=false;}
+        });
+        row.append(restore);
+        list.append(row);
+      }
+    }catch(err){
+      if(state.editing?.id!==memo.id||!el("revisionPanel").open)return;
+      list.replaceChildren(make("p","revision-message","Unable to load revision history."));
+      fail(err);
+    }
+  }
   function open(memo=null){
+    const history=el("revisionPanel");
+    history.open=false;history.hidden=!memo;el("revisionList").replaceChildren();
     state.editing=memo;el("editorTitle").textContent=memo?"EDIT MEMO · VERSION "+memo.version:"NEW MEMO";
     el("editTitle").value=memo?.title||"";
     el("editContent").value=sessionStorage.getItem(key(memo?.id))??memo?.content??"";
@@ -107,6 +167,9 @@
     e.preventDefault();state.token=el("accessToken").value.trim();
     try{await api("/api/v1/memos?folder=active");el("authScreen").hidden=true;el("shell").hidden=false;el("accessToken").value="";await load();}
     catch(err){el("authError").textContent=err.message;state.token="";}
+  });
+  el("revisionPanel").addEventListener("toggle",()=>{
+    if(el("revisionPanel").open&&state.editing)loadRevisions(state.editing);
   });
   el("newBtn").onclick=()=>open();el("emptyNew").onclick=()=>open();el("closeEditor").onclick=()=>el("editor").close();el("pinToggle").onclick=()=>{state.pinnedCollapsed=!state.pinnedCollapsed;localStorage.setItem("gcmemos-pin-collapsed",String(state.pinnedCollapsed));render();};
   el("editorForm").addEventListener("submit",e=>{e.preventDefault();save();});
