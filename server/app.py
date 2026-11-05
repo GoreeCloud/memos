@@ -14,6 +14,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
+from auth_guard import AuthFailureGuard
+
 ROOT = Path(__file__).resolve().parent.parent
 WEB = ROOT / "web"
 COLORS = {"paper", "rose", "sun", "mint", "sky", "lavender"}
@@ -177,7 +179,10 @@ class Store:
                 "exported_at": timestamp(), "memos": memos, "revisions": revisions}
 
 
-def make_handler(store, token):
+def make_handler(store, token, auth_guard=None):
+    # This guard is shared across request threads, not recreated per request.
+    guard = auth_guard if auth_guard is not None else AuthFailureGuard()
+
     class Handler(BaseHTTPRequestHandler):
         server_version = "GoreeCloud-Memos/0.1"
         def log_message(self, fmt, *args):
@@ -191,6 +196,8 @@ def make_handler(store, token):
             self.send_header("Content-Type", mime)
             self.send_header("Content-Length", str(len(raw)))
             self.send_header("Cache-Control", "no-store")
+            if status == 429:
+                self.send_header("Retry-After", str(int(guard.window_seconds)))
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("Referrer-Policy", "no-referrer")
             self.send_header("X-Frame-Options", "DENY")
@@ -237,8 +244,15 @@ def make_handler(store, token):
                 return self.respond(200, (WEB / filename).read_bytes(), mime)
             if path == "/api/v1/health" and self.command == "GET":
                 return self.respond(200, {"status": "ok", "service": "goreecloud-memos"})
+            peer = self.client_address[0]
+            # Only the socket peer is trusted. Proxy-supplied forwarded headers
+            # cannot choose another rate-limit bucket.
+            if guard.denied(peer):
+                return self.respond(429, {"error": "Too many authentication failures"})
             if not self.authorized():
+                guard.failure(peer)
                 return self.respond(401, {"error": "Authentication required"})
+            guard.clear(peer)
             if path == "/api/v1/export" and self.command == "GET":
                 return self.respond(200, store.export_all())
             if path == "/api/v1/memos":
@@ -305,10 +319,10 @@ def make_handler(store, token):
     return Handler
 
 
-def create_server(host, port, db_path, token):
+def create_server(host, port, db_path, token, auth_guard=None):
     if len(token) < 24:
         raise ValueError("GOREE_MEMOS_TOKEN must be at least 24 characters")
-    return ThreadingHTTPServer((host, port), make_handler(Store(db_path), token))
+    return ThreadingHTTPServer((host, port), make_handler(Store(db_path), token, auth_guard))
 
 
 def main():
