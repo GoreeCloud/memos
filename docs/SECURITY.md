@@ -11,8 +11,9 @@ The initial code is a single-user development preview, not a hardened multi-tena
 - SQLite queries use bound parameters and memo bodies are displayed with DOM textContent.
 - Browser token lives only in tab memory, note drafts in sessionStorage, and layout/theme in localStorage.
 - Data is not encrypted by this app at rest. Use protected filesystem permissions and encrypted disk storage.
-- JSON export includes trash and must be treated as sensitive data.
+- JSON v2 export includes all memos and revision history, including trash, without the 2,000-result feed cap; treat it as sensitive data.
+- Safe Markdown subset rendering uses DOM elements and text nodes, never unsanitized HTML. External link hrefs only accept HTTP(S) with noreferrer/noopener. Both the renderer and link policy have Node.js regression tests.
 - A single shared instance token is not a user account or authorization system.
-- Consistency-aware backups and restore drills are required before production; automation is not included.
+- Consistency-aware online SQLite backup, read-only verify and non-overwriting restore commands are included. Backups are not encrypted, scheduled, retained or externally replicated. See BACKUP_AND_RECOVERY.md. Additional recovery drills remain required before production.
 - GC UI token alignment does not establish platform-wide visual/accessibility approval.
 - Threats still to resolve: brute-force/rate limits, identity/SSO, comprehensive audit logging, migration safety, attachment scanning and quotas, authenticated AI/webhook access, secret rotation, TLS, disaster recovery and accessibility QA.

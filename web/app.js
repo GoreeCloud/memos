@@ -18,6 +18,30 @@
     return data;
   }
   const key=id=>"gcmemos:draft:"+(id||"new");
+  let previewActive=false;
+  function renderPreview(){
+    if(!window.GCMemosMarkdown) return;
+    const node=window.GCMemosMarkdown.render(el("editContent").value,{
+      onChecklistChange:(line,checked)=>{
+        const lines=el("editContent").value.replace(/\r\n?/g,"\n").split("\n");
+        if(!lines[line]||!/^\s*[-*+] \[[ xX]\] /.test(lines[line])) return;
+        lines[line]=lines[line].replace(/^(\s*[-*+] \[)[ xX](\] )/,(_,a,b)=>a+(checked?"x":" ")+b);
+        el("editContent").value=lines.join("\n");
+        sessionStorage.setItem(key(state.editing?.id),el("editContent").value);
+        renderPreview();
+        toast("Checklist updated. Save memo to keep changes.");
+      }
+    });
+    el("editPreview").replaceChildren(node);
+  }
+  function setPreview(value){
+    previewActive=value;
+    el("editContent").hidden=value;
+    el("editPreview").hidden=!value;
+    el("rawMode").setAttribute("aria-pressed",String(!value));
+    el("previewMode").setAttribute("aria-pressed",String(value));
+    if(value) renderPreview();
+  }
   function fail(err){if(err.status===401){state.token="";el("shell").hidden=true;el("authScreen").hidden=false;}toast(err.message||"Request failed");}
   function layout(type){
     state.layout=type;localStorage.setItem("gcmemos-layout",type);
@@ -67,6 +91,7 @@
     el("editArchive").checked=Boolean(memo?.archived);el("duplicateBtn").hidden=!memo;
     el("trashBtn").hidden=!memo;el("trashBtn").textContent=memo?.deleted?"Restore memo":"Move to trash";
     el("saveBtn").textContent=memo?"Save changes":"Create memo";
+    setPreview(false);
     el("editor").showModal();el("editContent").focus();
   }
   function clearDraft(){sessionStorage.removeItem(key(state.editing?.id));}
@@ -85,7 +110,9 @@
   });
   el("newBtn").onclick=()=>open();el("emptyNew").onclick=()=>open();el("closeEditor").onclick=()=>el("editor").close();el("pinToggle").onclick=()=>{state.pinnedCollapsed=!state.pinnedCollapsed;localStorage.setItem("gcmemos-pin-collapsed",String(state.pinnedCollapsed));render();};
   el("editorForm").addEventListener("submit",e=>{e.preventDefault();save();});
-  el("editContent").addEventListener("input",()=>sessionStorage.setItem(key(state.editing?.id),el("editContent").value));
+  el("editContent").addEventListener("input",()=>{sessionStorage.setItem(key(state.editing?.id),el("editContent").value);if(previewActive)renderPreview();});
+  el("rawMode").onclick=()=>setPreview(false);
+  el("previewMode").onclick=()=>setPreview(true);
   el("quickContent").value=sessionStorage.getItem("gcmemos:quick")||"";
   el("quickContent").addEventListener("input",()=>sessionStorage.setItem("gcmemos:quick",el("quickContent").value));
   el("quickSave").onclick=async()=>{

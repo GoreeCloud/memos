@@ -7,6 +7,7 @@
   <meta name="description" content="GoreeCloud Memos — a calm place for all your thoughts.">
   <title>GoreeCloud Memos</title>
   <link rel="stylesheet" href="/style.css">
+  <script defer src="/markdown.js"></script>
   <script defer src="/app.js"></script>
 </head>
 <body>
@@ -59,7 +60,9 @@
     <form id="editorForm" method="dialog">
       <div class="editor-top"><span class="eyebrow" id="editorTitle">EDIT MEMO</span><button type="button" id="closeEditor" class="subtle" aria-label="Close editor">✕</button></div>
       <label class="sr-only" for="editTitle">Title (optional)</label><input id="editTitle" class="title-input" maxlength="160" placeholder="Untitled thought">
+      <div class="editor-tools" role="group" aria-label="Memo editor mode"><button id="rawMode" type="button" aria-pressed="true">Edit Markdown</button><button id="previewMode" type="button" aria-pressed="false">Preview</button></div>
       <label class="sr-only" for="editContent">Memo content</label><textarea id="editContent" class="content-input" placeholder="Write anything… Markdown and #tags supported." rows="10"></textarea>
+      <div id="editPreview" class="markdown-preview" aria-label="Markdown preview" tabindex="0" hidden></div>
       <div class="editor-settings"><label>Card color <select id="editColor"><option value="paper">Paper</option><option value="rose">Rose</option><option value="sun">Sunshine</option><option value="mint">Mint</option><option value="sky">Sky</option><option value="lavender">Lavender</option></select></label><label><input type="checkbox" id="editPin"> Pinned</label><label><input type="checkbox" id="editArchive"> Archived</label></div>
       <div class="editor-footer"><div><button type="button" id="duplicateBtn" class="subtle">Duplicate</button><button type="button" id="trashBtn" class="subtle danger">Move to trash</button></div><button class="solid" id="saveBtn" type="submit">Save changes</button></div>
     </form>

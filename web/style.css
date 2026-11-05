@@ -24,3 +24,21 @@ dialog{width:min(92vw,680px);max-height:91vh;border:1px solid var(--gc-outline);
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 .section-heading #pinToggle{margin-left:auto;font-size:11px;padding:6px 12px}
+
+.editor-tools{display:flex;gap:4px;margin-bottom:12px;border-bottom:1px solid var(--gc-outline);padding-bottom:10px}
+.editor-tools button{border-radius:10px;background:transparent;color:var(--gc-text-soft);font-size:12px;padding:9px 13px}
+.editor-tools button[aria-pressed="true"]{background:var(--gc-brand-container);color:var(--gc-brand);font-weight:800}
+.markdown-preview{min-height:240px;max-height:52vh;overflow:auto;border-radius:14px;background:var(--gc-surface);padding:18px 20px;line-height:1.65;overflow-wrap:anywhere;font-size:13px}
+.markdown-preview h1,.markdown-preview h2,.markdown-preview h3,.markdown-preview h4,.markdown-preview h5,.markdown-preview h6{line-height:1.28;margin:12px 0;font-size:1.1rem}
+.markdown-preview h1{font-size:1.55rem}.markdown-preview h2{font-size:1.3rem}
+.markdown-preview p{color:var(--gc-text);white-space:pre-wrap;margin:0 0 11px}
+.markdown-preview ul,.markdown-preview ol{padding-left:24px}
+.markdown-preview li{padding:3px 0}
+.markdown-preview .check-item{list-style:none;margin-left:-20px}
+.markdown-preview .check-item label{display:flex;align-items:start;gap:9px}
+.markdown-preview .check-item input{accent-color:var(--gc-brand);margin-top:5px;flex:none}
+.markdown-preview pre{overflow:auto;border:1px solid var(--gc-outline);border-radius:12px;background:var(--gc-surface-tonal);padding:14px;font-size:12px}
+.markdown-preview code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.markdown-preview :not(pre)>code{background:var(--gc-surface-tonal);border-radius:5px;padding:2px 4px}
+.markdown-preview blockquote{margin:12px 0;border-left:3px solid var(--gc-brand);padding-left:15px;color:var(--gc-text-soft)}
+.markdown-preview hr{border:0;border-top:1px solid var(--gc-outline);margin:15px 0}
