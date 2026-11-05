@@ -42,3 +42,8 @@ dialog{width:min(92vw,680px);max-height:91vh;border:1px solid var(--gc-outline);
 .markdown-preview :not(pre)>code{background:var(--gc-surface-tonal);border-radius:5px;padding:2px 4px}
 .markdown-preview blockquote{margin:12px 0;border-left:3px solid var(--gc-brand);padding-left:15px;color:var(--gc-text-soft)}
 .markdown-preview hr{border:0;border-top:1px solid var(--gc-outline);margin:15px 0}
+
+/* Visual keyboard focus for interactive surfaces that suppress native outlines. */
+.memo-card:focus-visible{outline:3px solid var(--gc-brand);outline-offset:3px}
+.searchbox:focus-within,.capture:focus-within{outline:3px solid var(--gc-brand);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.memo-card:hover{transform:none}}
