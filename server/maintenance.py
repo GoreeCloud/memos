@@ -30,12 +30,22 @@ def verify_database(path):
             "SELECT name FROM sqlite_master WHERE type='table'")}
         if not REQUIRED.issubset(tables):
             raise ValueError("Database does not contain GoreeCloud Memos tables")
-        columns = {row[1] for row in db.execute("PRAGMA table_info(memos)")}
+        memo_info = list(db.execute("PRAGMA table_info(memos)"))
+        columns = {row[1] for row in memo_info}
         if not EXPECTED_MEMO_COLUMNS.issubset(columns):
             raise ValueError("Unexpected memos table schema")
-        revision_columns = {row[1] for row in db.execute("PRAGMA table_info(revisions)")}
+        # The revision-history completeness proof assumes uniqueness at each
+        # memo/version pair. Column-name checks alone cannot verify this.
+        memo_key = {row[1]: row[5] for row in memo_info if row[5]}
+        if memo_key != {"id": 1}:
+            raise ValueError("Unexpected memos primary key")
+        revision_info = list(db.execute("PRAGMA table_info(revisions)"))
+        revision_columns = {row[1] for row in revision_info}
         if not EXPECTED_REVISION_COLUMNS.issubset(revision_columns):
             raise ValueError("Unexpected revisions table schema")
+        revision_key = {row[1]: row[5] for row in revision_info if row[5]}
+        if revision_key != {"memo_id": 1, "version": 2}:
+            raise ValueError("Unexpected revisions primary key")
         # SQLite integrity_check verifies pages, not the logical relationship
         # between memo versions and their historical revisions.
         bad_revision = db.execute("""
