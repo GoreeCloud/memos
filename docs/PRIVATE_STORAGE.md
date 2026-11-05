@@ -7,11 +7,11 @@ export GOREE_MEMOS_TOKEN="$(python3 -c 'import secrets; print(secrets.token_urls
 python3 server/serve_private.py --db ./data/memos.sqlite3
 ```
 
-The launcher uses the existing provisioning helper to create an owner-only `0700` final data directory and an empty, exclusively created `0600` database file. The existing server code then initializes SQLite tables on the same path. For a manual two-step setup, you may still run `python3 server/private_storage.py ./data/memos.sqlite3` before starting the legacy server; that older server entrypoint does not enforce the private-file restrictions automatically.
+The launcher uses the existing provisioning helper to create an owner-only `0700` final data directory and an empty, exclusively created `0600` database file. On a **newly created** file, the existing server initializes SQLite tables. On an **existing** file, the launcher first performs read-only integrity, schema, and complete revision-history checks; invalid data is rejected **before** the server can recreate missing tables. For a manual two-step setup, you may still run `python3 server/private_storage.py ./data/memos.sqlite3` before starting the legacy server; the old server entrypoint does not automatically enforce the private-file restrictions.
 
 ## Existing files and failure behavior
 
-- An existing `0600` regular database inside an owner-only data directory is left untouched. Repeated runs can check its basic permission mode.
+- An existing `0600` regular database inside an owner-only data directory is verified for expected SQLite schema and complete revision history before serving. A corrupt, uninitialized, or incomplete existing file is **rejected without schema modification**. This includes a zero-byte file previously created by the standalone `private_storage.py` helper; use the private launcher directly for a fresh database, or initialize the manually precreated file through the separate legacy setup path before switching to the launcher.
 - An existing database or directory that grants group/other permissions is **rejected without changing ownership, contents, or permissions**. Inspect and remediate intentionally through a separate authorized operating procedure. The helper never calls `chmod` on existing data.
 - Database-file and final-directory symlinks are refused. Atomic exclusive file creation prevents replacing an existing database.
 - The helper supports POSIX permissions; unsupported platforms fail closed instead of claiming privacy.
