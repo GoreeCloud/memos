@@ -55,3 +55,8 @@ dialog{width:min(92vw,680px);max-height:91vh;border:1px solid var(--gc-outline);
 .revision-text{font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--gc-text-soft);white-space:pre-wrap;overflow-wrap:anywhere;max-height:90px;overflow:auto;margin:9px 0}
 .revision-restore{font-size:11px}
 .revision-message{font-size:12px;color:var(--gc-text-soft);margin:4px 0 12px}
+
+/* Keyboard access and reduced-motion focus surface rules; uses verified GC UI tokens. */
+.memo-card:focus-visible{outline:3px solid var(--gc-brand);outline-offset:3px}
+.searchbox:focus-within,.capture:focus-within{outline:3px solid var(--gc-brand);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.memo-card:hover{transform:none}}
