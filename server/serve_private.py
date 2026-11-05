@@ -7,9 +7,11 @@ from __future__ import annotations
 
 import argparse
 import os
+import sqlite3
 from pathlib import Path
 
 from app import create_server
+from maintenance import verify_database
 from private_storage import provision_private_database
 
 
@@ -20,7 +22,18 @@ def create_private_server(db_path, port, token):
     if type(port) is not int or not 0 <= port <= 65535:
         raise ValueError("Invalid local TCP port")
     path = Path(db_path).expanduser().absolute()
-    provision_private_database(path)
+    created = provision_private_database(path)
+    if not created:
+        # The normal Store constructor has CREATE TABLE IF NOT EXISTS.
+        # Reject damaged or incomplete existing databases BEFORE it can
+        # modify their schemas or mask missing memo revision history.
+        try:
+            verify_database(path)
+        except (ValueError, sqlite3.DatabaseError) as exc:
+            raise ValueError(
+                "Existing Memos database failed integrity/history validation; "
+                "preserve the file for recovery"
+            ) from exc
     return create_server("127.0.0.1", port, path, token)
 
 
