@@ -6,7 +6,7 @@ The initial code is a single-user development preview, not a hardened multi-tena
 - Binds to 127.0.0.1 by default; use a separately reviewed HTTPS reverse proxy before any network exposure.
 - Data routes require a constant-time bearer token check; health and web static assets reveal no note content.
 - No authentication cookies, permissive CORS, third-party scripts or user-supplied HTML rendering.
-- Stale versioned writes return HTTP 409 rather than silently overwriting data.
+- Stale versioned writes return HTTP 409 rather than silently overwriting data. The browser editor's previous-version restore asks for explicit confirmation (including an unsaved-draft warning) and submits the displayed memo's version in PATCH; a conflict leaves the editor draft intact. Prior revisions are presented with textContent, not HTML interpretation. A client-side confirmation is an accident-prevention guard, not an independent authorization control.
 - Known memo fields, color values, JSON sizes and maximum text lengths are validated.
 - SQLite queries use bound parameters and memo bodies are displayed with DOM textContent.
 - Browser token lives only in tab memory, note drafts in sessionStorage, and layout/theme in localStorage.
