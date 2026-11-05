@@ -82,13 +82,33 @@ def _temp_path(folder):
 
 
 def _publish_exclusively(temp_path, destination):
-    """Publish using a hardlink, which fails atomically if destination exists."""
-    os.link(temp_path, destination, follow_symlinks=False)
-    fd = os.open(str(destination), os.O_RDONLY)
+    """Flush completed data before atomic hardlink; sync parent metadata on POSIX.
+
+    If the final directory flush fails, remove only a link still referring
+    to our temporary file. Existing destination names are never replaced.
+    """
+    fd = os.open(str(temp_path), os.O_RDONLY)
     try:
         os.fsync(fd)
     finally:
         os.close(fd)
+    os.link(temp_path, destination, follow_symlinks=False)
+    try:
+        if os.name == "posix":
+            flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+            parent_fd = os.open(str(destination.parent), flags)
+            try:
+                os.fsync(parent_fd)
+            finally:
+                os.close(parent_fd)
+    except OSError:
+        # Preserve any concurrent replacement of the published name.
+        try:
+            if os.path.samefile(temp_path, destination):
+                os.unlink(destination)
+        except FileNotFoundError:
+            pass
+        raise
 
 
 def backup_database(source_path, destination_path):
