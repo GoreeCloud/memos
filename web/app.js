@@ -3,7 +3,7 @@
   "use strict";
   const el = id => document.getElementById(id);
   const state = {token:"",folder:"active",tag:"",q:"",memos:[],editing:null,
-    layout:localStorage.getItem("gcmemos-layout")==="list"?"list":"masonry",request:0};
+    layout:localStorage.getItem("gcmemos-layout")==="list"?"list":"masonry",pinnedCollapsed:localStorage.getItem("gcmemos-pin-collapsed")==="true",request:0};
   const folders={active:"All memos",pinned:"Pinned memos",archive:"Archive",trash:"Trash"};
   document.documentElement.dataset.mode=localStorage.getItem("gcmemos-mode")==="dark"?"dark":"light";
   function make(tag,css,text){const v=document.createElement(tag);if(css)v.className=css;if(text!==undefined)v.textContent=text;return v;}
@@ -46,7 +46,7 @@
     const all=state.folder==="pinned"?state.memos.filter(m=>m.pinned):state.memos;
     const pinned=state.folder==="active"?all.filter(m=>m.pinned):[];
     const rest=state.folder==="active"?all.filter(m=>!m.pinned):all;
-    el("pinnedSection").hidden=pinned.length===0;el("pinnedGrid").replaceChildren(...pinned.map(card));
+    el("pinnedSection").hidden=pinned.length===0;el("pinnedGrid").hidden=state.pinnedCollapsed;el("pinToggle").textContent=state.pinnedCollapsed?"Expand":"Collapse";el("pinToggle").setAttribute("aria-expanded",String(!state.pinnedCollapsed));el("pinnedGrid").replaceChildren(...pinned.map(card));
     el("notesGrid").replaceChildren(...rest.map(card));el("notesSection").hidden=rest.length===0;el("empty").hidden=all.length>0;
     el("sectionTitle").textContent=state.folder==="active"?"Recent memos":folders[state.folder];
     el("count").textContent=rest.length+" "+(rest.length===1?"memo":"memos");
@@ -83,7 +83,7 @@
     try{await api("/api/v1/memos?folder=active");el("authScreen").hidden=true;el("shell").hidden=false;el("accessToken").value="";await load();}
     catch(err){el("authError").textContent=err.message;state.token="";}
   });
-  el("newBtn").onclick=()=>open();el("emptyNew").onclick=()=>open();el("closeEditor").onclick=()=>el("editor").close();
+  el("newBtn").onclick=()=>open();el("emptyNew").onclick=()=>open();el("closeEditor").onclick=()=>el("editor").close();el("pinToggle").onclick=()=>{state.pinnedCollapsed=!state.pinnedCollapsed;localStorage.setItem("gcmemos-pin-collapsed",String(state.pinnedCollapsed));render();};
   el("editorForm").addEventListener("submit",e=>{e.preventDefault();save();});
   el("editContent").addEventListener("input",()=>sessionStorage.setItem(key(state.editing?.id),el("editContent").value));
   el("quickContent").value=sessionStorage.getItem("gcmemos:quick")||"";
