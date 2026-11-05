@@ -44,7 +44,7 @@ python3 server/maintenance.py verify ./backups/backup.sqlite
 
 See [backup and recovery](docs/BACKUP_AND_RECOVERY.md) before attempting a restore; the backup destination directory must exist. Backups deliberately refuse overwriting existing files.
 
-The native GTK4 preview requires PyGObject and GTK4. Both clients use GOREE_MEMOS_TOKEN and optional GOREE_MEMOS_URL. Keep tokens out of shell history, logs and screenshots.
+The native GTK4 preview requires PyGObject and GTK4. Both clients use GOREE_MEMOS_TOKEN and optional GOREE_MEMOS_URL. The CLI and GTK client **refuse redirects** for authenticated API requests, bypass configured HTTP proxies, and allow plaintext HTTP only to numeric loopback IP addresses; non-loopback destinations require HTTPS with normal certificate validation. Keep tokens out of shell history, logs and screenshots. See [security boundaries](docs/SECURITY.md).
 
 ## Verification
 
