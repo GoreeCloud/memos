@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en" data-mode="light" data-accent="iris">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="GoreeCloud Memos — a calm place for all your thoughts.">
+  <title>GoreeCloud Memos</title>
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <div class="shell" id="shell" hidden>
+    <aside class="sidebar" aria-label="Memo navigation">
+      <div class="brand"><span class="brand-symbol" aria-hidden="true">✦</span><div><strong>GoreeCloud</strong><small>Memos</small></div></div>
+      <button class="new-primary" id="newBtn">＋ <span>New memo</span></button>
+      <nav aria-label="Folders">
+        <button data-folder="active" class="nav-item selected"><span>▦</span> All memos</button>
+        <button data-folder="pinned" class="nav-item"><span>⌁</span> Pinned</button>
+        <button data-folder="archive" class="nav-item"><span>▤</span> Archive</button>
+        <button data-folder="trash" class="nav-item"><span>♻</span> Trash</button>
+      </nav>
+      <div class="sidebar-section"><strong>Tags</strong><div id="tags" class="tag-list"></div></div>
+      <div class="sidebar-bottom"><span class="privacy-dot"></span> Private workspace <small>Development preview</small></div>
+    </aside>
+    <main class="workspace" id="mainContent">
+      <header class="topbar">
+        <div class="mobile-brand">✦ <strong>Memos</strong></div>
+        <label class="searchbox"><span aria-hidden="true">⌕</span><span class="sr-only">Search memos</span><input id="search" type="search" autocomplete="off" placeholder="Search your thoughts… (Ctrl+K)"></label>
+        <button class="subtle" id="themeBtn" aria-label="Switch dark or light theme" title="Theme">◐</button>
+        <button class="subtle" id="exportBtn" title="Export memos as JSON">⇩ <span class="desktop-only">Export</span></button>
+      </header>
+      <div class="content">
+        <div class="heading"><div><span class="eyebrow">YOUR THOUGHT SPACE</span><h1 id="pageTitle">All memos</h1><p id="subtitle">Capture the little things that matter.</p></div>
+          <div class="layout-switch" role="group" aria-label="Memo layout"><button id="masonryBtn" class="active" aria-pressed="true" title="Masonry grid">▦</button><button id="listBtn" aria-pressed="false" title="List layout">☷</button></div>
+        </div>
+        <section class="capture" aria-label="Quick memo">
+          <label class="sr-only" for="quickContent">Quick memo</label>
+          <textarea id="quickContent" placeholder="What's on your mind? Capture a thought, a list, an idea…" rows="2"></textarea>
+          <div class="capture-footer"><span>Markdown and #tags welcome</span><button id="quickSave" class="solid">Save memo <span aria-hidden="true">↗</span></button></div>
+        </section>
+        <section id="pinnedSection" hidden><div class="section-heading"><h2>✦ Pinned</h2><span>Your important notes</span></div><div id="pinnedGrid" class="masonry"></div></section>
+        <section id="notesSection"><div class="section-heading"><h2 id="sectionTitle">Recent memos</h2><span id="count"></span></div><div id="notesGrid" class="masonry"></div></section>
+        <div id="empty" class="empty" hidden><div class="empty-symbol">✦</div><h2>A little space for big ideas.</h2><p>No memos here yet. Start with a thought, a list, or a quick note.</p><button id="emptyNew" class="solid">Create a memo</button></div>
+      </div>
+    </main>
+  </div>
+  <div class="access" id="authScreen">
+    <form id="authForm" class="access-card">
+      <div class="brand-symbol big">✦</div><span class="eyebrow">PRIVATE BY DESIGN</span>
+      <h1>Welcome to Memos</h1><p>Your thoughts belong to you. Enter your server access token to open your private workspace.</p>
+      <label for="accessToken">Access token</label><input id="accessToken" type="password" autocomplete="off" required minlength="24" placeholder="Paste your access token">
+      <button type="submit" class="solid full">Open workspace</button>
+      <small>Tokens stay in memory for this browser tab, not in persistent storage.</small>
+      <p id="authError" class="error" role="alert"></p>
+    </form>
+  </div>
+  <dialog id="editor" aria-labelledby="editorTitle">
+    <form id="editorForm" method="dialog">
+      <div class="editor-top"><span class="eyebrow" id="editorTitle">EDIT MEMO</span><button type="button" id="closeEditor" class="subtle" aria-label="Close editor">✕</button></div>
+      <label class="sr-only" for="editTitle">Title (optional)</label><input id="editTitle" class="title-input" maxlength="160" placeholder="Untitled thought">
+      <label class="sr-only" for="editContent">Memo content</label><textarea id="editContent" class="content-input" placeholder="Write anything… Markdown and #tags supported." rows="10"></textarea>
+      <div class="editor-settings"><label>Card color <select id="editColor"><option value="paper">Paper</option><option value="rose">Rose</option><option value="sun">Sunshine</option><option value="mint">Mint</option><option value="sky">Sky</option><option value="lavender">Lavender</option></select></label><label><input type="checkbox" id="editPin"> Pinned</label><label><input type="checkbox" id="editArchive"> Archived</label></div>
+      <div class="editor-footer"><div><button type="button" id="duplicateBtn" class="subtle">Duplicate</button><button type="button" id="trashBtn" class="subtle danger">Move to trash</button></div><button class="solid" id="saveBtn" type="submit">Save changes</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

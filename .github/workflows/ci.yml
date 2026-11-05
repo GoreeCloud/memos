@@ -1,0 +1,18 @@
+name: Memos CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python regression tests
+        run: python3 -m unittest discover -s server -v
+      - name: Python compile checks
+        run: python3 -m py_compile server/app.py server/test_app.py cli/memos.py clients/linux/app.py
+      - name: Browser JavaScript syntax
+        run: node --check web/app.js
