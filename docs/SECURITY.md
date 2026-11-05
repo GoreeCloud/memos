@@ -10,7 +10,7 @@ The initial code is a single-user development preview, not a hardened multi-tena
 - Known memo fields, color values, JSON sizes and maximum text lengths are validated.
 - SQLite queries use bound parameters and memo bodies are displayed with DOM textContent.
 - Browser token lives only in tab memory, note drafts in sessionStorage, and layout/theme in localStorage.
-- Data is not encrypted by this app at rest. Use protected filesystem permissions and encrypted disk storage.
+- Data is not encrypted by this app at rest. Use protected filesystem permissions and encrypted disk storage. An **opt-in**, fail-closed POSIX private-storage helper can precreate a 0700 directory and 0600 SQLite file; [setup details](PRIVATE_STORAGE.md). The normal server startup does not call this helper automatically, and any existing unsafe permissions require separate operator remediation.
 - JSON v2 export includes all memos and revision history, including trash, without the 2,000-result feed cap; treat it as sensitive data.
 - Safe Markdown subset rendering uses DOM elements and text nodes, never unsanitized HTML. External link hrefs only accept HTTP(S) with noreferrer/noopener. Both the renderer and link policy have Node.js regression tests.
 - A single shared instance token is not a user account or authorization system.
