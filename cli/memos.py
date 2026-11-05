@@ -6,6 +6,7 @@ import json
 import os
 import sys
 import tempfile
+import uuid
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit
@@ -62,6 +63,17 @@ def request(base, token, path, method="GET", body=None):
         raise RuntimeError("Cannot reach the Memos API") from None
 
 
+def memo_path(memo_id):
+    """Only canonical lowercase UUIDs can enter a memo URL path."""
+    try:
+        normalized = str(uuid.UUID(memo_id))
+    except (TypeError, ValueError, AttributeError):
+        raise ValueError("A canonical lowercase memo UUID is required") from None
+    if normalized != memo_id:
+        raise ValueError("A canonical lowercase memo UUID is required")
+    return "/api/v1/memos/" + normalized
+
+
 def write_private_export(data, output_path):
     """Atomically save plaintext JSON with owner-only POSIX file permissions.
 
@@ -113,6 +125,10 @@ def main():
     listing = sub.add_parser("list", help="List memos")
     listing.add_argument("--folder", choices=["active", "archive", "trash", "all"], default="active")
     listing.add_argument("--search", default="")
+    show = sub.add_parser("show", help="Read one memo by its UUID")
+    show.add_argument("id")
+    history = sub.add_parser("history", help="Read prior text revisions of one memo")
+    history.add_argument("id")
     create = sub.add_parser("create", help="Create a memo")
     create.add_argument("content", nargs="?", help="Text (or pipe through standard input)")
     create.add_argument("--title", default="")
@@ -131,15 +147,20 @@ def main():
         if args.command == "list":
             result = request(args.url, token, "/api/v1/memos?" +
                              urlencode({"folder": args.folder, "q": args.search}))
+        elif args.command == "show":
+            result = request(args.url, token, memo_path(args.id))
+        elif args.command == "history":
+            result = request(args.url, token, memo_path(args.id) + "/revisions")
         elif args.command == "create":
             content = args.content if args.content is not None else sys.stdin.read()
             result = request(args.url, token, "/api/v1/memos", "POST", {"content": content, "title": args.title})
         elif args.command == "update":
-            old = request(args.url, token, "/api/v1/memos/" + args.id)
+            path = memo_path(args.id)
+            old = request(args.url, token, path)
             change = {"version": old["version"]}
             if args.content is not None: change["content"] = args.content
             if args.title is not None: change["title"] = args.title
-            result = request(args.url, token, "/api/v1/memos/" + args.id, "PATCH", change)
+            result = request(args.url, token, path, "PATCH", change)
         else:
             result = request(args.url, token, "/api/v1/export")
         if args.command == "export" and args.output:

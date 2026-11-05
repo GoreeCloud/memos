@@ -14,7 +14,7 @@ Original privacy-first memo service and native-client development foundation for
 - Create, read, edit, duplicate; optional titles, hashtags, pinning, colors, archive, soft delete and restore.
 - Query by text, hashtag and folder; version history; optimistic concurrency returning HTTP 409 on stale edits.
 - Responsive web interface with default masonry layout, optional list, quick capture, memo editing, pinned cards, search and tags, light/dark themes, session-local drafts and keyboard shortcuts.
-- Python CLI with list, create, update and complete JSON export including revision history.
+- Python CLI with list, read one memo, view its prior text revisions, create, version-guarded update, and complete JSON export including revision history. Memo-specific CLI operations require canonical lowercase UUIDs.
 - Consistent live SQLite backup, integrity verification, and non-overwriting restore through local maintenance CLI.
 - Native GTK4 Linux development client with variable-height independent-column cards, search and editing.
 - Safe Markdown subset preview, including headings, lists, fenced code, quotes, links, bold and inline code, with editable checklist items in preview (save required to persist).
@@ -36,6 +36,8 @@ Open http://127.0.0.1:8765 and enter the generated access token. Do not expose t
 ~~~bash
 python3 cli/memos.py create "A thought #ideas" --title "Welcome"
 python3 cli/memos.py list --search thought
+python3 cli/memos.py show MEMO-UUID
+python3 cli/memos.py history MEMO-UUID
 mkdir -p ./backups
 python3 cli/memos.py export --output ./backups/memos-export.json
 python3 clients/linux/app.py
