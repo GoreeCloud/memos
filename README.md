@@ -24,11 +24,11 @@ Original privacy-first memo service and native-client development foundation for
 
 ## Run locally
 
-Requires Python 3.10+; no Python packages or separate database service. On POSIX hosts, optionally **precreate a private database** before first startup (`0700` directory, `0600` file) using `python3 server/private_storage.py ./data/memos.sqlite3`. It refuses unsafe existing permissions and never changes existing data. See [private storage setup](docs/PRIVATE_STORAGE.md). Ordinary server startup does not run this helper automatically.
+Requires Python 3.10+; no Python packages or separate database service. On POSIX hosts, prefer the **private loopback launcher** below: it provisions an owner-only `0700` directory and `0600` database and refuses unsafe existing permissions without changing existing data. The older `server/app.py` command remains available but **does not automatically enforce private storage permissions**. See [private storage setup](docs/PRIVATE_STORAGE.md).
 
 ~~~bash
 export GOREE_MEMOS_TOKEN="$(python3 -c 'import secrets; print(secrets.token_urlsafe(36))')"
-python3 server/app.py --host 127.0.0.1 --port 8765 --db ./data/memos.sqlite3
+python3 server/serve_private.py --port 8765 --db ./data/memos.sqlite3
 ~~~
 
 Open http://127.0.0.1:8765 and enter the generated access token. Do not expose the prototype on a public interface without separate security review and permission.
