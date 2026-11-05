@@ -28,6 +28,17 @@ After verifying memo counts and opening the recovered database with the server, 
 
 GET /api/v1/export (or CLI `export`) produces format `goreecloud-memos-v2`, including all memos and all text revision history in one coherent SQLite snapshot. The normal home feed remains limited to 2,000 results; export is not. JSON export is plaintext and not a database-level hot backup.
 
+For an owner-only JSON file on POSIX systems, prefer the CLI's explicit file-output mode:
+
+```bash
+mkdir -p ./backups
+python3 cli/memos.py export --output ./backups/memos-export.json
+```
+
+The command refuses existing destination files and symlinks, writes to a temporary `0600` file in the destination directory, flushes the content, and exclusively publishes it before syncing the directory. Failed writes clean temporary files; failure after publication triggers best-effort removal of only the new export. It does **not** encrypt the plaintext. Create an appropriately private parent directory and encrypt data before any off-device transfer.
+
+For compatibility, `python3 cli/memos.py export` still prints JSON to standard output. Shell redirection (`> export.json`) may create a group- or world-readable file under common umasks; it bypasses the private-file safeguards. The new `--output` mode is opt-in and only supported on POSIX.
+
 ## Safety principles
 
 - Backups and restores are non-overwriting: existing destinations fail closed. The completed SQLite copy is flushed before its final name is published using an exclusive hardlink; on POSIX hosts the parent directory is also flushed. A failed file flush leaves no destination, and a failed directory flush triggers best-effort cleanup of the helper's own newly published link. Recovery after a sudden kernel or hardware failure still requires real-world validation.

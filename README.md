@@ -36,7 +36,8 @@ Open http://127.0.0.1:8765 and enter the generated access token. Do not expose t
 ~~~bash
 python3 cli/memos.py create "A thought #ideas" --title "Welcome"
 python3 cli/memos.py list --search thought
-python3 cli/memos.py export > memos-backup.json
+mkdir -p ./backups
+python3 cli/memos.py export --output ./backups/memos-export.json
 python3 clients/linux/app.py
 python3 server/maintenance.py backup ./data/memos.sqlite3 ./backups/backup.sqlite
 python3 server/maintenance.py verify ./backups/backup.sqlite
