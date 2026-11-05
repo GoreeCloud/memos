@@ -14,7 +14,7 @@ Original privacy-first memo service and native-client development foundation for
 - Create, read, edit, duplicate; optional titles, hashtags, pinning, colors, archive, soft delete and restore.
 - Query by text, hashtag and folder; version history; optimistic concurrency returning HTTP 409 on stale edits.
 - Responsive web interface with default masonry layout, optional list, quick capture, memo editing, pinned cards, search and tags, light/dark themes, session-local drafts and keyboard shortcuts.
-- Python CLI with list, read one memo, view or restore its earlier text revisions, create, version-guarded update, and complete JSON export including revision history. Restoring an earlier version creates a new current version; it never deletes intervening history. Memo-specific CLI operations require canonical lowercase UUIDs.
+- Python CLI with list, read one memo, view or restore its earlier text revisions, create, version-guarded update, and complete JSON export including revision history. It also supports reversible pin/unpin, archive/unarchive, and trash/restore commands. Restoring earlier text creates a new current version; all state changes use optimistic concurrency. Memo-specific CLI operations require canonical lowercase UUIDs.
 - Consistent live SQLite backup, integrity verification, and non-overwriting restore through local maintenance CLI.
 - Native GTK4 Linux development client with variable-height independent-column cards, search and editing.
 - Safe Markdown subset preview, including headings, lists, fenced code, quotes, links, bold and inline code, with editable checklist items in preview (save required to persist).
@@ -38,7 +38,12 @@ python3 cli/memos.py create "A thought #ideas" --title "Welcome"
 python3 cli/memos.py list --search thought
 python3 cli/memos.py show MEMO-UUID
 python3 cli/memos.py history MEMO-UUID
-# To deliberately restore saved title/content from revision 1 as a NEW current version:
+# Manage one memo with reversible, version-guarded changes:
+python3 cli/memos.py pin MEMO-UUID
+python3 cli/memos.py archive MEMO-UUID
+python3 cli/memos.py trash MEMO-UUID
+python3 cli/memos.py restore MEMO-UUID  # move back out of trash
+# Restore saved title/content from revision 1 as a NEW current version:
 python3 cli/memos.py restore-revision MEMO-UUID --version 1
 mkdir -p ./backups
 python3 cli/memos.py export --output ./backups/memos-export.json
