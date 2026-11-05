@@ -36,6 +36,16 @@ def verify_database(path):
         revision_columns = {row[1] for row in db.execute("PRAGMA table_info(revisions)")}
         if not EXPECTED_REVISION_COLUMNS.issubset(revision_columns):
             raise ValueError("Unexpected revisions table schema")
+        # SQLite integrity_check verifies pages, not the logical relationship
+        # between memo versions and their historical revisions.
+        bad_revision = db.execute("""
+            SELECT 1 FROM revisions r
+            LEFT JOIN memos m ON m.id = r.memo_id
+            WHERE m.id IS NULL OR r.version < 1 OR r.version >= m.version
+            LIMIT 1
+        """).fetchone()
+        if bad_revision:
+            raise ValueError("Orphaned or invalid memo revision history")
         notes = db.execute("SELECT count(*) FROM memos").fetchone()[0]
         versions = db.execute("SELECT count(*) FROM revisions").fetchone()[0]
     return {"integrity": "ok", "memos": notes, "revisions": versions}
