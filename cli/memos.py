@@ -1,23 +1,56 @@
 #!/usr/bin/env python3
 """Small CLI using the same authenticated API as the web client."""
 import argparse
+import ipaddress
 import json
 import os
 import sys
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from urllib.parse import urlencode, urlsplit
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
+
+
+class RejectRedirects(HTTPRedirectHandler):
+    """Never forward bearer credentials to a redirected origin."""
+
+    def redirect_request(self, request, fp, code, msg, headers, newurl):
+        return None
+
+
+def checked_base(base):
+    try:
+        parts = urlsplit(base)
+        host = parts.hostname
+        _ = parts.port
+    except ValueError:
+        raise RuntimeError("Invalid Memos API URL") from None
+    if (parts.scheme not in ("http", "https") or not host
+            or parts.username is not None or parts.password is not None
+            or parts.query or parts.fragment):
+        raise RuntimeError("Invalid Memos API URL")
+    if parts.scheme == "http":
+        try:
+            loopback = ipaddress.ip_address(host).is_loopback
+        except ValueError:
+            loopback = False
+        if not loopback:
+            raise RuntimeError("HTTPS is required for non-loopback Memos API URLs")
+    return base.rstrip("/")
 
 
 def request(base, token, path, method="GET", body=None):
+    base = checked_base(base)
     headers = {"Authorization": "Bearer " + token}
     payload = None
     if body is not None:
         headers["Content-Type"] = "application/json"
         payload = json.dumps(body).encode()
-    req = Request(base.rstrip("/") + path, data=payload, headers=headers, method=method)
+    req = Request(base + path, data=payload, headers=headers, method=method)
     try:
-        with urlopen(req, timeout=15) as resp:
+        # A proxy or automatic redirect could disclose Authorization to another
+        # endpoint; access only the explicitly configured Memos host.
+        opener = build_opener(ProxyHandler({}), RejectRedirects())
+        with opener.open(req, timeout=15) as resp:
             return json.loads(resp.read())
     except HTTPError as exc:
         try: message = json.loads(exc.read()).get("error", "HTTP error")
