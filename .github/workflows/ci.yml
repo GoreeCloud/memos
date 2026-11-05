@@ -13,7 +13,7 @@ jobs:
       - name: Python regression tests
         run: python3 -m unittest discover -s server -v
       - name: Python compile checks
-        run: python3 -m py_compile server/app.py server/maintenance.py server/test_app.py server/test_maintenance.py cli/memos.py clients/linux/app.py
+        run: python3 -m py_compile server/*.py cli/memos.py clients/linux/app.py
       - name: Browser JavaScript syntax
         run: node --check web/app.js && node --check web/markdown.js
       - name: Markdown rendering and safety tests
