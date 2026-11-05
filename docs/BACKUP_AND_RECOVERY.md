@@ -31,7 +31,7 @@ GET /api/v1/export (or CLI `export`) produces format `goreecloud-memos-v2`, incl
 ## Safety principles
 
 - Backups and restores are never destructive in this implementation: existing destinations fail closed.
-- The tools check SQLite integrity and expected GoreeCloud Memos schema before backup, restore, and verify.
+- The tools check SQLite integrity and the required `memos` **and** `revisions` table columns before backup, restore, and verify. A structurally incomplete revisions table is rejected even if SQLite's underlying integrity check reports `ok`.
 - Both the source and destination are opened using SQLite APIs to preserve a coherent snapshot.
 - Backup/restore is a local administrative operation, not an internet-accessible API.
 - This milestone does not implement automation, retention policy, encryption, upload scheduling, cross-host durability, or disaster recovery drills.

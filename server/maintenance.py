@@ -13,6 +13,7 @@ from pathlib import Path
 REQUIRED = {"memos", "revisions"}
 EXPECTED_MEMO_COLUMNS = {"id", "title", "content", "color", "pinned", "archived",
                          "deleted", "created_at", "updated_at", "version"}
+EXPECTED_REVISION_COLUMNS = {"memo_id", "version", "title", "content", "saved_at"}
 
 
 def verify_database(path):
@@ -32,6 +33,9 @@ def verify_database(path):
         columns = {row[1] for row in db.execute("PRAGMA table_info(memos)")}
         if not EXPECTED_MEMO_COLUMNS.issubset(columns):
             raise ValueError("Unexpected memos table schema")
+        revision_columns = {row[1] for row in db.execute("PRAGMA table_info(revisions)")}
+        if not EXPECTED_REVISION_COLUMNS.issubset(revision_columns):
+            raise ValueError("Unexpected revisions table schema")
         notes = db.execute("SELECT count(*) FROM memos").fetchone()[0]
         versions = db.execute("SELECT count(*) FROM revisions").fetchone()[0]
     return {"integrity": "ok", "memos": notes, "revisions": versions}
