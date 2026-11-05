@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Native Linux GTK4 development client (requires python3-gi and GTK4)."""
+import ipaddress
 import json
 import os
 import threading
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from urllib.parse import urlencode, urlsplit
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 from urllib.error import HTTPError, URLError
 
 import gi
@@ -15,14 +16,45 @@ BASE = os.environ.get("GOREE_MEMOS_URL", "http://127.0.0.1:8765").rstrip("/")
 TOKEN = os.environ.get("GOREE_MEMOS_TOKEN", "")
 
 
+class RejectRedirects(HTTPRedirectHandler):
+    """Never forward a bearer token across redirects."""
+
+    def redirect_request(self, request, fp, code, msg, headers, newurl):
+        return None
+
+
+def checked_base(base):
+    try:
+        parts = urlsplit(base)
+        host = parts.hostname
+        _ = parts.port
+    except ValueError:
+        raise ValueError("Invalid Memos API URL") from None
+    if (parts.scheme not in ("http", "https") or not host
+            or parts.username is not None or parts.password is not None
+            or parts.query or parts.fragment):
+        raise ValueError("Invalid Memos API URL")
+    if parts.scheme == "http":
+        try:
+            loopback = ipaddress.ip_address(host).is_loopback
+        except ValueError:
+            loopback = False
+        if not loopback:
+            raise ValueError("HTTPS is required for non-loopback Memos API URLs")
+    return base.rstrip("/")
+
+
 def api(path, method="GET", value=None):
+    base = checked_base(BASE)
     headers = {"Authorization": "Bearer " + TOKEN}
     data = None
     if value is not None:
         headers["Content-Type"] = "application/json"
         data = json.dumps(value).encode()
-    request = Request(BASE + path, data=data, headers=headers, method=method)
-    with urlopen(request, timeout=12) as response:
+    request = Request(base + path, data=data, headers=headers, method=method)
+    # Do not send private Authorization data to proxy or redirect targets.
+    opener = build_opener(ProxyHandler({}), RejectRedirects())
+    with opener.open(request, timeout=12) as response:
         return json.loads(response.read())
 
 
