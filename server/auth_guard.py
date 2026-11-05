@@ -45,6 +45,32 @@ class AuthFailureGuard:
             while len(self.peers) > self.max_peers:
                 self.peers.popitem(last=False)
 
+    def attempt(self, peer, is_valid):
+        """Atomically decide whether to allow, reject or throttle an API login.
+
+        Checking the threshold and recording a failure under the same lock
+        prevents simultaneous request threads from each slipping through a
+        stale pre-failure count. Returns: 'ok', 'invalid' or 'blocked'.
+        """
+        now = self.clock()
+        with self.lock:
+            record = self.peers.get(peer)
+            if record is not None and now - record[0] >= self.window_seconds:
+                del self.peers[peer]
+                record = None
+            if record is not None and record[1] >= self.limit:
+                self.peers.move_to_end(peer)
+                return "blocked"
+            if is_valid:
+                self.peers.pop(peer, None)
+                return "ok"
+            start, count = record if record is not None else (now, 0)
+            self.peers[peer] = (start, count + 1)
+            self.peers.move_to_end(peer)
+            while len(self.peers) > self.max_peers:
+                self.peers.popitem(last=False)
+            return "invalid"
+
     def clear(self, peer):
         with self.lock:
             self.peers.pop(peer, None)
