@@ -1,14 +1,13 @@
 # GoreeCloud Memos — Private Local SQLite Provisioning
 
-**Opt-in development safeguard, not automatic hardening.** The normal `server/app.py` startup can still create a database using the host process's default filesystem permissions. On a trusted POSIX machine, precreate a private database before the first server launch:
+**Development-only safeguard, not production hardening.** The legacy `server/app.py` startup can still create a database using the host process's default filesystem permissions. On a trusted POSIX host, prefer this opt-in **private server launcher**, which validates the token, provisions local storage, restricts new files with a `077` umask, and binds to numeric IPv4 loopback only:
 
 ```bash
-python3 server/private_storage.py ./data/memos.sqlite3
 export GOREE_MEMOS_TOKEN="$(python3 -c 'import secrets; print(secrets.token_urlsafe(36))')"
-python3 server/app.py --host 127.0.0.1 --db ./data/memos.sqlite3
+python3 server/serve_private.py --db ./data/memos.sqlite3
 ```
 
-The helper creates an owner-only `0700` final data directory and an empty, exclusively created `0600` database file. The server initializes the SQLite tables when started against the same path.
+The launcher uses the existing provisioning helper to create an owner-only `0700` final data directory and an empty, exclusively created `0600` database file. The existing server code then initializes SQLite tables on the same path. For a manual two-step setup, you may still run `python3 server/private_storage.py ./data/memos.sqlite3` before starting the legacy server; that older server entrypoint does not enforce the private-file restrictions automatically.
 
 ## Existing files and failure behavior
 
