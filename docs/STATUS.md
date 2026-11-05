@@ -13,15 +13,22 @@
 - Python CLI: create, list, update, export. Standalone local maintenance tool: online SQLite backup, integrity check, and fail-closed non-overwriting restore.
 - Browser editor: safe basic Markdown preview, rendering headings, fenced code, paragraphs, quotes, lists and allowlisted HTTPS/HTTP links; preview checkboxes update the in-session draft, then require explicit save.
 - Native Linux GTK4 initial client: note display in separate variable-height vertical columns, search, create and edit.
-- Local tests: eight Python API/recovery test cases, four Node.js Markdown security/behavior tests, Python compilation and JavaScript syntax checks.
-- GitHub CI specification extended to cover backup/restore and Markdown tests; hosted CI status must be checked after the new pull request.
+- GitHub CI-verified: nine Python API/recovery tests (including the revisions-schema fail-closed regression), four Node.js Markdown security/behavior tests, Python compilation and JavaScript syntax checks.
+- GitHub Actions passed for merged PR #4 (SQLite revision-schema verification, 2026-11-05). No deployment or app-release claim follows from CI success.
+
+## Unmerged development and delivery blockers
+
+- Native Android Kotlin/Jetpack Compose prototype was repaired and successfully recompiled with four passing JVM tests on the authorized developer laptop. This source remains **local**: the GitHub `feat/android-client` branch contains only build configuration files after a tool-level block prevented publishing the application manifest and source. No APK was assembled, delivered, installed or released.
+- Draft [PR #3](https://github.com/GoreeCloud/memos/pull/3) contains a standalone authentication-failure guard and passing tests, but **does not integrate rate limiting into the HTTP server**.
+- [PR #5](https://github.com/GoreeCloud/memos/pull/5) includes visible keyboard focus rings and reduced-motion styling; its CI passed, but the attempted merge was blocked by platform safety checks. These changes are **not on main**.
+- GitHub's public repository state is authoritative for code; the canonical Google Drive repository inventory still requires reconciliation with the live account.
 
 ## Planned / not implemented
 
 - Full Markdown standard compliance, polished WYSIWYG editing, code syntax highlighting, LaTeX, Mermaid, drawing, image/audio files and attachment pipelines.
 - Reminders, push notification, recurring schedules, calendar integration.
 - Multiuser accounts, public notes, Spaces, fine-grained permissions, SSO, live co-editing, discussions and reactions.
-- True offline/online synchronization, device conflict merges, mobile apps, Windows packages and browser clipper.
+- Published native Android/mobile applications, true offline/online synchronization, device conflict merges, Windows packages and browser clipper.
 - AI integrations, Model Context Protocol, signed webhooks, other ecosystem adapters.
 - Production-grade identity, auditing, encrypted-at-rest data, tested backups and migrations, network deployment, load/accessibility QA.
 
