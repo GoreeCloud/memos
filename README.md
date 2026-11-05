@@ -24,7 +24,7 @@ Original privacy-first memo service and native-client development foundation for
 
 ## Run locally
 
-Requires Python 3.10+; no Python packages or separate database service.
+Requires Python 3.10+; no Python packages or separate database service. On POSIX hosts, optionally **precreate a private database** before first startup (`0700` directory, `0600` file) using `python3 server/private_storage.py ./data/memos.sqlite3`. It refuses unsafe existing permissions and never changes existing data. See [private storage setup](docs/PRIVATE_STORAGE.md). Ordinary server startup does not run this helper automatically.
 
 ~~~bash
 export GOREE_MEMOS_TOKEN="$(python3 -c 'import secrets; print(secrets.token_urlsafe(36))')"
@@ -50,7 +50,7 @@ The native GTK4 preview requires PyGObject and GTK4. Both clients use GOREE_MEMO
 
 ~~~bash
 python3 -m unittest discover -s server -v
-python3 -m py_compile server/app.py server/maintenance.py server/test_app.py server/test_maintenance.py cli/memos.py clients/linux/app.py
+python3 -m py_compile server/*.py cli/memos.py clients/linux/app.py
 node --check web/app.js
 node --check web/markdown.js
 node --test tests/*.test.cjs
