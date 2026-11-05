@@ -99,10 +99,14 @@ class Store:
             escaped = query.lower().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
             sql += " AND (lower(title) LIKE ? ESCAPE '\\' OR lower(content) LIKE ? ESCAPE '\\')"
             params.extend([f"%{escaped}%", f"%{escaped}%"])
-        sql += " ORDER BY pinned DESC, updated_at DESC LIMIT 2000"
+        sql += " ORDER BY pinned DESC, updated_at DESC"
+        # Apply the tag filter before the feed cap, or older matching notes
+        # could disappear when more than 2,000 unrelated notes exist.
+        if not tag:
+            sql += " LIMIT 2000"
         with self.connect() as db:
             result = [self.serialize(r) for r in db.execute(sql, params).fetchall()]
-        return [m for m in result if tag in m["tags"]] if tag else result
+        return [m for m in result if tag in m["tags"]][:2000] if tag else result
 
     def get(self, memo_id):
         with self.connect() as db:
@@ -148,6 +152,18 @@ class Store:
             rows = db.execute("SELECT * FROM revisions WHERE memo_id=? ORDER BY version DESC",
                               (memo_id,)).fetchall()
         return [dict(row) for row in rows]
+
+    def export_all(self):
+        """Read one coherent snapshot; never apply the feed's 2,000-item limit."""
+        with self.connect() as db:
+            db.execute("BEGIN")
+            memos = [self.serialize(row) for row in db.execute(
+                "SELECT * FROM memos ORDER BY created_at, id").fetchall()]
+            revisions = [dict(row) for row in db.execute(
+                "SELECT * FROM revisions ORDER BY memo_id, version").fetchall()]
+            db.rollback()
+        return {"format": "goreecloud-memos-v2",
+                "exported_at": timestamp(), "memos": memos, "revisions": revisions}
 
 
 def make_handler(store, token):
@@ -202,7 +218,8 @@ def make_handler(store, token):
                 assets = {"/": ("index.html", "text/html; charset=utf-8"),
                           "/index.html": ("index.html", "text/html; charset=utf-8"),
                           "/style.css": ("style.css", "text/css; charset=utf-8"),
-                          "/app.js": ("app.js", "text/javascript; charset=utf-8")}
+                          "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+                          "/markdown.js": ("markdown.js", "text/javascript; charset=utf-8")}
                 if path not in assets:
                     return self.respond(404, {"error": "Not found"})
                 filename, mime = assets[path]
@@ -212,8 +229,7 @@ def make_handler(store, token):
             if not self.authorized():
                 return self.respond(401, {"error": "Authentication required"})
             if path == "/api/v1/export" and self.command == "GET":
-                return self.respond(200, {"format": "goreecloud-memos-v1",
-                                          "exported_at": timestamp(), "memos": store.list("all")})
+                return self.respond(200, store.export_all())
             if path == "/api/v1/memos":
                 if self.command == "GET":
                     args = parse_qs(url.query)

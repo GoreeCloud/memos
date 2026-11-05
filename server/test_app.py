@@ -88,7 +88,8 @@ class ServerTests(unittest.TestCase):
     def test_export_and_static(self):
         code, archive = self.send("/api/v1/export")
         self.assertEqual(code, 200)
-        self.assertEqual(archive["format"], "goreecloud-memos-v1")
+        self.assertEqual(archive["format"], "goreecloud-memos-v2")
+        self.assertIn("revisions", archive)
         self.assertTrue(isinstance(archive["memos"], list))
         code, page = self.send("/", authorized=False)
         self.assertEqual(code, 200)
@@ -96,6 +97,9 @@ class ServerTests(unittest.TestCase):
         code, css = self.send("/style.css", authorized=False)
         self.assertEqual(code, 200)
         self.assertIn(b"column-width:255px", css)
+        code, script = self.send("/markdown.js", authorized=False)
+        self.assertEqual(code, 200)
+        self.assertIn(b"safeHref", script)
 
 
 if __name__ == "__main__":
