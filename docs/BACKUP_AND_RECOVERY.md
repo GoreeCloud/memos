@@ -24,6 +24,18 @@ python3 server/maintenance.py verify ./data/recovered.sqlite3
 
 After verifying memo counts and opening the recovered database with the server, switch to the recovered database through the server's --db option. Preserve the original database and its associated WAL files until the restore is independently validated. Do not rename or delete active SQLite files during runtime.
 
+## Restore a single memo's earlier text without losing newer history
+
+On the authorized local CLI, inspect a memo's version and prior revisions before selecting the source revision:
+
+```bash
+python3 cli/memos.py show MEMO-UUID
+python3 cli/memos.py history MEMO-UUID
+python3 cli/memos.py restore-revision MEMO-UUID --version 1
+```
+
+The `restore-revision` operation fetches the current memo and prior revisions through the existing authenticated API, then submits a normal version-guarded PATCH with the older title/content. It creates a **new** current memo version and keeps the intervening history intact. The previous memo's color, pin, archive and trash state are left unchanged. Missing revisions, invalid UUIDs and nonpositive versions are rejected before any write; a concurrent edit returns HTTP 409 instead of being overwritten. This command **does change the selected memo** and should be run intentionally after reviewing the history. It does not restore attachments, metadata, tags independent of content, or the whole database.
+
 ## JSON export
 
 GET /api/v1/export (or CLI `export`) produces format `goreecloud-memos-v2`, including all memos and all text revision history in one coherent SQLite snapshot. The normal home feed remains limited to 2,000 results; export is not. JSON export is plaintext and not a database-level hot backup.
