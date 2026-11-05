@@ -246,13 +246,13 @@ def make_handler(store, token, auth_guard=None):
                 return self.respond(200, {"status": "ok", "service": "goreecloud-memos"})
             peer = self.client_address[0]
             # Only the socket peer is trusted. Proxy-supplied forwarded headers
-            # cannot choose another rate-limit bucket.
-            if guard.denied(peer):
+            # cannot choose another rate-limit bucket. Threshold check and
+            # failure accounting must be atomic across request threads.
+            decision = guard.attempt(peer, self.authorized())
+            if decision == "blocked":
                 return self.respond(429, {"error": "Too many authentication failures"})
-            if not self.authorized():
-                guard.failure(peer)
+            if decision == "invalid":
                 return self.respond(401, {"error": "Authentication required"})
-            guard.clear(peer)
             if path == "/api/v1/export" and self.command == "GET":
                 return self.respond(200, store.export_all())
             if path == "/api/v1/memos":
