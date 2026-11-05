@@ -13,7 +13,7 @@ Original privacy-first memo service and native-client development foundation for
 - Python standard-library HTTP service with SQLite persistence and bearer-token authorization.
 - Create, read, edit, duplicate; optional titles, hashtags, pinning, colors, archive, soft delete and restore.
 - Query by text, hashtag and folder; version history; optimistic concurrency returning HTTP 409 on stale edits.
-- Responsive web interface with default masonry layout, optional list, quick capture, memo editing, pinned cards, search and tags, light/dark themes, session-local drafts and keyboard shortcuts.
+- Responsive web interface with default masonry layout, optional list, quick capture, memo editing, pinned cards, search and tags, light/dark themes, session-local drafts and keyboard shortcuts. Existing memos have a lazy-loaded previous-version panel; restoring earlier title/content requires explicit confirmation and creates a new current version, preserving historical revisions.
 - Python CLI with folder/text/hashtag filtering, read one memo, view or restore earlier text revisions, create, duplicate, version-guarded update, and complete JSON export including revision history. It also supports reversible pin/unpin, archive/unarchive, and trash/restore commands. Restoring earlier text creates a new current version; all state changes use optimistic concurrency. Memo-specific CLI operations require canonical lowercase UUIDs.
 - Consistent live SQLite backup, integrity verification, and non-overwriting restore through local maintenance CLI.
 - Native GTK4 Linux development client with variable-height independent-column cards, search and editing.
