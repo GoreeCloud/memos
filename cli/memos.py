@@ -74,6 +74,31 @@ def memo_path(memo_id):
     return "/api/v1/memos/" + normalized
 
 
+def restore_revision(base, token, memo_id, revision_number):
+    """Restore saved text/title using the existing optimistic-version API.
+
+    This creates a NEW current version with the selected older content; it
+    never deletes prior history or replaces the original revision.
+    """
+    if type(revision_number) is not int or revision_number < 1:
+        raise ValueError("Revision version must be a positive integer")
+    path = memo_path(memo_id)
+    current = request(base, token, path)
+    if revision_number >= current["version"]:
+        raise ValueError("Select a prior revision, not the current memo version")
+    history = request(base, token, path + "/revisions")
+    older = next((r for r in history
+                  if type(r.get("version")) is int and r["version"] == revision_number),
+                 None)
+    if older is None:
+        raise ValueError("Requested memo revision does not exist")
+    return request(base, token, path, "PATCH", {
+        "version": current["version"],
+        "title": older["title"],
+        "content": older["content"],
+    })
+
+
 def write_private_export(data, output_path):
     """Atomically save plaintext JSON with owner-only POSIX file permissions.
 
@@ -129,6 +154,13 @@ def main():
     show.add_argument("id")
     history = sub.add_parser("history", help="Read prior text revisions of one memo")
     history.add_argument("id")
+    revert = sub.add_parser(
+        "restore-revision",
+        help="Create a new memo version from earlier title/content; preserve history",
+    )
+    revert.add_argument("id")
+    revert.add_argument("--version", type=int, required=True,
+                        help="Prior revision version to restore (positive integer)")
     create = sub.add_parser("create", help="Create a memo")
     create.add_argument("content", nargs="?", help="Text (or pipe through standard input)")
     create.add_argument("--title", default="")
@@ -151,6 +183,8 @@ def main():
             result = request(args.url, token, memo_path(args.id))
         elif args.command == "history":
             result = request(args.url, token, memo_path(args.id) + "/revisions")
+        elif args.command == "restore-revision":
+            result = restore_revision(args.url, token, args.id, args.version)
         elif args.command == "create":
             content = args.content if args.content is not None else sys.stdin.read()
             result = request(args.url, token, "/api/v1/memos", "POST", {"content": content, "title": args.title})
