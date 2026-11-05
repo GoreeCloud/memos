@@ -104,9 +104,20 @@ class Store:
         # could disappear when more than 2,000 unrelated notes exist.
         if not tag:
             sql += " LIMIT 2000"
+            with self.connect() as db:
+                return [self.serialize(row) for row in db.execute(sql, params)]
+        # Hashtags are derived from memo content rather than indexed columns.
+        # Iterate the cursor instead of materializing the entire database into
+        # Python lists, and stop as soon as the feed cap is satisfied.
+        matches = []
         with self.connect() as db:
-            result = [self.serialize(r) for r in db.execute(sql, params).fetchall()]
-        return [m for m in result if tag in m["tags"]][:2000] if tag else result
+            for row in db.execute(sql, params):
+                memo = self.serialize(row)
+                if tag in memo["tags"]:
+                    matches.append(memo)
+                    if len(matches) == 2000:
+                        break
+        return matches
 
     def get(self, memo_id):
         with self.connect() as db:
