@@ -42,3 +42,16 @@ dialog{width:min(92vw,680px);max-height:91vh;border:1px solid var(--gc-outline);
 .markdown-preview :not(pre)>code{background:var(--gc-surface-tonal);border-radius:5px;padding:2px 4px}
 .markdown-preview blockquote{margin:12px 0;border-left:3px solid var(--gc-brand);padding-left:15px;color:var(--gc-text-soft)}
 .markdown-preview hr{border:0;border-top:1px solid var(--gc-outline);margin:15px 0}
+
+/* Editor-only historical versions; uses established GoreeCloud UI tokens. */
+.revision-panel{border-top:1px solid var(--gc-outline);margin:4px 0 12px;padding:12px 0;color:var(--gc-text)}
+.revision-panel>summary{cursor:pointer;color:var(--gc-brand);font-size:13px;font-weight:750;padding:8px 2px}
+.revision-subtitle{color:var(--gc-text-soft);font-weight:450;font-size:11px}
+.revision-list{display:flex;flex-direction:column;gap:10px;margin-top:10px;max-height:240px;overflow:auto}
+.revision-row{border:1px solid var(--gc-outline);border-radius:12px;background:var(--gc-surface);padding:12px 14px;overflow-wrap:anywhere}
+.revision-head{display:flex;align-items:baseline;justify-content:space-between;gap:9px;font-size:12px}
+.revision-date{color:var(--gc-text-faint);font-size:10px}
+.revision-title{font-size:12px;font-weight:650;margin:7px 0}
+.revision-text{font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--gc-text-soft);white-space:pre-wrap;overflow-wrap:anywhere;max-height:90px;overflow:auto;margin:9px 0}
+.revision-restore{font-size:11px}
+.revision-message{font-size:12px;color:var(--gc-text-soft);margin:4px 0 12px}

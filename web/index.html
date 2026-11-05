@@ -64,6 +64,10 @@
       <label class="sr-only" for="editContent">Memo content</label><textarea id="editContent" class="content-input" placeholder="Write anything… Markdown and #tags supported." rows="10"></textarea>
       <div id="editPreview" class="markdown-preview" aria-label="Markdown preview" tabindex="0" hidden></div>
       <div class="editor-settings"><label>Card color <select id="editColor"><option value="paper">Paper</option><option value="rose">Rose</option><option value="sun">Sunshine</option><option value="mint">Mint</option><option value="sky">Sky</option><option value="lavender">Lavender</option></select></label><label><input type="checkbox" id="editPin"> Pinned</label><label><input type="checkbox" id="editArchive"> Archived</label></div>
+      <details id="revisionPanel" class="revision-panel" hidden>
+        <summary>Previous versions <span class="revision-subtitle">(restoring creates a new version)</span></summary>
+        <div id="revisionList" class="revision-list" aria-live="polite"></div>
+      </details>
       <div class="editor-footer"><div><button type="button" id="duplicateBtn" class="subtle">Duplicate</button><button type="button" id="trashBtn" class="subtle danger">Move to trash</button></div><button class="solid" id="saveBtn" type="submit">Save changes</button></div>
     </form>
   </dialog>
