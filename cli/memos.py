@@ -99,6 +99,34 @@ def restore_revision(base, token, memo_id, revision_number):
     })
 
 
+STATE_OPERATIONS = {
+    "pin": ("pinned", True),
+    "unpin": ("pinned", False),
+    "archive": ("archived", True),
+    "unarchive": ("archived", False),
+    "trash": ("deleted", True),
+    "restore": ("deleted", False),
+}
+
+
+def change_memo_state(base, token, memo_id, command):
+    """Change exactly one reversible memo flag with optimistic concurrency."""
+    if command not in STATE_OPERATIONS:
+        raise ValueError("Unknown memo state action")
+    path = memo_path(memo_id)
+    field, wanted = STATE_OPERATIONS[command]
+    current = request(base, token, path)
+    if type(current.get(field)) is not bool:
+        raise ValueError("Memo state is missing or invalid")
+    # Avoid generating a new revision for a no-op action.
+    if current[field] is wanted:
+        return current
+    return request(base, token, path, "PATCH", {
+        "version": current["version"],
+        field: wanted,
+    })
+
+
 def write_private_export(data, output_path):
     """Atomically save plaintext JSON with owner-only POSIX file permissions.
 
@@ -168,6 +196,11 @@ def main():
     update.add_argument("id")
     update.add_argument("--content")
     update.add_argument("--title")
+    for action in STATE_OPERATIONS:
+        state_cmd = sub.add_parser(
+            action, help="Set one memo state flag using a version-guarded update"
+        )
+        state_cmd.add_argument("id")
     export = sub.add_parser("export", help="Export all memos and revisions")
     export.add_argument("--output", metavar="PATH",
                         help="Exclusively create owner-only JSON file on POSIX")
@@ -185,6 +218,8 @@ def main():
             result = request(args.url, token, memo_path(args.id) + "/revisions")
         elif args.command == "restore-revision":
             result = restore_revision(args.url, token, args.id, args.version)
+        elif args.command in STATE_OPERATIONS:
+            result = change_memo_state(args.url, token, args.id, args.command)
         elif args.command == "create":
             content = args.content if args.content is not None else sys.stdin.read()
             result = request(args.url, token, "/api/v1/memos", "POST", {"content": content, "title": args.title})
