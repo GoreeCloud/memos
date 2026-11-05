@@ -10,7 +10,7 @@ Original privacy-first memo service and native-client development foundation for
 
 ## Working development features
 
-- Python standard-library HTTP service with SQLite persistence and bearer-token authorization.
+- Python standard-library HTTP service with SQLite persistence, bearer-token authorization, and process-local per-peer failed-login throttling (eight failures/60 seconds; HTTP 429). This is not enterprise identity, TLS, or production-grade distributed abuse protection.
 - Create, read, edit, duplicate; optional titles, hashtags, pinning, colors, archive, soft delete and restore.
 - Query by text, hashtag and folder; version history; optimistic concurrency returning HTTP 409 on stale edits. Hashtag-filtered feeds stream SQLite rows and stop at 2,000 matching notes rather than materializing all candidate memos in memory; this is not a full-text/hashtag index.
 - Responsive web interface with default masonry layout, optional list, quick capture, memo editing, pinned cards, search and tags, light/dark themes, session-local drafts and keyboard shortcuts. Existing memos have a lazy-loaded previous-version panel; restoring earlier title/content requires explicit confirmation and creates a new current version, preserving historical revisions.
@@ -70,7 +70,7 @@ node --test tests/*.test.cjs
 
 ## API
 
-All data routes require an Authorization bearer token; health and static web assets are public. Mutations use JSON and versioned changes.
+All data routes require an Authorization bearer token; health and static web assets are public. After eight failed API authentications from a socket peer within 60 seconds, requests from that peer return 429 with a Retry-After header until the window expires. This can temporarily block legitimate shared-IP users and resets when the process restarts. Mutations use JSON and versioned changes.
 
 | Method | Endpoint | Purpose |
 |---|---|---|
