@@ -10,11 +10,12 @@
 - Optional titles, hashtag extraction, colors, pinning, revision history, version-conflict protection, filtering and full v2 JSON export (all memos plus revisions, without the home-feed cap).
 - One-server-token bearer authentication, no unsecured fallback, localhost-only binding default.
 - Responsive web home with **default Pinterest-style masonry**, variable-height cards, separate pinned section, alternative list view, GC UI-aligned Iris colors, search, tags, editor, drafts and theme switch.
-- Python CLI: create, list, update, export. Standalone local maintenance tool: online SQLite backup, integrity check, and fail-closed non-overwriting restore.
+- Python CLI: create, list, update, export. Standalone local maintenance tool: consistent online SQLite backup, integrity and memo-history relationship verification, and fail-closed non-overwriting restore. Automated regression coverage includes recovery of committed uncheckpointed WAL data.
 - Browser editor: safe basic Markdown preview, rendering headings, fenced code, paragraphs, quotes, lists and allowlisted HTTPS/HTTP links; preview checkboxes update the in-session draft, then require explicit save.
 - Native Linux GTK4 initial client: note display in separate variable-height vertical columns, search, create and edit.
-- GitHub CI-verified: nine Python API/recovery tests (including the revisions-schema fail-closed regression), four Node.js Markdown security/behavior tests, Python compilation and JavaScript syntax checks.
-- GitHub Actions passed for merged PR #4 (SQLite revision-schema verification, 2026-11-05). No deployment or app-release claim follows from CI success.
+- Optional POSIX-only private SQLite pre-provisioning helper: creates a private 0700 directory and 0600 empty database file, refuses symlinks and unsafe existing permissions, and does not overwrite existing content. The default server startup **does not automatically use this helper**; see [private storage](PRIVATE_STORAGE.md).
+- GitHub CI-verified: 17 Python API/recovery/private-storage tests and four Node.js Markdown security/behavior tests, Python compilation and JavaScript syntax checks.
+- GitHub Actions passed for merged PRs #4 (required revision columns), #6 (logical history and live-WAL recovery), and #7 (opt-in private SQLite bootstrap) on 2026-11-05. No deployment or app-release claim follows from CI success.
 
 ## Unmerged development and delivery blockers
 
