@@ -155,6 +155,27 @@
     el("editor").showModal();el("editContent").focus();
   }
   function clearDraft(){sessionStorage.removeItem(key(state.editing?.id));}
+  function clearLocalDrafts(){
+    const keys=[];
+    for(let i=0;i<sessionStorage.length;i++){
+      const k=sessionStorage.key(i);
+      if(k==="gcmemos:quick"||k?.startsWith("gcmemos:draft:"))keys.push(k);
+    }
+    if(!keys.length)return toast("No unsaved Memos drafts in this tab");
+    if(!window.confirm("Permanently clear "+keys.length+
+      " unsaved Memos draft entries from this browser tab? "+
+      "An open editor will close. Saved server memos, login tokens, and "+
+      "layout preferences will not change. This cannot be undone."))return;
+    for(const k of keys)sessionStorage.removeItem(k);
+    el("quickContent").value="";
+    if(el("editor").open){
+      el("editor").close();
+      el("revisionPanel").open=false;
+      el("revisionList").replaceChildren();
+      state.editing=null;
+    }
+    toast("Unsaved drafts cleared from this tab");
+  }
   async function save(){
     const memo=state.editing,body={title:el("editTitle").value,content:el("editContent").value,color:el("editColor").value,pinned:el("editPin").checked,archived:el("editArchive").checked};
     try{
@@ -171,6 +192,8 @@
   el("revisionPanel").addEventListener("toggle",()=>{
     if(el("revisionPanel").open&&state.editing)loadRevisions(state.editing);
   });
+  el("clearDraftsBtn").onclick=clearLocalDrafts;
+  el("clearLockedDraftsBtn").onclick=clearLocalDrafts;
   el("newBtn").onclick=()=>open();el("emptyNew").onclick=()=>open();el("closeEditor").onclick=()=>el("editor").close();el("pinToggle").onclick=()=>{state.pinnedCollapsed=!state.pinnedCollapsed;localStorage.setItem("gcmemos-pin-collapsed",String(state.pinnedCollapsed));render();};
   el("editorForm").addEventListener("submit",e=>{e.preventDefault();save();});
   el("editContent").addEventListener("input",()=>{sessionStorage.setItem(key(state.editing?.id),el("editContent").value);if(previewActive)renderPreview();});
