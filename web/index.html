@@ -29,6 +29,7 @@
         <div class="mobile-brand">✦ <strong>Memos</strong></div>
         <label class="searchbox"><span aria-hidden="true">⌕</span><span class="sr-only">Search memos</span><input id="search" type="search" autocomplete="off" placeholder="Search your thoughts… (Ctrl+K)"></label>
         <button class="subtle" id="themeBtn" aria-label="Switch dark or light theme" title="Theme">◐</button>
+        <button class="subtle" id="clearDraftsBtn" type="button" aria-label="Clear unsaved local drafts" title="Clear drafts stored in this browser tab">⌫ <span class="desktop-only">Clear drafts</span></button>
         <button class="subtle" id="exportBtn" title="Export memos as JSON">⇩ <span class="desktop-only">Export</span></button>
       </header>
       <div class="content">
@@ -52,7 +53,8 @@
       <h1>Welcome to Memos</h1><p>Your thoughts belong to you. Enter your server access token to open your private workspace.</p>
       <label for="accessToken">Access token</label><input id="accessToken" type="password" autocomplete="off" required minlength="24" placeholder="Paste your access token">
       <button type="submit" class="solid full">Open workspace</button>
-      <small>Tokens stay in memory for this browser tab, not in persistent storage.</small>
+      <small>Tokens stay in memory for this browser tab, not in persistent storage. Unsaved memo text may remain in this tab until cleared.</small>
+      <button type="button" id="clearLockedDraftsBtn" class="subtle full">Clear unsaved drafts from this tab</button>
       <p id="authError" class="error" role="alert"></p>
     </form>
   </div>
