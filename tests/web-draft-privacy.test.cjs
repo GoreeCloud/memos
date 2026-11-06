@@ -65,8 +65,8 @@ function fixture(seed, confirmed=true){
 }
 
 test("privacy controls are present in authenticated and locked browser views",()=>{
-  assert.match(html,/id="clearDraftsBtn"[^>]*type="button"/);
-  assert.match(html,/id="clearLockedDraftsBtn"[^>]*type="button"/);
+  assert.match(html,/<button(?=[^>]*id="clearDraftsBtn")(?=[^>]*type="button")[^>]*>/);
+  assert.match(html,/<button(?=[^>]*id="clearLockedDraftsBtn")(?=[^>]*type="button")[^>]*>/);
   assert.match(html,/Unsaved memo text may remain in this tab until cleared/);
 });
 
