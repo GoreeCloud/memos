@@ -188,3 +188,57 @@ test("delayed history from another memo cannot populate current editor",async()=
   assert.equal(descendants(env.get("revisionList")).some(
     n=>String(n.textContent).includes("Earlier title")),false);
 });
+
+test("workspace lock clears token-facing UI and memo DOM without deleting drafts",async()=>{
+  assert.match(markup,/<button(?=[^>]*id="lockWorkspaceBtn")(?=[^>]*type="button")[^>]*>/);
+  const env=fixture();
+  await env.login();await env.openFirst();await env.expand();
+  const draftKey="gcmemos:draft:"+first.id;
+  env.sessionStorage.setItem(draftKey,"Unsaved private text");
+  env.sessionStorage.setItem("gcmemos:quick","Private quick capture");
+  env.get("quickContent").value="Private quick capture";
+  const requestsBefore=env.requests.length;
+  await env.get("lockWorkspaceBtn").emit("click");
+  assert.equal(env.requests.length,requestsBefore);
+  assert.equal(env.get("shell").hidden,true);
+  assert.equal(env.get("authScreen").hidden,false);
+  assert.equal(env.get("editor").open,false);
+  assert.equal(env.get("editContent").value,"");
+  assert.equal(env.get("quickContent").value,"");
+  assert.equal(env.get("notesGrid").children.length,0);
+  assert.equal(env.get("pinnedGrid").children.length,0);
+  assert.equal(env.get("revisionList").children.length,0);
+  assert.equal(env.get("revisionPanel").open,false);
+  assert.equal(env.get("accessToken").value,"");
+  assert.equal(env.sessionStorage.getItem(draftKey),"Unsaved private text");
+  assert.equal(env.sessionStorage.getItem("gcmemos:quick"),"Private quick capture");
+});
+
+test("reauthentication after lock uses only the new token and restores quick draft",async()=>{
+  const env=fixture();
+  await env.login();
+  env.sessionStorage.setItem("gcmemos:quick","Restore only my unsaved quick text");
+  await env.get("lockWorkspaceBtn").emit("click");
+  const before=env.requests.length;
+  env.get("accessToken").value="fresh-in-memory-token-for-test";
+  await env.get("authForm").emit("submit");
+  const after=env.requests.slice(before);
+  assert.ok(after.length>=2);
+  for(const req of after){
+    assert.equal(req.init.headers.Authorization,"Bearer fresh-in-memory-token-for-test");
+  }
+  assert.equal(env.get("shell").hidden,false);
+  assert.equal(env.get("authScreen").hidden,true);
+  assert.equal(env.get("quickContent").value,"Restore only my unsaved quick text");
+  assert.equal(env.get("notesGrid").children.length,2);
+});
+
+test("delayed revision history cannot reappear after workspace lock",async()=>{
+  const env=fixture({holdFirstHistory:true});
+  await env.login();await env.openFirst();await env.expand();
+  await env.get("lockWorkspaceBtn").emit("click");
+  env.resolveHeld(history);
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(env.get("revisionList").children.length,0);
+  assert.equal(env.get("authScreen").hidden,false);
+});
