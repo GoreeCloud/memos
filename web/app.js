@@ -155,6 +155,34 @@
     el("editor").showModal();el("editContent").focus();
   }
   function clearDraft(){sessionStorage.removeItem(key(state.editing?.id));}
+  function lockWorkspace(){
+    // A lock forgets the bearer token and removes displayed memo text from
+    // the DOM. Incrementing the request id invalidates in-flight feed results.
+    ++state.request;
+    state.token="";
+    state.memos=[];
+    state.editing=null;
+    state.folder="active";state.tag="";state.q="";
+    clearTimeout(sTimer);
+    el("editor").close();
+    el("editTitle").value="";
+    el("editContent").value="";
+    el("editPreview").replaceChildren();
+    el("revisionPanel").open=false;
+    el("revisionList").replaceChildren();
+    el("quickContent").value="";
+    el("search").value="";
+    el("notesGrid").replaceChildren();
+    el("pinnedGrid").replaceChildren();
+    el("tags").replaceChildren();
+    el("count").textContent="";
+    el("accessToken").value="";
+    el("authError").textContent="";
+    el("shell").hidden=true;
+    el("authScreen").hidden=false;
+    // Deliberately preserve unsaved sessionStorage drafts: the separate
+    // Clear drafts control handles destructive draft deletion by confirmation.
+  }
   function clearLocalDrafts(){
     const keys=[];
     for(let i=0;i<sessionStorage.length;i++){
@@ -186,12 +214,13 @@
   }
   el("authForm").addEventListener("submit",async e=>{
     e.preventDefault();state.token=el("accessToken").value.trim();
-    try{await api("/api/v1/memos?folder=active");el("authScreen").hidden=true;el("shell").hidden=false;el("accessToken").value="";await load();}
+    try{await api("/api/v1/memos?folder=active");el("authScreen").hidden=true;el("shell").hidden=false;el("accessToken").value="";el("quickContent").value=sessionStorage.getItem("gcmemos:quick")||"";await load();}
     catch(err){el("authError").textContent=err.message;state.token="";}
   });
   el("revisionPanel").addEventListener("toggle",()=>{
     if(el("revisionPanel").open&&state.editing)loadRevisions(state.editing);
   });
+  el("lockWorkspaceBtn").onclick=lockWorkspace;
   el("clearDraftsBtn").onclick=clearLocalDrafts;
   el("clearLockedDraftsBtn").onclick=clearLocalDrafts;
   el("newBtn").onclick=()=>open();el("emptyNew").onclick=()=>open();el("closeEditor").onclick=()=>el("editor").close();el("pinToggle").onclick=()=>{state.pinnedCollapsed=!state.pinnedCollapsed;localStorage.setItem("gcmemos-pin-collapsed",String(state.pinnedCollapsed));render();};
