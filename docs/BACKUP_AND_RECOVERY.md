@@ -38,7 +38,7 @@ The `restore-revision` operation fetches the current memo and prior revisions th
 
 ## JSON export
 
-GET /api/v1/export (or CLI `export`) produces format `goreecloud-memos-v2`, including all memos and all text revision history in one coherent SQLite snapshot. The normal home feed remains limited to 2,000 results; export is not. JSON export is plaintext and not a database-level hot backup.
+GET /api/v1/export (or CLI `export`) produces format `goreecloud-memos-v2`, including all memos and all text revision history in one coherent SQLite snapshot. The normal home feed remains limited to 2,000 results; export is not. JSON export is plaintext and not a database-level hot backup. The browser Export button explicitly warns and asks for confirmation before retrieving/downloading the full plaintext archive. Browser-managed downloads do not use the CLI's private POSIX file-creation safeguards; secure the download destination and encrypt before sharing.
 
 For an owner-only JSON file on POSIX systems, prefer the CLI's explicit file-output mode:
 
