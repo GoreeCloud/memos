@@ -247,6 +247,10 @@
   el("masonryBtn").onclick=()=>layout("masonry");el("listBtn").onclick=()=>layout("list");layout(state.layout);
   el("themeBtn").onclick=()=>{const next=document.documentElement.dataset.mode==="dark"?"light":"dark";document.documentElement.dataset.mode=next;localStorage.setItem("gcmemos-mode",next);};
   el("exportBtn").onclick=async()=>{
+    if(!window.confirm("Export ALL memos, including archived and trashed notes, "+
+      "and their full text revision history as an UNENCRYPTED JSON download? "+
+      "The browser download location may be accessible to other users or "+
+      "backup services. Protect or encrypt the file before sharing it."))return;
     try{const result=await api("/api/v1/export"),blob=new Blob([JSON.stringify(result,null,2)],{type:"application/json"});
       const url=URL.createObjectURL(blob),a=make("a");a.href=url;a.download="goreecloud-memos-export.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("Export downloaded");
     }catch(err){fail(err);}

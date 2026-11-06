@@ -65,6 +65,7 @@ function fixture(options={}) {
       removeItem:key=>values.delete(key)};
   };
   const sessionStorage=makeStorage(),localStorage=makeStorage(),requests=[];
+  const downloads=[],exportedBlobs=[];
   let confirms=0,allowRestore=Boolean(options.allowRestore),patchConflict=false;
   let heldHistoryResolve=null;
   const response=(status,data)=>({
@@ -73,6 +74,14 @@ function fixture(options={}) {
   });
   const fetch=async(url,init={})=>{
     requests.push({url,init});
+    if(url==="/api/v1/export"){
+      if(options.exportError)return response(500,{error:"Export unavailable"});
+      return response(200,{
+        format:"goreecloud-memos-v2",
+        memos:[first,{...second,deleted:true}],
+        revisions:history,
+      });
+    }
     if(url.startsWith("/api/v1/memos?"))return response(200,[first,second]);
     if(url.endsWith("/revisions")){
       if(options.holdFirstHistory&&url.includes(first.id))
@@ -88,17 +97,30 @@ function fixture(options={}) {
   const doc={
     documentElement:new Node("html"),
     getElementById:get,
-    createElement:tag=>new Node(tag),
+    createElement:tag=>{
+      const node=new Node(tag);
+      if(tag==="a")node.click=()=>downloads.push({
+        href:node.href,filename:node.download
+      });
+      return node;
+    },
     querySelectorAll:()=>[],
     addEventListener(){}
   };
   vm.runInNewContext(appSource,{
     document:doc,window:{confirm:()=>{confirms++;return allowRestore;}},
     localStorage,sessionStorage,fetch,URLSearchParams,Date,Intl,
+    Blob:class{
+      constructor(parts,opts){this.parts=parts;this.options=opts;exportedBlobs.push(this);}
+    },
+    URL:{
+      createObjectURL:()=> "blob:test-private-export",
+      revokeObjectURL:()=>{},
+    },
     setTimeout:()=>0,clearTimeout:()=>{},console
   },{filename:"web/app.js",timeout:1500});
   return {
-    get, requests, sessionStorage,
+    get, requests, sessionStorage, downloads, exportedBlobs,
     async login(){
       get("accessToken").value="placeholder-token";
       await get("authForm").emit("submit");
@@ -241,4 +263,44 @@ test("delayed revision history cannot reappear after workspace lock",async()=>{
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(env.get("revisionList").children.length,0);
   assert.equal(env.get("authScreen").hidden,false);
+});
+
+test("canceling plaintext browser export makes no export API request",async()=>{
+  const env=fixture();await env.login();
+  const before=env.requests.length;
+  await env.get("exportBtn").emit("click");
+  assert.equal(env.confirms,1);
+  assert.equal(env.requests.length,before);
+  assert.equal(env.downloads.length,0);
+  assert.equal(env.exportedBlobs.length,0);
+});
+
+test("confirmed export preserves full memo and revision data in plaintext JSON",async()=>{
+  const env=fixture({allowRestore:true});await env.login();
+  await env.get("exportBtn").emit("click");
+  assert.equal(env.confirms,1);
+  const exports=env.requests.filter(r=>r.url==="/api/v1/export");
+  assert.equal(exports.length,1);
+  assert.equal(exports[0].init.headers.Authorization,"Bearer placeholder-token");
+  assert.equal(exports[0].init.credentials,"omit");
+  assert.equal(env.downloads.length,1);
+  assert.equal(env.downloads[0].filename,"goreecloud-memos-export.json");
+  assert.equal(env.exportedBlobs.length,1);
+  assert.equal(env.exportedBlobs[0].options.type,"application/json");
+  const saved=JSON.parse(env.exportedBlobs[0].parts[0]);
+  assert.equal(saved.format,"goreecloud-memos-v2");
+  assert.equal(saved.memos.length,2);
+  assert.equal(saved.memos[1].deleted,true);
+  assert.equal(saved.revisions.length,2);
+  assert.equal(saved.revisions[1].content,"Old private text");
+});
+
+test("failed export after confirmation never creates a downloaded file",async()=>{
+  const env=fixture({allowRestore:true,exportError:true});await env.login();
+  await env.get("exportBtn").emit("click");
+  assert.equal(env.confirms,1);
+  assert.equal(env.requests.filter(r=>r.url==="/api/v1/export").length,1);
+  assert.equal(env.downloads.length,0);
+  assert.equal(env.exportedBlobs.length,0);
+  assert.match(env.get("toast").textContent,/Export unavailable/);
 });
