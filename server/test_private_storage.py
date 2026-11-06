@@ -63,6 +63,49 @@ class PrivateStorageTests(unittest.TestCase):
         self.assertFalse(provision_private_database(self.db))
         self.assertEqual(self.db.read_bytes(), b"operator-existing-data")
 
+    def test_new_intermediate_parents_all_have_private_modes(self):
+        deep = Path(self.temp.name) / "new" / "nested" / "private"
+        target = deep / "notes.sqlite"
+        self.assertTrue(provision_private_database(target))
+        for directory in (deep.parent.parent, deep.parent, deep):
+            with self.subTest(directory=str(directory)):
+                self.assertEqual(directory.stat().st_mode & 0o777, 0o700)
+        self.assertEqual(target.stat().st_mode & 0o777, 0o600)
+
+    def test_refuses_symlink_in_ancestor_without_writing_to_target(self):
+        outside = Path(self.temp.name) / "outside"
+        outside.mkdir(mode=0o700)
+        marker = outside / "operator-file"
+        marker.write_text("preserve me", encoding="utf-8")
+        redirect = Path(self.temp.name) / "redirect"
+        redirect.symlink_to(outside, target_is_directory=True)
+        target = redirect / "private" / "notes.sqlite"
+        with self.assertRaisesRegex(ValueError, "directory must not be a symlink"):
+            provision_private_database(target)
+        self.assertFalse((outside / "private").exists())
+        self.assertEqual(marker.read_text(encoding="utf-8"), "preserve me")
+
+    def test_refuses_dangling_ancestor_symlink(self):
+        redirect = Path(self.temp.name) / "dangling"
+        redirect.symlink_to(Path(self.temp.name) / "not-present", target_is_directory=True)
+        with self.assertRaisesRegex(ValueError, "directory must not be a symlink"):
+            provision_private_database(redirect / "private" / "notes.sqlite")
+        self.assertFalse((Path(self.temp.name) / "not-present").exists())
+
+    def test_refuses_parent_directory_traversal(self):
+        target = self.folder / ".." / "outside.sqlite"
+        with self.assertRaisesRegex(ValueError, "parent-directory traversal"):
+            provision_private_database(target)
+        self.assertFalse((Path(self.temp.name) / "outside.sqlite").exists())
+        self.assertFalse(self.folder.exists())
+
+    def test_refuses_regular_file_as_intermediate_component(self):
+        marker = Path(self.temp.name) / "file-component"
+        marker.write_text("operator-existing-data", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "component must be a directory"):
+            provision_private_database(marker / "private" / "notes.sqlite")
+        self.assertEqual(marker.read_text(encoding="utf-8"), "operator-existing-data")
+
 
 if __name__ == "__main__":
     unittest.main()
