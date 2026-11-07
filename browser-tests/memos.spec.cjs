@@ -120,7 +120,9 @@ test("empty and offline outcomes resolve the skeleton and permit recovery",async
  await expect(page.locator("#feedSkeleton")).toBeHidden();
  await context.setOffline(false);
  await page.locator("#feedRetry").click();
- await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ // The mock returns two records for Archive; unlike Active, both appear in the
+ // ordinary collection because the pinned split is Active-only.
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(2);
  await expect(page.locator("#feedFailure")).toBeHidden();
 });
 
@@ -205,8 +207,18 @@ test("320px, forced colors, dark and reduced motion keep static placeholders rea
  const shape=page.locator(".memo-skeleton-shape").first();
  await expect(shape).toHaveCSS("animation-name","none");
  expect(await page.evaluate(()=>matchMedia("(forced-colors: active)").matches)).toBe(true);
- const dimensions=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);
- expect(dimensions[0]-dimensions[1]).toBeLessThanOrEqual(2);
+ const geometry=await page.evaluate(()=>{
+  const width=document.documentElement.clientWidth;
+  const outliers=[...document.querySelectorAll("body *")].filter(node=>{
+   const r=node.getBoundingClientRect();
+   return r.width>0&&r.right>width+2;
+  }).map(node=>{
+   const r=node.getBoundingClientRect();
+   return {tag:node.tagName,id:node.id,cls:String(node.className).slice(0,80),right:Math.round(r.right)};
+  }).slice(0,15);
+  return {overflow:document.documentElement.scrollWidth-width,outliers};
+ });
+ expect(geometry.overflow,JSON.stringify(geometry.outliers)).toBeLessThanOrEqual(2);
  release();
  await expect(page.locator("#feedSkeleton")).toBeHidden();
 });
