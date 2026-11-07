@@ -12,7 +12,11 @@
   async function api(path,opt={}){
     const headers={Authorization:"Bearer "+state.token};
     if(opt.body!==undefined)headers["Content-Type"]="application/json";
-    const res=await fetch(path,{...opt,headers:{...headers,...(opt.headers||{})},cache:"no-store",credentials:"omit"});
+    // Bearer credentials stay on this origin and never follow HTTP redirects.
+    // Explicitly override caller options to protect future API call sites.
+    const res=await fetch(path,{...opt,headers:{...headers,...(opt.headers||{})},
+      cache:"no-store",credentials:"omit",mode:"same-origin",redirect:"error",
+      referrerPolicy:"no-referrer"});
     let data;try{data=await res.json();}catch{data={};}
     if(!res.ok){const err=new Error(data.error||"Request failed");err.status=res.status;err.current=data.current;throw err;}
     return data;
