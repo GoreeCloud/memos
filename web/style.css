@@ -60,3 +60,21 @@ dialog{width:min(92vw,680px);max-height:91vh;border:1px solid var(--gc-outline);
 .memo-card:focus-visible{outline:3px solid var(--gc-brand);outline-offset:3px}
 .searchbox:focus-within,.capture:focus-within{outline:3px solid var(--gc-brand);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.memo-card:hover{transform:none}}
+
+
+/* GoreeCloud UI C36 skeleton geometry for this private Memos consumer.
+   All shapes are decorative, are token-based, and are intentionally static
+   (no shimmer, no tracking, no animation under any motion setting). */
+#feedSkeleton[hidden],#feedFailure[hidden]{display:none!important}
+.feed-status{font-size:13px;color:var(--gc-text-soft);margin:14px 0}
+.feed-skeleton{margin-block:14px 22px}
+.memo-skeleton-card{pointer-events:none;user-select:none;min-height:170px;box-shadow:none!important;transform:none!important;display:grid;align-content:start;gap:13px}
+.memo-skeleton-card[data-length=tall]{min-height:210px}
+.memo-skeleton-shape{display:block;block-size:13px;max-inline-size:100%;border-radius:10px;border:1px solid var(--gc-outline);background:var(--gc-surface-tonal)}
+.memo-skeleton-shape[data-kind=title]{block-size:20px;inline-size:64%;border-radius:12px}
+.memo-skeleton-shape[data-kind=body]{inline-size:95%}
+.memo-skeleton-shape[data-kind=body-short]{inline-size:70%}
+.memo-skeleton-shape[data-kind=footer]{block-size:10px;inline-size:38%;margin-block-start:12px}
+.feed-recovery{margin-block:20px 0;max-inline-size:740px}
+.feed-recovery .solid{min-block-size:44px}
+@media(forced-colors:active){.memo-skeleton-shape{background:Canvas;color:CanvasText;border-color:CanvasText}}
