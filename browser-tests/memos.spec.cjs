@@ -194,6 +194,30 @@ test("browser rejects even same-origin redirect for the dummy bearer token",asyn
  expect(targetRequests).toBe(0);
 });
 
+test("genuinely timed-out fetch resolves the busy region and permits retry",async({page})=>{
+ let attempts=0,release;
+ setup(page,async route=>{
+  attempts++;
+  if(attempts===1){
+   await new Promise(resolve=>{release=resolve;});
+   // The browser aborts after 12 seconds; finishing this intercept afterward
+   // must not revive any content or surface a private response.
+   try{await json(route,NOTES);}catch{/* expected canceled request */}
+  }else await json(route,NOTES);
+ });
+ await login(page);
+ await expect(page.locator("#feedSkeleton")).toBeVisible();
+ await expect(page.locator("#feedFailureTitle")).toHaveText("Loading timed out",{timeout:18000});
+ await expect(page.locator("#feedStatus")).toHaveText("Memo loading timed out.");
+ await expect(page.locator("#feedRegion")).toHaveAttribute("aria-busy","false");
+ await expect(page.locator("#feedSkeleton")).toBeHidden();
+ release();
+ await page.locator("#feedRetry").click();
+ await expect(page.locator("#feedFailure")).toBeHidden();
+ await expect(page.locator("#feedStatus")).toHaveText("2 memos loaded.");
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+});
+
 test("320px, forced colors, dark and reduced motion keep static placeholders readable",async({page})=>{
  let release;
  await page.setViewportSize({width:320,height:740});
