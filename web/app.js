@@ -125,7 +125,7 @@
       state.memos=notes;
       settleFeed();
       render();
-      feedStatus(notes.length?notes.length+" memos loaded.":"No memos found.");
+      feedStatus(notes.length?notes.length+" "+(notes.length===1?"memo":"memos")+" loaded.":"No memos found.");
     }catch(err){
       if(request!==state.request||!state.token)return;
       settleFeed();
