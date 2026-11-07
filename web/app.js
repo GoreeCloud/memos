@@ -7,7 +7,7 @@
   const folders={active:"All memos",pinned:"Pinned memos",archive:"Archive",trash:"Trash"};
   document.documentElement.dataset.mode=localStorage.getItem("gcmemos-mode")==="dark"?"dark":"light";
   function make(tag,css,text){const v=document.createElement(tag);if(css)v.className=css;if(text!==undefined)v.textContent=text;return v;}
-  let tTimer;
+  let tTimer,activeFeedController=null,pendingSkeletonTimer=null;
   function toast(message){const v=el("toast");v.textContent=message;v.classList.add("visible");clearTimeout(tTimer);tTimer=setTimeout(()=>v.classList.remove("visible"),2800);}
   async function api(path,opt={}){
     const headers={Authorization:"Bearer "+state.token};
@@ -42,10 +42,10 @@
     el("previewMode").setAttribute("aria-pressed",String(value));
     if(value) renderPreview();
   }
-  function fail(err){if(err.status===401){state.token="";el("shell").hidden=true;el("authScreen").hidden=false;}toast(err.message||"Request failed");}
+  function fail(err){if(err.status===401)lockWorkspace();toast(err.message||"Request failed");}
   function layout(type){
     state.layout=type;localStorage.setItem("gcmemos-layout",type);
-    ["notesGrid","pinnedGrid"].forEach(id=>el(id).classList.toggle("list",type==="list"));
+    ["notesGrid","pinnedGrid","feedSkeleton"].forEach(id=>el(id).classList.toggle("list",type==="list"));
     for(const name of ["masonry","list"]){const b=el(name+"Btn");b.classList.toggle("active",type===name);b.setAttribute("aria-pressed",String(type===name));}
   }
   function card(memo){
@@ -63,10 +63,13 @@
     v.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open(memo);}});
     return v;
   }
-  function render(){
+  function syncFeedContext(){
     el("pageTitle").textContent=folders[state.folder];
     el("subtitle").textContent=state.tag?"Notes tagged #"+state.tag:state.q?"Search results for “"+state.q+"”":"Capture the little things that matter.";
     document.querySelectorAll("[data-folder]").forEach(b=>{const selected=b.dataset.folder===state.folder;b.classList.toggle("selected",selected);if(selected)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
+  }
+  function render(){
+    syncFeedContext();
     const all=state.folder==="pinned"?state.memos.filter(m=>m.pinned):state.memos;
     const pinned=state.folder==="active"?all.filter(m=>m.pinned):[];
     const rest=state.folder==="active"?all.filter(m=>!m.pinned):all;
@@ -78,10 +81,68 @@
     el("tags").replaceChildren(...tagSet.slice(0,40).map(tag=>{const b=make("button","tag-pill","#"+tag);b.classList.toggle("selected",state.tag===tag);b.onclick=()=>{state.tag=state.tag===tag?"":tag;load();};return b;}));
     layout(state.layout);
   }
+  function feedStatus(message){
+    const node=el("feedStatus");
+    node.textContent=message;
+    node.hidden=false;
+  }
+  function settleFeed(){
+    clearTimeout(pendingSkeletonTimer);
+    pendingSkeletonTimer=null;
+    el("feedSkeleton").hidden=true;
+    el("feedRegion").setAttribute("aria-busy","false");
+  }
   async function load(){
+    if(!state.token)return;
     const request=++state.request;
+    activeFeedController?.abort("superseded");
+    const controller=typeof AbortController==="function"?new AbortController():null;
+    activeFeedController=controller;
+    clearTimeout(pendingSkeletonTimer);
+    // A new filter/search must not expose the previous private memo list.
+    state.memos=[];
+    el("notesGrid").replaceChildren();
+    el("pinnedGrid").replaceChildren();
+    el("notesSection").hidden=true;
+    el("pinnedSection").hidden=true;
+    el("empty").hidden=true;
+    el("feedFailure").hidden=true;
+    el("feedSkeleton").hidden=true;
+    el("feedRegion").setAttribute("aria-busy","true");
+    feedStatus("Loading memos…");
+    syncFeedContext();
+    // Avoid flashing a placeholder for an immediately resolved request.
+    pendingSkeletonTimer=setTimeout(()=>{
+      if(request===state.request&&state.token)el("feedSkeleton").hidden=false;
+    },120);
+    const deadline=controller?setTimeout(()=>controller.abort("timeout"),12000):null;
     const params=new URLSearchParams({folder:state.folder==="pinned"?"active":state.folder,q:state.q,tag:state.tag});
-    try{const notes=await api("/api/v1/memos?"+params.toString());if(request!==state.request)return;state.memos=notes;render();}catch(err){fail(err);}
+    try{
+      if(typeof navigator!=="undefined"&&navigator.onLine===false)throw new Error("Offline");
+      const notes=await api("/api/v1/memos?"+params.toString(),controller?{signal:controller.signal}:{});
+      if(request!==state.request||!state.token)return;
+      if(!Array.isArray(notes))throw new Error("Unexpected memo list response");
+      state.memos=notes;
+      settleFeed();
+      render();
+      feedStatus(notes.length?notes.length+" "+(notes.length===1?"memo":"memos")+" loaded.":"No memos found.");
+    }catch(err){
+      if(request!==state.request||!state.token)return;
+      settleFeed();
+      if(err.status===401){fail(err);return;}
+      const offline=typeof navigator!=="undefined"&&navigator.onLine===false;
+      const timeout=controller?.signal.aborted&&controller.signal.reason==="timeout";
+      el("feedFailureTitle").textContent=offline?"You're offline":timeout?"Loading timed out":"Unable to load memos";
+      el("feedFailureBody").textContent=offline?"Reconnect and retry loading your private memos.":timeout?
+        "The request did not respond in time. Check your connection and retry.":
+        "Your memos could not be loaded. Check your connection and retry.";
+      el("feedFailure").hidden=false;
+      feedStatus(offline?"Offline: memos unavailable.":timeout?"Memo loading timed out.":"Unable to load memos.");
+      fail(err);
+    }finally{
+      if(deadline!==null)clearTimeout(deadline);
+      if(activeFeedController===controller)activeFeedController=null;
+    }
   }
   async function loadRevisions(memo){
     const list=el("revisionList");
@@ -159,6 +220,14 @@
     // A lock forgets the bearer token and removes displayed memo text from
     // the DOM. Incrementing the request id invalidates in-flight feed results.
     ++state.request;
+    activeFeedController?.abort("locked");
+    activeFeedController=null;
+    clearTimeout(pendingSkeletonTimer);
+    pendingSkeletonTimer=null;
+    settleFeed();
+    el("feedFailure").hidden=true;
+    el("feedStatus").textContent="";
+    el("feedStatus").hidden=true;
     state.token="";
     state.memos=[];
     state.editing=null;
@@ -221,6 +290,12 @@
     if(el("revisionPanel").open&&state.editing)loadRevisions(state.editing);
   });
   el("lockWorkspaceBtn").onclick=lockWorkspace;
+  el("feedRetry").onclick=async()=>{
+    await load();
+    if(!state.token||el("shell").hidden)return;
+    if(el("feedFailure").hidden)el("search").focus();
+    else el("feedRetry").focus();
+  };
   el("clearDraftsBtn").onclick=clearLocalDrafts;
   el("clearLockedDraftsBtn").onclick=clearLocalDrafts;
   el("newBtn").onclick=()=>open();el("emptyNew").onclick=()=>open();el("closeEditor").onclick=()=>el("editor").close();el("pinToggle").onclick=()=>{state.pinnedCollapsed=!state.pinnedCollapsed;localStorage.setItem("gcmemos-pin-collapsed",String(state.pinnedCollapsed));render();};
