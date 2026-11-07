@@ -18,7 +18,7 @@ Original privacy-first memo service and native-client development foundation for
 - Consistent live SQLite backup, integrity verification, and non-overwriting restore through local maintenance CLI.
 - Native GTK4 Linux development client with variable-height independent-column cards, search and editing.
 - Safe Markdown subset preview, including headings, lists, fenced code, quotes, links, bold and inline code, with editable checklist items in preview (save required to persist).
-- Python regression tests, Node.js Markdown security/behavior tests, and JavaScript syntax checks.
+- Python regression tests, Node.js Markdown security/behavior tests, and JavaScript syntax checks; development-only Chromium/Firefox CI verifies 13 synthetic browser scenarios per engine, including real local/private Python API authentication and disposable SQLite data. Manual screen-reader, real network/TLS, production and native acceptance remain open ([tracking issue #32](https://github.com/GoreeCloud/memos/issues/32)).
 
 **Not yet supported:** full CommonMark/WYSIWYG, advanced Markdown diagrams/math, multiuser collaboration, attachments, reminders, sync, AI/MCP, native Android/iOS releases, hardening for production or deployment.
 
