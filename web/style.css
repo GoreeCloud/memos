@@ -78,3 +78,6 @@ dialog{width:min(92vw,680px);max-height:91vh;border:1px solid var(--gc-outline);
 .feed-recovery{margin-block:20px 0;max-inline-size:740px}
 .feed-recovery .solid{min-block-size:44px}
 @media(forced-colors:active){.memo-skeleton-shape{background:Canvas;color:CanvasText;border-color:CanvasText}}
+
+/* Narrow viewports: let search shrink and capture actions wrap instead of widening the document. */
+@media(max-width:600px){.topbar .searchbox,.topbar input[type="search"],.heading>div{min-width:0}.capture-footer{flex-wrap:wrap}}

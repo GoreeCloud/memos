@@ -1,0 +1,29 @@
+name: Memos Synthetic Browser Acceptance
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  synthetic-browser:
+    name: Synthetic browser acceptance (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Install pinned test-only browser runner without lifecycle scripts
+        run: npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund @playwright/test@1.64.1
+      - name: Install browser dependencies
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Validate synthetic, loopback-only browser behaviors
+        env:
+          CI: 'true'
+        run: npx playwright test --project=${{ matrix.browser }}
