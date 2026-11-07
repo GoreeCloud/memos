@@ -78,3 +78,6 @@ dialog{width:min(92vw,680px);max-height:91vh;border:1px solid var(--gc-outline);
 .feed-recovery{margin-block:20px 0;max-inline-size:740px}
 .feed-recovery .solid{min-block-size:44px}
 @media(forced-colors:active){.memo-skeleton-shape{background:Canvas;color:CanvasText;border-color:CanvasText}}
+
+/* Preserve HTML hidden semantics above component display rules. Critical for the private workspace and failure/empty regions. */
+:where([hidden]){display:none!important}
