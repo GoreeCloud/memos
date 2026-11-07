@@ -177,6 +177,24 @@ test("locking during in-flight loading clears token-facing content and blocks st
   await login;
   assert.equal(env.get("notesGrid").children.length,0,"late fetch cannot repopulate locked workspace");
 });
+test("superseded slow request cannot overwrite a newer successful query",async()=>{
+  const env=fixture({mode:"ready"});
+  await env.login();
+  env.setMode("held");
+  env.get("search").value="older query";
+  await env.get("search").emit("input");env.tick(180);await turn();
+  assert.equal(env.deferred.length,1);
+  env.setMode("ready");
+  env.get("search").value="new query";
+  await env.get("search").emit("input");env.tick(180);await turn();
+  assert.equal(env.get("notesGrid").children.length,1);
+  assert.equal(env.get("feedStatus").textContent,"1 memo loaded.");
+  env.rejectFeed();
+  await turn();
+  assert.equal(env.get("notesGrid").children.length,1);
+  assert.equal(env.get("feedFailure").hidden,true);
+  assert.equal(env.get("feedRegion").attributes["aria-busy"],"false");
+});
 test("401 from an authenticated refresh locks and forgets the visible memo feed",async()=>{
   const env=fixture({mode:"ready"});
   await env.login();
