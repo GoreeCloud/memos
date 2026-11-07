@@ -15,10 +15,18 @@ module.exports=defineConfig({
     baseURL:'http://127.0.0.1:8767',
     trace:'off',screenshot:'off',video:'off'
   },
-  webServer:{
-    command:'python3 -m http.server 8767 --bind 127.0.0.1 --directory web',
-    url:'http://127.0.0.1:8767/index.html',
-    reuseExistingServer:!process.env.CI,
-    timeout:30000
-  }
+  webServer:[
+    {
+      command:'python3 -m http.server 8767 --bind 127.0.0.1 --directory web',
+      url:'http://127.0.0.1:8767/index.html',
+      reuseExistingServer:false,
+      timeout:30000
+    },
+    {
+      command:'python3 browser-tests/private_fixture_server.py',
+      url:'http://127.0.0.1:8768/index.html',
+      reuseExistingServer:false,
+      timeout:30000
+    }
+  ]
 });
