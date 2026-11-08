@@ -53,6 +53,26 @@
     }
   }
   const key=id=>"gcmemos:draft:"+(id||"new");
+  // Only opaque UUIDv4 keys and SHA-256 fingerprints are persisted in this
+  // browser tab. Never duplicate memo text or the bearer token in metadata.
+  async function createRequestKey(name,body){
+    if(typeof crypto==="undefined"||!crypto.randomUUID||!crypto.subtle)return null;
+    const bytes=new TextEncoder().encode(state.token+"\\u0000"+JSON.stringify(body));
+    const hash=await crypto.subtle.digest("SHA-256",bytes);
+    const fingerprint=Array.from(new Uint8Array(hash),v=>v.toString(16).padStart(2,"0")).join("");
+    let record;
+    try{record=JSON.parse(sessionStorage.getItem(name)||"null");}catch{record=null;}
+    if(record?.fingerprint===fingerprint&&
+       /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/.test(record.key))
+      return record.key;
+    const id=crypto.randomUUID();
+    sessionStorage.setItem(name,JSON.stringify({fingerprint,key:id}));
+    return id;
+  }
+  function clearCreateRequestKey(name){sessionStorage.removeItem(name);}
+  const quickRequestName="gcmemos:create-request:quick";
+  const editorRequestName="gcmemos:create-request:editor";
+
   let previewActive=false;
   function renderPreview(){
     if(!window.GCMemosMarkdown) return;
