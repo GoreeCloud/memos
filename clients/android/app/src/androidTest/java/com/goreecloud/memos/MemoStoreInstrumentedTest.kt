@@ -150,6 +150,83 @@ class MemoStoreInstrumentedTest {
         assertEquals(1, store.list().size)
     }
 
+    @Test fun unknownLegacyVersionZeroSchemaIsNotOverwritten() {
+        // Android SQLiteOpenHelper uses onCreate for user_version=0. Simulate
+        // a pre-existing, unrecognized legacy table in this synthetic-only DB.
+        store.close()
+        val file = context.getDatabasePath(databaseName)
+        check(file.parentFile?.mkdirs() == true || file.parentFile?.isDirectory == true)
+        SQLiteDatabase.openOrCreateDatabase(file, null).use { raw ->
+            raw.execSQL("CREATE TABLE legacy_private_memo (body TEXT NOT NULL)")
+            raw.execSQL(
+                "INSERT INTO legacy_private_memo(body) VALUES (?)",
+                arrayOf("Synthetic legacy data: never delete")
+            )
+            assertEquals(0, raw.version)
+        }
+        store = MemoStore(context, databaseName)
+        assertThrows(android.database.sqlite.SQLiteException::class.java) {
+            store.list()
+        }
+        store.close()
+        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READONLY).use { raw ->
+            assertEquals(0, raw.version)
+            raw.rawQuery("SELECT body FROM legacy_private_memo", null).use { rows ->
+                assertTrue(rows.moveToFirst())
+                assertEquals("Synthetic legacy data: never delete", rows.getString(0))
+            }
+            raw.rawQuery(
+                "SELECT count(*) FROM sqlite_master WHERE type='table' " +
+                "AND name IN ('memos','revisions')", null
+            ).use { rows ->
+                assertTrue(rows.moveToFirst())
+                assertEquals("Do not create a new empty notebook over legacy data",
+                    0, rows.getInt(0))
+            }
+        }
+    }
+
+    @Test fun newerDatabaseVersionIsNotDowngradedOrOverwritten() {
+        val initial = create("Synthetic future-version", "Synthetic note to preserve")
+        val edited = store.save(initial, "Synthetic future-version edited",
+            "Synthetic revised content", "sky", pinned = true, archived = false)
+        assertEquals(1, revisionCount(initial.id))
+        store.close()
+        val file = context.getDatabasePath(databaseName)
+        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { raw ->
+            raw.version = 2
+        }
+        store = MemoStore(context, databaseName)
+        assertThrows(android.database.sqlite.SQLiteException::class.java) {
+            store.list()
+        }
+        store.close()
+        SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { raw ->
+            assertEquals(2, raw.version)
+            raw.rawQuery(
+                "SELECT title, content, version FROM memos WHERE id=?",
+                arrayOf(initial.id)
+            ).use { rows ->
+                assertTrue(rows.moveToFirst())
+                assertEquals(edited.title, rows.getString(0))
+                assertEquals(edited.content, rows.getString(1))
+                assertEquals(2, rows.getInt(2))
+            }
+            raw.rawQuery(
+                "SELECT count(*) FROM revisions WHERE memo_id=?",
+                arrayOf(initial.id)
+            ).use { rows ->
+                assertTrue(rows.moveToFirst())
+                assertEquals(1, rows.getInt(0))
+            }
+            // Reset the version ONLY in this unique synthetic test database.
+            raw.version = 1
+        }
+        store = MemoStore(context, databaseName)
+        assertEquals(edited, store.get(initial.id))
+        assertEquals(1, revisionCount(initial.id))
+    }
+
     @Test fun failedSqliteWriteRollsBackRevisionAndLeavesOriginalIntact() {
         // Synthetic SQL trigger injects a transactional write error; this does
         // NOT claim to simulate physical disk exhaustion or storage corruption.
