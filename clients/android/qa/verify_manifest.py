@@ -43,6 +43,13 @@ assert "preserveDamagedMemos" in store_source
 assert "DatabaseErrorHandler" in store_source
 assert "SQLiteDatabaseCorruptException" in store_source
 assert "DefaultDatabaseErrorHandler" not in store_source
+# Envelope crypto is intentionally not wired into user data, any Activity or SAF.
+envelope_source = (ROOT / "app/src/main/java/com/goreecloud/memos/BackupEnvelope.kt").read_text()
+assert 'internal object BackupEnvelope' in envelope_source
+assert 'AES/GCM/NoPadding' in envelope_source
+assert 'PBKDF2WithHmacSHA256' in envelope_source
+assert 'BackupEnvelope.' not in source, "Unreviewed backup flow must NOT be exposed to user notes"
+
 assert "Existing local database schema is not recognized" in store_source
 assert "override fun onDowngrade(" in store_source
 assert "Automatic downgrade is disabled" in store_source

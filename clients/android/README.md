@@ -35,6 +35,10 @@ Two new disposable-emulator SQLite instrumentation cases ensure an unfamiliar ve
 
 These are **fail-closed compatibility tests, not data migrations**. Genuine non-destructive upgrade paths, app-version rollback, legacy import and encrypted off-device recovery still require independent design, qualification and an approved release gate.
 
+## Experimental private-recovery encryption foundation — NOT a backup feature
+
+An internal `BackupEnvelope` utility now has a bounded versioned AES-256-GCM/PBKDF2-HMAC-SHA256 byte envelope and isolated synthetic JVM tests for correct decryption, randomized salt/nonce, wrong passphrases, corrupted authenticated data and malformed payload rejection. A separate QEMU-only synthetic AndroidJUnit4 case exercises roundtrip and tamper refusal under Android's actual crypto provider; the emulator job requires 11 tests total (10 SQLite plus 1 cryptographic probe). **No memo, database, filename, UI control, document picker or actual user data is connected to this utility.** It neither exports nor imports nor restores notes, and the 8 MiB experimental in-memory bound is unsuitable as a general backup limit. Android network, backup, storage permissions and the visible **Not available yet** behavior remain unchanged. Do not expose it as an available feature until the [private recovery design and release gates](../../docs/ANDROID_RECOVERY_DESIGN.md) have been independently implemented and verified.
+
 ## Build and test
 
 Use an Android SDK with platform 36, JDK 21 and Gradle 9.7.1 or the compatible installed distribution. From the repository root:
