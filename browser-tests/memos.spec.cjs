@@ -173,7 +173,7 @@ test("search, tags, pinned and layout switches keep state coherent",async({page}
  await expect(page.locator("#pinnedSection")).toBeHidden();
  await page.locator("#search").fill("");
  await expect(page.locator("#pinnedSection")).toBeVisible();
- await page.getByRole("button",{name:"#ideas"}).click();
+ await page.getByRole("button",{name:"#ideas",exact:true}).click();
  await expect(page.locator("#feedStatus")).toHaveText("1 memo loaded.");
  await expect(page.locator("#pinnedGrid .memo-card")).toHaveCount(1);
 });
