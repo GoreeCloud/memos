@@ -123,3 +123,17 @@ test("mobile menu is keyboard-dismissible and returns focus to login after lock"
  await expect(page.locator("#accessToken")).toBeFocused();
  await expect(menu).toHaveAttribute("aria-expanded","false");
 });
+
+test("malformed successful export cannot be downloaded as a fictitious backup",async({page})=>{
+ await login(page);
+ const downloads=[];
+ page.on("download",download=>downloads.push(download));
+ await page.route(url=>url.pathname==="/api/v1/export",route=>route.fulfill({
+  status:200,contentType:"text/plain",body:"Synthetic malformed response"
+ }));
+ page.on("dialog",dialog=>dialog.accept());
+ await page.locator("#exportBtn").click();
+ await expect(page.locator("#toast")).toContainText("Invalid JSON response");
+ expect(downloads).toHaveLength(0);
+ await expect(page.locator("#shell")).toBeVisible();
+});
