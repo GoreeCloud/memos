@@ -38,4 +38,10 @@ assert "com.goreecloud.memos" in app_gradle
 source = (ROOT / "app/src/main/java/com/goreecloud/memos/MainActivity.kt").read_text()
 assert "ComponentActivity" in source and "setContent" in source
 assert "WebView(" not in source, "This preview must use native UI"
+assert "LOCAL ONLY · NO BACKUP" in source, "Local no-backup disclosure must be persistent"
+assert "Local notes have no backup" in source, "Local data-loss dialog missing"
+assert 'if (it == "Local data & backups") showLocalDataInfo = true' in source, (
+    "About-local-data menu action must open the disclosure dialog"
+)
+
 print("PASS: local Android Memos manifest and Compose source privacy contract")
