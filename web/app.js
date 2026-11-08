@@ -181,13 +181,17 @@
       if(!groups.has(key))groups.set(key,[]);
       groups.get(key).push(memo);
     }
-    const today=dateKey(new Date()),yesterday=dateKey(new Date(Date.now()-86400000));
+    const now=new Date(),previousDay=new Date(now);
+    // Calendar arithmetic avoids mislabeling yesterday near DST transitions.
+    previousDay.setDate(previousDay.getDate()-1);
+    const today=dateKey(now),yesterday=dateKey(previousDay);
     const sections=[];
     for(const [date,members] of [...groups].sort((a,b)=>b[0].localeCompare(a[0]))){
       const section=make("section","timeline-group"),heading=make("div","timeline-heading");
       const headingName=date===today?"Today":date===yesterday?"Yesterday":
         date==="unknown"?"Unknown date":new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric",year:"numeric"}).format(new Date(date+"T12:00:00"));
-      heading.append(make("h3","",headingName),make("small","",members.length+" "+(members.length===1?"note":"notes")));
+      const detail=(date==="unknown"?"":new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric",year:"numeric"}).format(new Date(date+"T12:00:00"))+" · ")+members.length+" "+(members.length===1?"note":"notes");
+      heading.append(make("h3","",headingName),make("small","",detail));
       const grid=make("div","timeline-card-grid masonry");
       grid.classList.toggle("list",state.layout==="list");
       grid.append(...members.map(card));section.append(heading,grid);sections.push(section);
@@ -212,6 +216,24 @@
     el("notesSection").hidden=rest.length===0;
     el("notesSection").classList.toggle("active-timeline",state.folder==="active");
     el("empty").hidden=all.length>0;
+    const emptyTitle=el("emptyTitle"),emptyBody=el("emptyBody");
+    if(state.dateFilter){
+      emptyTitle.textContent="No notes on this date";
+      emptyBody.textContent="Choose another day or clear the calendar filter.";
+    }else if(state.folder==="pinned"){
+      emptyTitle.textContent="Nothing pinned yet";
+      emptyBody.textContent="Pin a memo in the editor to find it here.";
+    }else if(state.q||state.tag){
+      emptyTitle.textContent="No matching notes";
+      emptyBody.textContent="Try a different search or tag.";
+    }else if(state.folder==="archive"||state.folder==="trash"){
+      emptyTitle.textContent="Nothing here yet";
+      emptyBody.textContent="Notes you move here will appear in this section.";
+    }else{
+      emptyTitle.textContent="A little space for big ideas.";
+      emptyBody.textContent="No memos here yet. Start with a thought, a list, or a quick note.";
+    }
+    if(state.dateFilter)feedStatus(all.length?all.length+" notes on the selected date.":"No notes on the selected date.");
     el("sectionTitle").textContent=state.folder==="active"?"Timeline":folders[state.folder];
     el("count").textContent=(state.dateFilter?"Filtered · ":"")+rest.length+" "+(rest.length===1?"note":"notes");
     const tagSet=[...new Set(state.memos.flatMap(m=>m.tags||[]))].sort((a,b)=>a.localeCompare(b));
@@ -531,7 +553,7 @@
   };
   el("calendarPrev").onclick=()=>{const d=state.calendarCursor;state.calendarCursor=new Date(d.getFullYear(),d.getMonth()-1,1);renderCalendar();};
   el("calendarNext").onclick=()=>{const d=state.calendarCursor;state.calendarCursor=new Date(d.getFullYear(),d.getMonth()+1,1);renderCalendar();};
-  el("clearDateFilter").onclick=()=>{state.dateFilter=null;render();};
+  el("clearDateFilter").onclick=()=>{state.dateFilter=null;render();feedStatus(state.memos.length+" "+(state.memos.length===1?"memo":"memos")+" loaded.");};
   el("allTagsBtn").onclick=()=>{state.allTags=!state.allTags;renderInsights();};
   el("activityAllBtn").onclick=()=>{state.allActivity=!state.allActivity;renderInsights();};
   const activateFolder=(folder,personal=false)=>{state.folder=folder;state.personalView=personal;state.tag="";state.q="";state.dateFilter=null;el("search").value="";load();};
