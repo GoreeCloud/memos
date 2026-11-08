@@ -12,6 +12,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Python regression tests
         run: python3 -m unittest discover -s server -v
+      - name: Disposable synthetic backup and restore drill
+        run: python3 server/recovery_drill.py
       - name: Python compile checks
         run: python3 -m py_compile server/*.py cli/memos.py clients/linux/app.py
       - name: Browser JavaScript syntax
