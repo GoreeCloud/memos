@@ -500,7 +500,7 @@
   };
   document.addEventListener("click",event=>{
     if(!utilityOpen)return;
-    if(event.target!==el("utilityMenuBtn")&&!el("headerUtilities").contains(event.target))
+    if(event.target===el("headerUtilities")||(event.target!==el("utilityMenuBtn")&&!el("headerUtilities").contains(event.target)))
       setUtilityOpen(false);
   });
   el("quickCaptureNav").onclick=()=>{el("quickCapture").scrollIntoView({behavior:"smooth",block:"center"});el("quickContent").focus();};
