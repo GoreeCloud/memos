@@ -27,7 +27,7 @@ test("real private Python API rejects invalid bearer and accepts disposable test
  await expect(page.locator("#shell")).toBeVisible();
  await expect(page.locator("#pinnedGrid .memo-card")).toHaveCount(1);
  await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
- await expect(page.getByText("Synthetic real-server pinned")).toBeVisible();
+ await expect(page.locator("#pinnedGrid .memo-card h3").getByText("Synthetic real-server pinned")).toBeVisible();
  await expect(page.locator("#feedStatus")).toHaveText("2 memos loaded.");
  expect(requests.length).toBeGreaterThanOrEqual(3);
  for(const req of requests){
