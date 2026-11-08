@@ -75,3 +75,61 @@ test("new editor memo retries with the same key without duplicating stored plain
  expect(state.writes[1].requestKey).toBe(state.writes[0].requestKey);
  expect(await page.evaluate(()=>sessionStorage.getItem("gcmemos:create-request:editor"))).toBeNull();
 });
+
+test("duplicate action reuses its per-source key after an uncertain server response",async({page})=>{
+ const state=await fixture(page);
+ state.notes=[memo];
+ await page.locator("#tabAll").click();
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ await page.locator("#notesGrid .memo-card").click();
+ const calls=[];
+ await page.route(url=>url.pathname==="/api/v1/memos/"+memo.id+"/duplicate",route=>{
+  calls.push({
+   key:route.request().headers()["idempotency-key"],
+   body:JSON.parse(route.request().postData()||"{}")
+  });
+  if(calls.length===1)
+   return reply(route,{error:"Synthetic response lost after duplicate"},503);
+  return reply(route,{...memo,id:"00000000-0000-4000-8000-000000000090"},200);
+ });
+ await page.locator("#duplicateBtn").click();
+ await expect(page.locator("#toast")).toContainText("Synthetic response lost after duplicate");
+ await expect(page.locator("#duplicateBtn")).toBeEnabled();
+ const stored=await page.evaluate(id=>
+  sessionStorage.getItem("gcmemos:create-request:duplicate:"+id),memo.id);
+ expect(stored).toBeTruthy();
+ expect(stored).not.toContain(memo.content);
+ await page.locator("#duplicateBtn").click();
+ await expect(page.locator("#editor")).toBeHidden();
+ expect(calls).toHaveLength(2);
+ expect(calls[0].body).toEqual({});
+ expect(calls[0].key).toMatch(/^[a-f0-9-]{36}$/);
+ expect(calls[1].key).toBe(calls[0].key);
+ expect(await page.evaluate(id=>
+  sessionStorage.getItem("gcmemos:create-request:duplicate:"+id),memo.id)).toBeNull();
+});
+
+test("duplicate button blocks simultaneous requests and prevents editor save overlap",async({page})=>{
+ const state=await fixture(page);
+ state.notes=[memo];
+ await page.locator("#tabAll").click();
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ await page.locator("#notesGrid .memo-card").click();
+ let release,received=0;
+ await page.route(url=>url.pathname==="/api/v1/memos/"+memo.id+"/duplicate",async route=>{
+  received++;
+  await new Promise(resolve=>{release=resolve;});
+  try{await reply(route,{...memo,id:"00000000-0000-4000-8000-000000000091"},201);}catch{}
+ });
+ await page.locator("#duplicateBtn").click();
+ await expect.poll(()=>received).toBe(1);
+ await expect(page.locator("#duplicateBtn")).toBeDisabled();
+ await expect(page.locator("#saveBtn")).toBeDisabled();
+ await page.locator("#duplicateBtn").evaluate(button=>button.click());
+ await page.locator("#editorForm").evaluate(form=>
+  form.dispatchEvent(new Event("submit",{bubbles:true,cancelable:true})));
+ expect(received).toBe(1);
+ release();
+ await expect(page.locator("#editor")).toBeHidden();
+ expect(received).toBe(1);
+});

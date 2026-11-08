@@ -8,7 +8,8 @@
   document.documentElement.dataset.mode=localStorage.getItem("gcmemos-mode")==="dark"?"dark":"light";
   function make(tag,css,text){const v=document.createElement(tag);if(css)v.className=css;if(text!==undefined)v.textContent=text;return v;}
   let tTimer,activeFeedController=null,pendingSkeletonTimer=null;
-  let editorSaving=false,quickSaving=false,editorSaveAttempt=0,quickSaveAttempt=0;
+  let editorSaving=false,quickSaving=false,duplicateSaving=false;
+  let editorSaveAttempt=0,quickSaveAttempt=0,duplicateSaveAttempt=0;
   function toast(message){const v=el("toast");v.textContent=message;v.classList.add("visible");clearTimeout(tTimer);tTimer=setTimeout(()=>v.classList.remove("visible"),2800);}
   // Lock is a privacy boundary for ALL protected requests, not just the feed.
   // A generation check is also required because a response can win the race
@@ -404,9 +405,11 @@
     ++state.request;
     ++state.epoch;
     ++state.authAttempt;
-    ++editorSaveAttempt;++quickSaveAttempt;
-    editorSaving=false;quickSaving=false;
+    ++editorSaveAttempt;++quickSaveAttempt;++duplicateSaveAttempt;
+    editorSaving=false;quickSaving=false;duplicateSaving=false;
     el("saveBtn").disabled=false;el("quickSave").disabled=false;
+    el("duplicateBtn").disabled=false;
+    el("duplicateBtn").setAttribute("aria-busy","false");
     el("saveBtn").setAttribute("aria-busy","false");
     el("quickSave").setAttribute("aria-label","Save quick memo");
     for(const controller of activeRequests)controller.abort("locked");
@@ -470,12 +473,13 @@
     toast("Unsaved drafts cleared from this tab");
   }
   async function save(){
-    if(editorSaving)return;
+    if(editorSaving||duplicateSaving)return;
     const memo=state.editing;
     const body={title:el("editTitle").value,content:el("editContent").value,
       color:el("editColor").value,pinned:el("editPin").checked,archived:el("editArchive").checked};
     const attempt=++editorSaveAttempt,epoch=state.epoch;
     editorSaving=true;
+    el("duplicateBtn").disabled=true;
     el("saveBtn").disabled=true;
     el("saveBtn").setAttribute("aria-busy","true");
     try{
@@ -525,6 +529,7 @@
     }finally{
       if(attempt===editorSaveAttempt){
         editorSaving=false;el("saveBtn").disabled=false;
+        el("duplicateBtn").disabled=false;
         el("saveBtn").setAttribute("aria-busy","false");
       }
     }
@@ -598,8 +603,31 @@
     }
   };
   el("duplicateBtn").onclick=async()=>{
-    if(!state.editing)return;
-    try{await api("/api/v1/memos/"+state.editing.id+"/duplicate",{method:"POST",body:"{}"});el("editor").close();toast("Memo duplicated");await load();}catch(err){fail(err);}
+    if(duplicateSaving||editorSaving||!state.editing)return;
+    const memo=state.editing,attempt=++duplicateSaveAttempt,epoch=state.epoch;
+    const requestName="gcmemos:create-request:duplicate:"+memo.id;
+    duplicateSaving=true;
+    el("saveBtn").disabled=true;
+    el("duplicateBtn").disabled=true;
+    el("duplicateBtn").setAttribute("aria-busy","true");
+    try{
+      // Distinct source memos retain distinct retry keys in this tab.
+      const requestKey=await createRequestKey(requestName,{sourceId:memo.id});
+      if(epoch!==state.epoch||!state.token)return;
+      await api("/api/v1/memos/"+memo.id+"/duplicate",{
+        method:"POST",body:"{}",
+        headers:requestKey?{"Idempotency-Key":requestKey}:{}
+      });
+      clearCreateRequestKey(requestName);
+      el("editor").close();toast("Memo duplicated");await load();
+    }catch(err){fail(err);}
+    finally{
+      if(attempt===duplicateSaveAttempt){
+        duplicateSaving=false;el("duplicateBtn").disabled=false;
+        el("saveBtn").disabled=false;
+        el("duplicateBtn").setAttribute("aria-busy","false");
+      }
+    }
   };
   el("trashBtn").onclick=async()=>{
     const memo=state.editing;if(!memo)return;
