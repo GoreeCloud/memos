@@ -194,6 +194,52 @@ class Store:
             row = db.execute("SELECT * FROM memos WHERE id=?", (memo_id,)).fetchone()
             return self.serialize(row), "created"
 
+    def duplicate_once(self, source_id, request_key):
+        """Duplicate a memo at most once per keyed request and source ID.
+
+        The source ID is part of the hashed scope; replays do not depend on
+        the source's later edits or deletion. Both memo and retry record are
+        committed in one SQLite transaction.
+        """
+        try:
+            parsed = uuid.UUID(request_key)
+        except (ValueError, TypeError, AttributeError):
+            raise ValueError("Idempotency-Key must be a canonical UUIDv4")
+        if parsed.version != 4 or str(parsed) != request_key:
+            raise ValueError("Idempotency-Key must be a canonical UUIDv4")
+        scope = "duplicate:" + source_id
+        key_digest = hashlib.sha256((scope + ":" + request_key).encode("ascii")).hexdigest()
+        payload_digest = hashlib.sha256(scope.encode("ascii")).hexdigest()
+        cutoff = (datetime.now(timezone.utc) -
+                  timedelta(days=IDEMPOTENCY_RETENTION_DAYS)).isoformat(
+                      timespec="milliseconds")
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            db.execute("DELETE FROM memo_create_requests WHERE created_at < ?",
+                       (cutoff,))
+            previous = db.execute(
+                "SELECT payload_digest, memo_id FROM memo_create_requests "
+                "WHERE key_digest=?", (key_digest,)).fetchone()
+            if previous:
+                if previous["payload_digest"] != payload_digest:
+                    return None, "conflict"
+                current = db.execute("SELECT * FROM memos WHERE id=?",
+                                     (previous["memo_id"],)).fetchone()
+                return (self.serialize(current), "replayed") if current else (None, "missing")
+            original = db.execute("SELECT * FROM memos WHERE id=?",
+                                  (source_id,)).fetchone()
+            if original is None or original["deleted"]:
+                return None, "source_missing"
+            memo_id, now = str(uuid.uuid4()), timestamp()
+            item = (memo_id, original["title"], original["content"],
+                    original["color"], 0, 0, 0, now, now, 1)
+            db.execute("INSERT INTO memos VALUES (?,?,?,?,?,?,?,?,?,?)", item)
+            db.execute("INSERT INTO memo_create_requests VALUES (?,?,?,?)",
+                       (key_digest, payload_digest, memo_id, now))
+            db.commit()
+            row = db.execute("SELECT * FROM memos WHERE id=?", (memo_id,)).fetchone()
+            return self.serialize(row), "created"
+
     def update(self, memo_id, body):
         body = validate_fields(body)
         fields = ["title", "content", "color", "pinned", "archived", "deleted"]
@@ -364,6 +410,18 @@ def make_handler(store, token, auth_guard=None):
             if match:
                 memo_id, action = match.groups()
                 if action == "duplicate" and self.command == "POST":
+                    key = self.idempotency_key()
+                    if key is not None:
+                        if self.parse_body() != {}:
+                            raise ValueError("Duplicate request body must be empty")
+                        duplicate, outcome = store.duplicate_once(memo_id, key)
+                        if outcome == "source_missing":
+                            return self.respond(404, {"error": "Not found"})
+                        if outcome == "missing":
+                            return self.respond(410, {"error": "Original duplicate no longer exists"})
+                        if outcome == "conflict":
+                            return self.respond(409, {"error": "Idempotency-Key conflict"})
+                        return self.respond(200 if outcome == "replayed" else 201, duplicate)
                     memo = store.get(memo_id)
                     if not memo or memo["deleted"]:
                         return self.respond(404, {"error": "Not found"})
