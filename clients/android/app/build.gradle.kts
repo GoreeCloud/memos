@@ -29,5 +29,5 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")
     testImplementation("junit:junit:4.13.2")
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    // ui-tooling adds an exported PreviewActivity to debug APKs; never package it.
 }
