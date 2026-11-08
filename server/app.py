@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import argparse
 import hmac
+import hashlib
 import json
 import os
 import re
 import sqlite3
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
@@ -22,6 +23,7 @@ COLORS = {"paper", "rose", "sun", "mint", "sky", "lavender"}
 HASHTAG = re.compile(r"(?<!\w)#([\w/-]{1,64})", re.UNICODE)
 ID = re.compile(r"^/api/v1/memos/([a-f0-9-]{36})(?:/(duplicate))?$")
 MAX_BODY = 128 * 1024
+IDEMPOTENCY_RETENTION_DAYS = 7
 
 
 def timestamp():
@@ -73,6 +75,14 @@ class Store:
                 );
                 CREATE INDEX IF NOT EXISTS idx_memos_folder
                 ON memos(deleted, archived, pinned, updated_at);
+                CREATE TABLE IF NOT EXISTS memo_create_requests (
+                    key_digest TEXT PRIMARY KEY,
+                    payload_digest TEXT NOT NULL,
+                    memo_id TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_memo_create_requests_time
+                ON memo_create_requests(created_at);
             """)
 
     def connect(self):
