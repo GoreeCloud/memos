@@ -87,6 +87,67 @@ class MemoStoreInstrumentedTest {
         // No encrypted data was written to any URI or used to restore notes.
     }
 
+    @Test fun syntheticSnapshotIncludesHiddenNotesAndEveryPriorRevision() {
+        val first = create(
+            "Snapshot fictional note", "Initial #private", "mint", pinned = true
+        )
+        val second = store.save(
+            first, "Updated fictional", "Revised #private", "sky",
+            pinned = false, archived = true
+        )
+        val trashed = store.save(
+            second, second.title, second.content, second.color,
+            pinned = false, archived = true, deleted = true
+        )
+        val remaining = create("Another synthetic note", "Visible #public", "sun")
+        val snapshot = store.experimentalReadCompleteSnapshot()
+        assertEquals(2, snapshot.memos.size)
+        assertEquals(2, snapshot.revisions.size)
+        assertEquals(trashed, snapshot.memos.single { it.id == first.id })
+        assertEquals(remaining, snapshot.memos.single { it.id == remaining.id })
+        assertEquals(listOf(1, 2), snapshot.revisions.map { it.version })
+        assertEquals(listOf("Snapshot fictional note", "Updated fictional"),
+            snapshot.revisions.map { it.title })
+        val encoded = MemoSnapshotCodec.encode(snapshot)
+        try {
+            assertEquals(snapshot, MemoSnapshotCodec.decode(encoded))
+            val passphrase = "Synthetic user-chosen passphrase only for emulator".toCharArray()
+            val sealed = BackupEnvelope.encrypt(encoded, passphrase)
+            val decrypted = BackupEnvelope.decrypt(sealed, passphrase)
+            try {
+                assertEquals(snapshot, MemoSnapshotCodec.decode(decrypted))
+            } finally {
+                decrypted.fill(0)
+                passphrase.fill('\u0000')
+            }
+        } finally {
+            encoded.fill(0)
+        }
+    }
+
+    @Test fun syntheticIncompleteHistoryIsRefusedWithoutTruncationOrWrites() {
+        val note = create("Synthetic incomplete revision", "Initial text")
+        val sql = store.writableDatabase
+        // This is an intentionally malformed record in the randomized test DB.
+        // Keep the normal user database completely untouched.
+        sql.execSQL(
+            "INSERT INTO revisions(memo_id,version,title,content,saved_at) " +
+            "VALUES (?,0,'Synthetic invalid version','Never export',?)",
+            arrayOf(note.id, note.updatedAt)
+        )
+        assertThrows(IllegalArgumentException::class.java) {
+            store.experimentalReadCompleteSnapshot()
+        }
+        assertEquals(note, store.get(note.id))
+        assertEquals(1, revisionCount(note.id))
+        assertEquals(1, sql.delete(
+            "revisions", "memo_id=? AND version=0", arrayOf(note.id)
+        ))
+        val valid = store.experimentalReadCompleteSnapshot()
+        assertEquals(1, valid.memos.size)
+        assertTrue(valid.revisions.isEmpty())
+    }
+
     @Test fun createsAndPersistsAcrossClosingAndReopeningDatabase() {
         val note = create("Offline", "Fictional text #privacy", "mint", pinned = true)
         assertEquals(1, note.version)
