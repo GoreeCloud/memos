@@ -51,12 +51,24 @@ The command refuses existing destination files and symlinks, writes to a tempora
 
 For compatibility, `python3 cli/memos.py export` still prints JSON to standard output. Shell redirection (`> export.json`) may create a group- or world-readable file under common umasks; it bypasses the private-file safeguards. The new `--output` mode is opt-in and only supported on POSIX.
 
+## Disposable recovery drill (no personal database)
+
+To rehearse the full backup and restore path **without reading, writing, or requiring any existing memo database**, run:
+
+```bash
+python3 server/recovery_drill.py
+```
+
+This argument-free command creates a private temporary directory with **two fictional memos and two revisions**. It verifies the source, publishes a consistent SQLite backup without overwriting, updates the disposable source *after* its snapshot, restores the snapshot to a new destination, compares every recovered memo and historical revision, and checks source/snapshot isolation. It also verifies that repeat backup/restore operations refuse existing destinations without altering their contents; on POSIX, recovered files must be mode `0600`. The temporary directory is cleaned up even if a drill step fails. The result prints only fictional record counts and pass/fail status.
+
+The same drill is run in the GitHub **Memos CI** workflow alongside unit tests. This is an **automated local rehearsal with synthetic data**, not a scheduled backup job, an off-host restore, production data-loss guarantee, encryption, crash-injection test, or disaster-recovery certification. It accepts **no paths or credentials** and must never be used to judge an actual operator database without separately authorized verification.
+
 ## Safety principles
 
 - Backups and restores are non-overwriting: existing destinations fail closed. The completed SQLite copy is flushed before its final name is published using an exclusive hardlink; on POSIX hosts the parent directory is also flushed. A failed file flush leaves no destination, and a failed directory flush triggers best-effort cleanup of the helper's own newly published link. Recovery after a sudden kernel or hardware failure still requires real-world validation.
 - The tools check SQLite integrity, required `memos` and `revisions` columns, the canonical `memos(id)` and `revisions(memo_id, version)` primary-key constraints, and revision-to-memo consistency before backup, restore, and verify. Missing or reordered primary keys fail closed even when all expected columns are present and SQLite's page integrity check is `ok`. Orphaned revisions, nonpositive revision versions, and history revisions that are not older than their current memo version are rejected. Every memo must have a contiguous prior-version history (versions 1 through its current version minus 1); missing initial or intermediate revisions also cause rejection. This is structural and logical validation, not proof that historical text is authentic.
 - Both the source and destination are opened using SQLite APIs to preserve a coherent snapshot.
 - Backup/restore is a local administrative operation, not an internet-accessible API.
-- This milestone does not implement automation, retention policy, encryption, upload scheduling, cross-host durability, or disaster recovery drills.
+- The development CI performs a disposable synthetic recovery rehearsal, but there is **no scheduled production backup**, retention policy, encryption, upload scheduling, cross-host durability or real-data disaster-recovery drill.
 - The development tests exercise committed, uncheckpointed SQLite WAL content in online backup and restore, including revision history. This is not a concurrent-writer stress test.
 - Before any production release, test backup/restore under concurrent edits, disk exhaustion, process crashes, and version migrations; set retention, encrypted off-host replication and monitoring.
