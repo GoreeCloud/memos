@@ -56,6 +56,13 @@ assert "MAX_BINARY_BYTES" in snapshot_source
 assert "experimentalReadCompleteSnapshot" in store_source
 assert 'MemoSnapshotCodec.' not in source, "Unreviewed snapshots must not reach the UI"
 assert 'experimentalReadCompleteSnapshot(' not in source, "Snapshot reader must remain internal"
+stager_source = (ROOT / "app/src/main/java/com/goreecloud/memos/MemoSnapshotStager.kt").read_text()
+assert "internal object MemoSnapshotStager" in stager_source
+assert "memos_stage_" in stager_source and "createNewFile()" in stager_source
+assert "MemoSnapshotCodec.validate(snapshot)" in stager_source
+assert "experimentalReadCompleteSnapshot()" in stager_source
+assert "MemoSnapshotStager." not in source, "Unqualified staging must remain outside UI"
+
 
 
 assert "Existing local database schema is not recognized" in store_source

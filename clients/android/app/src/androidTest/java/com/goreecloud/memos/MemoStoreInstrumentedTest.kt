@@ -148,6 +148,74 @@ class MemoStoreInstrumentedTest {
         assertTrue(valid.revisions.isEmpty())
     }
 
+    @Test fun syntheticEncryptedSnapshotStagesAllHistoryWithoutMutatingSource() {
+        val note = create("Private staging source", "Original synthetic text")
+        val next = store.save(
+            note, "Private staging updated", "Synthetic revised #test",
+            "lavender", pinned = true, archived = true
+        )
+        val removed = store.save(
+            next, next.title, next.content, next.color, next.pinned,
+            archived = true, deleted = true
+        )
+        val second = create("Separate synthetic visible", "Independent content")
+        val original = store.experimentalReadCompleteSnapshot()
+        assertEquals(2, original.memos.size)
+        assertEquals(2, original.revisions.size)
+        val raw = MemoSnapshotCodec.encode(original)
+        val password = "random-disposable-restore-test-passphrase".toCharArray()
+        var stagedName: String? = null
+        try {
+            val encrypted = BackupEnvelope.encrypt(raw, password)
+            val decrypted = BackupEnvelope.decrypt(encrypted, password)
+            try {
+                val parsed = MemoSnapshotCodec.decode(decrypted)
+                val staged = MemoSnapshotStager.experimentalStage(context, parsed)
+                stagedName = staged.databaseName
+                assertTrue(staged.databaseName.startsWith("memos_stage_"))
+                assertNotEquals(databaseName, staged.databaseName)
+                assertEquals(2, staged.memoCount)
+                assertEquals(2, staged.revisionCount)
+                val verify = MemoStore(context, staged.databaseName)
+                try {
+                    assertEquals(original, verify.experimentalReadCompleteSnapshot())
+                    assertEquals(removed, verify.get(note.id))
+                    assertEquals(second, verify.get(second.id))
+                } finally {
+                    verify.close()
+                }
+                // The original synthetic source was not replaced or merged.
+                assertEquals(original, store.experimentalReadCompleteSnapshot())
+            } finally {
+                decrypted.fill(0)
+            }
+        } finally {
+            if (stagedName != null) {
+                assertTrue("Delete only unique disposable staged DB",
+                    context.deleteDatabase(stagedName))
+            }
+            password.fill('\u0000')
+            raw.fill(0)
+        }
+    }
+
+    @Test fun invalidSyntheticSnapshotCreatesNoStagingDatabase() {
+        val original = create("Untouched source", "Synthetic note remains safe")
+        val stageNamesBefore = context.databaseList()
+            .filter { it.startsWith("memos_stage_") }.toSet()
+        val invalid = MemoSnapshot(
+            listOf(original.copy(version = 2)),
+            emptyList() // deliberate missing revision v1
+        )
+        assertThrows(IllegalArgumentException::class.java) {
+            MemoSnapshotStager.experimentalStage(context, invalid)
+        }
+        assertEquals(stageNamesBefore, context.databaseList()
+            .filter { it.startsWith("memos_stage_") }.toSet())
+        assertEquals(original, store.get(original.id))
+        assertTrue(store.experimentalReadCompleteSnapshot().revisions.isEmpty())
+    }
+
     @Test fun createsAndPersistsAcrossClosingAndReopeningDatabase() {
         val note = create("Offline", "Fictional text #privacy", "mint", pinned = true)
         assertEquals(1, note.version)
