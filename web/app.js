@@ -486,7 +486,10 @@
       "and their full text revision history as an UNENCRYPTED JSON download? "+
       "The browser download location may be accessible to other users or "+
       "backup services. Protect or encrypt the file before sharing it."))return;
-    try{const result=await api("/api/v1/export"),blob=new Blob([JSON.stringify(result,null,2)],{type:"application/json"});
+    try{const result=await api("/api/v1/export");
+      if(result?.format!=="goreecloud-memos-v2"||!Array.isArray(result.memos)||!Array.isArray(result.revisions))
+        throw new Error("Invalid export format");
+      const blob=new Blob([JSON.stringify(result,null,2)],{type:"application/json"});
       const url=URL.createObjectURL(blob),a=make("a");a.href=url;a.download="goreecloud-memos-export.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("Export downloaded");
     }catch(err){fail(err);}
   };
