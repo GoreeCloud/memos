@@ -156,10 +156,10 @@ test_result = command(
     timeout=260
 )
 (OUT / "sqlite-instrumentation.txt").write_text(test_result + "\n", encoding="utf-8")
-if "OK (11 tests)" not in test_result or "FAILURES!!!" in test_result:
+if "OK (13 tests)" not in test_result or "FAILURES!!!" in test_result:
     raise AssertionError("Native SQLite instrumented tests did not all pass: " +
                          test_result[-1200:])
-print("PASS: eleven on-device tests: ten SQLite regressions and synthetic encrypted envelope")
+print("PASS: thirteen on-device tests: ten SQLite, one crypto, two complete snapshot cases")
 start_and_check()
 screenshot("phone-empty-390.png", (390, 844))
 tap("More")

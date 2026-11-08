@@ -39,6 +39,14 @@ These are **fail-closed compatibility tests, not data migrations**. Genuine non-
 
 An internal `BackupEnvelope` utility now has a bounded versioned AES-256-GCM/PBKDF2-HMAC-SHA256 byte envelope and isolated synthetic JVM tests for correct decryption, randomized salt/nonce, wrong passphrases, corrupted authenticated data and malformed payload rejection. A separate QEMU-only synthetic AndroidJUnit4 case exercises roundtrip and tamper refusal under Android's actual crypto provider; the emulator job requires 11 tests total (10 SQLite plus 1 cryptographic probe). **No memo, database, filename, UI control, document picker or actual user data is connected to this utility.** It neither exports nor imports nor restores notes, and the 8 MiB experimental in-memory bound is unsuitable as a general backup limit. Android network, backup, storage permissions and the visible **Not available yet** behavior remain unchanged. Do not expose it as an available feature until the [private recovery design and release gates](../../docs/ANDROID_RECOVERY_DESIGN.md) have been independently implemented and verified.
 
+## Experimental complete in-memory snapshot — NOT backup/export
+
+The internal `MemoStore.experimentalReadCompleteSnapshot()` now attempts a **single validated SQLite transaction** covering **all memos** (including archived, pinned and trashed) and **all prior revision rows** (not the UI's limited feed query). It runs SQLite quick-integrity and foreign-key checks, rejects unsupported schema, malformed flags or incomplete versions, and **fails rather than silently truncates** if either the record-count or experimental 8 MiB in-memory limit is exceeded. It neither mutates an existing note nor creates a public file.
+
+`MemoSnapshotCodec` is a provisional, canonical, versioned byte format with strict UTF-8 validation, sorted unique note IDs, contiguous revision history, bounded counts and field lengths, and rejection of malformed/truncated/trailing input. Seven pure JVM tests cover complete data, empty state, hostile encoding/versions/oversize and a synthetic roundtrip through the existing AES-GCM envelope. Two new isolated QEMU-only tests check that archived+trashed synthetic notes retain revisions and that deliberately malformed synthetic revision rows block snapshots without altering the underlying memo. Together with the prior checks, the on-device test gate requires **13 tests**.
+
+**No UI, SAF picker, file export, imported database, staged restore, network permission, or user backup is implemented.** The format has not been independently security-reviewed or declared stable/interoperable. This is a preparatory **in-memory** component only, not a user-recoverable backup. See the [recovery design](../../docs/ANDROID_RECOVERY_DESIGN.md) for outstanding export/restore release gates.
+
 ## Build and test
 
 Use an Android SDK with platform 36, JDK 21 and Gradle 9.7.1 or the compatible installed distribution. From the repository root:

@@ -49,6 +49,14 @@ assert 'internal object BackupEnvelope' in envelope_source
 assert 'AES/GCM/NoPadding' in envelope_source
 assert 'PBKDF2WithHmacSHA256' in envelope_source
 assert 'BackupEnvelope.' not in source, "Unreviewed backup flow must NOT be exposed to user notes"
+snapshot_source = (ROOT / "app/src/main/java/com/goreecloud/memos/MemoSnapshot.kt").read_text()
+assert "internal object MemoSnapshotCodec" in snapshot_source
+assert "Snapshot must contain the complete revision history" in snapshot_source
+assert "MAX_BINARY_BYTES" in snapshot_source
+assert "experimentalReadCompleteSnapshot" in store_source
+assert 'MemoSnapshotCodec.' not in source, "Unreviewed snapshots must not reach the UI"
+assert 'experimentalReadCompleteSnapshot(' not in source, "Snapshot reader must remain internal"
+
 
 assert "Existing local database schema is not recognized" in store_source
 assert "override fun onDowngrade(" in store_source

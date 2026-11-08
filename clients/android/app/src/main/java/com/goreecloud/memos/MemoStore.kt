@@ -132,6 +132,81 @@ class MemoStore(
         return result
     }
 
+    /**
+     * INTERNAL READ-ONLY snapshot prototype. Consumes NO export URI, performs
+     * NO backup/file writes and is never called by the app UI. Keep all memos,
+     * including archived/trashed, AND all revisions in one SQLite transaction.
+     * Refuse an oversized/invalid dataset instead of silently truncating it.
+     */
+    @Synchronized internal fun experimentalReadCompleteSnapshot(): MemoSnapshot {
+        val db = readableDatabase
+        require(db.version == 1) { "Unsupported local snapshot schema" }
+        db.beginTransactionNonExclusive()
+        try {
+            db.rawQuery("PRAGMA quick_check(1)", null).use { check ->
+                require(check.moveToFirst() && check.getString(0) == "ok") {
+                    "SQLite quick integrity check did not pass"
+                }
+            }
+            db.rawQuery("PRAGMA foreign_key_check", null).use { check ->
+                require(!check.moveToFirst()) {
+                    "SQLite revision foreign-key integrity check did not pass"
+                }
+            }
+            val memos = ArrayList<Memo>()
+            val revisions = ArrayList<SnapshotRevision>()
+            var estimatedBytes = 20L
+            db.rawQuery("SELECT * FROM memos ORDER BY id", null).use { rows ->
+                while (rows.moveToNext()) {
+                    require(memos.size < MemoSnapshotCodec.MAX_MEMOS) {
+                        "Cannot snapshot all memos within the count limit"
+                    }
+                    for (flag in arrayOf("pinned", "archived", "deleted")) {
+                        val value = rows.getInt(rows.getColumnIndexOrThrow(flag))
+                        require(value == 0 || value == 1) {
+                            "Local memo contains an unsupported flag"
+                        }
+                    }
+                    val memo = fromCursor(rows)
+                    estimatedBytes += MemoSnapshotCodec.estimatedMemoBytes(memo)
+                    require(estimatedBytes <= MemoSnapshotCodec.MAX_BINARY_BYTES) {
+                        "Cannot snapshot all memos within the size limit"
+                    }
+                    memos += memo
+                }
+            }
+            db.rawQuery(
+                "SELECT memo_id, version, title, content, saved_at " +
+                "FROM revisions ORDER BY memo_id, version",
+                null
+            ).use { rows ->
+                while (rows.moveToNext()) {
+                    require(revisions.size < MemoSnapshotCodec.MAX_REVISIONS) {
+                        "Cannot snapshot all revision history within the count limit"
+                    }
+                    val revision = SnapshotRevision(
+                        memoId = rows.getString(0),
+                        version = rows.getInt(1),
+                        title = rows.getString(2),
+                        content = rows.getString(3),
+                        savedAt = rows.getLong(4)
+                    )
+                    estimatedBytes += MemoSnapshotCodec.estimatedRevisionBytes(revision)
+                    require(estimatedBytes <= MemoSnapshotCodec.MAX_BINARY_BYTES) {
+                        "Cannot snapshot all revision history within the size limit"
+                    }
+                    revisions += revision
+                }
+            }
+            val result = MemoSnapshot(memos, revisions)
+            MemoSnapshotCodec.validate(result)
+            db.setTransactionSuccessful()
+            return result
+        } finally {
+            db.endTransaction()
+        }
+    }
+
     private fun values(note: Memo): ContentValues = ContentValues().apply {
         put("id", note.id)
         put("title", note.title)
