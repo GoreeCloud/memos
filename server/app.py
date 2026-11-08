@@ -285,6 +285,21 @@ def make_handler(store, token, auth_guard=None):
             expected = "Bearer " + token
             return hmac.compare_digest(candidate.encode("utf-8"), expected.encode("utf-8"))
 
+        def idempotency_key(self):
+            values = self.headers.get_all("Idempotency-Key", [])
+            if not values:
+                return None
+            if len(values) != 1:
+                raise ValueError("Exactly one Idempotency-Key is permitted")
+            key = values[0]
+            try:
+                parsed = uuid.UUID(key)
+            except (ValueError, AttributeError, TypeError):
+                raise ValueError("Idempotency-Key must be a canonical UUIDv4")
+            if parsed.version != 4 or str(parsed) != key:
+                raise ValueError("Idempotency-Key must be a canonical UUIDv4")
+            return key
+
         def parse_body(self):
             try:
                 length = int(self.headers.get("Content-Length", "-1"))
@@ -335,7 +350,16 @@ def make_handler(store, token, auth_guard=None):
                         args.get("q", [""])[0][:200],
                         args.get("tag", [""])[0][:64]))
                 if self.command == "POST":
-                    return self.respond(201, store.create(self.parse_body()))
+                    key = self.idempotency_key()
+                    body = self.parse_body()
+                    if key is None:
+                        return self.respond(201, store.create(body))
+                    memo, outcome = store.create_once(body, key)
+                    if outcome == "conflict":
+                        return self.respond(409, {"error": "Idempotency-Key reused with different memo content"})
+                    if outcome == "missing":
+                        return self.respond(410, {"error": "Original memo no longer exists"})
+                    return self.respond(200 if outcome == "replayed" else 201, memo)
             match = ID.fullmatch(path)
             if match:
                 memo_id, action = match.groups()
