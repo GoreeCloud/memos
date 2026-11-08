@@ -21,13 +21,10 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
-      # ubuntu-latest already exposes ANDROID_HOME and sdkmanager.
-      # setup-android@v3 invokes the removed `tools` SDK package on 2026 runners.
-      - name: Inspect runner Android SDK
-        run: |
-          test -n "${ANDROID_HOME:-}"
-          command -v sdkmanager
-          sdkmanager --version
+      # v4 omits the obsolete SDK "tools" package that broke v3 in Nov 2026.
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "9.7.1"
