@@ -22,10 +22,16 @@ components = [
     node for kind in ("activity", "service", "receiver", "provider")
     for node in application.findall(kind)
 ]
-assert len(components) == 1, "Only the native main activity is permitted"
-assert components[0].get(ns + "name") == ".MainActivity"
-assert components[0].get(ns + "exported") == "true"
-assert len(components[0].findall("intent-filter")) == 1
+tools = "{http://schemas.android.com/tools}"
+enabled = [node for node in components if node.get(tools + "node") != "remove"]
+removed = [node for node in components if node.get(tools + "node") == "remove"]
+assert len(enabled) == 1, "Only the native main activity may be enabled"
+assert enabled[0].tag == "activity" and enabled[0].get(ns + "name") == ".MainActivity"
+assert enabled[0].get(ns + "exported") == "true"
+assert len(enabled[0].findall("intent-filter")) == 1
+assert len(removed) == 1, "Require explicit removal of AndroidX profile broadcast receiver"
+assert removed[0].tag == "receiver"
+assert removed[0].get(ns + "name") == "androidx.profileinstaller.ProfileInstallReceiver"
 app_gradle = (ROOT / "app/build.gradle.kts").read_text()
 assert "com.goreecloud.memos" in app_gradle
 source = (ROOT / "app/src/main/java/com/goreecloud/memos/MainActivity.kt").read_text()
