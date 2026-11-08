@@ -517,7 +517,8 @@
   el("quickContent").addEventListener("input",()=>sessionStorage.setItem("gcmemos:quick",el("quickContent").value));
   el("quickSave").onclick=async()=>{
     if(quickSaving)return;
-    const content=el("quickContent").value.trim();
+    const originalDraft=el("quickContent").value;
+    const content=originalDraft.trim();
     if(!content)return toast("Write a thought to save");
     const attempt=++quickSaveAttempt;
     quickSaving=true;
@@ -525,7 +526,11 @@
     el("quickSave").setAttribute("aria-label","Saving quick memo");
     try{
       await api("/api/v1/memos",{method:"POST",body:JSON.stringify({content})});
-      el("quickContent").value="";sessionStorage.removeItem("gcmemos:quick");
+      // Typing the next memo during an in-flight save must never be erased
+      // when the preceding POST completes.
+      if(el("quickContent").value===originalDraft){
+        el("quickContent").value="";sessionStorage.removeItem("gcmemos:quick");
+      }
       toast("Your thought is saved");await load();
     }catch(err){fail(err);}
     finally{
