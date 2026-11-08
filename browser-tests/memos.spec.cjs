@@ -194,6 +194,35 @@ test("browser rejects even same-origin redirect for the dummy bearer token",asyn
  expect(targetRequests).toBe(0);
 });
 
+test("cross-origin redirects never receive dummy bearer credentials in real browsers",async({page})=>{
+ const target="http://127.0.0.1:8768/synthetic-cross-origin-redirect-target";
+ let authRequests=0,targetRequests=0;
+ const originHeaders=[];
+ await page.route(url=>url.href===target,route=>{
+  targetRequests++;
+  return route.fulfill({status:200,body:"Synthetic test target"});
+ });
+ await page.route(isMemo,async route=>{
+  authRequests++;
+  originHeaders.push(await route.request().allHeaders());
+  return route.fulfill({
+   status:302,headers:{location:target},body:""
+  });
+ });
+ await page.goto("/index.html");
+ await page.locator("#accessToken").fill(TOKEN);
+ await page.locator("#authForm button[type=submit]").click();
+ await expect(page.locator("#authError")).not.toBeEmpty();
+ await expect(page.locator("#shell")).toBeHidden();
+ expect(authRequests).toBe(1);
+ expect(originHeaders[0].authorization).toBe("Bearer "+TOKEN);
+ expect(originHeaders[0].cookie).toBeUndefined();
+ expect(originHeaders[0].referer).toBeUndefined();
+ // A different loopback PORT is a different origin. A redirected network
+ // request must not happen, even toward our fictional route target.
+ expect(targetRequests).toBe(0);
+});
+
 test("genuinely timed-out fetch resolves the busy region and permits retry",async({page})=>{
  let attempts=0,release;
  setup(page,async route=>{
