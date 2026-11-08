@@ -125,12 +125,15 @@ function fixture(options={}) {
       get("accessToken").value="placeholder-token";
       await get("authForm").emit("submit");
     },
+    // Date-grouped timeline containers are presentational; tests still
+    // exercise the same first and second memo cards in chronological order.
+    get cards(){return descendants(get("notesGrid")).filter(n=>n.tag==="article"&&n.className==="memo-card");},
     async openFirst(){
-      const card=get("notesGrid").children[0];
+      const card=descendants(get("notesGrid")).filter(n=>n.tag==="article"&&n.className==="memo-card")[0];
       await card.emit("click");
     },
     async openSecond(){
-      const card=get("notesGrid").children[1];
+      const card=descendants(get("notesGrid")).filter(n=>n.tag==="article"&&n.className==="memo-card")[1];
       await card.emit("click");
     },
     async expand(){
@@ -252,7 +255,7 @@ test("reauthentication after lock uses only the new token and restores quick dra
   assert.equal(env.get("shell").hidden,false);
   assert.equal(env.get("authScreen").hidden,true);
   assert.equal(env.get("quickContent").value,"Restore only my unsaved quick text");
-  assert.equal(env.get("notesGrid").children.length,2);
+  assert.equal(env.cards.length,2);
 });
 
 test("delayed revision history cannot reappear after workspace lock",async()=>{
