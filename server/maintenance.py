@@ -30,6 +30,14 @@ REVISION_COLUMN_CONTRACT = {
     "title": ("TEXT", True), "content": ("TEXT", True),
     "saved_at": ("TEXT", True),
 }
+# Older databases legitimately have no request ledger. When present, verify
+# it before backup/restore so corrupted deduplication metadata is not trusted.
+CREATE_REQUEST_COLUMN_CONTRACT = {
+    "key_digest": ("TEXT", False),
+    "payload_digest": ("TEXT", True),
+    "memo_id": ("TEXT", True),
+    "created_at": ("TEXT", True),
+}
 
 
 def _check_column_contract(info, expected, table):
@@ -101,6 +109,25 @@ def verify_database(path):
         """).fetchone()
         if incomplete_history:
             raise ValueError("Incomplete memo revision history")
+        if "memo_create_requests" in tables:
+            request_info = list(db.execute("PRAGMA table_info(memo_create_requests)"))
+            if not CREATE_REQUEST_COLUMN_CONTRACT.keys() <= {
+                    row[1] for row in request_info}:
+                raise ValueError("Unexpected memo request ledger schema")
+            _check_column_contract(
+                request_info, CREATE_REQUEST_COLUMN_CONTRACT, "memo_create_requests")
+            request_pk = {row[1]: row[5] for row in request_info if row[5]}
+            if request_pk != {"key_digest": 1}:
+                raise ValueError("Unexpected memo request ledger primary key")
+            orphaned_request = db.execute("""
+                SELECT 1 FROM memo_create_requests r
+                LEFT JOIN memos m ON m.id = r.memo_id
+                WHERE m.id IS NULL OR length(r.key_digest) != 64
+                   OR length(r.payload_digest) != 64
+                LIMIT 1
+            """).fetchone()
+            if orphaned_request:
+                raise ValueError("Invalid memo request ledger")
         notes = db.execute("SELECT count(*) FROM memos").fetchone()[0]
         versions = db.execute("SELECT count(*) FROM revisions").fetchone()[0]
     return {"integrity": "ok", "memos": notes, "revisions": versions}
