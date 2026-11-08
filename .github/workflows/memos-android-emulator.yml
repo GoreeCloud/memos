@@ -6,12 +6,14 @@ on:
     paths:
       - "clients/android/**"
       - ".github/scripts/memos-emulator-smoke.py"
+      - ".github/scripts/tests/**"
       - ".github/workflows/memos-android-emulator.yml"
   push:
     branches: [main]
     paths:
       - "clients/android/**"
       - ".github/scripts/memos-emulator-smoke.py"
+      - ".github/scripts/tests/**"
       - ".github/workflows/memos-android-emulator.yml"
 
 permissions:
@@ -41,6 +43,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "9.7.1"
+      - name: Check fail-closed emulator preflight
+        run: python3 -m unittest discover -s .github/scripts/tests -v
       - name: Build disposable debug APK and verify source
         run: |
           set -euo pipefail
