@@ -3,7 +3,7 @@
   "use strict";
   const el = id => document.getElementById(id);
   const state = {token:"",folder:"active",tag:"",q:"",memos:[],editing:null,
-    layout:localStorage.getItem("gcmemos-layout")==="list"?"list":"masonry",pinnedCollapsed:localStorage.getItem("gcmemos-pin-collapsed")==="true",request:0};
+    layout:localStorage.getItem("gcmemos-layout")==="list"?"list":"masonry",pinnedCollapsed:localStorage.getItem("gcmemos-pin-collapsed")==="true",request:0,dateFilter:null,calendarCursor:new Date(new Date().getFullYear(),new Date().getMonth(),1),allTags:false,allActivity:false,promotedQuick:false};
   const folders={active:"All memos",pinned:"Pinned memos",archive:"Archive",trash:"Trash"};
   document.documentElement.dataset.mode=localStorage.getItem("gcmemos-mode")==="dark"?"dark":"light";
   function make(tag,css,text){const v=document.createElement(tag);if(css)v.className=css;if(text!==undefined)v.textContent=text;return v;}
@@ -50,6 +50,7 @@
   function layout(type){
     state.layout=type;localStorage.setItem("gcmemos-layout",type);
     ["notesGrid","pinnedGrid","feedSkeleton"].forEach(id=>el(id).classList.toggle("list",type==="list"));
+    document.querySelectorAll(".timeline-card-grid").forEach(grid=>grid.classList.toggle("list",type==="list"));
     for(const name of ["masonry","list"]){const b=el(name+"Btn");b.classList.toggle("active",type===name);b.setAttribute("aria-pressed",String(type===name));}
   }
   function card(memo){
@@ -72,17 +73,116 @@
     el("subtitle").textContent=state.tag?"Notes tagged #"+state.tag:state.q?"Search results for “"+state.q+"”":"Capture the little things that matter.";
     document.querySelectorAll("[data-folder]").forEach(b=>{const selected=b.dataset.folder===state.folder;b.classList.toggle("selected",selected);if(selected)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");});
   }
+
+  // Local-only calendar presentation: no server date query or cross-user activity claims.
+  function dateKey(value){
+    const d=value instanceof Date?value:new Date(value);
+    if(Number.isNaN(d.getTime()))return "";
+    return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
+  }
+  function notAvailable(feature){toast("Not available yet — "+feature);}
+  function renderCalendar(){
+    const cursor=state.calendarCursor,year=cursor.getFullYear(),month=cursor.getMonth();
+    el("calendarMonth").textContent=new Intl.DateTimeFormat(undefined,{month:"short",year:"numeric"}).format(cursor);
+    const days=new Date(year,month+1,0).getDate(),offset=new Date(year,month,1).getDay();
+    const count=Math.ceil((offset+days)/7)*7;
+    const withMemos=new Set(state.memos.map(m=>dateKey(m.updated_at)));
+    const cells=[];
+    for(let i=0;i<count;i++){
+      const day=new Date(year,month,i-offset+1),key=dateKey(day);
+      const b=make("button","",String(day.getDate()));b.type="button";
+      b.setAttribute("aria-label",new Intl.DateTimeFormat(undefined,{dateStyle:"full"}).format(day));
+      b.setAttribute("aria-pressed",String(state.dateFilter===key));
+      b.classList.toggle("other-month",day.getMonth()!==month);
+      b.classList.toggle("selected",state.dateFilter===key);
+      b.classList.toggle("has-memos",withMemos.has(key));
+      b.addEventListener("click",()=>{
+        state.dateFilter=state.dateFilter===key?null:key;
+        state.calendarCursor=new Date(day.getFullYear(),day.getMonth(),1);
+        render();
+      });
+      cells.push(b);
+    }
+    el("calendarDays").replaceChildren(...cells);
+    el("clearDateFilter").hidden=!state.dateFilter;
+  }
+  function renderInsights(){
+    renderCalendar();
+    const counts=new Map();
+    for(const memo of state.memos)for(const tag of memo.tags||[])counts.set(tag,(counts.get(tag)||0)+1);
+    const tags=[...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
+    el("trendingTags").replaceChildren();
+    for(const [tag,num] of tags.slice(0,state.allTags?40:8)){
+      const b=make("button","trending-tag","#"+tag);
+      b.append(make("em","",String(num)));
+      b.type="button";b.setAttribute("aria-pressed",String(state.tag===tag));
+      b.addEventListener("click",()=>{state.tag=state.tag===tag?"":tag;state.dateFilter=null;load();});
+      el("trendingTags").append(b);
+    }
+    if(!tags.length)el("trendingTags").append(make("p","insight-empty","No tags in this view"));
+    el("allTagsBtn").textContent=state.allTags?"Show Less":"See All";
+    const recent=[...state.memos].sort((a,b)=>new Date(b.updated_at)-new Date(a.updated_at));
+    el("recentNotes").replaceChildren();
+    for(const memo of recent.slice(0,state.allActivity?20:5)){
+      const b=make("button","recent-row");b.type="button";
+      const symbol=make("span","recent-icon",memo.pinned?"⚑":"✎");
+      const content=make("span","recent-body"),name=make("span","",memo.title||"Untitled memo");
+      const when=new Date(memo.updated_at);
+      content.append(name,make("small","",Number.isNaN(when.getTime())?"Updated":when.toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})));
+      b.append(symbol,content);b.setAttribute("aria-label","Open memo: "+(memo.title||"Untitled memo"));
+      b.addEventListener("click",()=>open(memo));el("recentNotes").append(b);
+    }
+    if(!recent.length)el("recentNotes").append(make("p","insight-empty","No recent notes"));
+    el("activityAllBtn").textContent=state.allActivity?"Show Less":"See All";
+    el("navCount").textContent=String(state.memos.length);
+    const pinned=state.folder==="pinned";
+    for(const id of ["tabPinned","filterPinned"])el(id).setAttribute("aria-pressed",String(pinned));
+    for(const id of ["tabAll","tabMine"])el(id).setAttribute("aria-pressed",String(!pinned));
+    el("tabAll").classList.toggle("selected",!pinned);
+    el("tabMine").classList.toggle("selected",false);
+    el("tabPinned").classList.toggle("selected",pinned);
+    el("filterPinned").classList.toggle("selected",pinned);
+  }
+  function renderTimeline(memos){
+    const groups=new Map();
+    for(const memo of memos){
+      const key=dateKey(memo.updated_at)||"unknown";
+      if(!groups.has(key))groups.set(key,[]);
+      groups.get(key).push(memo);
+    }
+    const today=dateKey(new Date()),yesterday=dateKey(new Date(Date.now()-86400000));
+    const sections=[];
+    for(const [date,members] of [...groups].sort((a,b)=>b[0].localeCompare(a[0]))){
+      const section=make("section","timeline-group"),heading=make("div","timeline-heading");
+      const headingName=date===today?"Today":date===yesterday?"Yesterday":
+        date==="unknown"?"Unknown date":new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric",year:"numeric"}).format(new Date(date+"T12:00:00"));
+      heading.append(make("h3","",headingName),make("small","",members.length+" "+(members.length===1?"note":"notes")));
+      const grid=make("div","timeline-card-grid masonry");
+      grid.classList.toggle("list",state.layout==="list");
+      grid.append(...members.map(card));section.append(heading,grid);sections.push(section);
+    }
+    el("notesGrid").classList.add("timeline-feed");
+    el("notesGrid").replaceChildren(...sections);
+  }
   function render(){
     syncFeedContext();
-    const all=state.folder==="pinned"?state.memos.filter(m=>m.pinned):state.memos;
+    const visible=state.dateFilter?state.memos.filter(m=>dateKey(m.updated_at)===state.dateFilter):state.memos;
+    const all=state.folder==="pinned"?visible.filter(m=>m.pinned):visible;
     const pinned=state.folder==="active"?all.filter(m=>m.pinned):[];
     const rest=state.folder==="active"?all.filter(m=>!m.pinned):all;
-    el("pinnedSection").hidden=pinned.length===0;el("pinnedGrid").hidden=state.pinnedCollapsed;el("pinToggle").textContent=state.pinnedCollapsed?"Expand":"Collapse";el("pinToggle").setAttribute("aria-expanded",String(!state.pinnedCollapsed));el("pinnedGrid").replaceChildren(...pinned.map(card));
-    el("notesGrid").replaceChildren(...rest.map(card));el("notesSection").hidden=rest.length===0;el("empty").hidden=all.length>0;
-    el("sectionTitle").textContent=state.folder==="active"?"Recent memos":folders[state.folder];
-    el("count").textContent=rest.length+" "+(rest.length===1?"memo":"memos");
+    el("pinnedSection").hidden=pinned.length===0;
+    el("pinnedGrid").hidden=state.pinnedCollapsed;
+    el("pinToggle").textContent=state.pinnedCollapsed?"Expand":"Collapse";
+    el("pinToggle").setAttribute("aria-expanded",String(!state.pinnedCollapsed));
+    el("pinnedGrid").replaceChildren(...pinned.map(card));
+    renderTimeline(rest);
+    el("notesSection").hidden=rest.length===0;
+    el("empty").hidden=all.length>0;
+    el("sectionTitle").textContent=state.folder==="active"?"Timeline":folders[state.folder];
+    el("count").textContent=(state.dateFilter?"Filtered · ":"")+rest.length+" "+(rest.length===1?"note":"notes");
     const tagSet=[...new Set(state.memos.flatMap(m=>m.tags||[]))].sort((a,b)=>a.localeCompare(b));
-    el("tags").replaceChildren(...tagSet.slice(0,40).map(tag=>{const b=make("button","tag-pill","#"+tag);b.classList.toggle("selected",state.tag===tag);b.onclick=()=>{state.tag=state.tag===tag?"":tag;load();};return b;}));
+    el("tags").replaceChildren(...tagSet.slice(0,40).map(tag=>{const b=make("button","tag-pill","#"+tag);b.classList.toggle("selected",state.tag===tag);b.onclick=()=>{state.tag=state.tag===tag?"":tag;state.dateFilter=null;load();};return b;}));
+    renderInsights();
     layout(state.layout);
   }
   function feedStatus(message){
@@ -105,6 +205,7 @@
     clearTimeout(pendingSkeletonTimer);
     // A new filter/search must not expose the previous private memo list.
     state.memos=[];
+    el("trendingTags").replaceChildren();el("recentNotes").replaceChildren();el("navCount").textContent="";
     el("notesGrid").replaceChildren();
     el("pinnedGrid").replaceChildren();
     el("notesSection").hidden=true;
@@ -209,7 +310,7 @@
   function open(memo=null){
     const history=el("revisionPanel");
     history.open=false;history.hidden=!memo;el("revisionList").replaceChildren();
-    state.editing=memo;el("editorTitle").textContent=memo?"EDIT MEMO · VERSION "+memo.version:"NEW MEMO";
+    state.editing=memo;state.promotedQuick=false;el("editorTitle").textContent=memo?"EDIT MEMO · VERSION "+memo.version:"NEW MEMO";
     el("editTitle").value=memo?.title||"";
     el("editContent").value=sessionStorage.getItem(key(memo?.id))??memo?.content??"";
     el("editColor").value=memo?.color||"paper";el("editPin").checked=Boolean(memo?.pinned);
@@ -235,7 +336,7 @@
     state.token="";
     state.memos=[];
     state.editing=null;
-    state.folder="active";state.tag="";state.q="";
+    state.folder="active";state.tag="";state.q="";state.dateFilter=null;state.promotedQuick=false;
     clearTimeout(sTimer);
     el("editor").close();
     el("editTitle").value="";
@@ -248,6 +349,7 @@
     el("notesGrid").replaceChildren();
     el("pinnedGrid").replaceChildren();
     el("tags").replaceChildren();
+    el("trendingTags").replaceChildren();el("recentNotes").replaceChildren();el("calendarDays").replaceChildren();el("navCount").textContent="";
     el("count").textContent="";
     el("accessToken").value="";
     el("authError").textContent="";
@@ -282,7 +384,7 @@
     try{
       if(memo)await api("/api/v1/memos/"+memo.id,{method:"PATCH",body:JSON.stringify({...body,version:memo.version})});
       else await api("/api/v1/memos",{method:"POST",body:JSON.stringify(body)});
-      clearDraft();el("editor").close();toast(memo?"Memo updated":"Memo created");await load();
+      clearDraft();if(!memo&&state.promotedQuick){el("quickContent").value="";sessionStorage.removeItem("gcmemos:quick");}state.promotedQuick=false;el("editor").close();toast(memo?"Memo updated":"Memo created");await load();
     }catch(err){if(err.status===409)toast("Memo changed elsewhere. Copy your draft before refreshing.");else fail(err);}
   }
   el("authForm").addEventListener("submit",async e=>{
@@ -334,6 +436,38 @@
       const url=URL.createObjectURL(blob),a=make("a");a.href=url;a.download="goreecloud-memos-export.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("Export downloaded");
     }catch(err){fail(err);}
   };
+
+  // Every control from the official visual mockup is either functional or explains its status.
+  document.querySelectorAll("[data-feature]").forEach(b=>b.addEventListener("click",()=>notAvailable(b.dataset.feature)));
+  for(const id of ["notificationsBtn","collaboratorsBtn","profileBtn"])
+    el(id).addEventListener("click",()=>notAvailable(id==="notificationsBtn"?"Notifications":id==="collaboratorsBtn"?"Collaboration":"User profiles"));
+  el("quickCaptureNav").onclick=()=>{el("quickCapture").scrollIntoView({behavior:"smooth",block:"center"});el("quickContent").focus();};
+  el("timelineNav").onclick=()=>{el("notesSection").scrollIntoView({behavior:"smooth",block:"start"});};
+  el("tagsNav").onclick=()=>{el("trendingTags").scrollIntoView({behavior:"smooth",block:"center"});};
+  el("captureMarkdownBtn").onclick=()=>{
+    const draft=el("quickContent").value;
+    open();
+    if(draft){el("editContent").value=draft;sessionStorage.setItem(key(null),draft);state.promotedQuick=true;}
+  };
+  el("captureChecklistBtn").onclick=()=>{
+    const input=el("quickContent"),at=input.selectionStart??input.value.length;
+    const prefix=at&&input.value[at-1]!=="\\n"?"\\n":"";
+    const addition=prefix+"- [ ] ";
+    input.value=input.value.slice(0,at)+addition+input.value.slice(at);
+    sessionStorage.setItem("gcmemos:quick",input.value);
+    input.focus();input.setSelectionRange?.(at+addition.length,at+addition.length);
+  };
+  el("calendarPrev").onclick=()=>{const d=state.calendarCursor;state.calendarCursor=new Date(d.getFullYear(),d.getMonth()-1,1);renderCalendar();};
+  el("calendarNext").onclick=()=>{const d=state.calendarCursor;state.calendarCursor=new Date(d.getFullYear(),d.getMonth()+1,1);renderCalendar();};
+  el("clearDateFilter").onclick=()=>{state.dateFilter=null;render();};
+  el("allTagsBtn").onclick=()=>{state.allTags=!state.allTags;renderInsights();};
+  el("activityAllBtn").onclick=()=>{state.allActivity=!state.allActivity;renderInsights();};
+  const activateFolder=folder=>{state.folder=folder;state.tag="";state.q="";state.dateFilter=null;el("search").value="";load();};
+  el("tabAll").onclick=()=>activateFolder("active");
+  el("tabMine").onclick=()=>{activateFolder("active");toast("This workspace currently contains private notes only");};
+  el("tabPinned").onclick=()=>activateFolder("pinned");
+  el("filterPinned").onclick=()=>activateFolder(state.folder==="pinned"?"active":"pinned");
+  el("filterPrivate").onclick=()=>{activateFolder("active");toast("All notes in this workspace are private");};
   document.addEventListener("keydown",e=>{
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();if(!el("shell").hidden)el("search").focus();}
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="n"){e.preventDefault();if(!el("shell").hidden)open();}
