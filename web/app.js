@@ -3,7 +3,7 @@
   "use strict";
   const el = id => document.getElementById(id);
   const state = {token:"",folder:"active",tag:"",q:"",memos:[],editing:null,
-    layout:localStorage.getItem("gcmemos-layout")==="list"?"list":"masonry",pinnedCollapsed:localStorage.getItem("gcmemos-pin-collapsed")==="true",request:0,dateFilter:null,calendarCursor:new Date(new Date().getFullYear(),new Date().getMonth(),1),allTags:false,allActivity:false,promotedQuick:false};
+    layout:localStorage.getItem("gcmemos-layout")==="list"?"list":"masonry",pinnedCollapsed:localStorage.getItem("gcmemos-pin-collapsed")==="true",request:0,personalView:false,dateFilter:null,calendarCursor:new Date(new Date().getFullYear(),new Date().getMonth(),1),allTags:false,allActivity:false,promotedQuick:false};
   const folders={active:"All memos",pinned:"Pinned memos",archive:"Archive",trash:"Trash"};
   document.documentElement.dataset.mode=localStorage.getItem("gcmemos-mode")==="dark"?"dark":"light";
   function make(tag,css,text){const v=document.createElement(tag);if(css)v.className=css;if(text!==undefined)v.textContent=text;return v;}
@@ -54,7 +54,7 @@
     for(const name of ["masonry","list"]){const b=el(name+"Btn");b.classList.toggle("active",type===name);b.setAttribute("aria-pressed",String(type===name));}
   }
   function card(memo){
-    const v=make("article","memo-card");v.dataset.color=memo.color;v.tabIndex=0;
+    const v=make("article","memo-card");v.dataset.color=memo.color;v.dataset.pinned=String(Boolean(memo.pinned));v.tabIndex=0;
     v.setAttribute("role","button");v.setAttribute("aria-label","Edit memo: "+(memo.title||"Untitled memo"));
     if(memo.title.trim())v.append(make("h3","",memo.title.trim()));
     if(memo.content)v.append(make("p","",memo.content.slice(0,1700)));
@@ -137,9 +137,10 @@
     el("navCount").textContent=String(state.memos.length);
     const pinned=state.folder==="pinned";
     for(const id of ["tabPinned","filterPinned"])el(id).setAttribute("aria-pressed",String(pinned));
-    for(const id of ["tabAll","tabMine"])el(id).setAttribute("aria-pressed",String(!pinned));
-    el("tabAll").classList.toggle("selected",!pinned);
-    el("tabMine").classList.toggle("selected",false);
+    el("tabAll").setAttribute("aria-pressed",String(!pinned&&!state.personalView));
+    el("tabMine").setAttribute("aria-pressed",String(!pinned&&state.personalView));
+    el("tabAll").classList.toggle("selected",!pinned&&!state.personalView);
+    el("tabMine").classList.toggle("selected",!pinned&&state.personalView);
     el("tabPinned").classList.toggle("selected",pinned);
     el("filterPinned").classList.toggle("selected",pinned);
   }
@@ -168,8 +169,10 @@
     syncFeedContext();
     const visible=state.dateFilter?state.memos.filter(m=>dateKey(m.updated_at)===state.dateFilter):state.memos;
     const all=state.folder==="pinned"?visible.filter(m=>m.pinned):visible;
-    const pinned=state.folder==="active"?all.filter(m=>m.pinned):[];
-    const rest=state.folder==="active"?all.filter(m=>!m.pinned):all;
+    // The official mockup places pinned cards within their chronological day.
+    // Pinned remains a filter, not a second duplicated collection.
+    const pinned=[];
+    const rest=all;
     el("pinnedSection").hidden=pinned.length===0;
     el("pinnedGrid").hidden=state.pinnedCollapsed;
     el("pinToggle").textContent=state.pinnedCollapsed?"Expand":"Collapse";
@@ -177,6 +180,7 @@
     el("pinnedGrid").replaceChildren(...pinned.map(card));
     renderTimeline(rest);
     el("notesSection").hidden=rest.length===0;
+    el("notesSection").classList.toggle("active-timeline",state.folder==="active");
     el("empty").hidden=all.length>0;
     el("sectionTitle").textContent=state.folder==="active"?"Timeline":folders[state.folder];
     el("count").textContent=(state.dateFilter?"Filtered · ":"")+rest.length+" "+(rest.length===1?"note":"notes");
@@ -336,7 +340,7 @@
     state.token="";
     state.memos=[];
     state.editing=null;
-    state.folder="active";state.tag="";state.q="";state.dateFilter=null;state.promotedQuick=false;
+    state.folder="active";state.tag="";state.q="";state.dateFilter=null;state.personalView=false;state.promotedQuick=false;
     clearTimeout(sTimer);
     el("editor").close();
     el("editTitle").value="";
@@ -423,7 +427,7 @@
     const memo=state.editing;if(!memo)return;
     try{await api("/api/v1/memos/"+memo.id,{method:"PATCH",body:JSON.stringify({version:memo.version,deleted:!memo.deleted})});clearDraft();el("editor").close();toast(memo.deleted?"Memo restored":"Memo moved to trash");await load();}catch(err){fail(err);}
   };
-  document.querySelectorAll("[data-folder]").forEach(b=>b.addEventListener("click",()=>{state.folder=b.dataset.folder;state.tag="";state.q="";el("search").value="";load();}));
+  document.querySelectorAll("[data-folder]").forEach(b=>b.addEventListener("click",()=>{state.folder=b.dataset.folder;state.personalView=false;state.tag="";state.q="";state.dateFilter=null;el("search").value="";load();}));
   let sTimer;el("search").addEventListener("input",()=>{clearTimeout(sTimer);sTimer=setTimeout(()=>{state.q=el("search").value.trim();load();},180);});
   el("masonryBtn").onclick=()=>layout("masonry");el("listBtn").onclick=()=>layout("list");layout(state.layout);
   el("themeBtn").onclick=()=>{const next=document.documentElement.dataset.mode==="dark"?"light":"dark";document.documentElement.dataset.mode=next;localStorage.setItem("gcmemos-mode",next);};
@@ -463,9 +467,9 @@
   el("clearDateFilter").onclick=()=>{state.dateFilter=null;render();};
   el("allTagsBtn").onclick=()=>{state.allTags=!state.allTags;renderInsights();};
   el("activityAllBtn").onclick=()=>{state.allActivity=!state.allActivity;renderInsights();};
-  const activateFolder=folder=>{state.folder=folder;state.tag="";state.q="";state.dateFilter=null;el("search").value="";load();};
+  const activateFolder=(folder,personal=false)=>{state.folder=folder;state.personalView=personal;state.tag="";state.q="";state.dateFilter=null;el("search").value="";load();};
   el("tabAll").onclick=()=>activateFolder("active");
-  el("tabMine").onclick=()=>{activateFolder("active");toast("This workspace currently contains private notes only");};
+  el("tabMine").onclick=()=>{activateFolder("active",true);toast("This workspace currently contains private notes only");};
   el("tabPinned").onclick=()=>activateFolder("pinned");
   el("filterPinned").onclick=()=>activateFolder(state.folder==="pinned"?"active":"pinned");
   el("filterPrivate").onclick=()=>{activateFolder("active");toast("All notes in this workspace are private");};
