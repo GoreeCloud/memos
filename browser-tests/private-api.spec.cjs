@@ -30,7 +30,7 @@ test("real private Python API rejects invalid bearer and accepts disposable test
  // fictional note when both browser projects share one local fixture.
  await expect.poll(()=>page.locator("#notesGrid .memo-card").count()).toBeGreaterThanOrEqual(2);
  await expect(page.locator("#notesGrid .memo-card h3").getByText("Synthetic real-server pinned")).toBeVisible();
- await expect(page.locator("#feedStatus")).toHaveText(/\\d+ memos loaded\\./);
+ await expect(page.locator("#feedStatus")).toHaveText(/\d+ memos loaded\./);
  expect(requests.length).toBeGreaterThanOrEqual(3);
  for(const req of requests){
   expect(new URL(req.url()).origin).toBe(ORIGIN);
