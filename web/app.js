@@ -32,7 +32,14 @@
       const res=await fetch(path,{...opt,signal:controller?.signal??parentSignal,
         headers:{...(opt.headers||{}),...headers},cache:"no-store",
         credentials:"omit",mode:"same-origin",redirect:"error",referrerPolicy:"no-referrer"});
-      let data;try{data=await res.json();}catch{data={};}
+      let data;
+      try{data=await res.json();}
+      catch(err){
+        // A 200 response with an invalid body must never become a purported
+        // successful export or write. Error bodies may be plain text.
+        if(res.ok)throw new Error("Invalid JSON response");
+        data={};
+      }
       if(epoch!==state.epoch||token!==state.token)throw lockedResponse();
       if(!res.ok){const err=new Error(data.error||"Request failed");err.status=res.status;err.current=data.current;throw err;}
       return data;
