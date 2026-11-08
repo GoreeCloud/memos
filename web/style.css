@@ -129,3 +129,20 @@ dialog{width:min(92vw,680px);max-height:91vh;border:1px solid var(--gc-outline);
 /* Prevent the compact quick-capture row from widening 320px viewports. */
 .capture-main textarea{min-width:0;flex:1 1 42px}
 @media(max-width:420px){.capture-main{gap:3px}.capture-actions{gap:0}.capture-actions .tool-icon{min-width:24px}.capture-main .capture-add{min-width:29px;padding-inline:3px}}
+
+/* Official timeline: pinned cards remain in their actual day group, with a
+   top-right pin mark rather than a separate pre-timeline pane. */
+.active-timeline>.section-heading{display:none}
+.memo-card[data-pinned="true"]{padding-right:34px}
+.memo-card[data-pinned="true"]::before{content:"⚑";position:absolute;right:13px;top:12px;color:var(--gc-brand);font-size:16px}
+@media(max-width:700px){
+  .topbar #collaboratorsBtn{display:none}
+  .topbar .profile-chip span{display:none}
+  .topbar .header-brand{min-width:0;flex:1 1 175px}
+  .topbar .header-brand strong{font-size:16px}
+  .topbar .utility-menu-btn{order:1;min-width:30px;padding:3px}
+  .topbar .searchbox{order:2}
+  .header-utilities .mobile-collab{display:none}
+  .header-utilities.open .mobile-collab{display:flex!important}
+}
+@media(min-width:701px){.mobile-collab{display:none!important}}
