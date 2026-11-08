@@ -157,5 +157,63 @@ class IdempotencyTests(unittest.TestCase):
             verify_database(self.db)
 
 
+    def test_duplicate_keyed_concurrent_retries_create_only_one_copy(self):
+        _, original = self.request({"title": "Original #work", "content": "Sample"})
+        path = "/api/v1/memos/" + original["id"] + "/duplicate"
+        key = str(uuid.uuid4())
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as pool:
+            results = list(pool.map(lambda _: self.request({}, key, path), range(18)))
+        self.assertEqual(sum(code == 201 for code, _ in results), 1)
+        self.assertEqual(sum(code == 200 for code, _ in results), 17)
+        self.assertEqual(len({memo["id"] for _, memo in results}), 1)
+        self.assertNotEqual(results[0][1]["id"], original["id"])
+        self.assertEqual(results[0][1]["title"], original["title"])
+        self.assertEqual(self.count(), 2)
+
+    def test_duplicate_key_scoped_to_source_and_validates_body(self):
+        _, first = self.request({"content": "Source A"})
+        _, second = self.request({"content": "Source B"})
+        shared = str(uuid.uuid4())
+        path_a = "/api/v1/memos/" + first["id"] + "/duplicate"
+        path_b = "/api/v1/memos/" + second["id"] + "/duplicate"
+        code_a, duplicate_a = self.request({}, shared, path_a)
+        code_b, duplicate_b = self.request({}, shared, path_b)
+        self.assertEqual((code_a, code_b), (201, 201))
+        self.assertNotEqual(duplicate_a["id"], duplicate_b["id"])
+        self.assertEqual(self.request({"ignored": True}, str(uuid.uuid4()), path_a)[0], 400)
+        self.assertEqual(self.request({}, "invalid-key", path_a)[0], 400)
+        self.assertEqual(self.count(), 4)
+
+    def test_duplicate_replay_survives_source_changes_and_sqlite_recovery(self):
+        _, source = self.request({"title": "Original", "content": "Old version"})
+        path = "/api/v1/memos/" + source["id"] + "/duplicate"
+        key = str(uuid.uuid4())
+        status, copied = self.request({}, key, path)
+        self.assertEqual(status, 201)
+        with sqlite3.connect(self.db) as db:
+            # Simulate source metadata changing after its copy was committed.
+            db.execute("UPDATE memos SET deleted=1 WHERE id=?", (source["id"],))
+            db.commit()
+        self.assertEqual(self.request({}, key, path)[0], 200)
+        self.assertEqual(self.request({}, str(uuid.uuid4()), path)[0], 404)
+        archive = Path(self.temp.name) / "duplicate-snapshot.sqlite"
+        self.assertEqual(backup_database(self.db, archive)["memos"], 2)
+        restored = Path(self.temp.name) / "duplicate-restored.sqlite"
+        self.assertEqual(restore_database(archive, restored)["memos"], 2)
+        self.assertEqual(verify_database(restored)["integrity"], "ok")
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=3)
+        self.server = create_server("127.0.0.1", 0, restored, TOKEN)
+        self.root = f"http://127.0.0.1:{self.server.server_port}"
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        status, replay = self.request({}, key, path)
+        self.assertEqual(status, 200)
+        self.assertEqual(replay["id"], copied["id"])
+        with sqlite3.connect(restored) as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM memos").fetchone()[0], 2)
+
+
 if __name__ == "__main__":
     unittest.main()
