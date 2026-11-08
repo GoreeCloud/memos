@@ -154,7 +154,7 @@ test_result = command(
     timeout=260
 )
 (OUT / "sqlite-instrumentation.txt").write_text(test_result + "\n", encoding="utf-8")
-if not re.search(r"OK \\(6 tests?\\)", test_result) or "FAILURES!!!" in test_result:
+if "OK (6 tests)" not in test_result or "FAILURES!!!" in test_result:
     raise AssertionError("Native SQLite instrumented tests did not all pass: " +
                          test_result[-1200:])
 print("PASS: six on-device SQLite history, stale-edit, duplicate and trash tests")
