@@ -1,0 +1,18 @@
+GoreeCloud Memos
+Copyright 2026 GoreeCloud
+
+Original Memos application and development tooling are provided under the
+Apache License, Version 2.0, as stated in the repository's LICENSE file.
+
+Design-token provenance: the Memos web interface uses GC UI-aligned semantic
+values derived from the separate GoreeCloud UI project
+(https://github.com/GoreeCloud/gc-ui), which is licensed under Apache-2.0.
+This notice preserves provenance; it does not imply a separate GC UI release
+or that GoreeCloud Memos itself has passed formal GC UI conformance testing.
+
+Third-party components are not relicensed by this notice. The optional Linux
+GTK4/PyGObject runtime and the test-only @playwright/test package retain
+their respective upstream licenses. Playwright browsers and installed
+dependencies are not part of the original Memos source license grant.
+
+This NOTICE does not alter the terms or trademark rights of third parties.
