@@ -473,12 +473,13 @@
     toast("Unsaved drafts cleared from this tab");
   }
   async function save(){
-    if(editorSaving)return;
+    if(editorSaving||duplicateSaving)return;
     const memo=state.editing;
     const body={title:el("editTitle").value,content:el("editContent").value,
       color:el("editColor").value,pinned:el("editPin").checked,archived:el("editArchive").checked};
     const attempt=++editorSaveAttempt,epoch=state.epoch;
     editorSaving=true;
+    el("duplicateBtn").disabled=true;
     el("saveBtn").disabled=true;
     el("saveBtn").setAttribute("aria-busy","true");
     try{
@@ -528,6 +529,7 @@
     }finally{
       if(attempt===editorSaveAttempt){
         editorSaving=false;el("saveBtn").disabled=false;
+        el("duplicateBtn").disabled=false;
         el("saveBtn").setAttribute("aria-busy","false");
       }
     }
@@ -601,10 +603,11 @@
     }
   };
   el("duplicateBtn").onclick=async()=>{
-    if(duplicateSaving||!state.editing)return;
+    if(duplicateSaving||editorSaving||!state.editing)return;
     const memo=state.editing,attempt=++duplicateSaveAttempt,epoch=state.epoch;
     const requestName="gcmemos:create-request:duplicate:"+memo.id;
     duplicateSaving=true;
+    el("saveBtn").disabled=true;
     el("duplicateBtn").disabled=true;
     el("duplicateBtn").setAttribute("aria-busy","true");
     try{
@@ -621,6 +624,7 @@
     finally{
       if(attempt===duplicateSaveAttempt){
         duplicateSaving=false;el("duplicateBtn").disabled=false;
+        el("saveBtn").disabled=false;
         el("duplicateBtn").setAttribute("aria-busy","false");
       }
     }
