@@ -133,7 +133,7 @@ class MemoStoreInstrumentedTest {
         sql.execSQL(
             "INSERT INTO revisions(memo_id,version,title,content,saved_at) " +
             "VALUES (?,0,'Synthetic invalid version','Never export',?)",
-            arrayOf(note.id, note.updatedAt)
+            arrayOf<Any>(note.id, note.updatedAt)
         )
         assertThrows(IllegalArgumentException::class.java) {
             store.experimentalReadCompleteSnapshot()
