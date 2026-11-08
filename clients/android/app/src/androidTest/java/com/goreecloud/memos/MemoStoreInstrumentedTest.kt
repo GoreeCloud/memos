@@ -17,7 +17,7 @@ import java.io.FileInputStream
  */
 @RunWith(AndroidJUnit4::class)
 class MemoStoreInstrumentedTest {
-    private val databaseName = "goreecloud_memos_local_preview.sqlite3"
+    private lateinit var databaseName: String
     private lateinit var context: Context
     private lateinit var store: MemoStore
 
@@ -30,19 +30,26 @@ class MemoStoreInstrumentedTest {
             }
         }
         check(property == "1") {
-            "BLOCK: destructive synthetic SQLite test refuses non-emulator Android target"
+            "BLOCK: synthetic SQLite test refuses a non-emulator Android target"
+        }
+        check(InstrumentationRegistry.getArguments()
+            .getString("goreecloudDisposable") == "1") {
+            "BLOCK: synthetic SQLite test requires explicit disposable-emulator opt-in"
         }
         context = InstrumentationRegistry.getInstrumentation().targetContext
-        // The CI runner creates a completely fresh test-only emulator each time.
-        // Delete exclusively this app's single private test database after QEMU attestation.
-        context.deleteDatabase(databaseName)
-        store = MemoStore(context)
+        check(context.packageName == "com.goreecloud.memos")
+        databaseName = "memos_qa_" + java.util.UUID.randomUUID().toString()
+            .replace("-", "") + ".sqlite3"
+        // Do not read, open or delete the user's default local memo database.
+        store = MemoStore(context, databaseName)
     }
 
     @After fun removeSyntheticData() {
         if (::store.isInitialized) {
             store.close()
-            context.deleteDatabase(databaseName)
+            check(context.deleteDatabase(databaseName)) {
+                "Failed to remove isolated synthetic SQLite database"
+            }
         }
     }
 
@@ -68,7 +75,7 @@ class MemoStoreInstrumentedTest {
         assertEquals(1, note.version)
         assertEquals(note, store.get(note.id))
         store.close()
-        store = MemoStore(context)
+        store = MemoStore(context, databaseName)
         assertEquals(note, store.get(note.id))
         assertEquals(1, store.list().size)
         assertEquals(0, revisionCount(note.id))
@@ -155,6 +162,13 @@ class MemoStoreInstrumentedTest {
         }
         assertThrows(IllegalArgumentException::class.java) {
             create(color = "unknown")
+        }
+        for (bad in listOf("../notes.sqlite3", "/tmp/notes.sqlite3",
+                           "two/folders.sqlite3", "..sqlite3",
+                           "memos.sqlite", "file:evil.sqlite3")) {
+            assertThrows(IllegalArgumentException::class.java) {
+                MemoStore(context, bad)
+            }
         }
         assertTrue(store.list().isEmpty())
     }
