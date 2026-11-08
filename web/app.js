@@ -3,23 +3,46 @@
   "use strict";
   const el = id => document.getElementById(id);
   const state = {token:"",folder:"active",tag:"",q:"",memos:[],editing:null,
-    layout:localStorage.getItem("gcmemos-layout")==="list"?"list":"masonry",pinnedCollapsed:localStorage.getItem("gcmemos-pin-collapsed")==="true",request:0,personalView:false,dateFilter:null,calendarCursor:new Date(new Date().getFullYear(),new Date().getMonth(),1),allTags:false,allActivity:false,promotedQuick:false};
+    layout:localStorage.getItem("gcmemos-layout")==="list"?"list":"masonry",pinnedCollapsed:localStorage.getItem("gcmemos-pin-collapsed")==="true",request:0,personalView:false,dateFilter:null,calendarCursor:new Date(new Date().getFullYear(),new Date().getMonth(),1),allTags:false,allActivity:false,promotedQuick:false,epoch:0,authAttempt:0};
   const folders={active:"All memos",pinned:"Pinned memos",archive:"Archive",trash:"Trash"};
   document.documentElement.dataset.mode=localStorage.getItem("gcmemos-mode")==="dark"?"dark":"light";
   function make(tag,css,text){const v=document.createElement(tag);if(css)v.className=css;if(text!==undefined)v.textContent=text;return v;}
   let tTimer,activeFeedController=null,pendingSkeletonTimer=null;
   function toast(message){const v=el("toast");v.textContent=message;v.classList.add("visible");clearTimeout(tTimer);tTimer=setTimeout(()=>v.classList.remove("visible"),2800);}
+  // Lock is a privacy boundary for ALL protected requests, not just the feed.
+  // A generation check is also required because a response can win the race
+  // with AbortController.abort(), or a test transport may ignore abort.
+  const activeRequests=new Set();
+  function lockedResponse(){const error=new Error("Workspace locked");error.locked=true;return error;}
   async function api(path,opt={}){
-    const headers={Authorization:"Bearer "+state.token};
+    const epoch=state.epoch,token=state.token;
+    const headers={Authorization:"Bearer "+token};
     if(opt.body!==undefined)headers["Content-Type"]="application/json";
-    // Bearer credentials stay on this origin and never follow HTTP redirects.
-    // Explicitly override caller options to protect future API call sites.
-    const res=await fetch(path,{...opt,headers:{...headers,...(opt.headers||{})},
-      cache:"no-store",credentials:"omit",mode:"same-origin",redirect:"error",
-      referrerPolicy:"no-referrer"});
-    let data;try{data=await res.json();}catch{data={};}
-    if(!res.ok){const err=new Error(data.error||"Request failed");err.status=res.status;err.current=data.current;throw err;}
-    return data;
+    const parentSignal=opt.signal;
+    const controller=typeof AbortController==="function"?new AbortController():null;
+    const relayAbort=()=>controller?.abort(parentSignal?.reason);
+    if(controller){
+      activeRequests.add(controller);
+      if(parentSignal?.aborted)relayAbort();
+      else parentSignal?.addEventListener?.("abort",relayAbort,{once:true});
+    }
+    try{
+      // Credentials stay on this origin and never follow redirects or proxies
+      // configured by the browser as a caller-controlled fetch option.
+      const res=await fetch(path,{...opt,signal:controller?.signal??parentSignal,
+        headers:{...headers,...(opt.headers||{})},cache:"no-store",
+        credentials:"omit",mode:"same-origin",redirect:"error",referrerPolicy:"no-referrer"});
+      let data;try{data=await res.json();}catch{data={};}
+      if(epoch!==state.epoch||token!==state.token)throw lockedResponse();
+      if(!res.ok){const err=new Error(data.error||"Request failed");err.status=res.status;err.current=data.current;throw err;}
+      return data;
+    }catch(err){
+      if(epoch!==state.epoch||token!==state.token)throw lockedResponse();
+      throw err;
+    }finally{
+      if(controller)activeRequests.delete(controller);
+      parentSignal?.removeEventListener?.("abort",relayAbort);
+    }
   }
   const key=id=>"gcmemos:draft:"+(id||"new");
   let previewActive=false;
@@ -46,7 +69,7 @@
     el("previewMode").setAttribute("aria-pressed",String(value));
     if(value) renderPreview();
   }
-  function fail(err){if(err.status===401)lockWorkspace();toast(err.message||"Request failed");}
+  function fail(err){if(err?.locked)return;if(err.status===401)lockWorkspace();toast(err.message||"Request failed");}
   function layout(type){
     state.layout=type;localStorage.setItem("gcmemos-layout",type);
     ["notesGrid","pinnedGrid","feedSkeleton"].forEach(id=>el(id).classList.toggle("list",type==="list"));
@@ -329,6 +352,11 @@
     // A lock forgets the bearer token and removes displayed memo text from
     // the DOM. Incrementing the request id invalidates in-flight feed results.
     ++state.request;
+    ++state.epoch;
+    ++state.authAttempt;
+    for(const controller of activeRequests)controller.abort("locked");
+    activeRequests.clear();
+    clearTimeout(tTimer);el("toast").textContent="";el("toast").classList.remove("visible");
     activeFeedController?.abort("locked");
     activeFeedController=null;
     clearTimeout(pendingSkeletonTimer);
@@ -392,9 +420,22 @@
     }catch(err){if(err.status===409)toast("Memo changed elsewhere. Copy your draft before refreshing.");else fail(err);}
   }
   el("authForm").addEventListener("submit",async e=>{
-    e.preventDefault();state.token=el("accessToken").value.trim();
-    try{await api("/api/v1/memos?folder=active");el("authScreen").hidden=true;el("shell").hidden=false;el("accessToken").value="";el("quickContent").value=sessionStorage.getItem("gcmemos:quick")||"";await load();}
-    catch(err){el("authError").textContent=err.message;state.token="";}
+    e.preventDefault();
+    const attempt=++state.authAttempt;
+    const token=el("accessToken").value.trim();
+    state.token=token;
+    try{
+      await api("/api/v1/memos?folder=active");
+      if(attempt!==state.authAttempt)return;
+      el("authScreen").hidden=true;el("shell").hidden=false;
+      el("accessToken").value="";
+      el("quickContent").value=sessionStorage.getItem("gcmemos:quick")||"";
+      await load();
+    }catch(err){
+      // An old login must not clear a newer token or reopen a locked shell.
+      if(attempt!==state.authAttempt||err?.locked)return;
+      el("authError").textContent=err.message;state.token="";
+    }
   });
   el("revisionPanel").addEventListener("toggle",()=>{
     if(el("revisionPanel").open&&state.editing)loadRevisions(state.editing);
