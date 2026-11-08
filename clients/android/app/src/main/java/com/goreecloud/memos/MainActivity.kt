@@ -112,6 +112,7 @@ private fun MemosHome(store: MemoStore, dark: Boolean) {
     var editorOpen by remember { mutableStateOf(false) }
     var editing by remember { mutableStateOf<Memo?>(null) }
     var menuOpen by remember { mutableStateOf(false) }
+    var showLocalDataInfo by remember { mutableStateOf(false) }
 
     fun message(value: String) { scope.launch { snackbar.showSnackbar(value) } }
     fun unavailable(feature: String) { message(feature + ": Not available yet") }
@@ -144,7 +145,7 @@ private fun MemosHome(store: MemoStore, dark: Boolean) {
                 }
                 if (quick == draft) quick = ""
                 refresh()
-                message("Memo saved on this device")
+                message("Saved on this device · no backup yet")
             } catch (e: Exception) {
                 message("Save failed: " + (e.message ?: "Unknown error"))
             } finally {
@@ -212,7 +213,11 @@ private fun MemosHome(store: MemoStore, dark: Boolean) {
                     expanded = expanded,
                     onMenu = { menuOpen = true }, menuOpen = menuOpen,
                     onDismissMenu = { menuOpen = false },
-                    onUnavailable = { menuOpen = false; unavailable(it) }
+                    onUnavailable = {
+                        menuOpen = false
+                        if (it == "Local data & backups") showLocalDataInfo = true
+                        else unavailable(it)
+                    }
                 )
                 Column(Modifier.padding(horizontal = 16.dp).padding(top = 10.dp)) {
                     OutlinedTextField(
@@ -385,6 +390,26 @@ private fun MemosHome(store: MemoStore, dark: Boolean) {
                 .padding(bottom = if (expanded) 12.dp else 64.dp)
         )
     }
+    if (showLocalDataInfo) {
+        AlertDialog(
+            onDismissRequest = { showLocalDataInfo = false },
+            title = { Text("Local notes have no backup") },
+            text = {
+                Text(
+                    "This is an offline development preview. Memos are stored only in " +
+                    "this app's private database. Sync, export and restore are " +
+                    "not available yet. Clearing app data or uninstalling this app " +
+                    "can permanently erase all locally saved memos. Use only " +
+                    "disposable test content until private recovery is implemented."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showLocalDataInfo = false }) {
+                    Text("Got it")
+                }
+            }
+        )
+    }
     if (editorOpen) {
         MemoEditor(
             memo = editing, saving = saving, dark = dark,
@@ -451,13 +476,13 @@ private fun Header(
         Column(Modifier.weight(1f)) {
             Text("GoreeCloud Memos", style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text("LOCAL PREVIEW · PRIVATE DEVICE DATA", fontSize = 9.sp,
+            Text("LOCAL ONLY · NO BACKUP", fontSize = 9.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Box {
             TextButton(onClick = onMenu) { Text("⋯ More") }
             DropdownMenu(expanded = menuOpen, onDismissRequest = onDismissMenu) {
-                listOf("Reminders", "Attachments", "Sharing", "Sync", "Settings", "Profile").forEach { feature ->
+                listOf("Local data & backups", "Reminders", "Attachments", "Sharing", "Sync", "Settings", "Profile").forEach { feature ->
                     DropdownMenuItem(text = { Text(feature) }, onClick = { onUnavailable(feature) })
                 }
             }
@@ -691,7 +716,7 @@ private fun MemoEditor(
                         onClick = { onSave(title, content, color, pinned, archived) }
                     ) { Text(if (saving) "Saving…" else "Save memo") }
                 }
-                Text("Private local preview · no cloud sync",
+                Text("Private local preview · no sync or backup",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

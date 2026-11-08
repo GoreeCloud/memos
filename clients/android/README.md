@@ -11,6 +11,7 @@
 - Applies source-verified GoreeCloud UI Iris light/dark semantic colors and note-card color values from `GoreeCloud/gc-ui` and `GoreeCloud/memos/web/style.css`.
 - Keeps unsaved editor data only in composable state. If users discard changes or the app process is killed, **unsaved text may be lost**; there is no draft recovery or synchronization yet.
 - Shows visible controls for attachments, reminders, sharing, Sync, settings, preview and related future capabilities. They display **“Not available yet”** instead of feigning support.
+- Native header consistently says **“LOCAL ONLY · NO BACKUP”**, while **More → Local data & backups** opens a real dialog explaining the absence of sync/export/restore and risk of losing local notes after app-data clearing or uninstall. Quick-save confirmation also discloses that there is no backup. This is an honesty/usability improvement, **not** a backup implementation or proof of Android screen-reader/device behavior.
 
 ## Privacy / security boundaries
 
