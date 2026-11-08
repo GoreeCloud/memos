@@ -25,8 +25,13 @@ Use an Android SDK with platform 36, JDK 21 and Gradle 9.7.1 or the compatible i
 ```bash
 gradle -p clients/android --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
 python3 clients/android/qa/verify_manifest.py
+python3 clients/android/qa/verify_apk.py clients/android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
 CI also exercises these commands without publishing a binary. Platform build and JVM source tests do **not** prove handset usability or runtime behavior. A complete acceptance requires manual or emulator/physical-device launch, dark/light and font scaling, rotation, process death, database upgrade/non-destructive migration, data retention/recovery, visual audit against the official Memos mockup, and the applicable privacy/security gates.
 
 Refer to [product requirements](../../docs/FEATURES.md) and [verified status](../../docs/STATUS.md). The larger full product specification is not claimed implemented here.
+
+### Packaged APK privacy review
+
+The static source-manifest check is insufficient by itself: libraries can contribute merged components and permissions. The packaged-APK gate rejects unexpected exported activities/services/receivers/providers, unexpected permissions (except AndroidX's app-defined signature-level receiver permission), an unexpected package/SDK identity, missing data-extraction rules, or insecure backup/cleartext flags. An earlier local debug build included an exported Compose tooling PreviewActivity; its dependency was removed before release review. **Build/debug package verification does not authorize installation or delivery.**
