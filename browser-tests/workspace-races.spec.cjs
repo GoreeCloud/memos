@@ -101,3 +101,25 @@ test("an old rejected login cannot invalidate a newer successful login",async({p
  await expect(page.locator("#authScreen")).toBeHidden();
  await expect(page.locator("#authError")).toBeEmpty();
 });
+
+test("mobile menu is keyboard-dismissible and returns focus to login after lock",async({page})=>{
+ await page.setViewportSize({width:390,height:780});
+ await login(page);
+ const menu=page.locator("#utilityMenuBtn");
+ await expect(menu).toBeVisible();
+ await menu.click();
+ await expect(menu).toHaveAttribute("aria-expanded","true");
+ await expect(page.locator("#themeBtn")).toBeFocused();
+ await page.keyboard.press("Escape");
+ await expect(menu).toHaveAttribute("aria-expanded","false");
+ await expect(menu).toBeFocused();
+ await menu.click();
+ await page.locator("#search").click();
+ await expect(menu).toHaveAttribute("aria-expanded","false");
+ await menu.click();
+ await page.locator("#lockWorkspaceBtn").click();
+ await expect(page.locator("#shell")).toBeHidden();
+ await expect(page.locator("#authScreen")).toBeVisible();
+ await expect(page.locator("#accessToken")).toBeFocused();
+ await expect(menu).toHaveAttribute("aria-expanded","false");
+});
