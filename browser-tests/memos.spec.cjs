@@ -105,6 +105,36 @@ test("network error clears old cards and retry restores results without losing k
  await expect(page.locator("#search")).toBeFocused();
 });
 
+test("keyboard retry preserves focus and Enter opens the recovered memo",async({page})=>{
+ let calls=0;
+ setup(page,route=>{
+  calls++;
+  return calls===1
+   ?json(route,{error:"Synthetic temporary outage"},503)
+   :json(route,NOTES);
+ });
+ await login(page);
+ await expect(page.locator("#feedFailure")).toBeVisible();
+ await expect(page.locator("#feedStatus")).toHaveAttribute("role","status");
+ await expect(page.locator("#feedStatus")).toHaveAttribute("aria-live","polite");
+ await expect(page.locator("#feedRegion")).toHaveAttribute("aria-busy","false");
+ // Use a real keyboard event, not an onclick invocation.
+ await page.locator("#feedRetry").focus();
+ await expect(page.locator("#feedRetry")).toBeFocused();
+ await page.keyboard.press("Enter");
+ await expect(page.locator("#feedFailure")).toBeHidden();
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ await expect(page.locator("#search")).toBeFocused();
+ const memo=page.locator("#notesGrid .memo-card").first();
+ await memo.focus();
+ await expect(memo).toBeFocused();
+ await page.keyboard.press("Enter");
+ await expect(page.locator("#editor")).toBeVisible();
+ await expect(page.locator("#editContent")).toHaveValue(NOTES[1].content);
+ // The card's keyboard activation must not mutate the disposable source.
+ expect(calls).toBe(2);
+});
+
 test("empty and offline outcomes resolve the skeleton and permit recovery",async({page,context})=>{
  let notes=[];
  setup(page,route=>json(route,notes));
