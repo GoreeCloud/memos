@@ -473,25 +473,55 @@
     const memo=state.editing;
     const body={title:el("editTitle").value,content:el("editContent").value,
       color:el("editColor").value,pinned:el("editPin").checked,archived:el("editArchive").checked};
-    const attempt=++editorSaveAttempt;
+    const attempt=++editorSaveAttempt,epoch=state.epoch;
     editorSaving=true;
     el("saveBtn").disabled=true;
     el("saveBtn").setAttribute("aria-busy","true");
     try{
-      if(memo)await api("/api/v1/memos/"+memo.id,{method:"PATCH",body:JSON.stringify({...body,version:memo.version})});
-      else await api("/api/v1/memos",{method:"POST",body:JSON.stringify(body)});
-      clearDraft();
-      if(!memo&&state.promotedQuick){
-        el("quickContent").value="";sessionStorage.removeItem("gcmemos:quick");
+      let saved;
+      if(memo){
+        saved=await api("/api/v1/memos/"+memo.id,{
+          method:"PATCH",body:JSON.stringify({...body,version:memo.version})});
+      }else{
+        const requestKey=await createRequestKey(editorRequestName,body);
+        if(epoch!==state.epoch||!state.token)return;
+        saved=await api("/api/v1/memos",{
+          method:"POST",body:JSON.stringify(body),
+          headers:requestKey?{"Idempotency-Key":requestKey}:{}
+        });
+        clearCreateRequestKey(editorRequestName);
       }
-      state.promotedQuick=false;
-      el("editor").close();toast(memo?"Memo updated":"Memo created");await load();
+      const sameForm=el("editTitle").value===body.title&&
+        el("editContent").value===body.content&&
+        el("editColor").value===body.color&&
+        el("editPin").checked===body.pinned&&
+        el("editArchive").checked===body.archived;
+      if(sameForm){
+        clearDraft();
+        if(!memo&&state.promotedQuick){
+          el("quickContent").value="";
+          sessionStorage.removeItem("gcmemos:quick");
+        }
+        state.promotedQuick=false;
+        el("editor").close();
+        toast(memo?"Memo updated":"Memo created");
+      }else{
+        // Do not erase edits typed after the request was submitted. Associate
+        // them with the actual newly-created/updated memo and its new version.
+        state.editing=saved;
+        sessionStorage.removeItem(key(null));
+        sessionStorage.setItem(key(saved.id),el("editContent").value);
+        el("editorTitle").textContent="EDIT MEMO · VERSION "+saved.version;
+        el("saveBtn").textContent="Save changes";
+        state.promotedQuick=false;
+        toast("Saved earlier edits. New changes are still unsaved.");
+      }
+      await load();
     }catch(err){
-      if(err.status===409)toast("Memo changed elsewhere. Copy your draft before refreshing.");
+      if(err.status===409)
+        toast("Memo changed elsewhere. Keep your draft and refresh before retrying.");
       else fail(err);
     }finally{
-      // Late completion from a previous locked session cannot unlock the
-      // Save control belonging to a later in-flight operation.
       if(attempt===editorSaveAttempt){
         editorSaving=false;el("saveBtn").disabled=false;
         el("saveBtn").setAttribute("aria-busy","false");
