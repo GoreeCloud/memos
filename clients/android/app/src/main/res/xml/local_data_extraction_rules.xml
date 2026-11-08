@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Offline memo data never participates in automated transfers. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="."/>
+        <exclude domain="database" path="."/>
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="."/>
+        <exclude domain="database" path="."/>
+    </device-transfer>
+    <cross-platform-transfer>
+        <exclude domain="root" path="."/>
+        <exclude domain="database" path="."/>
+    </cross-platform-transfer>
+</data-extraction-rules>
