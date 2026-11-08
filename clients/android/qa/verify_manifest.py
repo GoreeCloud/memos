@@ -43,6 +43,9 @@ assert "preserveDamagedMemos" in store_source
 assert "DatabaseErrorHandler" in store_source
 assert "SQLiteDatabaseCorruptException" in store_source
 assert "DefaultDatabaseErrorHandler" not in store_source
+assert "Existing local database schema is not recognized" in store_source
+assert "override fun onDowngrade(" in store_source
+assert "Automatic downgrade is disabled" in store_source
 assert "Local notes could not be opened" in source
 assert "storageProblem" in source and "Retry reading local notes" in source
 
