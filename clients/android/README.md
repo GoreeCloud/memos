@@ -47,6 +47,14 @@ The internal `MemoStore.experimentalReadCompleteSnapshot()` now attempts a **sin
 
 **No UI, SAF picker, file export, imported database, staged restore, network permission, or user backup is implemented.** The format has not been independently security-reviewed or declared stable/interoperable. This is a preparatory **in-memory** component only, not a user-recoverable backup. See the [recovery design](../../docs/ANDROID_RECOVERY_DESIGN.md) for outstanding export/restore release gates.
 
+## Experimental private staging proof — NOT a user restore
+
+`MemoSnapshotStager.experimentalStage()` is an internal, unexposed proof that first validates a complete in-memory snapshot, then **exclusively creates a new random `memos_stage_<UUID>.sqlite3` file in the app-private database directory**. It inserts memo rows and all revision rows atomically, closes the writer, reopens the new staging database, rechecks its full memo/revision content, SQLite quick-integrity/foreign keys and full `integrity_check`, and refuses success if anything differs. A preflight validation failure creates **no file**; write/readback failure attempts to clean up **only** the randomly named staging file. Existing user database names and data are never selected as targets.
+
+Two additional attested Android 35 QEMU-only tests exercise a complete synthetic encrypted/decrypted in-memory snapshot through staging, verify that hidden notes and revisions match exactly while the original synthetic source remains unchanged, and assert invalid history is rejected before staging-file creation. Tests delete their own successful staged fixture. The emulator suite now requires **15** synthetic cases.
+
+**Security and release limitations:** A staged database is currently PLAINTEXT app-private SQLite, **not** an encrypted off-device backup or suitable production recovery workflow. There is no user consent/dialog, system document picker, external export, import, live-database swap, app-restart cleanup guarantee, verified rollback after process death, signed APK or cross-device restoration. The method is not connected to `MainActivity`. Stage files on actual devices must not be created until a reviewed lifecycle/retention and full safe-restore design passes. User-facing controls still say **Not available yet**.
+
 ## Build and test
 
 Use an Android SDK with platform 36, JDK 21 and Gradle 9.7.1 or the compatible installed distribution. From the repository root:
