@@ -12,8 +12,20 @@ import java.util.UUID
  * Deletion is a reversible trash state, and edits retain local text history.
  * The database is not encrypted and has no cross-device merge capability.
  */
-class MemoStore(context: Context) : SQLiteOpenHelper(
-    context.applicationContext, "goreecloud_memos_local_preview.sqlite3", null, 1
+// Test databases are separate from the preview's default DB and cannot
+// escape the application-private data directory via a path or traversal name.
+private fun checkedMemoDatabaseName(name: String): String {
+    require(name.matches(Regex("[a-z][a-z0-9_-]{1,72}[.]sqlite3"))) {
+        "Only a simple app-private SQLite filename is permitted"
+    }
+    return name
+}
+
+class MemoStore(
+    context: Context,
+    databaseName: String = "goreecloud_memos_local_preview.sqlite3"
+) : SQLiteOpenHelper(
+    context.applicationContext, checkedMemoDatabaseName(databaseName), null, 1
 ) {
     override fun onConfigure(db: SQLiteDatabase) {
         super.onConfigure(db)
