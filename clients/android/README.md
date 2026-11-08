@@ -27,6 +27,14 @@ An attested Android emulator instrumentation test corrupts **only a randomly nam
 
 **If a real device reports storage damage:** stop editing; do not clear app data, reinstall, or remove the device's private database. The app has no supported export, backup or recovery procedure yet. Developer diagnosis must preserve evidence and privacy under the GoreeShield/Wardveil rules. Recovery design, consent and a verified restore test are separate open release gates.
 
+## Unknown schema and version protection
+
+The Android preview uses schema version 1, with no approved data migration. Android's SQLite helper normally invokes `onCreate` for any database with `user_version=0`, even if that database already contains tables. Memos now rejects a **schema-zero database containing unrecognized user tables**, rather than creating a misleading empty notebook on top of legacy data. It also explicitly rejects attempts to open a **newer-schema database with older application code**; neither path auto-downgrades, rewrites or deletes the database.
+
+Two new disposable-emulator SQLite instrumentation cases ensure an unfamiliar version-zero table and its fictional row survive a refused open without Memos tables being created, and that a version-two database retains its memo, revision and version metadata after a refused downgrade. These tests never open the standard user memo database. The suite now has **ten** AndroidJUnit4 tests, gated by verified QEMU and explicit test opt-in.
+
+These are **fail-closed compatibility tests, not data migrations**. Genuine non-destructive upgrade paths, app-version rollback, legacy import and encrypted off-device recovery still require independent design, qualification and an approved release gate.
+
 ## Build and test
 
 Use an Android SDK with platform 36, JDK 21 and Gradle 9.7.1 or the compatible installed distribution. From the repository root:
