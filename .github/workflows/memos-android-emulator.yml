@@ -1,0 +1,85 @@
+name: Memos Native Android Emulator Smoke
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "clients/android/**"
+      - ".github/scripts/memos-emulator-smoke.py"
+      - ".github/workflows/memos-android-emulator.yml"
+  push:
+    branches: [main]
+    paths:
+      - "clients/android/**"
+      - ".github/scripts/memos-emulator-smoke.py"
+      - ".github/workflows/memos-android-emulator.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: memos-android-emulator-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  isolated-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_AVD_HOME: ${{ github.workspace }}/.android/avd
+      GOREEMEMOS_EMULATOR_QA: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1; reused from GoreeCloud/tv-launcher
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.7.1"
+      - name: Build disposable debug APK and verify source
+        run: |
+          set -euo pipefail
+          python3 clients/android/qa/verify_manifest.py
+          gradle -p clients/android --no-daemon :app:assembleDebug :app:testDebugUnitTest
+          python3 clients/android/qa/verify_apk.py clients/android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Install standalone Android emulator image
+        run: |
+          set -euo pipefail
+          SDKMGR=$(find "$ANDROID_HOME/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -1)
+          AVDMGR=$(find "$ANDROID_HOME/cmdline-tools" -type f -path '*/bin/avdmanager' | sort -V | tail -1)
+          test -x "$SDKMGR" && test -x "$AVDMGR"
+          "$SDKMGR" --sdk_root="$ANDROID_HOME" "emulator" "platform-tools" "system-images;android-35;google_apis;x86_64"
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo no | "$AVDMGR" create avd --name GoreeMemosTest --package "system-images;android-35;google_apis;x86_64" --path "$ANDROID_AVD_HOME/GoreeMemosTest.avd" --force
+          test -f "$ANDROID_AVD_HOME/GoreeMemosTest.ini"
+          CONFIG="$ANDROID_AVD_HOME/GoreeMemosTest.avd/config.ini"
+          sed -i -e '/^hw.lcd.width=/d' -e '/^hw.lcd.height=/d' -e '/^hw.lcd.density=/d' -e '/^disk.dataPartition.size=/d' "$CONFIG"
+          printf 'hw.lcd.width=1080\nhw.lcd.height=1920\nhw.lcd.density=320\ndisk.dataPartition.size=2048M\n' >> "$CONFIG"
+          "$ANDROID_HOME/emulator/emulator" -list-avds | grep -Fx GoreeMemosTest
+          df -h "$ANDROID_AVD_HOME"
+      - name: Boot verified emulator and exercise native Memos
+        run: |
+          set -euo pipefail
+          export PATH="$ANDROID_HOME/platform-tools:$PATH"
+          mkdir -p android-emulator-qa
+          preconnected=$(adb devices -l | awk '$2=="device" {print $1}')
+          if [ -n "$preconnected" ]; then
+            echo "BLOCK: found an online ADB device before starting isolated emulator" >&2
+            exit 2
+          fi
+          if test -e /dev/kvm; then sudo chown "$(id -u)" /dev/kvm; fi
+          nohup "$ANDROID_HOME/emulator/emulator" -avd GoreeMemosTest -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -partition-size 2048 > android-emulator-qa/emulator.log 2>&1 &
+          python3 .github/scripts/memos-emulator-smoke.py
+      - name: Upload isolated emulator screenshot evidence (never APK)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: GoreeCloud-Memos-Android-emulator-QA
+          path: android-emulator-qa/
+          if-no-files-found: warn
+          retention-days: 7
