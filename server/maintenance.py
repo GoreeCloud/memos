@@ -23,6 +23,10 @@ def verify_database(path):
         raise ValueError("Database file does not exist")
     uri = path.resolve().as_uri() + "?mode=ro"
     with sqlite3.connect(uri, uri=True, timeout=10) as db:
+        # All integrity queries and final counts must refer to the SAME
+        # SQLite/WAL snapshot, even if a writer commits during verification.
+        # A read-only BEGIN does not initialize or mutate the database.
+        db.execute("BEGIN")
         result = db.execute("PRAGMA integrity_check").fetchone()
         if result != ("ok",):
             raise ValueError("SQLite integrity check failed")
