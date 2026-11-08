@@ -27,10 +27,10 @@
       else parentSignal?.addEventListener?.("abort",relayAbort,{once:true});
     }
     try{
-      // Credentials stay on this origin and never follow redirects or proxies
-      // configured by the browser as a caller-controlled fetch option.
+      // Credentials stay on this origin and never follow HTTP redirects.
+      // Authentication and Content-Type cannot be replaced by caller options.
       const res=await fetch(path,{...opt,signal:controller?.signal??parentSignal,
-        headers:{...headers,...(opt.headers||{})},cache:"no-store",
+        headers:{...(opt.headers||{}),...headers},cache:"no-store",
         credentials:"omit",mode:"same-origin",redirect:"error",referrerPolicy:"no-referrer"});
       let data;try{data=await res.json();}catch{data={};}
       if(epoch!==state.epoch||token!==state.token)throw lockedResponse();
@@ -103,7 +103,7 @@
     if(Number.isNaN(d.getTime()))return "";
     return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
   }
-  function notAvailable(feature){toast("Not available yet — "+feature);}
+  function notAvailable(feature){setUtilityOpen(false);toast("Not available yet — "+feature);}
   function renderCalendar(){
     const cursor=state.calendarCursor,year=cursor.getFullYear(),month=cursor.getMonth();
     el("calendarMonth").textContent=new Intl.DateTimeFormat(undefined,{month:"short",year:"numeric"}).format(cursor);
@@ -385,8 +385,10 @@
     el("count").textContent="";
     el("accessToken").value="";
     el("authError").textContent="";
+    setUtilityOpen(false);
     el("shell").hidden=true;
     el("authScreen").hidden=false;
+    el("accessToken").focus();
     // Deliberately preserve unsaved sessionStorage drafts: the separate
     // Clear drafts control handles destructive draft deletion by confirmation.
   }
@@ -471,7 +473,7 @@
   document.querySelectorAll("[data-folder]").forEach(b=>b.addEventListener("click",()=>{state.folder=b.dataset.folder;state.personalView=false;state.tag="";state.q="";state.dateFilter=null;el("search").value="";load();}));
   let sTimer;el("search").addEventListener("input",()=>{clearTimeout(sTimer);sTimer=setTimeout(()=>{state.q=el("search").value.trim();load();},180);});
   el("masonryBtn").onclick=()=>layout("masonry");el("listBtn").onclick=()=>layout("list");layout(state.layout);
-  el("themeBtn").onclick=()=>{const next=document.documentElement.dataset.mode==="dark"?"light":"dark";document.documentElement.dataset.mode=next;localStorage.setItem("gcmemos-mode",next);};
+  el("themeBtn").onclick=()=>{const next=document.documentElement.dataset.mode==="dark"?"light":"dark";document.documentElement.dataset.mode=next;localStorage.setItem("gcmemos-mode",next);setUtilityOpen(false);};
   el("exportBtn").onclick=async()=>{
     if(!window.confirm("Export ALL memos, including archived and trashed notes, "+
       "and their full text revision history as an UNENCRYPTED JSON download? "+
@@ -486,7 +488,21 @@
   document.querySelectorAll("[data-feature]").forEach(b=>b.addEventListener("click",()=>notAvailable(b.dataset.feature)));
   for(const id of ["notificationsBtn","collaboratorsBtn","profileBtn"])
     el(id).addEventListener("click",()=>notAvailable(id==="notificationsBtn"?"Notifications":id==="collaboratorsBtn"?"Collaboration":"User profiles"));
-  el("utilityMenuBtn").onclick=()=>{const area=el("headerUtilities");const open=area.classList.toggle("open");el("utilityMenuBtn").setAttribute("aria-expanded",String(open));};
+  let utilityOpen=false;
+  function setUtilityOpen(open){
+    utilityOpen=Boolean(open);
+    el("headerUtilities").classList.toggle("open",utilityOpen);
+    el("utilityMenuBtn").setAttribute("aria-expanded",String(utilityOpen));
+  }
+  el("utilityMenuBtn").onclick=()=>{
+    setUtilityOpen(!utilityOpen);
+    if(utilityOpen)el("themeBtn").focus();
+  };
+  document.addEventListener("click",event=>{
+    if(!utilityOpen)return;
+    if(event.target!==el("utilityMenuBtn")&&!el("headerUtilities").contains(event.target))
+      setUtilityOpen(false);
+  });
   el("quickCaptureNav").onclick=()=>{el("quickCapture").scrollIntoView({behavior:"smooth",block:"center"});el("quickContent").focus();};
   el("timelineNav").onclick=()=>{el("notesSection").scrollIntoView({behavior:"smooth",block:"start"});};
   el("tagsNav").onclick=()=>{el("trendingTags").scrollIntoView({behavior:"smooth",block:"center"});};
@@ -515,6 +531,7 @@
   el("filterPinned").onclick=()=>activateFolder(state.folder==="pinned"?"active":"pinned");
   el("filterPrivate").onclick=()=>{activateFolder("active");toast("All notes in this workspace are private");};
   document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"&&utilityOpen){setUtilityOpen(false);el("utilityMenuBtn").focus();return;}
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();if(!el("shell").hidden)el("search").focus();}
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="n"){e.preventDefault();if(!el("shell").hidden)open();}
   });
