@@ -10,6 +10,13 @@ assert application is not None
 assert application.get(ns + "allowBackup") == "false", "Backup must be opt-out"
 assert application.get(ns + "usesCleartextTraffic") == "false", "Cleartext traffic disabled"
 assert application.get(ns + "fullBackupContent") == "false", "Full backup must be disabled"
+assert application.get(ns + "dataExtractionRules") == "@xml/local_data_extraction_rules"
+rules = ET.parse(ROOT / "app/src/main/res/xml/local_data_extraction_rules.xml").getroot()
+for mode in ("cloud-backup", "device-transfer", "cross-platform-transfer"):
+    entry = rules.find(mode)
+    assert entry is not None, "Missing privacy rules for " + mode
+    assert any(v.get("domain") == "root" and v.get("path") == "."
+               for v in entry.findall("exclude")), "Root data exclusion missing"
 assert len(manifest.findall("uses-permission")) == 0, "No permissions allowed for local-only app"
 components = [
     node for kind in ("activity", "service", "receiver", "provider")
