@@ -38,6 +38,14 @@ assert "com.goreecloud.memos" in app_gradle
 source = (ROOT / "app/src/main/java/com/goreecloud/memos/MainActivity.kt").read_text()
 assert "ComponentActivity" in source and "setContent" in source
 assert "WebView(" not in source, "This preview must use native UI"
+store_source = (ROOT / "app/src/main/java/com/goreecloud/memos/MemoStore.kt").read_text()
+assert "preserveDamagedMemos" in store_source
+assert "DatabaseErrorHandler" in store_source
+assert "SQLiteDatabaseCorruptException" in store_source
+assert "DefaultDatabaseErrorHandler" not in store_source
+assert "Local notes could not be opened" in source
+assert "storageProblem" in source and "Retry reading local notes" in source
+
 assert "LOCAL ONLY · NO BACKUP" in source, "Local no-backup disclosure must be persistent"
 assert "Local notes have no backup" in source, "Local data-loss dialog missing"
 assert 'if (it == "Local data & backups") showLocalDataInfo = true' in source, (

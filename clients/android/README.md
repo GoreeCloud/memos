@@ -19,6 +19,14 @@
 
 The Android package name is `com.goreecloud.memos`; the debug APK is **not a release deliverable** without independent build, signing, device and owner-required Google Drive/Artifacts delivery verification. This code does not replace the existing web or Linux client.
 
+## Corruption and data-loss safeguards
+
+The preview now supplies a custom Android `DatabaseErrorHandler` to **reject a SQLite-reported corruption instead of using Android's default deletion handler**. The source also shows a persistent storage-unavailable state and disables new memo editing when a read fails; a retry control attempts only to reopen the same database. Neither action creates a replacement database, exports data, repairs corrupted pages, or guarantees successful recovery. Failure detection is limited to errors actually reported by SQLite; silent page-level damage or device failure may not be detected by this safeguard.
+
+An attested Android emulator instrumentation test corrupts **only a randomly named synthetic app-private database**, confirms that opening it fails, checks that its file contents were not automatically erased/replaced, and then deletes only that synthetic test database. The normal preview database is never corrupted or deleted by the test. The standard six SQLite behavior tests continue, plus this seventh fault-injection case; note that it does not cover every corruption mode, disk-full condition or an encrypted off-host restore drill.
+
+**If a real device reports storage damage:** stop editing; do not clear app data, reinstall, or remove the device's private database. The app has no supported export, backup or recovery procedure yet. Developer diagnosis must preserve evidence and privacy under the GoreeShield/Wardveil rules. Recovery design, consent and a verified restore test are separate open release gates.
+
 ## Build and test
 
 Use an Android SDK with platform 36, JDK 21 and Gradle 9.7.1 or the compatible installed distribution. From the repository root:

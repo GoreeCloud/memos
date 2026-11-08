@@ -3,6 +3,8 @@ package com.goreecloud.memos
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
+import android.database.DatabaseErrorHandler
+import android.database.sqlite.SQLiteDatabaseCorruptException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import java.util.UUID
@@ -21,11 +23,22 @@ private fun checkedMemoDatabaseName(name: String): String {
     return name
 }
 
+// Android's default corruption callback can delete the affected SQLite file.
+// This app has NO verified backup or restore path: preserve evidence and fail
+// closed instead. Never log paths, record content or secrets in this callback.
+private val preserveDamagedMemos = DatabaseErrorHandler {
+    throw SQLiteDatabaseCorruptException(
+        "Local memo storage is damaged. Automatic deletion is disabled; " +
+        "do not clear app data or reinstall."
+    )
+}
+
 class MemoStore(
     context: Context,
     databaseName: String = "goreecloud_memos_local_preview.sqlite3"
 ) : SQLiteOpenHelper(
-    context.applicationContext, checkedMemoDatabaseName(databaseName), null, 1
+    context.applicationContext, checkedMemoDatabaseName(databaseName), null, 1,
+    preserveDamagedMemos
 ) {
     override fun onConfigure(db: SQLiteDatabase) {
         super.onConfigure(db)

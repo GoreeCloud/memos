@@ -150,6 +150,32 @@ class MemoStoreInstrumentedTest {
         assertEquals(1, store.list().size)
     }
 
+    @Test fun sqliteCorruptionKeepsSyntheticDatabaseBytesForForensicRecovery() {
+        // The main preview DB is never touched by this synthetic-only fault injection.
+        val name = "memos_corrupt_" + java.util.UUID.randomUUID().toString()
+            .replace("-", "") + ".sqlite3"
+        val file = context.getDatabasePath(name)
+        require(file.parentFile?.mkdirs() == true || file.parentFile?.isDirectory == true)
+        val damaged = ByteArray(4096) { i -> (i % 211 + 17).toByte() }
+        file.writeBytes(damaged)
+        val victim = MemoStore(context, name)
+        try {
+            assertThrows(android.database.sqlite.SQLiteException::class.java) {
+                victim.list()
+            }
+            assertTrue("Damaged SQLite file must NOT be automatically deleted", file.isFile)
+            assertArrayEquals(
+                "Detected corruption must not silently replace damaged bytes",
+                damaged, file.readBytes()
+            )
+        } finally {
+            victim.close()
+            assertTrue("Delete only our unique corrupted test DB", context.deleteDatabase(name))
+        }
+        // The isolated test DB remains usable, and no default database was inspected.
+        assertEquals(1, create(content = "Synthetic unaffected note").version)
+    }
+
     @Test fun validationRejectsEmptyOversizedOrInvalidColorsWithoutWrites() {
         assertThrows(IllegalArgumentException::class.java) {
             create(title = "", content = "")
