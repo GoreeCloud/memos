@@ -70,6 +70,23 @@ class MemoStoreInstrumentedTest {
         }
     }
 
+    @Test fun syntheticEnvelopeRoundTripsWithActualAndroidCryptoProvider() {
+        // Under the @Before QEMU-only opt-in guard; no user notes or SAF access.
+        create("Synthetic Android cryptography self-test", "Fictional content")
+        val synthetic = "Fictional bytes only; no actual memo export"
+            .toByteArray(Charsets.UTF_8)
+        val passphrase = "synthetic Android-only passphrase for QA".toCharArray()
+        val envelope = BackupEnvelope.encrypt(synthetic, passphrase)
+        assertFalse(synthetic.contentEquals(envelope))
+        assertArrayEquals(synthetic, BackupEnvelope.decrypt(envelope, passphrase))
+        val changed = envelope.copyOf()
+        changed[changed.lastIndex] = (changed.last().toInt() xor 1).toByte()
+        assertThrows(java.security.GeneralSecurityException::class.java) {
+            BackupEnvelope.decrypt(changed, passphrase)
+        }
+        // No encrypted data was written to any URI or used to restore notes.
+    }
+
     @Test fun createsAndPersistsAcrossClosingAndReopeningDatabase() {
         val note = create("Offline", "Fictional text #privacy", "mint", pinned = true)
         assertEquals(1, note.version)
