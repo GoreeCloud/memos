@@ -170,7 +170,7 @@ private fun MemosHome(store: MemoStore, dark: Boolean) {
         title: String, body: String, color: String,
         pinned: Boolean, archived: Boolean
     ) {
-        if (saving) return
+        if (saving || storageProblem) return
         saving = true
         val source = editing
         scope.launch {
@@ -451,12 +451,12 @@ private fun MemosHome(store: MemoStore, dark: Boolean) {
     }
     if (editorOpen) {
         MemoEditor(
-            memo = editing, saving = saving, dark = dark,
+            memo = editing, saving = saving, storageBlocked = storageProblem, dark = dark,
             onDismiss = { if (!saving) editorOpen = false },
             onSave = ::saveEditor,
             onDuplicate = {
                 val source = editing ?: return@MemoEditor
-                if (!saving) {
+                if (!saving && !storageProblem) {
                     saving = true
                     scope.launch {
                         try {
@@ -465,14 +465,18 @@ private fun MemosHome(store: MemoStore, dark: Boolean) {
                             refresh()
                             message("Memo duplicated locally")
                         } catch (e: Exception) {
-                            message("Duplicate failed: " + (e.message ?: "Unknown error"))
+                            if (e is SQLiteException) {
+                                storageProblem = true
+                                notes = emptyList()
+                                message("Local storage unavailable. Do not clear app data or uninstall.")
+                            } else message("Duplicate failed: " + (e.message ?: "Unknown error"))
                         } finally { saving = false }
                     }
                 }
             },
             onTrash = {
                 val source = editing ?: return@MemoEditor
-                if (!saving) {
+                if (!saving && !storageProblem) {
                     saving = true
                     scope.launch {
                         try {
@@ -484,7 +488,11 @@ private fun MemosHome(store: MemoStore, dark: Boolean) {
                             refresh()
                             message(if (source.deleted) "Memo restored" else "Moved to Trash")
                         } catch (e: Exception) {
-                            message("Unable to update memo: " + (e.message ?: "Unknown error"))
+                            if (e is SQLiteException) {
+                                storageProblem = true
+                                notes = emptyList()
+                                message("Local storage unavailable. Do not clear app data or uninstall.")
+                            } else message("Unable to update memo: " + (e.message ?: "Unknown error"))
                         } finally { saving = false }
                     }
                 }
@@ -655,7 +663,7 @@ private fun MemoCard(memo: Memo, dark: Boolean, onClick: () -> Unit) {
 
 @Composable
 private fun MemoEditor(
-    memo: Memo?, saving: Boolean, dark: Boolean,
+    memo: Memo?, saving: Boolean, storageBlocked: Boolean, dark: Boolean,
     onDismiss: () -> Unit,
     onSave: (String, String, String, Boolean, Boolean) -> Unit,
     onDuplicate: () -> Unit, onTrash: () -> Unit,
@@ -742,18 +750,23 @@ private fun MemoEditor(
                     if (memo != null && !memo.deleted) {
                         TextButton(onClick = {
                             if (dirty) confirmDuplicate = true else onDuplicate()
-                        }, enabled = !saving) { Text("Duplicate") }
+                        }, enabled = !saving && !storageBlocked) { Text("Duplicate") }
                     }
                     if (memo != null) {
-                        TextButton(onClick = { confirmTrash = true }, enabled = !saving) {
+                        TextButton(onClick = { confirmTrash = true }, enabled = !saving && !storageBlocked) {
                             Text(if (memo.deleted) "Restore" else "Trash")
                         }
                     }
                     Spacer(Modifier.weight(1f))
                     Button(
-                        enabled = !saving && (title.isNotBlank() || content.isNotBlank()),
+                        enabled = !saving && !storageBlocked && (title.isNotBlank() || content.isNotBlank()),
                         onClick = { onSave(title, content, color, pinned, archived) }
                     ) { Text(if (saving) "Saving…" else "Save memo") }
+                }
+                if (storageBlocked) {
+                    Text("Storage unavailable — saving is disabled. Do not clear app data.",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.error)
                 }
                 Text("Private local preview · no sync or backup",
                     style = MaterialTheme.typography.labelSmall,
