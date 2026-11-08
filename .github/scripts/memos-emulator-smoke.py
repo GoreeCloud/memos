@@ -18,7 +18,6 @@ SERIAL = "emulator-5554"
 PACKAGE = "com.goreecloud.memos"
 FAKE_MEMO = "GoreeCloudSyntheticSmokeMemo42"
 OUT = Path("android-emulator-qa")
-OUT.mkdir(exist_ok=True)
 APK = Path("clients/android/app/build/outputs/apk/debug/app-debug.apk")
 
 if (os.environ.get("GITHUB_ACTIONS") != "true" or
@@ -27,6 +26,7 @@ if (os.environ.get("GITHUB_ACTIONS") != "true" or
     raise SystemExit("Refusing emulator mutation outside explicit GitHub Actions QA")
 if not APK.is_file():
     raise SystemExit("Compiled disposable APK is absent")
+OUT.mkdir(exist_ok=True)
 ADB = shutil.which("adb") or str(Path(os.environ["ANDROID_HOME"]) / "platform-tools/adb")
 if not Path(ADB).is_file():
     raise SystemExit("ADB binary not found")
