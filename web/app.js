@@ -3,23 +3,53 @@
   "use strict";
   const el = id => document.getElementById(id);
   const state = {token:"",folder:"active",tag:"",q:"",memos:[],editing:null,
-    layout:localStorage.getItem("gcmemos-layout")==="list"?"list":"masonry",pinnedCollapsed:localStorage.getItem("gcmemos-pin-collapsed")==="true",request:0,personalView:false,dateFilter:null,calendarCursor:new Date(new Date().getFullYear(),new Date().getMonth(),1),allTags:false,allActivity:false,promotedQuick:false};
+    layout:localStorage.getItem("gcmemos-layout")==="list"?"list":"masonry",pinnedCollapsed:localStorage.getItem("gcmemos-pin-collapsed")==="true",request:0,personalView:false,dateFilter:null,calendarCursor:new Date(new Date().getFullYear(),new Date().getMonth(),1),allTags:false,allActivity:false,promotedQuick:false,epoch:0,authAttempt:0};
   const folders={active:"All memos",pinned:"Pinned memos",archive:"Archive",trash:"Trash"};
   document.documentElement.dataset.mode=localStorage.getItem("gcmemos-mode")==="dark"?"dark":"light";
   function make(tag,css,text){const v=document.createElement(tag);if(css)v.className=css;if(text!==undefined)v.textContent=text;return v;}
   let tTimer,activeFeedController=null,pendingSkeletonTimer=null;
   function toast(message){const v=el("toast");v.textContent=message;v.classList.add("visible");clearTimeout(tTimer);tTimer=setTimeout(()=>v.classList.remove("visible"),2800);}
+  // Lock is a privacy boundary for ALL protected requests, not just the feed.
+  // A generation check is also required because a response can win the race
+  // with AbortController.abort(), or a test transport may ignore abort.
+  const activeRequests=new Set();
+  function lockedResponse(){const error=new Error("Workspace locked");error.locked=true;return error;}
   async function api(path,opt={}){
-    const headers={Authorization:"Bearer "+state.token};
+    const epoch=state.epoch,token=state.token;
+    const headers={Authorization:"Bearer "+token};
     if(opt.body!==undefined)headers["Content-Type"]="application/json";
-    // Bearer credentials stay on this origin and never follow HTTP redirects.
-    // Explicitly override caller options to protect future API call sites.
-    const res=await fetch(path,{...opt,headers:{...headers,...(opt.headers||{})},
-      cache:"no-store",credentials:"omit",mode:"same-origin",redirect:"error",
-      referrerPolicy:"no-referrer"});
-    let data;try{data=await res.json();}catch{data={};}
-    if(!res.ok){const err=new Error(data.error||"Request failed");err.status=res.status;err.current=data.current;throw err;}
-    return data;
+    const parentSignal=opt.signal;
+    const controller=typeof AbortController==="function"?new AbortController():null;
+    const relayAbort=()=>controller?.abort(parentSignal?.reason);
+    if(controller){
+      activeRequests.add(controller);
+      if(parentSignal?.aborted)relayAbort();
+      else parentSignal?.addEventListener?.("abort",relayAbort,{once:true});
+    }
+    try{
+      // Credentials stay on this origin and never follow HTTP redirects.
+      // Authentication and Content-Type cannot be replaced by caller options.
+      const res=await fetch(path,{...opt,signal:controller?.signal??parentSignal,
+        headers:{...(opt.headers||{}),...headers},cache:"no-store",
+        credentials:"omit",mode:"same-origin",redirect:"error",referrerPolicy:"no-referrer"});
+      let data;
+      try{data=await res.json();}
+      catch(err){
+        // A 200 response with an invalid body must never become a purported
+        // successful export or write. Error bodies may be plain text.
+        if(res.ok)throw new Error("Invalid JSON response");
+        data={};
+      }
+      if(epoch!==state.epoch||token!==state.token)throw lockedResponse();
+      if(!res.ok){const err=new Error(data.error||"Request failed");err.status=res.status;err.current=data.current;throw err;}
+      return data;
+    }catch(err){
+      if(epoch!==state.epoch||token!==state.token)throw lockedResponse();
+      throw err;
+    }finally{
+      if(controller)activeRequests.delete(controller);
+      parentSignal?.removeEventListener?.("abort",relayAbort);
+    }
   }
   const key=id=>"gcmemos:draft:"+(id||"new");
   let previewActive=false;
@@ -46,7 +76,7 @@
     el("previewMode").setAttribute("aria-pressed",String(value));
     if(value) renderPreview();
   }
-  function fail(err){if(err.status===401)lockWorkspace();toast(err.message||"Request failed");}
+  function fail(err){if(err?.locked)return;if(err.status===401)lockWorkspace();toast(err.message||"Request failed");}
   function layout(type){
     state.layout=type;localStorage.setItem("gcmemos-layout",type);
     ["notesGrid","pinnedGrid","feedSkeleton"].forEach(id=>el(id).classList.toggle("list",type==="list"));
@@ -80,7 +110,7 @@
     if(Number.isNaN(d.getTime()))return "";
     return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
   }
-  function notAvailable(feature){toast("Not available yet — "+feature);}
+  function notAvailable(feature){setUtilityOpen(false);toast("Not available yet — "+feature);}
   function renderCalendar(){
     const cursor=state.calendarCursor,year=cursor.getFullYear(),month=cursor.getMonth();
     el("calendarMonth").textContent=new Intl.DateTimeFormat(undefined,{month:"short",year:"numeric"}).format(cursor);
@@ -329,6 +359,11 @@
     // A lock forgets the bearer token and removes displayed memo text from
     // the DOM. Incrementing the request id invalidates in-flight feed results.
     ++state.request;
+    ++state.epoch;
+    ++state.authAttempt;
+    for(const controller of activeRequests)controller.abort("locked");
+    activeRequests.clear();
+    clearTimeout(tTimer);el("toast").textContent="";el("toast").classList.remove("visible");
     activeFeedController?.abort("locked");
     activeFeedController=null;
     clearTimeout(pendingSkeletonTimer);
@@ -357,8 +392,10 @@
     el("count").textContent="";
     el("accessToken").value="";
     el("authError").textContent="";
+    setUtilityOpen(false);
     el("shell").hidden=true;
     el("authScreen").hidden=false;
+    el("accessToken").focus();
     // Deliberately preserve unsaved sessionStorage drafts: the separate
     // Clear drafts control handles destructive draft deletion by confirmation.
   }
@@ -392,9 +429,22 @@
     }catch(err){if(err.status===409)toast("Memo changed elsewhere. Copy your draft before refreshing.");else fail(err);}
   }
   el("authForm").addEventListener("submit",async e=>{
-    e.preventDefault();state.token=el("accessToken").value.trim();
-    try{await api("/api/v1/memos?folder=active");el("authScreen").hidden=true;el("shell").hidden=false;el("accessToken").value="";el("quickContent").value=sessionStorage.getItem("gcmemos:quick")||"";await load();}
-    catch(err){el("authError").textContent=err.message;state.token="";}
+    e.preventDefault();
+    const attempt=++state.authAttempt;
+    const token=el("accessToken").value.trim();
+    state.token=token;
+    try{
+      await api("/api/v1/memos?folder=active");
+      if(attempt!==state.authAttempt)return;
+      el("authScreen").hidden=true;el("shell").hidden=false;
+      el("accessToken").value="";
+      el("quickContent").value=sessionStorage.getItem("gcmemos:quick")||"";
+      await load();
+    }catch(err){
+      // An old login must not clear a newer token or reopen a locked shell.
+      if(attempt!==state.authAttempt||err?.locked)return;
+      el("authError").textContent=err.message;state.token="";
+    }
   });
   el("revisionPanel").addEventListener("toggle",()=>{
     if(el("revisionPanel").open&&state.editing)loadRevisions(state.editing);
@@ -430,13 +480,16 @@
   document.querySelectorAll("[data-folder]").forEach(b=>b.addEventListener("click",()=>{state.folder=b.dataset.folder;state.personalView=false;state.tag="";state.q="";state.dateFilter=null;el("search").value="";load();}));
   let sTimer;el("search").addEventListener("input",()=>{clearTimeout(sTimer);sTimer=setTimeout(()=>{state.q=el("search").value.trim();load();},180);});
   el("masonryBtn").onclick=()=>layout("masonry");el("listBtn").onclick=()=>layout("list");layout(state.layout);
-  el("themeBtn").onclick=()=>{const next=document.documentElement.dataset.mode==="dark"?"light":"dark";document.documentElement.dataset.mode=next;localStorage.setItem("gcmemos-mode",next);};
+  el("themeBtn").onclick=()=>{const next=document.documentElement.dataset.mode==="dark"?"light":"dark";document.documentElement.dataset.mode=next;localStorage.setItem("gcmemos-mode",next);setUtilityOpen(false);};
   el("exportBtn").onclick=async()=>{
     if(!window.confirm("Export ALL memos, including archived and trashed notes, "+
       "and their full text revision history as an UNENCRYPTED JSON download? "+
       "The browser download location may be accessible to other users or "+
       "backup services. Protect or encrypt the file before sharing it."))return;
-    try{const result=await api("/api/v1/export"),blob=new Blob([JSON.stringify(result,null,2)],{type:"application/json"});
+    try{const result=await api("/api/v1/export");
+      if(result?.format!=="goreecloud-memos-v2"||!Array.isArray(result.memos)||!Array.isArray(result.revisions))
+        throw new Error("Invalid export format");
+      const blob=new Blob([JSON.stringify(result,null,2)],{type:"application/json"});
       const url=URL.createObjectURL(blob),a=make("a");a.href=url;a.download="goreecloud-memos-export.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("Export downloaded");
     }catch(err){fail(err);}
   };
@@ -445,7 +498,21 @@
   document.querySelectorAll("[data-feature]").forEach(b=>b.addEventListener("click",()=>notAvailable(b.dataset.feature)));
   for(const id of ["notificationsBtn","collaboratorsBtn","profileBtn"])
     el(id).addEventListener("click",()=>notAvailable(id==="notificationsBtn"?"Notifications":id==="collaboratorsBtn"?"Collaboration":"User profiles"));
-  el("utilityMenuBtn").onclick=()=>{const area=el("headerUtilities");const open=area.classList.toggle("open");el("utilityMenuBtn").setAttribute("aria-expanded",String(open));};
+  let utilityOpen=false;
+  function setUtilityOpen(open){
+    utilityOpen=Boolean(open);
+    el("headerUtilities").classList.toggle("open",utilityOpen);
+    el("utilityMenuBtn").setAttribute("aria-expanded",String(utilityOpen));
+  }
+  el("utilityMenuBtn").onclick=()=>{
+    setUtilityOpen(!utilityOpen);
+    if(utilityOpen)el("themeBtn").focus();
+  };
+  document.addEventListener("click",event=>{
+    if(!utilityOpen)return;
+    if(event.target===el("headerUtilities")||(event.target!==el("utilityMenuBtn")&&!el("headerUtilities").contains(event.target)))
+      setUtilityOpen(false);
+  });
   el("quickCaptureNav").onclick=()=>{el("quickCapture").scrollIntoView({behavior:"smooth",block:"center"});el("quickContent").focus();};
   el("timelineNav").onclick=()=>{el("notesSection").scrollIntoView({behavior:"smooth",block:"start"});};
   el("tagsNav").onclick=()=>{el("trendingTags").scrollIntoView({behavior:"smooth",block:"center"});};
@@ -474,6 +541,7 @@
   el("filterPinned").onclick=()=>activateFolder(state.folder==="pinned"?"active":"pinned");
   el("filterPrivate").onclick=()=>{activateFolder("active");toast("All notes in this workspace are private");};
   document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"&&utilityOpen){setUtilityOpen(false);el("utilityMenuBtn").focus();return;}
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();if(!el("shell").hidden)el("search").focus();}
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="n"){e.preventDefault();if(!el("shell").hidden)open();}
   });

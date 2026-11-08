@@ -124,7 +124,7 @@ dialog{width:min(92vw,680px);max-height:91vh;border:1px solid var(--gc-outline);
   .header-utilities.open .utility-button{display:flex!important;align-items:center;gap:8px;width:100%;min-height:42px;text-align:left}
   .header-utilities.open .desktop-only{display:inline}
 }
-@media(max-width:700px){.header-utilities{top:53px}}
+@media(max-width:700px){.header-utilities{top:calc(100% - 1px)}}
 
 /* Prevent the compact quick-capture row from widening 320px viewports. */
 .capture-main textarea{min-width:0;flex:1 1 42px}
