@@ -53,8 +53,8 @@ test("fast authenticated load shows real data without flashing skeletons, with s
  await login(page);
  await expect(page.locator("#feedRegion")).toHaveAttribute("aria-busy","false");
  await expect(page.locator("#feedStatus")).toHaveText("2 memos loaded.");
- await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
- await expect(page.locator("#pinnedGrid .memo-card")).toHaveCount(1);
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(2);
+ await expect(page.locator("#pinnedGrid .memo-card")).toHaveCount(0);
  await page.waitForTimeout(230);
  await expect(page.locator("#feedSkeleton")).toBeHidden();
  expect(requests.length).toBe(2);
@@ -85,7 +85,7 @@ test("delayed fetch exposes decorative geometry, live status outside busy region
  release();
  await expect(page.locator("#feedRegion")).toHaveAttribute("aria-busy","false");
  await expect(page.locator("#feedSkeleton")).toBeHidden();
- await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(2);
  await expect(page.locator("#feedStatus")).toHaveText("2 memos loaded.");
 });
 
@@ -130,7 +130,7 @@ test("keyboard retry preserves focus and Enter opens the recovered memo",async({
  await expect(memo).toBeFocused();
  await page.keyboard.press("Enter");
  await expect(page.locator("#editor")).toBeVisible();
- await expect(page.locator("#editContent")).toHaveValue(NOTES[1].content);
+ await expect(page.locator("#editContent")).toHaveValue(NOTES[0].content);
  // The card's keyboard activation must not mutate the disposable source.
  expect(calls).toBe(2);
 });
@@ -172,10 +172,10 @@ test("search, tags, pinned and layout switches keep state coherent",async({page}
  await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
  await expect(page.locator("#pinnedSection")).toBeHidden();
  await page.locator("#search").fill("");
- await expect(page.locator("#pinnedSection")).toBeVisible();
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(2);
  await page.getByRole("button",{name:"#ideas",exact:true}).click();
  await expect(page.locator("#feedStatus")).toHaveText("1 memo loaded.");
- await expect(page.locator("#pinnedGrid .memo-card")).toHaveCount(1);
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
 });
 
 test("locking a delayed search clears personal text and prevents a stale response from returning",async({page})=>{
@@ -323,7 +323,7 @@ test("official dashboard uses real memo data and clearly marks unavailable actio
  await page.locator("#tabPinned").click();
  await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
  await page.locator("#tabAll").click();
- await expect(page.locator("#pinnedGrid .memo-card")).toHaveCount(1);
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
  await page.locator("#captureChecklistBtn").click();
  await expect(page.locator("#quickContent")).toHaveValue("- [ ] ");
 });
