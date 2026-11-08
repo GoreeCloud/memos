@@ -75,7 +75,7 @@ internal object MemoSnapshotCodec {
         var total = FIXED_BYTES
         snapshot.memos.forEach { memo ->
             require(idPattern.matches(memo.id)) { "Snapshot memo ID is invalid" }
-            require(previousId == null || previousId!! < memo.id) {
+            require(previousId == null || previousId < memo.id) {
                 "Snapshot memo IDs must be unique and sorted"
             }
             previousId = memo.id
