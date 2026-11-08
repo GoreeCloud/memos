@@ -145,11 +145,13 @@ command("install", "-r", str(APK), timeout=120)
 if not TEST_APK.is_file():
     raise SystemExit("Compiled Android instrumented test APK is missing")
 command("install", "-r", str(TEST_APK), timeout=120)
-# Only a freshly attested disposable QEMU target reaches this destructive
-# synthetic-DB test. Never run this against a real phone or existing notes.
+# Only an attested disposable QEMU target may run the opt-in instrumentation.
+# Test cases now create and remove uniquely named synthetic app-private DBs;
+# the app's default notes database is never inspected or deleted.
 ensure_only_emulator()
 test_result = command(
     "shell", "am", "instrument", "-w", "-r",
+    "-e", "goreecloudDisposable", "1",
     PACKAGE + ".test/androidx.test.runner.AndroidJUnitRunner",
     timeout=260
 )
