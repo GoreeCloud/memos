@@ -441,6 +441,7 @@
   document.querySelectorAll("[data-feature]").forEach(b=>b.addEventListener("click",()=>notAvailable(b.dataset.feature)));
   for(const id of ["notificationsBtn","collaboratorsBtn","profileBtn"])
     el(id).addEventListener("click",()=>notAvailable(id==="notificationsBtn"?"Notifications":id==="collaboratorsBtn"?"Collaboration":"User profiles"));
+  el("utilityMenuBtn").onclick=()=>{const area=el("headerUtilities");const open=area.classList.toggle("open");el("utilityMenuBtn").setAttribute("aria-expanded",String(open));};
   el("quickCaptureNav").onclick=()=>{el("quickCapture").scrollIntoView({behavior:"smooth",block:"center"});el("quickContent").focus();};
   el("timelineNav").onclick=()=>{el("notesSection").scrollIntoView({behavior:"smooth",block:"start"});};
   el("tagsNav").onclick=()=>{el("trendingTags").scrollIntoView({behavior:"smooth",block:"center"});};
@@ -451,7 +452,7 @@
   };
   el("captureChecklistBtn").onclick=()=>{
     const input=el("quickContent"),at=input.selectionStart??input.value.length;
-    const prefix=at&&input.value[at-1]!=="\\n"?"\\n":"";
+    const prefix=at&&input.value[at-1]!=="\n"?"\n":"";
     const addition=prefix+"- [ ] ";
     input.value=input.value.slice(0,at)+addition+input.value.slice(at);
     sessionStorage.setItem("gcmemos:quick",input.value);
