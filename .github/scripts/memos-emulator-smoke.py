@@ -19,6 +19,7 @@ PACKAGE = "com.goreecloud.memos"
 FAKE_MEMO = "GoreeCloudSyntheticSmokeMemo42"
 OUT = Path("android-emulator-qa")
 APK = Path("clients/android/app/build/outputs/apk/debug/app-debug.apk")
+TEST_APK = Path("clients/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk")
 
 if (os.environ.get("GITHUB_ACTIONS") != "true" or
         os.environ.get("CI") != "true" or
@@ -141,6 +142,22 @@ command("shell", "wm", "density", "160")
 if "package:" + PACKAGE in command("shell", "pm", "list", "packages", "-3"):
     raise SystemExit("BLOCK: Memos already installed in supposedly fresh AVD")
 command("install", "-r", str(APK), timeout=120)
+if not TEST_APK.is_file():
+    raise SystemExit("Compiled Android instrumented test APK is missing")
+command("install", "-r", str(TEST_APK), timeout=120)
+# Only a freshly attested disposable QEMU target reaches this destructive
+# synthetic-DB test. Never run this against a real phone or existing notes.
+ensure_only_emulator()
+test_result = command(
+    "shell", "am", "instrument", "-w", "-r",
+    PACKAGE + ".test/androidx.test.runner.AndroidJUnitRunner",
+    timeout=260
+)
+(OUT / "sqlite-instrumentation.txt").write_text(test_result + "\n", encoding="utf-8")
+if not re.search(r"OK \\(6 tests?\\)", test_result) or "FAILURES!!!" in test_result:
+    raise AssertionError("Native SQLite instrumented tests did not all pass: " +
+                         test_result[-1200:])
+print("PASS: six on-device SQLite history, stale-edit, duplicate and trash tests")
 start_and_check()
 screenshot("phone-empty-390.png", (390, 844))
 tap("More")
