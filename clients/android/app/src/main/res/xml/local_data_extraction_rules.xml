@@ -9,8 +9,5 @@
         <exclude domain="root" path="."/>
         <exclude domain="database" path="."/>
     </device-transfer>
-    <cross-platform-transfer>
-        <exclude domain="root" path="."/>
-        <exclude domain="database" path="."/>
-    </cross-platform-transfer>
+    <!-- No cross-platform transfer opt-in; there is no iOS counterpart. -->
 </data-extraction-rules>
