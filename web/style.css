@@ -125,3 +125,7 @@ dialog{width:min(92vw,680px);max-height:91vh;border:1px solid var(--gc-outline);
   .header-utilities.open .desktop-only{display:inline}
 }
 @media(max-width:700px){.header-utilities{top:53px}}
+
+/* Prevent the compact quick-capture row from widening 320px viewports. */
+.capture-main textarea{min-width:0;flex:1 1 42px}
+@media(max-width:420px){.capture-main{gap:3px}.capture-actions{gap:0}.capture-actions .tool-icon{min-width:24px}.capture-main .capture-add{min-width:29px;padding-inline:3px}}
