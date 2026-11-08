@@ -59,7 +59,7 @@ for kind in ("activity", "activity-alias", "service", "receiver", "provider"):
     for attributes in attrs_for(kind):
         match = re.search(r'android:name.*?="([^"]+)"', attributes)
         if match:
-            exported = re.search(r'android:exported.*?0x([0-9a-f]+)', attributes)
+            exported = re.search(r'android:exported[^\n]*=\(type 0x[0-9a-f]+\)0x([0-9a-f]+)', attributes)
             components.append((kind, match.group(1),
                                bool(int(exported.group(1), 16)) if exported else False))
 
@@ -91,7 +91,7 @@ app = attrs_for("application")
 if len(app) != 1:
     raise SystemExit("Expected exactly one application element")
 for attribute in ("allowBackup", "fullBackupContent", "usesCleartextTraffic"):
-    if not re.search(r"android:" + attribute + r".*0x0\b", app[0]):
+    if not re.search(r"android:" + attribute + r"[^\n]*=\(type 0x[0-9a-f]+\)0x0\b", app[0]):
         raise SystemExit("Unsafe merged application flag: " + attribute)
 if "android:dataExtractionRules" not in app[0]:
     raise SystemExit("Missing Android 12+ extraction rules")
