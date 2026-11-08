@@ -46,6 +46,21 @@ class MemoStore(
     }
 
     override fun onCreate(db: SQLiteDatabase) {
+        // SQLiteOpenHelper invokes onCreate whenever user_version is zero, even
+        // if the file already contains a legacy/unrecognized schema. Never
+        // silently turn such a file into an empty Memos notebook.
+        db.rawQuery(
+            "SELECT name FROM sqlite_master WHERE type='table' " +
+            "AND name NOT LIKE 'sqlite_%' AND name != 'android_metadata' LIMIT 1",
+            null
+        ).use { existing ->
+            if (existing.moveToFirst()) {
+                throw android.database.sqlite.SQLiteException(
+                    "Existing local database schema is not recognized. " +
+                    "Automatic initialization is disabled; do not clear app data."
+                )
+            }
+        }
         db.execSQL("""
             CREATE TABLE memos (
                 id TEXT PRIMARY KEY NOT NULL,
@@ -77,6 +92,14 @@ class MemoStore(
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         // Never use destructive DROP/RECREATE migrations for notes.
         throw IllegalStateException("No reviewed local Memos database migration for schema " + oldVersion)
+    }
+
+    override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        // Opening a newer database with older app code must never rewrite it.
+        throw android.database.sqlite.SQLiteException(
+            "This local memo database uses a newer schema. " +
+            "Automatic downgrade is disabled; do not clear app data."
+        )
     }
 
     private fun fromCursor(row: Cursor): Memo = Memo(
