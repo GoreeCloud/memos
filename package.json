@@ -2,6 +2,7 @@
   "name": "goreecloud-memos-development-tests",
   "version": "0.0.0",
   "private": true,
+  "license": "Apache-2.0",
   "description": "Development-only browser acceptance tests; not shipped with the Python service",
   "scripts": {
     "test:browser": "playwright test"
