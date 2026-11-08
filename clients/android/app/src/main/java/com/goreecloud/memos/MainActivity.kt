@@ -25,7 +25,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.ImeAction
@@ -99,6 +99,7 @@ private object GcColors {
 @Composable
 private fun MemosHome(store: MemoStore, dark: Boolean) {
     val scope = rememberCoroutineScope()
+    val currentLocale = LocalLocale.current.platformLocale
     val snackbar = remember { SnackbarHostState() }
     var notes by remember { mutableStateOf<List<Memo>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
@@ -348,7 +349,7 @@ private fun MemosHome(store: MemoStore, dark: Boolean) {
                                     )
                                     Spacer(Modifier.width(8.dp))
                                     Text(
-                                        day.format(DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.getDefault())) +
+                                        day.format(DateTimeFormatter.ofPattern("MMM d, yyyy", currentLocale)) +
                                             " · " + itemsForDay.size + " notes",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -546,6 +547,7 @@ private fun InsightsPanel(notes: List<Memo>, onUnavailable: (String) -> Unit) {
 
 @Composable
 private fun MemoCard(memo: Memo, dark: Boolean, onClick: () -> Unit) {
+    val currentLocale = LocalLocale.current.platformLocale
     Card(
         onClick = onClick, modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = GcColors.paper(memo.color, dark)),
@@ -578,7 +580,7 @@ private fun MemoCard(memo: Memo, dark: Boolean, onClick: () -> Unit) {
             Spacer(Modifier.height(12.dp))
             Text(
                 "Updated " + MemoLogic.localDate(memo.updatedAt)
-                    .format(DateTimeFormatter.ofPattern("MMM d", Locale.getDefault())) +
+                    .format(DateTimeFormatter.ofPattern("MMM d", currentLocale)) +
                     " · v" + memo.version,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
