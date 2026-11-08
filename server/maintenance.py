@@ -14,6 +14,30 @@ REQUIRED = {"memos", "revisions"}
 EXPECTED_MEMO_COLUMNS = {"id", "title", "content", "color", "pinned", "archived",
                          "deleted", "created_at", "updated_at", "version"}
 EXPECTED_REVISION_COLUMNS = {"memo_id", "version", "title", "content", "saved_at"}
+# (SQLite declared type, explicit NOT NULL): id is TEXT PRIMARY KEY in the
+# canonical schema, which SQLite reports with notnull=0. All other fields
+# are explicitly NOT NULL in the current development schema.
+MEMO_COLUMN_CONTRACT = {
+    "id": ("TEXT", False),
+    "title": ("TEXT", True), "content": ("TEXT", True),
+    "color": ("TEXT", True), "pinned": ("INTEGER", True),
+    "archived": ("INTEGER", True), "deleted": ("INTEGER", True),
+    "created_at": ("TEXT", True), "updated_at": ("TEXT", True),
+    "version": ("INTEGER", True),
+}
+REVISION_COLUMN_CONTRACT = {
+    "memo_id": ("TEXT", True), "version": ("INTEGER", True),
+    "title": ("TEXT", True), "content": ("TEXT", True),
+    "saved_at": ("TEXT", True),
+}
+
+
+def _check_column_contract(info, expected, table):
+    by_name = {row[1]: row for row in info}
+    for name, (data_type, required) in expected.items():
+        column = by_name[name]
+        if column[2].upper() != data_type or bool(column[3]) != required:
+            raise ValueError("Unexpected " + table + " column constraints")
 
 
 def verify_database(path):
@@ -38,6 +62,7 @@ def verify_database(path):
         columns = {row[1] for row in memo_info}
         if not EXPECTED_MEMO_COLUMNS.issubset(columns):
             raise ValueError("Unexpected memos table schema")
+        _check_column_contract(memo_info, MEMO_COLUMN_CONTRACT, "memos")
         # The revision-history completeness proof assumes uniqueness at each
         # memo/version pair. Column-name checks alone cannot verify this.
         memo_key = {row[1]: row[5] for row in memo_info if row[5]}
@@ -47,6 +72,7 @@ def verify_database(path):
         revision_columns = {row[1] for row in revision_info}
         if not EXPECTED_REVISION_COLUMNS.issubset(revision_columns):
             raise ValueError("Unexpected revisions table schema")
+        _check_column_contract(revision_info, REVISION_COLUMN_CONTRACT, "revisions")
         revision_key = {row[1]: row[5] for row in revision_info if row[5]}
         if revision_key != {"memo_id": 1, "version": 2}:
             raise ValueError("Unexpected revisions primary key")
