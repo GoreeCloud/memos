@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- LOCAL-ONLY preview: no INTERNET, location, camera, microphone,
          contacts, notification, or external storage permissions. -->
     <application
@@ -11,6 +12,11 @@
         android:icon="@drawable/ic_memos"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <!-- AndroidX's profile installer has a DUMP-protected exported
+             broadcast receiver. This local preview has no need to expose it. -->
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            tools:node="remove" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
