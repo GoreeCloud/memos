@@ -16,7 +16,8 @@
              broadcast receiver. This local preview has no need to expose it. -->
         <receiver
             android:name="androidx.profileinstaller.ProfileInstallReceiver"
-            tools:node="remove" />
+            tools:node="remove"
+            tools:ignore="MissingClass" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
