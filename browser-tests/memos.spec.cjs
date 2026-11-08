@@ -305,3 +305,38 @@ test("320px, forced colors, dark and reduced motion keep static placeholders rea
  release();
  await expect(page.locator("#feedSkeleton")).toBeHidden();
 });
+
+test("official dashboard uses real memo data and clearly marks unavailable actions",async({page})=>{
+ setup(page,route=>json(route,NOTES));
+ await login(page);
+ await expect(page.locator(".header-brand")).toContainText("GoreeCloud Memos");
+ await expect(page.locator("#calendarDays button").first()).toBeVisible();
+ expect(await page.locator("#calendarDays button").count()).toBeGreaterThanOrEqual(28);
+ await expect(page.locator("#trendingTags .trending-tag")).toContainText(["#ideas 1"]);
+ await expect(page.locator("#recentNotes .recent-row")).toHaveCount(2);
+ await expect(page.locator(".timeline-group")).toHaveCount(1);
+ const previous=await page.locator("#calendarMonth").innerText();
+ await page.locator("#calendarNext").click();
+ await expect(page.locator("#calendarMonth")).not.toHaveText(previous);
+ await page.locator('[data-feature="Reminders"]').first().click();
+ await expect(page.locator("#toast")).toContainText("Not available yet");
+ await page.locator("#tabPinned").click();
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ await page.locator("#tabAll").click();
+ await expect(page.locator("#pinnedGrid .memo-card")).toHaveCount(1);
+ await page.locator("#captureChecklistBtn").click();
+ await expect(page.locator("#quickContent")).toHaveValue("- [ ] ");
+});
+test("compact dashboard keeps lock reachable and removes visible private content",async({page})=>{
+ await page.setViewportSize({width:320,height:700});
+ setup(page,route=>json(route,NOTES));
+ await login(page);
+ await expect(page.locator("#utilityMenuBtn")).toBeVisible();
+ await page.locator("#utilityMenuBtn").click();
+ await expect(page.locator("#lockWorkspaceBtn")).toBeVisible();
+ await page.locator("#lockWorkspaceBtn").click();
+ await expect(page.locator("#authScreen")).toBeVisible();
+ await expect(page.locator("#shell")).toBeHidden();
+ await expect(page.locator("#recentNotes .recent-row")).toHaveCount(0);
+ await expect(page.locator("#trendingTags .trending-tag")).toHaveCount(0);
+});
