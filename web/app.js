@@ -8,6 +8,7 @@
   document.documentElement.dataset.mode=localStorage.getItem("gcmemos-mode")==="dark"?"dark":"light";
   function make(tag,css,text){const v=document.createElement(tag);if(css)v.className=css;if(text!==undefined)v.textContent=text;return v;}
   let tTimer,activeFeedController=null,pendingSkeletonTimer=null;
+  let editorSaving=false,quickSaving=false,editorSaveAttempt=0,quickSaveAttempt=0;
   function toast(message){const v=el("toast");v.textContent=message;v.classList.add("visible");clearTimeout(tTimer);tTimer=setTimeout(()=>v.classList.remove("visible"),2800);}
   // Lock is a privacy boundary for ALL protected requests, not just the feed.
   // A generation check is also required because a response can win the race
@@ -383,6 +384,11 @@
     ++state.request;
     ++state.epoch;
     ++state.authAttempt;
+    ++editorSaveAttempt;++quickSaveAttempt;
+    editorSaving=false;quickSaving=false;
+    el("saveBtn").disabled=false;el("quickSave").disabled=false;
+    el("saveBtn").setAttribute("aria-busy","false");
+    el("quickSave").setAttribute("aria-label","Save quick memo");
     for(const controller of activeRequests)controller.abort("locked");
     activeRequests.clear();
     clearTimeout(tTimer);el("toast").textContent="";el("toast").classList.remove("visible");
@@ -443,12 +449,34 @@
     toast("Unsaved drafts cleared from this tab");
   }
   async function save(){
-    const memo=state.editing,body={title:el("editTitle").value,content:el("editContent").value,color:el("editColor").value,pinned:el("editPin").checked,archived:el("editArchive").checked};
+    if(editorSaving)return;
+    const memo=state.editing;
+    const body={title:el("editTitle").value,content:el("editContent").value,
+      color:el("editColor").value,pinned:el("editPin").checked,archived:el("editArchive").checked};
+    const attempt=++editorSaveAttempt;
+    editorSaving=true;
+    el("saveBtn").disabled=true;
+    el("saveBtn").setAttribute("aria-busy","true");
     try{
       if(memo)await api("/api/v1/memos/"+memo.id,{method:"PATCH",body:JSON.stringify({...body,version:memo.version})});
       else await api("/api/v1/memos",{method:"POST",body:JSON.stringify(body)});
-      clearDraft();if(!memo&&state.promotedQuick){el("quickContent").value="";sessionStorage.removeItem("gcmemos:quick");}state.promotedQuick=false;el("editor").close();toast(memo?"Memo updated":"Memo created");await load();
-    }catch(err){if(err.status===409)toast("Memo changed elsewhere. Copy your draft before refreshing.");else fail(err);}
+      clearDraft();
+      if(!memo&&state.promotedQuick){
+        el("quickContent").value="";sessionStorage.removeItem("gcmemos:quick");
+      }
+      state.promotedQuick=false;
+      el("editor").close();toast(memo?"Memo updated":"Memo created");await load();
+    }catch(err){
+      if(err.status===409)toast("Memo changed elsewhere. Copy your draft before refreshing.");
+      else fail(err);
+    }finally{
+      // Late completion from a previous locked session cannot unlock the
+      // Save control belonging to a later in-flight operation.
+      if(attempt===editorSaveAttempt){
+        editorSaving=false;el("saveBtn").disabled=false;
+        el("saveBtn").setAttribute("aria-busy","false");
+      }
+    }
   }
   el("authForm").addEventListener("submit",async e=>{
     e.preventDefault();
@@ -488,8 +516,29 @@
   el("quickContent").value=sessionStorage.getItem("gcmemos:quick")||"";
   el("quickContent").addEventListener("input",()=>sessionStorage.setItem("gcmemos:quick",el("quickContent").value));
   el("quickSave").onclick=async()=>{
-    const content=el("quickContent").value.trim();if(!content)return toast("Write a thought to save");
-    try{await api("/api/v1/memos",{method:"POST",body:JSON.stringify({content})});el("quickContent").value="";sessionStorage.removeItem("gcmemos:quick");toast("Your thought is saved");await load();}catch(err){fail(err);}
+    if(quickSaving)return;
+    const originalDraft=el("quickContent").value;
+    const content=originalDraft.trim();
+    if(!content)return toast("Write a thought to save");
+    const attempt=++quickSaveAttempt;
+    quickSaving=true;
+    el("quickSave").disabled=true;
+    el("quickSave").setAttribute("aria-label","Saving quick memo");
+    try{
+      await api("/api/v1/memos",{method:"POST",body:JSON.stringify({content})});
+      // Typing the next memo during an in-flight save must never be erased
+      // when the preceding POST completes.
+      if(el("quickContent").value===originalDraft){
+        el("quickContent").value="";sessionStorage.removeItem("gcmemos:quick");
+      }
+      toast("Your thought is saved");await load();
+    }catch(err){fail(err);}
+    finally{
+      if(attempt===quickSaveAttempt){
+        quickSaving=false;el("quickSave").disabled=false;
+        el("quickSave").setAttribute("aria-label","Save quick memo");
+      }
+    }
   };
   el("duplicateBtn").onclick=async()=>{
     if(!state.editing)return;
