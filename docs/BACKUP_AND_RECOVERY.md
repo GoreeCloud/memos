@@ -13,6 +13,12 @@ python3 server/maintenance.py verify ./backups/memos-2026-11-05.sqlite
 
 Create the destination directory beforehand; the command does not overwrite any existing file. New backup files have owner-only (0600) permissions on POSIX systems. Never commit database files to GitHub, and encrypt backups before exporting to an untrusted location.
 
+## Memo creation retry ledger
+
+New SQLite stores have a `memo_create_requests` table for optional UUIDv4 create idempotency. Earlier databases without this table remain valid and gain it automatically when opened by the updated development API. Backup and restore copy its state atomically with the memos and revision tables. The read-only verifier checks the optional ledger's columns, primary key and memo references if present, rejecting corrupted or orphaned retry records before publishing a backup.
+
+The ledger records expire after seven days on subsequent keyed creates. A restored old snapshot with expired entries does not guarantee replay deduplication. A v2 plaintext JSON export intentionally omits the ledger and is **not** a byte-for-byte SQLite recovery substitute. Keep the original database for recovery and verify a freshly restored copy before switching paths.
+
 ## Restore without overwriting existing data
 
 **Stop the server before switching databases.** The restore command intentionally refuses to replace an existing file.

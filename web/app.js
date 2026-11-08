@@ -53,6 +53,26 @@
     }
   }
   const key=id=>"gcmemos:draft:"+(id||"new");
+  // Only opaque UUIDv4 keys and SHA-256 fingerprints are persisted in this
+  // browser tab. Never duplicate memo text or the bearer token in metadata.
+  async function createRequestKey(name,body){
+    if(typeof crypto==="undefined"||!crypto.randomUUID||!crypto.subtle)return null;
+    const bytes=new TextEncoder().encode(state.token+"\\u0000"+JSON.stringify(body));
+    const hash=await crypto.subtle.digest("SHA-256",bytes);
+    const fingerprint=Array.from(new Uint8Array(hash),v=>v.toString(16).padStart(2,"0")).join("");
+    let record;
+    try{record=JSON.parse(sessionStorage.getItem(name)||"null");}catch{record=null;}
+    if(record?.fingerprint===fingerprint&&
+       /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/.test(record.key))
+      return record.key;
+    const id=crypto.randomUUID();
+    sessionStorage.setItem(name,JSON.stringify({fingerprint,key:id}));
+    return id;
+  }
+  function clearCreateRequestKey(name){sessionStorage.removeItem(name);}
+  const quickRequestName="gcmemos:create-request:quick";
+  const editorRequestName="gcmemos:create-request:editor";
+
   let previewActive=false;
   function renderPreview(){
     if(!window.GCMemosMarkdown) return;
@@ -431,7 +451,8 @@
     const keys=[];
     for(let i=0;i<sessionStorage.length;i++){
       const k=sessionStorage.key(i);
-      if(k==="gcmemos:quick"||k?.startsWith("gcmemos:draft:"))keys.push(k);
+      if(k==="gcmemos:quick"||k?.startsWith("gcmemos:draft:")||
+         k?.startsWith("gcmemos:create-request:"))keys.push(k);
     }
     if(!keys.length)return toast("No unsaved Memos drafts in this tab");
     if(!window.confirm("Permanently clear "+keys.length+
@@ -453,25 +474,55 @@
     const memo=state.editing;
     const body={title:el("editTitle").value,content:el("editContent").value,
       color:el("editColor").value,pinned:el("editPin").checked,archived:el("editArchive").checked};
-    const attempt=++editorSaveAttempt;
+    const attempt=++editorSaveAttempt,epoch=state.epoch;
     editorSaving=true;
     el("saveBtn").disabled=true;
     el("saveBtn").setAttribute("aria-busy","true");
     try{
-      if(memo)await api("/api/v1/memos/"+memo.id,{method:"PATCH",body:JSON.stringify({...body,version:memo.version})});
-      else await api("/api/v1/memos",{method:"POST",body:JSON.stringify(body)});
-      clearDraft();
-      if(!memo&&state.promotedQuick){
-        el("quickContent").value="";sessionStorage.removeItem("gcmemos:quick");
+      let saved;
+      if(memo){
+        saved=await api("/api/v1/memos/"+memo.id,{
+          method:"PATCH",body:JSON.stringify({...body,version:memo.version})});
+      }else{
+        const requestKey=await createRequestKey(editorRequestName,body);
+        if(epoch!==state.epoch||!state.token)return;
+        saved=await api("/api/v1/memos",{
+          method:"POST",body:JSON.stringify(body),
+          headers:requestKey?{"Idempotency-Key":requestKey}:{}
+        });
+        clearCreateRequestKey(editorRequestName);
       }
-      state.promotedQuick=false;
-      el("editor").close();toast(memo?"Memo updated":"Memo created");await load();
+      const sameForm=el("editTitle").value===body.title&&
+        el("editContent").value===body.content&&
+        el("editColor").value===body.color&&
+        el("editPin").checked===body.pinned&&
+        el("editArchive").checked===body.archived;
+      if(sameForm){
+        clearDraft();
+        if(!memo&&state.promotedQuick){
+          el("quickContent").value="";
+          sessionStorage.removeItem("gcmemos:quick");
+        }
+        state.promotedQuick=false;
+        el("editor").close();
+        toast(memo?"Memo updated":"Memo created");
+      }else{
+        // Do not erase edits typed after the request was submitted. Associate
+        // them with the actual newly-created/updated memo and its new version.
+        state.editing=saved;
+        sessionStorage.removeItem(key(null));
+        sessionStorage.setItem(key(saved.id),el("editContent").value);
+        el("editorTitle").textContent="EDIT MEMO · VERSION "+saved.version;
+        el("saveBtn").textContent="Save changes";
+        state.promotedQuick=false;
+        toast("Saved earlier edits. New changes are still unsaved.");
+      }
+      await load();
     }catch(err){
-      if(err.status===409)toast("Memo changed elsewhere. Copy your draft before refreshing.");
+      if(err.status===409)
+        toast("Memo changed elsewhere. Keep your draft and refresh before retrying.");
       else fail(err);
     }finally{
-      // Late completion from a previous locked session cannot unlock the
-      // Save control belonging to a later in-flight operation.
       if(attempt===editorSaveAttempt){
         editorSaving=false;el("saveBtn").disabled=false;
         el("saveBtn").setAttribute("aria-busy","false");
@@ -520,14 +571,20 @@
     const originalDraft=el("quickContent").value;
     const content=originalDraft.trim();
     if(!content)return toast("Write a thought to save");
-    const attempt=++quickSaveAttempt;
+    const body={content};
+    const attempt=++quickSaveAttempt,epoch=state.epoch;
     quickSaving=true;
     el("quickSave").disabled=true;
     el("quickSave").setAttribute("aria-label","Saving quick memo");
     try{
-      await api("/api/v1/memos",{method:"POST",body:JSON.stringify({content})});
-      // Typing the next memo during an in-flight save must never be erased
-      // when the preceding POST completes.
+      const requestKey=await createRequestKey(quickRequestName,body);
+      if(epoch!==state.epoch||!state.token)return;
+      await api("/api/v1/memos",{
+        method:"POST",body:JSON.stringify(body),
+        headers:requestKey?{"Idempotency-Key":requestKey}:{}
+      });
+      clearCreateRequestKey(quickRequestName);
+      // Preserve the next memo if the user started typing during this POST.
       if(el("quickContent").value===originalDraft){
         el("quickContent").value="";sessionStorage.removeItem("gcmemos:quick");
       }

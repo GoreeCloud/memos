@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import argparse
 import hmac
+import hashlib
 import json
 import os
 import re
 import sqlite3
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
@@ -22,6 +23,7 @@ COLORS = {"paper", "rose", "sun", "mint", "sky", "lavender"}
 HASHTAG = re.compile(r"(?<!\w)#([\w/-]{1,64})", re.UNICODE)
 ID = re.compile(r"^/api/v1/memos/([a-f0-9-]{36})(?:/(duplicate))?$")
 MAX_BODY = 128 * 1024
+IDEMPOTENCY_RETENTION_DAYS = 7
 
 
 def timestamp():
@@ -73,6 +75,14 @@ class Store:
                 );
                 CREATE INDEX IF NOT EXISTS idx_memos_folder
                 ON memos(deleted, archived, pinned, updated_at);
+                CREATE TABLE IF NOT EXISTS memo_create_requests (
+                    key_digest TEXT PRIMARY KEY,
+                    payload_digest TEXT NOT NULL,
+                    memo_id TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_memo_create_requests_time
+                ON memo_create_requests(created_at);
             """)
 
     def connect(self):
@@ -136,6 +146,53 @@ class Store:
             db.execute("INSERT INTO memos VALUES (?,?,?,?,?,?,?,?,?,?)", item)
             db.commit()
         return self.get(memo_id)
+
+    def create_once(self, body, request_key):
+        """Atomically create or replay a memo by an optional UUIDv4 request key.
+
+        Store only a hash of the key. Replay returns the current memo, not a
+        historical snapshot. Records expire after seven days on the next
+        keyed write. Clients without a key still use legacy create().
+        """
+        body = validate_fields(body, creating=True)
+        try:
+            parsed = uuid.UUID(request_key)
+        except (ValueError, TypeError, AttributeError):
+            raise ValueError("Idempotency-Key must be a canonical UUIDv4")
+        if parsed.version != 4 or str(parsed) != request_key:
+            raise ValueError("Idempotency-Key must be a canonical UUIDv4")
+        key_digest = hashlib.sha256(request_key.encode("ascii")).hexdigest()
+        canonical = json.dumps(body, sort_keys=True, ensure_ascii=False,
+                               separators=(",", ":")).encode("utf-8")
+        payload_digest = hashlib.sha256(canonical).hexdigest()
+        cutoff = (datetime.now(timezone.utc) -
+                  timedelta(days=IDEMPOTENCY_RETENTION_DAYS)).isoformat(
+                      timespec="milliseconds")
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            db.execute("DELETE FROM memo_create_requests WHERE created_at < ?",
+                       (cutoff,))
+            previous = db.execute(
+                "SELECT payload_digest, memo_id FROM memo_create_requests "
+                "WHERE key_digest=?", (key_digest,)).fetchone()
+            if previous:
+                if previous["payload_digest"] != payload_digest:
+                    return None, "conflict"
+                row = db.execute("SELECT * FROM memos WHERE id=?",
+                                 (previous["memo_id"],)).fetchone()
+                if row is None:
+                    return None, "missing"
+                return self.serialize(row), "replayed"
+            memo_id, now = str(uuid.uuid4()), timestamp()
+            item = (memo_id, body.get("title", ""), body.get("content", ""),
+                    body.get("color", "paper"), int(body.get("pinned", False)),
+                    int(body.get("archived", False)), 0, now, now, 1)
+            db.execute("INSERT INTO memos VALUES (?,?,?,?,?,?,?,?,?,?)", item)
+            db.execute("INSERT INTO memo_create_requests VALUES (?,?,?,?)",
+                       (key_digest, payload_digest, memo_id, now))
+            db.commit()
+            row = db.execute("SELECT * FROM memos WHERE id=?", (memo_id,)).fetchone()
+            return self.serialize(row), "created"
 
     def update(self, memo_id, body):
         body = validate_fields(body)
@@ -228,6 +285,21 @@ def make_handler(store, token, auth_guard=None):
             expected = "Bearer " + token
             return hmac.compare_digest(candidate.encode("utf-8"), expected.encode("utf-8"))
 
+        def idempotency_key(self):
+            values = self.headers.get_all("Idempotency-Key", [])
+            if not values:
+                return None
+            if len(values) != 1:
+                raise ValueError("Exactly one Idempotency-Key is permitted")
+            key = values[0]
+            try:
+                parsed = uuid.UUID(key)
+            except (ValueError, AttributeError, TypeError):
+                raise ValueError("Idempotency-Key must be a canonical UUIDv4")
+            if parsed.version != 4 or str(parsed) != key:
+                raise ValueError("Idempotency-Key must be a canonical UUIDv4")
+            return key
+
         def parse_body(self):
             try:
                 length = int(self.headers.get("Content-Length", "-1"))
@@ -278,7 +350,16 @@ def make_handler(store, token, auth_guard=None):
                         args.get("q", [""])[0][:200],
                         args.get("tag", [""])[0][:64]))
                 if self.command == "POST":
-                    return self.respond(201, store.create(self.parse_body()))
+                    key = self.idempotency_key()
+                    body = self.parse_body()
+                    if key is None:
+                        return self.respond(201, store.create(body))
+                    memo, outcome = store.create_once(body, key)
+                    if outcome == "conflict":
+                        return self.respond(409, {"error": "Idempotency-Key reused with different memo content"})
+                    if outcome == "missing":
+                        return self.respond(410, {"error": "Original memo no longer exists"})
+                    return self.respond(200 if outcome == "replayed" else 201, memo)
             match = ID.fullmatch(path)
             if match:
                 memo_id, action = match.groups()

@@ -92,6 +92,12 @@ All data routes require an Authorization bearer token; health and static web ass
 | GET | /api/v1/export | Complete v2 JSON export (memos and revisions) |
 | GET | /api/v1/health | Public health probe |
 
+### Duplicate-safe memo creation (development API)
+
+`POST /api/v1/memos` accepts the optional HTTP header `Idempotency-Key: <canonical UUIDv4>`. The web quick-capture and new-memo editor generate a cryptographically random UUIDv4 and retain only that opaque key and a SHA-256 content/token fingerprint in this browser tab to retry unchanged drafts after a lost response. A normal successful create returns **201**, a replay within the retention window returns **200** and the current memo representation (not a frozen historical response), and reuse of the same key for different request content returns **409**. Invalid or duplicate keys fail with **400**. If the original memo is no longer present, the replay returns **410** without creating a new one. Old clients that omit the header continue to create a fresh memo with each POST.
+
+The server atomically associates the request with the created memo in SQLite; records are retained for **seven days** and are cleaned up on later keyed writes. A retry after expiration may create a new memo. No full memo body or raw request key is duplicated in the ledger. A complete SQLite backup/restore preserves this metadata; the plaintext v2 JSON export contains only memos and revisions, **not** replay state. This is single-user reliability protection, not multiuser authorization, exactly-once delivery across every service, or server-side token revocation. Other POST endpoints, such as **duplicate**, are not covered.
+
 This is **single-instance token authentication**, not multi-user role access. Do not deploy as a public multi-tenant application. Data defaults to ./data/memos.sqlite3 (Git-ignored). Backup a running SQLite DB via its backup API or another consistency-aware method.
 
 See [security boundaries](docs/SECURITY.md) and [backup and recovery](docs/BACKUP_AND_RECOVERY.md). This repository contains original source code, not a copy or fork of Google Keep or upstream Memos. **GoreeCloud Memos is licensed under [Apache License 2.0](LICENSE)**; see [NOTICE](NOTICE) and the [Memos-specific licensing assessment](docs/LICENSE_ASSESSMENT.md) for rights/provenance boundaries. Referenced GC UI semantic values originate from the separately Apache-2.0-licensed gc-ui repository. Third-party GTK/PyGObject and test-only Playwright retain their own terms; no production release is implied.
