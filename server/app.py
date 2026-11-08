@@ -147,6 +147,53 @@ class Store:
             db.commit()
         return self.get(memo_id)
 
+    def create_once(self, body, request_key):
+        """Atomically create or replay a memo by an optional UUIDv4 request key.
+
+        Store only a hash of the key. Replay returns the current memo, not a
+        historical snapshot. Records expire after seven days on the next
+        keyed write. Clients without a key still use legacy create().
+        """
+        body = validate_fields(body, creating=True)
+        try:
+            parsed = uuid.UUID(request_key)
+        except (ValueError, TypeError, AttributeError):
+            raise ValueError("Idempotency-Key must be a canonical UUIDv4")
+        if parsed.version != 4 or str(parsed) != request_key:
+            raise ValueError("Idempotency-Key must be a canonical UUIDv4")
+        key_digest = hashlib.sha256(request_key.encode("ascii")).hexdigest()
+        canonical = json.dumps(body, sort_keys=True, ensure_ascii=False,
+                               separators=(",", ":")).encode("utf-8")
+        payload_digest = hashlib.sha256(canonical).hexdigest()
+        cutoff = (datetime.now(timezone.utc) -
+                  timedelta(days=IDEMPOTENCY_RETENTION_DAYS)).isoformat(
+                      timespec="milliseconds")
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            db.execute("DELETE FROM memo_create_requests WHERE created_at < ?",
+                       (cutoff,))
+            previous = db.execute(
+                "SELECT payload_digest, memo_id FROM memo_create_requests "
+                "WHERE key_digest=?", (key_digest,)).fetchone()
+            if previous:
+                if previous["payload_digest"] != payload_digest:
+                    return None, "conflict"
+                row = db.execute("SELECT * FROM memos WHERE id=?",
+                                 (previous["memo_id"],)).fetchone()
+                if row is None:
+                    return None, "missing"
+                return self.serialize(row), "replayed"
+            memo_id, now = str(uuid.uuid4()), timestamp()
+            item = (memo_id, body.get("title", ""), body.get("content", ""),
+                    body.get("color", "paper"), int(body.get("pinned", False)),
+                    int(body.get("archived", False)), 0, now, now, 1)
+            db.execute("INSERT INTO memos VALUES (?,?,?,?,?,?,?,?,?,?)", item)
+            db.execute("INSERT INTO memo_create_requests VALUES (?,?,?,?)",
+                       (key_digest, payload_digest, memo_id, now))
+            db.commit()
+            row = db.execute("SELECT * FROM memos WHERE id=?", (memo_id,)).fetchone()
+            return self.serialize(row), "created"
+
     def update(self, memo_id, body):
         body = validate_fields(body)
         fields = ["title", "content", "color", "pinned", "archived", "deleted"]
