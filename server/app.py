@@ -179,6 +179,21 @@ class Store:
                 "exported_at": timestamp(), "memos": memos, "revisions": revisions}
 
 
+class BoundedHTTPServer(ThreadingHTTPServer):
+    """Bound the idle time spent reading any one accepted client socket."""
+
+    request_read_timeout_seconds = 15
+
+    def get_request(self):
+        sock, peer = super().get_request()
+        try:
+            sock.settimeout(self.request_read_timeout_seconds)
+        except Exception:
+            sock.close()
+            raise
+        return sock, peer
+
+
 def make_handler(store, token, auth_guard=None):
     # This guard is shared across request threads, not recreated per request.
     guard = auth_guard if auth_guard is not None else AuthFailureGuard()
@@ -311,6 +326,14 @@ def make_handler(store, token, auth_guard=None):
         def safely_route(self):
             try:
                 self.route()
+            except TimeoutError:
+                # A stalled or incomplete JSON request must not monopolize
+                # its handler thread indefinitely or partially modify a memo.
+                self.close_connection = True
+                try:
+                    self.respond(408, {"error": "Request body timed out"})
+                except OSError:
+                    pass
             except (ValueError, TypeError) as exc:
                 self.respond(400, {"error": str(exc)})
             except Exception:
@@ -322,7 +345,7 @@ def make_handler(store, token, auth_guard=None):
 def create_server(host, port, db_path, token, auth_guard=None):
     if len(token) < 24:
         raise ValueError("GOREE_MEMOS_TOKEN must be at least 24 characters")
-    return ThreadingHTTPServer((host, port), make_handler(Store(db_path), token, auth_guard))
+    return BoundedHTTPServer((host, port), make_handler(Store(db_path), token, auth_guard))
 
 
 def main():
