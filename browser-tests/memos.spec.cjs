@@ -101,7 +101,7 @@ test("network error clears old cards and retry restores results without losing k
  await expect(page.locator("#feedStatus")).toHaveText("Unable to load memos.");
  await page.locator("#feedRetry").click();
  await expect(page.locator("#feedFailure")).toBeHidden();
- await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(2);
  await expect(page.locator("#search")).toBeFocused();
 });
 
@@ -123,7 +123,7 @@ test("keyboard retry preserves focus and Enter opens the recovered memo",async({
  await expect(page.locator("#feedRetry")).toBeFocused();
  await page.keyboard.press("Enter");
  await expect(page.locator("#feedFailure")).toBeHidden();
- await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(2);
  await expect(page.locator("#search")).toBeFocused();
  const memo=page.locator("#notesGrid .memo-card").first();
  await memo.focus();
@@ -188,7 +188,7 @@ test("locking a delayed search clears personal text and prevents a stale respons
   }else await json(route,NOTES);
  });
  await login(page);
- await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(2);
  await page.evaluate(()=>sessionStorage.setItem("gcmemos:draft:new","Synthetic unsaved draft"));
  await page.locator("#search").fill("synthetic wait");
  await expect.poll(()=>held).toBe(true);
@@ -274,7 +274,7 @@ test("genuinely timed-out fetch resolves the busy region and permits retry",asyn
  await page.locator("#feedRetry").click();
  await expect(page.locator("#feedFailure")).toBeHidden();
  await expect(page.locator("#feedStatus")).toHaveText("2 memos loaded.");
- await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(2);
 });
 
 test("320px, forced colors, dark and reduced motion keep static placeholders readable",async({page})=>{
@@ -323,7 +323,7 @@ test("official dashboard uses real memo data and clearly marks unavailable actio
  await page.locator("#tabPinned").click();
  await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
  await page.locator("#tabAll").click();
- await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(2);
  await page.locator("#captureChecklistBtn").click();
  await expect(page.locator("#quickContent")).toHaveValue("- [ ] ");
 });
