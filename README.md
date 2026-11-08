@@ -6,7 +6,15 @@ Original privacy-first memo service and native-client development foundation for
 
 ## Default home experience
 
-**Pinterest-style responsive masonry grid is the default layout.** Variable-height note cards flow into adaptive columns, with a dedicated pinned notes section. Optional list view and dark mode persist as local browser preferences. The prototype references the [GoreeCloud UI](https://github.com/GoreeCloud/gc-ui) Iris semantic tokens and Canvas/Surface styling; formal GC UI conformance is not yet verified.
+**Pinterest-style responsive masonry grid is the default layout.** Variable-height note cards flow into adaptive columns, with pinned indicators inside their chronological day groups. Optional list view and dark mode persist as local browser preferences. The prototype references the [GoreeCloud UI](https://github.com/GoreeCloud/gc-ui) Iris semantic tokens and Canvas/Surface styling; formal GC UI conformance is not yet verified.
+
+## Founder-approved timeline dashboard preview
+
+The web preview now follows the official **GoreeCloud Memos Timeline Dashboard** mockup: a compact global header, left navigation, quick capture toolbar, All/My/Shared/Pinned tabs, date-grouped responsive memo cards, calendar, filter chips, trending tags, and a recent-notes panel. Existing Pinterest-style variable-height masonry cards, optional list layout, pinned filter, search, drafts, editor, and privacy locks are retained. Calendar date selection filters the **already loaded feed locally**, not across unseen records; trending tags and recent notes are derived from the current authenticated response, not a historical activity audit.
+
+Real controls include new/quick memo, Markdown editor, checklist insertion, search, tags, pinned/archive/trash, card editing, calendar navigation/date filtering, theme, lock, draft clear, and export. Controls for unsupported **attachments, reminders, sharing, collaboration, settings, and profiles** display **“Not available yet”** without faking backend functionality. The header says **Private** rather than claiming cross-device synchronization or per-user identities.
+
+This remains a **single-user, bearer-token development preview**. UI redesign does not satisfy production security, real sync, external network, screen-reader, or native release gates. Desktop/browser acceptance and source-review evidence are tracked separately.
 
 ## Working development features
 

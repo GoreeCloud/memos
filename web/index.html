@@ -12,36 +12,62 @@
 </head>
 <body>
   <div class="shell" id="shell" hidden>
+    <header class="topbar" aria-label="Main toolbar">
+      <div class="brand header-brand"><span class="cloud-logo" aria-hidden="true"><span>☁</span><b>▤</b></span><strong>GoreeCloud Memos</strong></div>
+      <label class="searchbox"><span class="search-icon" aria-hidden="true">⌕</span><span class="sr-only">Search memos</span><input id="search" type="search" autocomplete="off" placeholder="Search notes, tags, or people…"><kbd aria-hidden="true">⌘ K</kbd></label>
+      <span class="privacy-status" title="This is a private, single-user server — remote synchronization is not implemented"><span aria-hidden="true">♧</span> Private <span class="status-chevron" aria-hidden="true">⌄</span></span>
+      <button class="top-icon" id="notificationsBtn" type="button" aria-label="Notifications (not available yet)" title="Notifications">♧<span class="notify-dot" aria-hidden="true"></span></button>
+      <button class="top-icon" id="collaboratorsBtn" type="button" aria-label="Collaborators (not available yet)" title="Collaboration">♙</button>
+      <button class="profile-chip" id="profileBtn" type="button" aria-label="Profile (not available yet)" title="Profile">🌄 <span aria-hidden="true">⌄</span></button>
+      <button class="top-icon utility-menu-btn" id="utilityMenuBtn" type="button" aria-label="More workspace actions" aria-expanded="false" aria-controls="headerUtilities" title="More workspace actions">⋯</button>
+      <div class="header-utilities" id="headerUtilities"><button class="subtle utility-button mobile-collab" data-feature="Collaboration" type="button">♧ Collaborators</button>
+      <button class="subtle utility-button" id="themeBtn" aria-label="Switch dark or light theme" title="Theme">◐</button>
+      <button class="subtle utility-button" id="lockWorkspaceBtn" type="button" aria-label="Lock workspace and forget token" title="Lock workspace without deleting tab drafts">⌁ <span class="desktop-only">Lock</span></button>
+      <button class="subtle utility-button" id="clearDraftsBtn" type="button" aria-label="Clear unsaved local drafts" title="Clear drafts stored in this browser tab">⌫ <span class="desktop-only">Clear drafts</span></button>
+      <button class="subtle utility-button" id="exportBtn" aria-label="Export all memos and revision history as plaintext JSON" title="Export unencrypted memos and history">⇩ <span class="desktop-only">Export</span></button>
+      </div>
+    </header>
     <aside class="sidebar" aria-label="Memo navigation">
-      <div class="brand"><span class="brand-symbol" aria-hidden="true">✦</span><div><strong>GoreeCloud</strong><small>Memos</small></div></div>
+
       <button class="new-primary" id="newBtn">＋ <span>New memo</span></button>
-      <nav aria-label="Folders">
-        <button data-folder="active" class="nav-item selected"><span>▦</span> All memos</button>
-        <button data-folder="pinned" class="nav-item"><span>⌁</span> Pinned</button>
-        <button data-folder="archive" class="nav-item"><span>▤</span> Archive</button>
-        <button data-folder="trash" class="nav-item"><span>♻</span> Trash</button>
+      <nav aria-label="Memos sections">
+        <button data-folder="active" class="nav-item selected"><span aria-hidden="true">▣</span> All Notes <span id="navCount" class="nav-count" aria-label="Memo count"></span></button>
+        <button id="quickCaptureNav" class="nav-item" type="button"><span aria-hidden="true">ϟ</span> Quick Capture</button>
+        <button data-feature="Reminders" class="nav-item" type="button"><span aria-hidden="true">♧</span> Reminders</button>
+        <button id="timelineNav" class="nav-item" type="button"><span aria-hidden="true">⑂</span> Timeline</button>
+        <button id="tagsNav" class="nav-item" type="button"><span aria-hidden="true">◇</span> Tags</button>
+        <button data-feature="Shared notes" class="nav-item" type="button"><span aria-hidden="true">♧</span> Shared</button>
+        <button data-folder="pinned" class="nav-item extra-nav"><span aria-hidden="true">⚑</span> Pinned</button>
+        <button data-folder="archive" class="nav-item"><span aria-hidden="true">▤</span> Archive</button>
+        <button data-folder="trash" class="nav-item extra-nav"><span aria-hidden="true">♲</span> Trash</button>
+        <button data-feature="Settings" class="nav-item" type="button"><span aria-hidden="true">⚙</span> Settings</button>
       </nav>
-      <div class="sidebar-section"><strong>Tags</strong><div id="tags" class="tag-list"></div></div>
+      <div class="sidebar-section" id="sidebarTags"><strong>Tags</strong><div id="tags" class="tag-list"></div></div>
       <div class="sidebar-bottom"><span class="privacy-dot"></span> Private workspace <small>Development preview</small></div>
     </aside>
     <main class="workspace" id="mainContent">
-      <header class="topbar">
-        <div class="mobile-brand">✦ <strong>Memos</strong></div>
-        <label class="searchbox"><span aria-hidden="true">⌕</span><span class="sr-only">Search memos</span><input id="search" type="search" autocomplete="off" placeholder="Search your thoughts… (Ctrl+K)"></label>
-        <button class="subtle" id="themeBtn" aria-label="Switch dark or light theme" title="Theme">◐</button>
-        <button class="subtle" id="lockWorkspaceBtn" type="button" aria-label="Lock workspace and forget token" title="Lock workspace without deleting tab drafts">⌁ <span class="desktop-only">Lock</span></button>
-        <button class="subtle" id="clearDraftsBtn" type="button" aria-label="Clear unsaved local drafts" title="Clear drafts stored in this browser tab">⌫ <span class="desktop-only">Clear drafts</span></button>
-        <button class="subtle" id="exportBtn" aria-label="Export all memos and revision history as plaintext JSON" title="Export unencrypted memos and history">⇩ <span class="desktop-only">Export</span></button>
-      </header>
+
       <div class="content">
-        <div class="heading"><div><span class="eyebrow">YOUR THOUGHT SPACE</span><h1 id="pageTitle">All memos</h1><p id="subtitle">Capture the little things that matter.</p></div>
-          <div class="layout-switch" role="group" aria-label="Memo layout"><button id="masonryBtn" class="active" aria-pressed="true" title="Masonry grid">▦</button><button id="listBtn" aria-pressed="false" title="List layout">☷</button></div>
-        </div>
-        <section class="capture" aria-label="Quick memo">
-          <label class="sr-only" for="quickContent">Quick memo</label>
-          <textarea id="quickContent" placeholder="What's on your mind? Capture a thought, a list, an idea…" rows="2"></textarea>
-          <div class="capture-footer"><span>Markdown and #tags welcome</span><button id="quickSave" class="solid">Save memo <span aria-hidden="true">↗</span></button></div>
+        <div class="heading"><div><span class="eyebrow">YOUR PRIVATE MEMOS</span><h1 id="pageTitle">All memos</h1><p id="subtitle">Capture the little things that matter.</p></div></div>
+        <section class="capture" id="quickCapture" aria-label="Quick memo">
+          <div class="capture-main"><span class="capture-pencil" aria-hidden="true">✎</span>
+            <label class="sr-only" for="quickContent">Quick memo</label>
+            <textarea id="quickContent" placeholder="Take a memo…" rows="1"></textarea>
+            <div class="capture-actions" role="group" aria-label="Quick capture tools">
+              <button type="button" id="captureMarkdownBtn" class="tool-icon" title="Open Markdown editor" aria-label="Open Markdown editor">ᴹ↧</button>
+              <button type="button" data-feature="Image attachments" class="tool-icon" title="Image attachments — not available yet" aria-label="Image attachments (not available yet)">▧</button>
+              <button type="button" id="captureChecklistBtn" class="tool-icon" title="Insert checklist item" aria-label="Insert checklist item">☑</button>
+              <button type="button" data-feature="Reminders" class="tool-icon" title="Reminders — not available yet" aria-label="Reminders (not available yet)">♧</button>
+            </div>
+            <button id="quickSave" type="button" class="solid capture-add" aria-label="Save quick memo">＋</button>
+          </div><div class="capture-footer"><span>Markdown and #tags supported · Enter adds a new line</span></div>
         </section>
+        <div class="memo-toolbar"><div class="view-tabs" role="group" aria-label="Note filters">
+          <button id="tabAll" class="view-tab selected" type="button" aria-pressed="true">All Notes</button>
+          <button id="tabMine" class="view-tab" type="button" aria-pressed="false">My Notes</button>
+          <button data-feature="Shared notes" class="view-tab" type="button">Shared</button>
+          <button id="tabPinned" class="view-tab" type="button" aria-pressed="false">Pinned</button>
+        </div><div class="layout-switch" role="group" aria-label="Memo layout"><button id="masonryBtn" class="active" aria-pressed="true" title="Masonry grid" aria-label="Masonry grid">▦</button><button id="listBtn" aria-pressed="false" title="List layout" aria-label="List layout">☷</button></div></div>
         <p id="feedStatus" class="feed-status" role="status" aria-live="polite" aria-atomic="true" hidden></p>
         <div id="feedRegion" role="region" aria-label="Memo collection" aria-busy="false">
           <div id="feedSkeleton" class="masonry feed-skeleton" aria-hidden="true" hidden>
@@ -61,6 +87,21 @@
         </div>
       </div>
     </main>
+    <aside class="insights" aria-label="Memo insights">
+      <section class="insight-card calendar-panel" aria-label="Note calendar">
+        <div class="insight-title"><strong id="calendarMonth">November 2026</strong><div class="month-controls"><button type="button" id="calendarPrev" aria-label="Previous month">‹</button><button type="button" id="calendarNext" aria-label="Next month">›</button></div></div>
+        <div class="calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+        <div id="calendarDays" class="calendar-days" role="group" aria-label="Select note date"></div>
+        <button id="clearDateFilter" type="button" class="calendar-clear" hidden>Clear date filter</button>
+      </section>
+      <section class="insight-card filter-panel" aria-label="Filters"><div class="insight-title"><strong>⌕ &nbsp;Filters</strong></div><div class="filter-pills">
+        <button id="filterPrivate" class="filter-pill selected" type="button" aria-pressed="true">♙ &nbsp;Private</button>
+        <button data-feature="Shared notes" class="filter-pill" type="button">♧ &nbsp;Shared</button>
+        <button id="filterPinned" class="filter-pill" type="button" aria-pressed="false">⚑ &nbsp;Pinned</button>
+      </div></section>
+      <section class="insight-card tags-panel" aria-label="Trending tags"><div class="insight-title"><strong>⌁ &nbsp;Trending Tags</strong><button id="allTagsBtn" type="button" class="text-action">See All</button></div><div id="trendingTags" class="trending-tags"><p class="insight-empty">No tags in this view</p></div></section>
+      <section class="insight-card activity-panel" aria-label="Recent notes"><div class="insight-title"><strong>◷ &nbsp;Recent Notes</strong><button id="activityAllBtn" type="button" class="text-action">See All</button></div><div id="recentNotes" class="recent-notes"><p class="insight-empty">No recent notes</p></div></section>
+    </aside>
   </div>
   <div class="access" id="authScreen">
     <form id="authForm" class="access-card">
