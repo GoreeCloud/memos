@@ -15,7 +15,7 @@ const reply=(route,memos)=>route.fulfill({
 });
 async function login(page,memos){
  await page.route(url=>url.pathname==="/api/v1/memos",route=>{
-  const url=new URL(route.request().url);
+  const url=new URL(route.request().url());
   return reply(route,!url.searchParams.has("q")?[]:
    url.searchParams.get("q")?[]:memos);
  });
