@@ -17,16 +17,23 @@ apk = Path(sys.argv[1]) if len(sys.argv) > 1 else (
 if not apk.is_file() or not apk.stat().st_size:
     raise SystemExit("Debug APK is missing or empty")
 sdk = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT") or ""
-aapt = shutil.which("aapt") or str(Path(sdk) / "build-tools/36.0.0/aapt")
-if not Path(aapt).is_file():
+sdk_aapt = Path(sdk) / "build-tools/36.0.0/aapt"
+aapt = str(sdk_aapt) if sdk_aapt.is_file() else shutil.which("aapt")
+if not aapt or not Path(aapt).is_file():
     raise SystemExit("Android build-tools 36.0.0 aapt is required")
 
-def dump(*args):
-    return subprocess.check_output([aapt, "dump", *args, str(apk)],
+def dump_badging():
+    return subprocess.check_output([aapt, "dump", "badging", str(apk)],
                                    text=True, stderr=subprocess.STDOUT)
 
-xml = dump("xmltree", "AndroidManifest.xml")
-badging = dump("badging")
+def dump_manifest():
+    # Android aapt syntax: aapt dump xmltree <APK> <file inside APK>.
+    return subprocess.check_output([aapt, "dump", "xmltree",
+                                    str(apk), "AndroidManifest.xml"],
+                                   text=True, stderr=subprocess.STDOUT)
+
+xml = dump_manifest()
+badging = dump_badging()
 if "package: name='com.goreecloud.memos'" not in badging:
     raise SystemExit("Unexpected package name")
 if "sdkVersion:'26'" not in badging or "targetSdkVersion:'36'" not in badging:
