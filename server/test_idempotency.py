@@ -11,7 +11,7 @@ from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from app import create_server
+from app import Store, create_server
 from maintenance import backup_database, restore_database, verify_database
 
 TOKEN = "synthetic-memos-idempotency-tests-only-2026"
@@ -101,6 +101,38 @@ class IdempotencyTests(unittest.TestCase):
         self.assertEqual(self.request(payload, key)[0], 200)
         with sqlite3.connect(recovered) as db:
             self.assertEqual(db.execute("SELECT count(*) FROM memos").fetchone()[0], 1)
+
+    def test_existing_preledger_sqlite_is_accepted_and_upgraded_in_place(self):
+        # Old private databases had exactly the memos + revisions tables.
+        with sqlite3.connect(self.db) as db:
+            db.execute("DROP TABLE memo_create_requests")
+            db.commit()
+        self.assertEqual(verify_database(self.db)["integrity"], "ok")
+        Store(self.db)  # normal non-destructive startup migration
+        key = str(uuid.uuid4())
+        self.assertEqual(self.request({"content": "Old local DB"}, key)[0], 201)
+        self.assertEqual(self.request({"content": "Old local DB"}, key)[0], 200)
+        self.assertEqual(self.count(), 1)
+        self.assertEqual(verify_database(self.db)["integrity"], "ok")
+
+    def test_replay_returns_current_memo_not_a_frozen_version(self):
+        key = str(uuid.uuid4())
+        body = {"content": "Original fictional text"}
+        status, memo = self.request(body, key)
+        self.assertEqual(status, 201)
+        with sqlite3.connect(self.db) as db:
+            db.execute("UPDATE memos SET title=?,version=? WHERE id=?",
+                       ("Updated elsewhere", 2, memo["id"]))
+            db.execute("INSERT INTO revisions VALUES (?,?,?,?,?)",
+                       (memo["id"], 1, "", body["content"],
+                        datetime.now(timezone.utc).isoformat(timespec="milliseconds")))
+            db.commit()
+        replay_status, result = self.request(body, key)
+        self.assertEqual(replay_status, 200)
+        self.assertEqual(result["id"], memo["id"])
+        self.assertEqual(result["title"], "Updated elsewhere")
+        self.assertEqual(result["version"], 2)
+        self.assertEqual(self.count(), 1)
 
     def test_expired_key_can_be_used_again_after_seven_days(self):
         key = str(uuid.uuid4())
