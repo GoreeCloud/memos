@@ -146,3 +146,8 @@ dialog{width:min(92vw,680px);max-height:91vh;border:1px solid var(--gc-outline);
   .header-utilities.open .mobile-collab{display:flex!important}
 }
 @media(min-width:701px){.mobile-collab{display:none!important}}
+
+
+/* Prevent repeated synthetic or live writes while an authenticated save is pending. */
+#quickSave:disabled,#saveBtn:disabled{opacity:.64;cursor:progress;box-shadow:none}
+@media(forced-colors:active){#quickSave:disabled,#saveBtn:disabled{outline:1px solid GrayText}}
