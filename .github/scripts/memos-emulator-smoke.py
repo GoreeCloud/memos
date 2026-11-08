@@ -141,6 +141,26 @@ command("shell", "wm", "density", "160")
 if "package:" + PACKAGE in command("shell", "pm", "list", "packages", "-3"):
     raise SystemExit("BLOCK: Memos already installed in supposedly fresh AVD")
 command("install", "-r", str(APK), timeout=120)
+# The test APK can only run on this attested disposable emulator. Each test
+# writes a unique synthetic SQLite DB, never the app's own preview database.
+instrumentation_apk = Path(
+    "clients/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+)
+if not instrumentation_apk.is_file():
+    raise AssertionError("Synthetic instrumented SQLite APK is absent")
+ensure_only_emulator()
+command("install", "-r", str(instrumentation_apk), timeout=120)
+instrumentation = command(
+    "shell", "am", "instrument", "-w",
+    "-e", "goreecloudDisposable", "1",
+    "com.goreecloud.memos.test/androidx.test.runner.AndroidJUnitRunner",
+    timeout=240
+)
+(OUT / "instrumentation-result.txt").write_text(instrumentation[-5500:])
+if "OK (5 tests)" not in instrumentation or "FAILURES!!!" in instrumentation:
+    raise AssertionError("Native SQLite instrumentation did not pass:\n" +
+                         instrumentation[-1500:])
+print("PASS: five synthetic app-private SQLite instrumented regressions")
 start_and_check()
 screenshot("phone-empty-390.png", (390, 844))
 tap("More")
