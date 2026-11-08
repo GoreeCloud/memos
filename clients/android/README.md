@@ -29,7 +29,7 @@ python3 clients/android/qa/verify_manifest.py
 python3 clients/android/qa/verify_apk.py clients/android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-CI also exercises these commands without publishing a binary. Platform build and JVM source tests do **not** prove handset usability or runtime behavior. A complete acceptance requires manual or emulator/physical-device launch, dark/light and font scaling, rotation, process death, database upgrade/non-destructive migration, data retention/recovery, visual audit against the official Memos mockup, and the applicable privacy/security gates.
+CI also exercises these commands without publishing a binary. Separately, merged [PR #54](https://github.com/GoreeCloud/memos/pull/54) runs an isolated Android 35 emulator smoke covering startup, the local-data warning, synthetic quick memo persistence across force-stop/relaunch, and phone/tablet-size UI hierarchy; only fictional screenshots and test logs are retained in a short-lived GitHub QA artifact, never a distributable APK. Android compile and JVM tests alone do **not** prove handset usability. A complete acceptance requires manual or emulator/physical-device launch, dark/light and font scaling, rotation, process death, database upgrade/non-destructive migration, data retention/recovery, visual audit against the official Memos mockup, and the applicable privacy/security gates.
 
 Refer to [product requirements](../../docs/FEATURES.md) and [verified status](../../docs/STATUS.md). The larger full product specification is not claimed implemented here.
 
