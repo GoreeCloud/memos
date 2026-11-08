@@ -113,7 +113,7 @@
     const tags=[...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]));
     el("trendingTags").replaceChildren();
     for(const [tag,num] of tags.slice(0,state.allTags?40:8)){
-      const b=make("button","trending-tag","#"+tag);
+      const b=make("button","trending-tag","#"+tag+" ");
       b.append(make("em","",String(num)));
       b.type="button";b.setAttribute("aria-pressed",String(state.tag===tag));
       b.addEventListener("click",()=>{state.tag=state.tag===tag?"":tag;state.dateFilter=null;load();});
