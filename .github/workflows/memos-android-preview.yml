@@ -35,4 +35,6 @@ jobs:
       - name: Assemble debug, JVM tests and Android lint
         run: gradle -p clients/android --no-daemon --stacktrace :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
       - name: Verify debug APK exists (not delivered or released)
-        run: test -s clients/android/app/build/outputs/apk/debug/app-debug.apk
+        run: |
+          test -s clients/android/app/build/outputs/apk/debug/app-debug.apk
+          python3 clients/android/qa/verify_apk.py clients/android/app/build/outputs/apk/debug/app-debug.apk
