@@ -602,6 +602,7 @@ private fun MemoEditor(
     var archived by remember(memo?.id) { mutableStateOf(memo?.archived ?: false) }
     var confirmDiscard by remember { mutableStateOf(false) }
     var confirmTrash by remember { mutableStateOf(false) }
+    var confirmDuplicate by remember { mutableStateOf(false) }
     val dirty = title != (memo?.title ?: "") || content != (memo?.content ?: "") ||
         color != (memo?.color ?: "paper") || pinned != (memo?.pinned ?: false) ||
         archived != (memo?.archived ?: false)
@@ -627,17 +628,17 @@ private fun MemoEditor(
                 OutlinedTextField(
                     title, { title = it.take(MemoLogic.MAX_TITLE) },
                     modifier = Modifier.fillMaxWidth(), label = { Text("Optional title") },
-                    singleLine = true, shape = RoundedCornerShape(13.dp)
+                    singleLine = true, readOnly = saving, shape = RoundedCornerShape(13.dp)
                 )
                 Spacer(Modifier.height(10.dp))
                 OutlinedTextField(
                     content, { content = it.take(MemoLogic.MAX_CONTENT) },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 170.dp),
                     label = { Text("Memo content — Markdown source") },
-                    minLines = 6, shape = RoundedCornerShape(13.dp)
+                    minLines = 6, readOnly = saving, shape = RoundedCornerShape(13.dp)
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = {
+                    TextButton(enabled = !saving, onClick = {
                         content += if (content.isBlank() || content.endsWith("\n")) "- [ ] "
                         else "\n- [ ] "
                     }) { Text("☑ Checklist") }
@@ -650,7 +651,8 @@ private fun MemoEditor(
                     horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                     MemoLogic.colors.forEach { option ->
                         FilterChip(
-                            selected = color == option, onClick = { color = option },
+                            selected = color == option, enabled = !saving,
+                            onClick = { color = option },
                             label = { Text(option) },
                             leadingIcon = {
                                 Box(Modifier.size(12.dp).background(
@@ -661,16 +663,20 @@ private fun MemoEditor(
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Pinned", modifier = Modifier.weight(1f))
-                    Switch(checked = pinned, onCheckedChange = { pinned = it })
+                    Switch(checked = pinned, enabled = !saving,
+                        onCheckedChange = { pinned = it })
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Archived", modifier = Modifier.weight(1f))
-                    Switch(checked = archived, onCheckedChange = { archived = it })
+                    Switch(checked = archived, enabled = !saving,
+                        onCheckedChange = { archived = it })
                 }
                 Spacer(Modifier.height(7.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     if (memo != null && !memo.deleted) {
-                        TextButton(onClick = onDuplicate, enabled = !saving) { Text("Duplicate") }
+                        TextButton(onClick = {
+                            if (dirty) confirmDuplicate = true else onDuplicate()
+                        }, enabled = !saving) { Text("Duplicate") }
                     }
                     if (memo != null) {
                         TextButton(onClick = { confirmTrash = true }, enabled = !saving) {
@@ -702,11 +708,34 @@ private fun MemoEditor(
             }
         )
     }
+    if (confirmDuplicate) {
+        AlertDialog(
+            onDismissRequest = { confirmDuplicate = false },
+            title = { Text("Duplicate last saved version?") },
+            text = {
+                Text("Your unsaved edits will not be included. " +
+                    "Save your changes first if they should appear in the copy.")
+            },
+            confirmButton = {
+                TextButton(onClick = { confirmDuplicate = false; onDuplicate() }) {
+                    Text("Duplicate saved memo")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmDuplicate = false }) {
+                    Text("Keep editing")
+                }
+            }
+        )
+    }
     if (confirmTrash) {
         AlertDialog(
             onDismissRequest = { confirmTrash = false },
             title = { Text(if (memo?.deleted == true) "Restore memo?" else "Move to Trash?") },
-            text = { Text("This changes only the memo stored on this device.") },
+            text = {
+                Text("This changes only the memo stored on this device." +
+                    if (dirty) " Unsaved editor changes will be discarded." else "")
+            },
             confirmButton = {
                 TextButton(onClick = { confirmTrash = false; onTrash() }) {
                     Text(if (memo?.deleted == true) "Restore" else "Move to Trash")
