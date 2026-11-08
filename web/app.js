@@ -451,7 +451,8 @@
     const keys=[];
     for(let i=0;i<sessionStorage.length;i++){
       const k=sessionStorage.key(i);
-      if(k==="gcmemos:quick"||k?.startsWith("gcmemos:draft:"))keys.push(k);
+      if(k==="gcmemos:quick"||k?.startsWith("gcmemos:draft:")||
+         k?.startsWith("gcmemos:create-request:"))keys.push(k);
     }
     if(!keys.length)return toast("No unsaved Memos drafts in this tab");
     if(!window.confirm("Permanently clear "+keys.length+
@@ -570,14 +571,20 @@
     const originalDraft=el("quickContent").value;
     const content=originalDraft.trim();
     if(!content)return toast("Write a thought to save");
-    const attempt=++quickSaveAttempt;
+    const body={content};
+    const attempt=++quickSaveAttempt,epoch=state.epoch;
     quickSaving=true;
     el("quickSave").disabled=true;
     el("quickSave").setAttribute("aria-label","Saving quick memo");
     try{
-      await api("/api/v1/memos",{method:"POST",body:JSON.stringify({content})});
-      // Typing the next memo during an in-flight save must never be erased
-      // when the preceding POST completes.
+      const requestKey=await createRequestKey(quickRequestName,body);
+      if(epoch!==state.epoch||!state.token)return;
+      await api("/api/v1/memos",{
+        method:"POST",body:JSON.stringify(body),
+        headers:requestKey?{"Idempotency-Key":requestKey}:{}
+      });
+      clearCreateRequestKey(quickRequestName);
+      // Preserve the next memo if the user started typing during this POST.
       if(el("quickContent").value===originalDraft){
         el("quickContent").value="";sessionStorage.removeItem("gcmemos:quick");
       }
