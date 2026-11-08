@@ -49,7 +49,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 clients/android/qa/verify_manifest.py
-          gradle -p clients/android --no-daemon :app:assembleDebug :app:testDebugUnitTest
+          gradle -p clients/android --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:assembleDebugAndroidTest
           python3 clients/android/qa/verify_apk.py clients/android/app/build/outputs/apk/debug/app-debug.apk
       - name: Install standalone Android emulator image
         run: |
