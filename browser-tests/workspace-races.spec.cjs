@@ -137,3 +137,16 @@ test("malformed successful export cannot be downloaded as a fictitious backup",a
  expect(downloads).toHaveLength(0);
  await expect(page.locator("#shell")).toBeVisible();
 });
+
+test("a valid JSON response with the wrong backup schema is not exported",async({page})=>{
+ await login(page);
+ let downloads=0;
+ page.on("download",()=>{downloads++;});
+ await page.route(url=>url.pathname==="/api/v1/export",route=>json(route,{
+  format:"unexpected-format",memos:[ITEM],revisions:[]
+ }));
+ page.on("dialog",dialog=>dialog.accept());
+ await page.locator("#exportBtn").click();
+ await expect(page.locator("#toast")).toContainText("Invalid export format");
+ expect(downloads).toBe(0);
+});
