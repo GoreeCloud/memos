@@ -150,6 +150,37 @@ class MemoStoreInstrumentedTest {
         assertEquals(1, store.list().size)
     }
 
+    @Test fun failedSqliteWriteRollsBackRevisionAndLeavesOriginalIntact() {
+        // Synthetic SQL trigger injects a transactional write error; this does
+        // NOT claim to simulate physical disk exhaustion or storage corruption.
+        val original = create("Before transient fault", "Synthetic unchanged #qa")
+        val sql = store.writableDatabase
+        sql.execSQL(
+            "CREATE TRIGGER qa_reject_memo_update BEFORE UPDATE ON memos " +
+            "BEGIN SELECT RAISE(ABORT, 'synthetic update rejection'); END"
+        )
+        try {
+            assertThrows(android.database.sqlite.SQLiteException::class.java) {
+                store.save(original, "After transient fault", "Never commit #qa",
+                    "mint", pinned = true, archived = false)
+            }
+            assertEquals("Failed update must not alter the previous memo",
+                original, store.get(original.id))
+            assertEquals("Failed update must roll back inserted revision history",
+                0, revisionCount(original.id))
+            assertEquals(1, store.list().size)
+        } finally {
+            sql.execSQL("DROP TRIGGER qa_reject_memo_update")
+        }
+        // A new attempt after the injected fault is removed must succeed
+        // without skipped versions or phantom history from the failed attempt.
+        val recovered = store.save(original, "Recovered #qa", "Synthetic safe write",
+            "mint", pinned = true, archived = false)
+        assertEquals(2, recovered.version)
+        assertEquals(1, revisionCount(original.id))
+        assertEquals("Recovered #qa", store.get(original.id)?.title)
+    }
+
     @Test fun sqliteCorruptionKeepsSyntheticDatabaseBytesForForensicRecovery() {
         // The main preview DB is never touched by this synthetic-only fault injection.
         val name = "memos_corrupt_" + java.util.UUID.randomUUID().toString()
