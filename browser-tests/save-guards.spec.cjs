@@ -84,3 +84,21 @@ test("failed quick write re-enables save and keeps the unsaved draft",async({pag
  expect(await page.evaluate(()=>sessionStorage.getItem("gcmemos:quick"))).toBe(draft);
  await expect(page.locator("#notesGrid .memo-card")).toHaveCount(0);
 });
+
+test("typing another memo during the pending POST preserves the newer draft",async({page})=>{
+ const pending=await setup(page);
+ const first="First fictional thought";
+ const second="Second fictional thought, still unsaved";
+ await page.locator("#quickContent").fill(first);
+ await page.locator("#quickSave").click();
+ await expect.poll(()=>pending.count).toBe(1);
+ await page.locator("#quickContent").fill(second);
+ pending.release();
+ await expect(page.locator("#quickSave")).toBeEnabled();
+ await expect(page.locator("#quickContent")).toHaveValue(second);
+ expect(await page.evaluate(()=>sessionStorage.getItem("gcmemos:quick"))).toBe(second);
+ await expect(page.locator("#notesGrid .memo-card")).toHaveCount(1);
+ await expect(page.locator("#notesGrid")).toContainText(first);
+ await expect(page.locator("#notesGrid")).not.toContainText(second);
+ expect(pending.count).toBe(1);
+});
