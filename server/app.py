@@ -342,9 +342,17 @@ def make_handler(store, token, auth_guard=None):
             self.wfile.write(raw)
 
         def authorized(self):
-            candidate = self.headers.get("Authorization", "")
+            # A proxy and this application must not interpret two credentials
+            # differently. One unambiguous bearer field is required.
+            supplied = self.headers.get_all("Authorization", [])
+            if len(supplied) != 1:
+                return False
             expected = "Bearer " + token
-            return hmac.compare_digest(candidate.encode("utf-8"), expected.encode("utf-8"))
+            try:
+                return hmac.compare_digest(supplied[0].encode("utf-8"),
+                                           expected.encode("utf-8"))
+            except (TypeError, UnicodeError):
+                return False
 
         def idempotency_key(self):
             values = self.headers.get_all("Idempotency-Key", [])
@@ -362,14 +370,21 @@ def make_handler(store, token, auth_guard=None):
             return key
 
         def parse_body(self):
-            try:
-                length = int(self.headers.get("Content-Length", "-1"))
-            except ValueError:
-                raise ValueError("Invalid Content-Length")
-            if length < 0 or length > MAX_BODY:
+            # Fail closed on conflicting HTTP framing; never choose the first
+            # of two lengths or accept chunked bodies in this local-only API.
+            if self.headers.get_all("Transfer-Encoding", []):
+                raise ValueError("Transfer-Encoding is unsupported")
+            lengths = self.headers.get_all("Content-Length", [])
+            if len(lengths) != 1:
+                raise ValueError("Exactly one Content-Length is required")
+            raw_length = lengths[0]
+            if (not raw_length.isascii() or not raw_length.isdecimal()
+                    or len(raw_length) > 6 or int(raw_length) > MAX_BODY):
                 raise ValueError("Request body out of range")
-            if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
-                raise ValueError("Content-Type must be application/json")
+            length = int(raw_length)
+            types = self.headers.get_all("Content-Type", [])
+            if len(types) != 1 or types[0].split(";")[0].strip().lower() != "application/json":
+                raise ValueError("Exactly one application/json Content-Type is required")
             try:
                 return json.loads(
                     self.rfile.read(length),
