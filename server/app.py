@@ -516,6 +516,11 @@ def make_handler(store, token, auth_guard=None):
 
 
 def create_server(host, port, db_path, token, auth_guard=None):
+    # This single-user development API has no TLS, account isolation or
+    # reverse-proxy trust model. An unsafe bind must fail BEFORE Store creates
+    # or initializes the requested local database.
+    if type(host) is not str or host != "127.0.0.1":
+        raise ValueError("Development Memos binds only to 127.0.0.1")
     if len(token) < 24:
         raise ValueError("GOREE_MEMOS_TOKEN must be at least 24 characters")
     return BoundedHTTPServer((host, port), make_handler(Store(db_path), token, auth_guard))
@@ -528,7 +533,10 @@ def main():
     parser.add_argument("--db", default=os.environ.get("GOREE_MEMOS_DB", "./data/memos.sqlite3"))
     args = parser.parse_args()
     token = os.environ.get("GOREE_MEMOS_TOKEN", "")
-    server = create_server(args.host, args.port, args.db, token)
+    try:
+        server = create_server(args.host, args.port, args.db, token)
+    except (OSError, ValueError) as error:
+        parser.exit(2, "Unable to start local Memos server: " + str(error) + "\n")
     print(f"GoreeCloud Memos listening at http://{args.host}:{server.server_port}")
     try:
         server.serve_forever()
