@@ -72,6 +72,22 @@ class FramingTests(unittest.TestCase):
                 self.assertIn("error", details)
         self.assertEqual(Store(self.db).list("all"), [])
 
+    def test_deep_json_fails_before_memo_creation_without_rejecting_string_delimiters(self):
+        deep = b'{"content":' + b'[' * 40 + b'0' + b']' * 40 + b'}'
+        headers = self.headers()
+        headers[-1] = "Content-Length: " + str(len(deep))
+        status, details = self.request(headers, deep)
+        self.assertEqual(status, 400, details)
+        self.assertIn("nest", details["error"])
+        self.assertEqual(Store(self.db).list("all"), [])
+        # A deeply *quoted* bracket sequence is just text, not JSON nesting.
+        safe = json.dumps({"title": "Safe", "content": ('[{' * 65) + ' \\"quoted\\" ]}' }).encode("utf-8")
+        headers[-1] = "Content-Length: " + str(len(safe))
+        status, item = self.request(headers, safe)
+        self.assertEqual(status, 201, item)
+        self.assertEqual(item["content"], json.loads(safe)["content"])
+        self.assertEqual(len(Store(self.db).list("all")), 1)
+
     def test_duplicate_credentials_are_denied_even_if_one_is_valid(self):
         for headers in (
             ["Authorization: Bearer " + TOKEN, "Authorization: Bearer invalid"],
