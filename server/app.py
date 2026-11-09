@@ -26,6 +26,21 @@ MAX_BODY = 128 * 1024
 IDEMPOTENCY_RETENTION_DAYS = 7
 
 
+def strict_json_object(pairs):
+    """Reject ambiguous object members, including inside nested JSON objects."""
+    result = {}
+    for name, value in pairs:
+        if name in result:
+            raise ValueError("Duplicate JSON object field")
+        result[name] = value
+    return result
+
+
+def reject_nonstandard_json_number(value):
+    """JSON permits no NaN or infinity constants."""
+    raise ValueError("Non-standard JSON numeric value")
+
+
 def timestamp():
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
@@ -356,7 +371,11 @@ def make_handler(store, token, auth_guard=None):
             if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
                 raise ValueError("Content-Type must be application/json")
             try:
-                return json.loads(self.rfile.read(length))
+                return json.loads(
+                    self.rfile.read(length),
+                    object_pairs_hook=strict_json_object,
+                    parse_constant=reject_nonstandard_json_number,
+                )
             except (UnicodeDecodeError, json.JSONDecodeError):
                 raise ValueError("Invalid JSON")
 

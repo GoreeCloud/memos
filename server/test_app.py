@@ -85,6 +85,37 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(self.send("/api/v1/memos?folder=other")[0], 400)
         self.assertEqual(self.send("/../etc/passwd")[0], 404)
 
+    def test_mutation_rejects_ambiguous_json_and_nonfinite_numbers(self):
+        """Real HTTP parser must fail before writing any memo or history."""
+        from urllib.request import Request, urlopen
+        before = self.send("/api/v1/export")[1]["memos"]
+        cases = (
+            (b'{"title":"Safe","title":"Override"}', "Duplicate JSON object field"),
+            (b'{"title":"Safe","content":"Keep","content":"Replace"}', "Duplicate JSON object field"),
+            (b'{"title":"Safe","pinned":false,"pinned":true}', "Duplicate JSON object field"),
+            (b'{"title":"Safe","color":{"a":1,"a":2}}', "Duplicate JSON object field"),
+            (b'{"title":"Safe","pinned":NaN}', "Non-standard JSON numeric value"),
+            (b'{"title":"Safe","pinned":Infinity}', "Non-standard JSON numeric value"),
+            (b'{"title":"Safe","pinned":-Infinity}', "Non-standard JSON numeric value"),
+        )
+        for raw, expected in cases:
+            with self.subTest(raw=raw):
+                request = Request(
+                    self.root + "/api/v1/memos", raw, method="POST",
+                    headers={"Authorization": "Bearer " + TOKEN,
+                             "Content-Type": "application/json"},
+                )
+                with self.assertRaises(HTTPError) as problem:
+                    urlopen(request, timeout=5)
+                self.assertEqual(problem.exception.code, 400)
+                self.assertEqual(json.loads(problem.exception.read())["error"], expected)
+        self.assertEqual(self.send("/api/v1/export")[1]["memos"], before)
+
+        status, created = self.send("/api/v1/memos", method="POST",
+                                    data={"title": "Valid single JSON fields", "content": "Hello"})
+        self.assertEqual(status, 201)
+        self.assertEqual(created["title"], "Valid single JSON fields")
+
     def test_export_and_static(self):
         code, archive = self.send("/api/v1/export")
         self.assertEqual(code, 200)
