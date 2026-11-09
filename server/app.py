@@ -23,6 +23,7 @@ COLORS = {"paper", "rose", "sun", "mint", "sky", "lavender"}
 HASHTAG = re.compile(r"(?<!\w)#([\w/-]{1,64})", re.UNICODE)
 ID = re.compile(r"^/api/v1/memos/([a-f0-9-]{36})(?:/(duplicate))?$")
 MAX_BODY = 128 * 1024
+MAX_JSON_DEPTH = 32
 IDEMPOTENCY_RETENTION_DAYS = 7
 
 
@@ -39,6 +40,34 @@ def strict_json_object(pairs):
 def reject_nonstandard_json_number(value):
     """JSON permits no NaN or infinity constants."""
     raise ValueError("Non-standard JSON numeric value")
+
+
+def reject_excessive_json_nesting(raw: bytes) -> None:
+    """Reject deep JSON before decoding; ignore brackets in escaped strings.
+
+    The JSON parser still validates matching structures and proper syntax.
+    """
+    depth = 0
+    in_string = False
+    escaped = False
+    for value in raw:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif value == 92:  # backslash
+                escaped = True
+            elif value == 34:  # quote
+                in_string = False
+        elif value == 34:
+            in_string = True
+        elif value == 123 or value == 91:  # { or [
+            depth += 1
+            if depth > MAX_JSON_DEPTH:
+                raise ValueError("JSON nesting depth exceeded")
+        elif value == 125 or value == 93:  # } or ]
+            depth -= 1
+            if depth < 0:
+                raise ValueError("Invalid JSON structure")
 
 
 def timestamp():
@@ -386,13 +415,15 @@ def make_handler(store, token, auth_guard=None):
             if len(types) != 1 or types[0].split(";")[0].strip().lower() != "application/json":
                 raise ValueError("Exactly one application/json Content-Type is required")
             try:
+                raw = self.rfile.read(length)
+                reject_excessive_json_nesting(raw)
                 return json.loads(
-                    self.rfile.read(length),
+                    raw,
                     object_pairs_hook=strict_json_object,
                     parse_constant=reject_nonstandard_json_number,
                 )
-            except (UnicodeDecodeError, json.JSONDecodeError):
-                raise ValueError("Invalid JSON")
+            except (UnicodeDecodeError, json.JSONDecodeError, RecursionError):
+                raise ValueError("Invalid or excessively nested JSON")
 
         def route(self):
             url = urlsplit(self.path)
