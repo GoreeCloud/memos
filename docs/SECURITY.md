@@ -21,3 +21,5 @@ The initial code is a single-user development preview, not a hardened multi-tena
 - Consistency-aware online SQLite backup, read-only verify and non-overwriting restore commands are included. Backups are not encrypted, scheduled, retained or externally replicated. See BACKUP_AND_RECOVERY.md. Additional recovery drills remain required before production.
 - GC UI token alignment does not establish platform-wide visual/accessibility approval.
 - Threats still to resolve: distributed/proxy-aware production rate limits and abuse protection, identity/SSO, comprehensive audit logging, migration safety, attachment scanning and quotas, authenticated AI/webhook access, secret rotation, TLS, disaster recovery and accessibility QA.
+
+- JSON object/array nesting is capped at 32 levels before parsing, without treating braces in escaped string content as structural delimiters. Excessive depth fails with HTTP 400 before memo or retry-key writes.
