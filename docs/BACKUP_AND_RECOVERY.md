@@ -11,7 +11,7 @@ python3 server/maintenance.py backup ./data/memos.sqlite3 ./backups/memos-2026-1
 python3 server/maintenance.py verify ./backups/memos-2026-11-05.sqlite
 ```
 
-Create the destination directory beforehand; the command does not overwrite any existing file. New backup files have owner-only (0600) permissions on POSIX systems. Never commit database files to GitHub, and encrypt backups before exporting to an untrusted location.
+Create the destination directory beforehand; the command does not overwrite any existing file. Both backup and restore now reject symbolic links or non-directory components anywhere in an existing destination parent path, as well as an existing or dangling linked target; the refusal occurs before creating a temporary snapshot. This is a static-path safeguard for a trusted local operator, not race-proof against adversarial concurrent directory swaps. New backup files have owner-only (0600) permissions on POSIX systems. Never commit database files to GitHub, and encrypt backups before exporting to an untrusted location.
 
 ## Memo creation retry ledger
 
