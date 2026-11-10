@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import os
 import sqlite3
+import stat
 import tempfile
 from pathlib import Path
 
@@ -134,9 +135,18 @@ def verify_database(path):
 
 
 def _validated_path(path):
-    p = Path(path).expanduser().absolute()
-    if not p.parent.is_dir():
-        raise ValueError("Destination directory must already exist")
+    # Check every *existing* component. Path.is_dir() follows symlinks, so
+    # testing only the immediate parent can redirect a private backup into an
+    # unexpected location. This check is static, not resistant to concurrent
+    # hostile filesystem renames (production requires dirfd/openat handling).
+    p = Path(os.path.abspath(os.fspath(Path(path).expanduser())))
+    for ancestor in reversed((p.parent, *p.parent.parents)):
+        try:
+            info = ancestor.lstat()
+        except FileNotFoundError as error:
+            raise ValueError("Destination directory must already exist") from error
+        if not stat.S_ISDIR(info.st_mode):
+            raise ValueError("Destination ancestry must contain only real directories")
     if p.exists() or p.is_symlink():
         raise FileExistsError("Destination already exists; refusing to overwrite")
     return p
