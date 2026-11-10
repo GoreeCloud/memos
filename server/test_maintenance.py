@@ -48,6 +48,54 @@ class RecoveryTests(unittest.TestCase):
             restore_database(self.source, target)
         self.assertEqual(target.read_bytes(), b"untouched")
 
+    def test_backup_and_restore_reject_linked_destination_ancestors(self):
+        created = self.store.create({"title": "Synthetic", "content": "Private recovery"})
+        outside = self.path / "private-target"
+        outside.mkdir(mode=0o700)
+        alias = self.path / "linked-parent"
+        alias.symlink_to(outside, target_is_directory=True)
+        sentinel = outside / "do-not-edit.txt"
+        sentinel.write_text("untouched", encoding="utf-8")
+
+        for operation, source, name in (
+            (backup_database, self.source, "backup.sqlite"),
+            (restore_database, self.source, "restored.sqlite"),
+        ):
+            with self.subTest(operation=operation.__name__):
+                with self.assertRaisesRegex(ValueError, "ancestry.*real directories"):
+                    operation(source, alias / name)
+                self.assertFalse((outside / name).exists())
+                self.assertEqual(sentinel.read_text(encoding="utf-8"), "untouched")
+                self.assertEqual(sorted(x.name for x in outside.iterdir()),
+                                 ["do-not-edit.txt"])
+
+        # A legitimate private nested destination still restores all records.
+        private = self.path / "safe" / "nested"
+        private.mkdir(mode=0o700, parents=True)
+        backup = private / "verified.sqlite"
+        self.assertEqual(backup_database(self.source, backup)["memos"], 1)
+        recovered = private / "restored.sqlite"
+        self.assertEqual(restore_database(backup, recovered)["memos"], 1)
+        from maintenance import verify_database
+        self.assertEqual(verify_database(recovered)["memos"], 1)
+        self.assertEqual(Store(recovered).get(created["id"])["content"],
+                         "Private recovery")
+
+    def test_non_directory_ancestor_and_dangling_destination_link_fail_closed(self):
+        regular = self.path / "regular-file"
+        regular.write_text("preserve", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "ancestry.*real directories"):
+            backup_database(self.source, regular / "database.sqlite")
+        self.assertEqual(regular.read_text(encoding="utf-8"), "preserve")
+
+        missing = self.path / "no-such-target"
+        dangling = self.path / "dangling.sqlite"
+        dangling.symlink_to(missing)
+        with self.assertRaises(FileExistsError):
+            restore_database(self.source, dangling)
+        self.assertTrue(dangling.is_symlink())
+        self.assertFalse(missing.exists())
+
     def test_reject_invalid_source(self):
         path = self.path / "invalid.sqlite"
         path.write_bytes(b"not a sqlite database")
