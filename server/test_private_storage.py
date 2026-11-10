@@ -1,5 +1,6 @@
 """Non-destructive private SQLite database provisioning tests."""
 import os
+import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
@@ -25,6 +26,25 @@ class PrivateStorageTests(unittest.TestCase):
         self.assertFalse(provision_private_database(self.db))
         self.assertEqual(self.db.read_bytes(), original_bytes)
         self.assertEqual(Store(self.db).get(memo["id"])["content"], "Private test memo")
+
+    def test_store_connections_close_deterministically_on_success_and_error(self):
+        self.assertTrue(provision_private_database(self.db))
+        store = Store(self.db)
+        with store.connect() as db:
+            self.assertEqual(db.execute("SELECT 1").fetchone()[0], 1)
+        with self.assertRaises(sqlite3.ProgrammingError):
+            db.execute("SELECT 1")
+        try:
+            with store.connect() as failed:
+                self.assertEqual(failed.execute("SELECT 1").fetchone()[0], 1)
+                raise RuntimeError("synthetic operation failure")
+        except RuntimeError:
+            pass
+        with self.assertRaises(sqlite3.ProgrammingError):
+            failed.execute("SELECT 1")
+        item = store.create({"content": "Committed and closed"})
+        self.assertEqual(Store(self.db).get(item["id"])["content"],
+                         "Committed and closed")
 
     def test_refuses_existing_permissive_file_without_chmod(self):
         self.assertTrue(provision_private_database(self.db))
