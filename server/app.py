@@ -10,6 +10,7 @@ import re
 import sqlite3
 import sys
 import uuid
+from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -129,12 +130,21 @@ class Store:
                 ON memo_create_requests(created_at);
             """)
 
+    @contextmanager
     def connect(self):
+        # sqlite3.Connection's built-in context manager handles transaction
+        # commit/rollback but does NOT close the connection. Explicitly close
+        # after every Store operation so WAL checkpoint and file descriptors
+        # never depend on nondeterministic garbage collection.
         db = sqlite3.connect(self.path, timeout=8)
-        db.row_factory = sqlite3.Row
-        db.execute("PRAGMA busy_timeout=8000")
-        db.execute("PRAGMA journal_mode=WAL")
-        return db
+        try:
+            db.row_factory = sqlite3.Row
+            db.execute("PRAGMA busy_timeout=8000")
+            db.execute("PRAGMA journal_mode=WAL")
+            with db:
+                yield db
+        finally:
+            db.close()
 
     @staticmethod
     def serialize(row):
