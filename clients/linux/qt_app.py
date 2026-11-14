@@ -18,7 +18,7 @@ from PySide6.QtCore import QObject, Property, QUrl, Signal, Slot, qVersion
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
-from qt_api import request_json
+from qt_api import request_json, CreateReplayKey
 
 
 class MemosBridge(QObject):
@@ -40,6 +40,7 @@ class MemosBridge(QObject):
         self._loading = False
         self._saving = False
         self._seq = 0
+        self._create_replay = CreateReplayKey()
         self._loaded.connect(self._apply_loaded)
         self._saved.connect(self._apply_saved)
 
@@ -120,6 +121,12 @@ class MemosBridge(QObject):
         self._set_loading(False)
         self._set_message(message)
 
+    @Slot()
+    def discardDraft(self):
+        """Reset an abandoned draft only when no request remains in flight."""
+        if not self._saving:
+            self._create_replay.clear()
+
     @Slot(str, int, str, str)
     def saveMemo(self, memo_id: str, version: int, title: str, content: str):
         if self._saving:
@@ -127,8 +134,17 @@ class MemosBridge(QObject):
         self._set_saving(True)
         self._set_message("")
         payload = {"title": title, "content": content}
+        create_key = None
         if memo_id:
             payload["version"] = version
+        else:
+            try:
+                create_key = self._create_replay.for_payload(title, content)
+            except ValueError:
+                self._set_saving(False)
+                self._set_message("Invalid memo draft.")
+                self.saveFailed.emit()
+                return
 
         def work():
             try:
@@ -142,7 +158,7 @@ class MemosBridge(QObject):
                                  "PATCH", payload)
                 else:
                     request_json(self._base, self._token, "/api/v1/memos",
-                                 "POST", payload)
+                                 "POST", payload, idempotency_key=create_key)
                 self._saved.emit(True)
             except (HTTPError, URLError, ValueError, OSError):
                 self._saved.emit(False)
@@ -153,6 +169,7 @@ class MemosBridge(QObject):
     def _apply_saved(self, ok: bool):
         self._set_saving(False)
         if ok:
+            self._create_replay.clear()
             self.saveSucceeded.emit()
         else:
             self._set_message("Save failed. Check your connection or memo version.")
