@@ -23,12 +23,19 @@ ApplicationWindow {
     readonly property color gcBrand: "#5146C8" // Iris light
     readonly property color gcOutline: "#CED3DF"
     readonly property int columnCount: width >= 950 ? 3 : (width >= 620 ? 2 : 1)
+    // A QML context may outlive its Python QObject during preview teardown.
+    // Never dereference a detached backend in bindings or event callbacks.
+    readonly property bool backendReady: memosBackend !== null && memosBackend !== undefined
+    readonly property bool backendSaving: backendReady && memosBackend.saving
+    readonly property bool backendLoading: backendReady && memosBackend.loading
+    readonly property string backendMessage: backendReady ? memosBackend.message : ""
+    readonly property var backendNotes: backendReady ? memosBackend.notes : []
     property var columns: [[], [], []]
 
     function rebalance() {
         var next = [[], [], []]
         var heights = [0, 0, 0]
-        var notes = memosBackend.notes || []
+        var notes = root.backendNotes || []
         for (var i = 0; i < notes.length; i++) {
             var note = notes[i]
             var target = 0
@@ -42,6 +49,7 @@ ApplicationWindow {
     }
 
     function openEditor(note) {
+        if (!root.backendReady || root.backendSaving) return
         editor.memoId = note ? String(note.id) : ""
         editor.memoVersion = note ? Number(note.version) : 0
         titleInput.text = note ? String(note.title || "") : ""
@@ -53,11 +61,11 @@ ApplicationWindow {
     Component.onCompleted: rebalance()
 
     Connections {
-        target: memosBackend
+        target: root.backendReady ? memosBackend : null
         function onNotesChanged() { root.rebalance() }
         function onSaveSucceeded() {
             editor.close()
-            memosBackend.refresh(searchField.text)
+            if (root.backendReady) memosBackend.refresh(searchField.text)
         }
     }
 
@@ -65,7 +73,9 @@ ApplicationWindow {
         id: searchDebounce
         interval: 300
         repeat: false
-        onTriggered: memosBackend.refresh(searchField.text)
+        onTriggered: {
+            if (root.backendReady) memosBackend.refresh(searchField.text)
+        }
     }
 
     // Native desktop keyboard paths. Do not open a second editor while a
@@ -73,13 +83,13 @@ ApplicationWindow {
     Shortcut {
         sequences: [StandardKey.New]
         autoRepeat: false
-        enabled: !editor.visible && !memosBackend.saving
+        enabled: root.backendReady && !editor.visible && !root.backendSaving
         onActivated: root.openEditor(null)
     }
     Shortcut {
         sequences: [StandardKey.Find]
         autoRepeat: false
-        enabled: !editor.visible && !memosBackend.saving
+        enabled: root.backendReady && !editor.visible && !root.backendSaving
         onActivated: {
             searchField.forceActiveFocus(Qt.ShortcutFocusReason)
             searchField.selectAll()
@@ -108,12 +118,14 @@ ApplicationWindow {
                 Layout.preferredWidth: Math.min(300, Math.max(160, root.width * 0.28))
                 placeholderText: qsTr("Search memos…")
                 Accessible.name: qsTr("Search private memos")
+                enabled: root.backendReady
                 onTextEdited: searchDebounce.restart()
             }
             Button {
                 text: qsTr("＋ New memo")
                 Accessible.name: qsTr("Create a memo")
                 highlighted: true
+                enabled: root.backendReady
                 onClicked: root.openEditor(null)
             }
         }
@@ -121,7 +133,7 @@ ApplicationWindow {
         Rectangle {
             Layout.fillWidth: true
             implicitHeight: 44
-            visible: memosBackend.loading || memosBackend.message.length > 0
+            visible: root.backendReady && (root.backendLoading || root.backendMessage.length > 0)
             radius: 12
             color: root.gcTonal
             border.color: root.gcOutline
@@ -131,7 +143,7 @@ ApplicationWindow {
                 verticalAlignment: Text.AlignVCenter
                 color: root.gcText
                 wrapMode: Text.WordWrap
-                text: memosBackend.loading ? qsTr("Loading memos…") : memosBackend.message
+                text: root.backendLoading ? qsTr("Loading memos…") : root.backendMessage
                 textFormat: Text.PlainText
                 Accessible.role: Accessible.StaticText
             }
@@ -139,7 +151,8 @@ ApplicationWindow {
 
         Label {
             Layout.fillWidth: true
-            visible: !memosBackend.loading && memosBackend.message.length === 0 && memosBackend.notes.length === 0
+            visible: root.backendReady && !root.backendLoading &&
+                     root.backendMessage.length === 0 && root.backendNotes.length === 0
             text: qsTr("No memos yet. Create your first thought.")
             color: root.gcTextSoft
         }
@@ -234,10 +247,12 @@ ApplicationWindow {
         height: Math.min(root.height - 48, 540)
         x: (root.width - width) / 2
         y: (root.height - height) / 2
-        closePolicy: memosBackend.saving ? Popup.NoAutoClose : Popup.CloseOnEscape
+        closePolicy: root.backendSaving ? Popup.NoAutoClose : Popup.CloseOnEscape
         // Focus the first editable field after the modal obtains keyboard focus.
         onOpened: titleInput.forceActiveFocus(Qt.PopupFocusReason)
-        onClosed: memosBackend.discardDraft()
+        onClosed: {
+            if (root.backendReady) memosBackend.discardDraft()
+        }
 
         contentItem: ColumnLayout {
             spacing: 12
@@ -247,7 +262,7 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 placeholderText: qsTr("Title (optional)")
                 Accessible.name: qsTr("Memo title")
-                enabled: !memosBackend.saving
+                enabled: root.backendReady && !root.backendSaving
             }
             ScrollView {
                 Layout.fillWidth: true
@@ -257,7 +272,7 @@ ApplicationWindow {
                     wrapMode: TextEdit.Wrap
                     placeholderText: qsTr("Write your memo…")
                     Accessible.name: qsTr("Memo content")
-                    enabled: !memosBackend.saving
+                    enabled: root.backendReady && !root.backendSaving
                 }
             }
             RowLayout {
@@ -265,15 +280,18 @@ ApplicationWindow {
                 Item { Layout.fillWidth: true }
                 Button {
                     text: qsTr("Cancel")
-                    enabled: !memosBackend.saving
+                    enabled: root.backendReady && !root.backendSaving
                     onClicked: editor.close()
                 }
                 Button {
-                    text: memosBackend.saving ? qsTr("Saving…") : qsTr("Save memo")
+                    text: root.backendSaving ? qsTr("Saving…") : qsTr("Save memo")
                     highlighted: true
-                    enabled: !memosBackend.saving
-                    onClicked: memosBackend.saveMemo(editor.memoId, editor.memoVersion,
-                                                    titleInput.text, bodyInput.text)
+                    enabled: root.backendReady && !root.backendSaving
+                    onClicked: {
+                        if (root.backendReady)
+                            memosBackend.saveMemo(editor.memoId, editor.memoVersion,
+                                                  titleInput.text, bodyInput.text)
+                    }
                 }
             }
         }
