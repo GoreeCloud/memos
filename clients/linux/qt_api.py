@@ -7,8 +7,10 @@ preflight can be regression-tested without a graphical environment.
 
 from __future__ import annotations
 
+import hashlib
 import ipaddress
 import json
+from uuid import UUID, uuid4
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
@@ -50,7 +52,35 @@ def checked_base(base: str) -> str:
     return base.rstrip("/")
 
 
-def request_json(base: str, token: str, path: str, method: str = "GET", value=None):
+class CreateReplayKey:
+    """Reuse a create request UUIDv4 for the same draft after uncertain failure.
+
+    The memo content is not retained in this helper; only an in-memory digest
+    and short-lived replay key are kept until success or explicit draft close.
+    """
+
+    def __init__(self):
+        self._digest = None
+        self._key = None
+
+    def for_payload(self, title: str, content: str) -> str:
+        if not isinstance(title, str) or not isinstance(content, str):
+            raise ValueError("Invalid memo content")
+        canonical = json.dumps({"title": title, "content": content},
+                               sort_keys=True, ensure_ascii=False).encode("utf-8")
+        digest = hashlib.sha256(canonical).digest()
+        if self._key is None or self._digest != digest:
+            self._key = str(uuid4())
+            self._digest = digest
+        return self._key
+
+    def clear(self):
+        self._digest = None
+        self._key = None
+
+
+def request_json(base: str, token: str, path: str, method: str = "GET",
+                 value=None, *, idempotency_key: str | None = None):
     """Perform a bounded Memos API request without proxies or redirects.
 
     Only known internal API paths are allowed. Never return or log credentials,
@@ -73,6 +103,18 @@ def request_json(base: str, token: str, path: str, method: str = "GET", value=No
     if method not in ("GET", "POST", "PATCH"):
         raise ValueError("Unsupported Memos API method")
     headers = {"Authorization": "Bearer " + token}
+    if idempotency_key is not None:
+        if method != "POST" or path != "/api/v1/memos":
+            raise ValueError("Idempotency key allowed only for memo creation")
+        if not isinstance(idempotency_key, str):
+            raise ValueError("Invalid idempotency key")
+        try:
+            parsed = UUID(idempotency_key)
+        except (TypeError, ValueError, AttributeError):
+            raise ValueError("Invalid idempotency key") from None
+        if parsed.version != 4 or str(parsed) != idempotency_key:
+            raise ValueError("Invalid idempotency key")
+        headers["Idempotency-Key"] = idempotency_key
     data = None
     if value is not None:
         headers["Content-Type"] = "application/json"
