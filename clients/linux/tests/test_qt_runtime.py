@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import os
 import sys
+import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 # Set the virtual display and software scene graph *before* importing Qt.
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -31,6 +33,62 @@ class QtQuickStartupTests(unittest.TestCase):
         if qVersion() != "6.12.0":
             raise AssertionError("Qt 6.12.0 is required; unexpected runtime " + qVersion())
         cls.app = QGuiApplication.instance() or QGuiApplication(["memos-qt-preview-test"])
+
+    def _await_idle(self, bridge):
+        """Pump only the synthetic Qt event loop; never contact a real server."""
+        deadline = time.monotonic() + 3
+        while bridge.saving and time.monotonic() < deadline:
+            self.app.processEvents()
+            time.sleep(0.01)
+        self.app.processEvents()
+        self.assertFalse(bridge.saving, "Synthetic save worker did not complete")
+
+    def test_create_replays_same_key_after_uncertain_error(self):
+        """A failed request retains its identity until success or abandonment."""
+        bridge = MemosBridge("http://127.0.0.1:8765", "fictional-test-token-not-a-secret")
+        keys = []
+
+        def fake_request(_base, _token, path, method="GET", value=None,
+                         *, idempotency_key=None):
+            self.assertEqual((path, method), ("/api/v1/memos", "POST"))
+            self.assertEqual(value, {"title": "Synthetic", "content": "demo"})
+            self.assertIsInstance(idempotency_key, str)
+            keys.append(idempotency_key)
+            if len(keys) == 1:
+                raise OSError("synthetic uncertain transport failure")
+            return {"id": "synthetic-result"}
+
+        with patch("qt_app.request_json", side_effect=fake_request):
+            bridge.saveMemo("", 0, "Synthetic", "demo")
+            self._await_idle(bridge)
+            self.assertIn("Save failed", bridge.message)
+            bridge.saveMemo("", 0, "Synthetic", "demo")
+            self._await_idle(bridge)
+            self.assertEqual(keys[:2], [keys[0], keys[0]])
+            bridge.saveMemo("", 0, "Synthetic", "demo")
+            self._await_idle(bridge)
+        self.assertEqual(len(keys), 3)
+        self.assertNotEqual(keys[2], keys[0],
+                            "Successful save must clear stale retry identity")
+
+    def test_cancel_after_uncertain_error_resets_replay_identity(self):
+        bridge = MemosBridge("http://127.0.0.1:8765", "fictional-test-token-not-a-secret")
+        keys = []
+
+        def failed_request(_base, _token, _path, _method="GET",
+                           _value=None, *, idempotency_key=None):
+            keys.append(idempotency_key)
+            raise OSError("synthetic uncertain transport failure")
+
+        with patch("qt_app.request_json", side_effect=failed_request):
+            bridge.saveMemo("", 0, "Synthetic", "demo")
+            self._await_idle(bridge)
+            bridge.discardDraft()
+            bridge.saveMemo("", 0, "Synthetic", "demo")
+            self._await_idle(bridge)
+        self.assertEqual(len(keys), 2)
+        self.assertNotEqual(keys[0], keys[1],
+                            "Explicitly abandoned draft must discard retry identity")
 
     def test_qml_engine_loads_and_starts_windowed(self):
         # An empty token makes network calls unnecessary; QML still binds to
