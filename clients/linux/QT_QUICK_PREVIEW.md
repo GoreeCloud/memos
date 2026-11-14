@@ -6,11 +6,11 @@ The November 13, 2026 mandatory Linux framework standard requires all **existing
 
 ## Source
 
-- `qt_app.py`: Qt Quick/PySide6 6.12.0 application host; no token exposure to QML; async fetch and save with stale-search rejection.
+- `qt_app.py`: Qt Quick/PySide6 6.12.0 application host; no token exposure to QML; async fetch and save with stale-search rejection; explicit per-draft create retry identity that survives uncertain failure and is reset after success or dismissal.
 - `Memos.qml`: windowed-by-default original Qt Quick interface, independent masonry-like columns, keyboard-operable memo cards, search and edit/create dialog.
-- `qt_api.py`: stdlib-only authenticated HTTP boundary, numeric loopback-only HTTP, HTTPS required elsewhere, disabled proxies and redirects, bounded responses and requests, restricted internal paths.
+- `qt_api.py`: stdlib-only authenticated HTTP boundary, numeric loopback-only HTTP, HTTPS required elsewhere, disabled proxies and redirects, bounded responses and requests, restricted internal paths; validates and sends canonical UUIDv4 `Idempotency-Key` headers for memo creation only.
 - `requirements-qt.txt`: exact Qt 6.12.0/PySide6 development dependency.
-- `tests/test_qt_api.py`: disposable synthetic loopback tests, no real credentials, no external traffic.
+- `tests/test_qt_api.py` and `tests/test_qt_runtime.py`: disposable synthetic loopback transport, idempotency and real Qt event-loop/QML tests, no real credentials or external traffic.
 
 UI semantic color candidates and 4/8/12/16/18/24 spacing/radius roles are derived from [GoreeCloud UI alpha tokens](https://github.com/GoreeCloud/gc-ui/blob/main/tokens/gc.tokens.json) at the inspected `5ea0b8f0b1d4c9f7c3593d58daeb1b75e6ec980e` blob. Those are provisional candidates, not a fully verified native UI SDK or accepted visual implementation.
 
@@ -33,7 +33,13 @@ python3 -m compileall -q clients/linux/qt_api.py clients/linux/qt_app.py
 
 ## Verified headless Linux CI checkpoint — November 13, 2026
 
-The [nonpublishing Qt Quick preview workflow](https://github.com/GoreeCloud/memos/actions/workflows/qt-quick-linux-preview.yml) now installs the official Qt/PySide6 6.12.0 wheel and required Linux EGL/OpenGL runtime libraries on a disposable Ubuntu runner. Its isolated QML smoke test loads `Memos.qml` into a real `QQmlApplicationEngine`, binds to the real `MemosBridge`, and verifies a visible **normal/windowed** startup without credentials or a service. The previously passing seven synthetic API boundary tests remain in a separate job. At commit `449c833ff9e334c7c8ccf47c7b0adef6fb9ce06d`, the Qt headless workflow, standard Memos CI and synthetic browser acceptance all passed. No private data or user-host package installation was involved.
+The [nonpublishing Qt Quick preview workflow](https://github.com/GoreeCloud/memos/actions/workflows/qt-quick-linux-preview.yml) now installs the official Qt/PySide6 6.12.0 wheel and required Linux EGL/OpenGL runtime libraries on a disposable Ubuntu runner. Its isolated QML smoke test loads `Memos.qml` into a real `QQmlApplicationEngine`, binds to the real `MemosBridge`, and verifies a visible **normal/windowed** startup without credentials or a service. The expanded ten synthetic API boundary tests run separately from three headless Qt runtime tests. At commit `f805764a72e117d2e8b08aaaaf528fe491f06dfc`, the Qt headless workflow, standard Memos CI and synthetic browser acceptance all passed. The additional synthetic runtime tests verify that unchanged create drafts reuse the same identity on uncertain failure, and success or explicit dismissal clears it. No private data or user-host package installation was involved.
+
+## Create retry safety in the preview
+
+A new memo uses the existing Memos API's server-validated UUIDv4 `Idempotency-Key` mechanism. After an uncertain transport failure, retrying the **unchanged** draft in the same open editor reuses its original key; successful save or explicit dismissal discards that identity. The server retains successful create-request associations for seven days, so this is **best-effort protection under the server's defined retention window**, not a guarantee against duplication after expiration, app termination or content changes. Keep an uncertain draft unchanged when retrying and verify server state if the outcome remains ambiguous. Existing notes still use version-checked PATCH requests.
+
+The preview does not persist the retry key or memo body outside the editor session. Real-service retry/timeout acceptance has **not** yet been verified.
 
 ## Acceptance gaps
 
