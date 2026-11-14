@@ -94,8 +94,8 @@ class QtQuickStartupTests(unittest.TestCase):
     def test_desktop_shortcut_and_keyboard_focus_contract(self):
         """Resolve real controls in the Qt engine and open an editable modal."""
         qml = (LINUX_CLIENT / "Memos.qml").read_text(encoding="utf-8")
-        self.assertIn("sequence: StandardKey.New", qml)
-        self.assertIn("sequence: StandardKey.Find", qml)
+        self.assertIn("sequences: [StandardKey.New]", qml)
+        self.assertIn("sequences: [StandardKey.Find]", qml)
         self.assertIn("enabled: !editor.visible && !memosBackend.saving", qml)
         self.assertIn("onOpened: titleInput.forceActiveFocus(Qt.PopupFocusReason)", qml)
 
