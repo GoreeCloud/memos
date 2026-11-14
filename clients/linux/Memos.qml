@@ -68,6 +68,24 @@ ApplicationWindow {
         onTriggered: memosBackend.refresh(searchField.text)
     }
 
+    // Native desktop keyboard paths. Do not open a second editor while a
+    // modal editor is active, or allow a shortcut to interrupt an async save.
+    Shortcut {
+        sequence: StandardKey.New
+        autoRepeat: false
+        enabled: !editor.visible && !memosBackend.saving
+        onActivated: root.openEditor(null)
+    }
+    Shortcut {
+        sequence: StandardKey.Find
+        autoRepeat: false
+        enabled: !editor.visible && !memosBackend.saving
+        onActivated: {
+            searchField.forceActiveFocus(Qt.ShortcutFocusReason)
+            searchField.selectAll()
+        }
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 24
@@ -86,6 +104,7 @@ ApplicationWindow {
             }
             TextField {
                 id: searchField
+                objectName: "memos-search-field"
                 Layout.preferredWidth: Math.min(300, Math.max(160, root.width * 0.28))
                 placeholderText: qsTr("Search memos…")
                 Accessible.name: qsTr("Search private memos")
@@ -205,6 +224,8 @@ ApplicationWindow {
 
     Dialog {
         id: editor
+        objectName: "memos-editor"
+        focus: true
         property string memoId: ""
         property int memoVersion: 0
         modal: true
@@ -214,12 +235,15 @@ ApplicationWindow {
         x: (root.width - width) / 2
         y: (root.height - height) / 2
         closePolicy: memosBackend.saving ? Popup.NoAutoClose : Popup.CloseOnEscape
+        // Focus the first editable field after the modal obtains keyboard focus.
+        onOpened: titleInput.forceActiveFocus(Qt.PopupFocusReason)
         onClosed: memosBackend.discardDraft()
 
         contentItem: ColumnLayout {
             spacing: 12
             TextField {
                 id: titleInput
+                objectName: "memos-title-field"
                 Layout.fillWidth: true
                 placeholderText: qsTr("Title (optional)")
                 Accessible.name: qsTr("Memo title")
