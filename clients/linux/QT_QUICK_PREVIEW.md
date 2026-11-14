@@ -31,6 +31,10 @@ python3 -m unittest discover -s clients/linux/tests -p 'test_qt_api.py' -v
 python3 -m compileall -q clients/linux/qt_api.py clients/linux/qt_app.py
 ```
 
+## Verified headless Linux CI checkpoint — November 13, 2026
+
+The [nonpublishing Qt Quick preview workflow](https://github.com/GoreeCloud/memos/actions/workflows/qt-quick-linux-preview.yml) now installs the official Qt/PySide6 6.12.0 wheel and required Linux EGL/OpenGL runtime libraries on a disposable Ubuntu runner. Its isolated QML smoke test loads `Memos.qml` into a real `QQmlApplicationEngine`, binds to the real `MemosBridge`, and verifies a visible **normal/windowed** startup without credentials or a service. The previously passing seven synthetic API boundary tests remain in a separate job. At commit `449c833ff9e334c7c8ccf47c7b0adef6fb9ce06d`, the Qt headless workflow, standard Memos CI and synthetic browser acceptance all passed. No private data or user-host package installation was involved.
+
 ## Acceptance gaps
 
-This preview has not passed real Qt/QML runtime, headless/Wayland/X11 testing, desktop packaging, keyboard/screen-reader validation, dark/high-contrast/reduced-motion native design acceptance, actual encrypted service integration, or feature parity with the mature web client. Existing Linux GTK app features/behavior must be compared before switching entrypoints. No release or installed product should be described as migrated merely because this experimental source exists. Track remaining work under [Linux migration issue #70](https://github.com/GoreeCloud/memos/issues/70).
+Headless QML startup is **verified on an isolated Linux runner**, but actual GNOME/KDE physical-desktop X11/Wayland behavior, keyboard/screen-reader accessibility, dark/high-contrast/reduced-motion native design, functional parity with the existing GTK/web clients, real service integration, desktop packaging and release/installation acceptance have **not** been verified. Existing Linux GTK app features/behavior must be compared before switching entrypoints. No release or installed product should be described as migrated merely because this experimental source exists. Track remaining work under [Linux migration issue #70](https://github.com/GoreeCloud/memos/issues/70).
