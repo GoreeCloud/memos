@@ -1,0 +1,2 @@
+# Development-only Qt Quick migration preview; legacy GTK launcher unchanged.
+PySide6==6.12.0
