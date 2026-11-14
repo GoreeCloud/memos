@@ -18,7 +18,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 os.environ.setdefault("QT_QUICK_BACKEND", "software")
 os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 
-from PySide6.QtCore import QUrl, qVersion
+from PySide6.QtCore import QObject, QMetaObject, QUrl, qVersion
 from PySide6.QtGui import QGuiApplication, QWindow
 from PySide6.QtQml import QQmlApplicationEngine
 
@@ -89,6 +89,42 @@ class QtQuickStartupTests(unittest.TestCase):
         self.assertEqual(len(keys), 2)
         self.assertNotEqual(keys[0], keys[1],
                             "Explicitly abandoned draft must discard retry identity")
+
+
+    def test_desktop_shortcut_and_keyboard_focus_contract(self):
+        """Resolve real controls in the Qt engine and open an editable modal."""
+        qml = (LINUX_CLIENT / "Memos.qml").read_text(encoding="utf-8")
+        self.assertIn("sequence: StandardKey.New", qml)
+        self.assertIn("sequence: StandardKey.Find", qml)
+        self.assertIn("enabled: !editor.visible && !memosBackend.saving", qml)
+        self.assertIn("onOpened: titleInput.forceActiveFocus(Qt.PopupFocusReason)", qml)
+
+        bridge = MemosBridge("http://127.0.0.1:8765", "")
+        engine = QQmlApplicationEngine()
+        warnings = []
+        engine.warnings.connect(lambda errors: warnings.extend(e.toString() for e in errors))
+        engine.rootContext().setContextProperty("memosBackend", bridge)
+        engine.load(QUrl.fromLocalFile(str(LINUX_CLIENT / "Memos.qml")))
+        self.assertFalse(warnings, "QML warnings: " + " | ".join(warnings))
+        self.assertEqual(len(engine.rootObjects()), 1)
+        window = engine.rootObjects()[0]
+        search = window.findChild(QObject, "memos-search-field")
+        editor = window.findChild(QObject, "memos-editor")
+        title = window.findChild(QObject, "memos-title-field")
+        self.assertIsNotNone(search, "Search control must be discoverable")
+        self.assertIsNotNone(editor, "Modal editor must be discoverable")
+        self.assertIsNotNone(title, "Title field must be discoverable")
+        self.assertTrue(editor.property("focus"), "Modal must claim focus")
+        self.assertTrue(QMetaObject.invokeMethod(editor, "open"), "Modal open invokable")
+        end = time.monotonic() + 1.0
+        while not bool(title.property("activeFocus")) and time.monotonic() < end:
+            self.app.processEvents()
+            time.sleep(0.01)
+        self.assertTrue(editor.property("visible"), "Editor opened")
+        self.assertTrue(title.property("activeFocus"), "Keyboard focus enters editor")
+        self.assertTrue(QMetaObject.invokeMethod(editor, "close"))
+        self.app.processEvents()
+        window.close()
 
     def test_qml_engine_loads_and_starts_windowed(self):
         # An empty token makes network calls unnecessary; QML still binds to
