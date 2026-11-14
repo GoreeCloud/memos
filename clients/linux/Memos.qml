@@ -213,7 +213,8 @@ ApplicationWindow {
         height: Math.min(root.height - 48, 540)
         x: (root.width - width) / 2
         y: (root.height - height) / 2
-        closePolicy: Popup.CloseOnEscape
+        closePolicy: memosBackend.saving ? Popup.NoAutoClose : Popup.CloseOnEscape
+        onClosed: memosBackend.discardDraft()
 
         contentItem: ColumnLayout {
             spacing: 12
@@ -222,6 +223,7 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 placeholderText: qsTr("Title (optional)")
                 Accessible.name: qsTr("Memo title")
+                enabled: !memosBackend.saving
             }
             ScrollView {
                 Layout.fillWidth: true
@@ -231,6 +233,7 @@ ApplicationWindow {
                     wrapMode: TextEdit.Wrap
                     placeholderText: qsTr("Write your memo…")
                     Accessible.name: qsTr("Memo content")
+                    enabled: !memosBackend.saving
                 }
             }
             RowLayout {
