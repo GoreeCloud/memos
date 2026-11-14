@@ -71,13 +71,13 @@ ApplicationWindow {
     // Native desktop keyboard paths. Do not open a second editor while a
     // modal editor is active, or allow a shortcut to interrupt an async save.
     Shortcut {
-        sequence: StandardKey.New
+        sequences: [StandardKey.New]
         autoRepeat: false
         enabled: !editor.visible && !memosBackend.saving
         onActivated: root.openEditor(null)
     }
     Shortcut {
-        sequence: StandardKey.Find
+        sequences: [StandardKey.Find]
         autoRepeat: false
         enabled: !editor.visible && !memosBackend.saving
         onActivated: {
