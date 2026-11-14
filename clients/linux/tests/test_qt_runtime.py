@@ -126,6 +126,42 @@ class QtQuickStartupTests(unittest.TestCase):
         self.app.processEvents()
         window.close()
 
+    def test_detached_backend_disables_ui_without_qml_errors(self):
+        """A QML engine can outlive its injected Python QObject at teardown.
+
+        Simulate removal while the QML bindings are active rather than only
+        checking that the application happens to exit without an exception.
+        """
+        bridge = MemosBridge("http://127.0.0.1:8765", "")
+        engine = QQmlApplicationEngine()
+        warnings = []
+        engine.warnings.connect(lambda values: warnings.extend(v.toString() for v in values))
+        context = engine.rootContext()
+        context.setContextProperty("memosBackend", bridge)
+        engine.load(QUrl.fromLocalFile(str(LINUX_CLIENT / "Memos.qml")))
+        self.assertEqual(len(engine.rootObjects()), 1)
+        window = engine.rootObjects()[0]
+        self.app.processEvents()
+        self.assertTrue(window.property("backendReady"))
+        context.setContextProperty("memosBackend", None)
+        for _ in range(5):
+            self.app.processEvents()
+            time.sleep(0.01)
+        self.assertFalse(window.property("backendReady"))
+        self.assertFalse(window.property("backendSaving"))
+        self.assertFalse(window.property("backendLoading"))
+        search = window.findChild(QObject, "memos-search-field")
+        title = window.findChild(QObject, "memos-title-field")
+        self.assertIsNotNone(search)
+        self.assertIsNotNone(title)
+        self.assertFalse(search.property("enabled"),
+                         "Detached backend cannot accept another request")
+        self.assertFalse(title.property("enabled"),
+                         "Detached backend cannot save an existing memo")
+        self.assertFalse(warnings, "QML backend detachment warnings: " + " | ".join(warnings))
+        window.close()
+        self.app.processEvents()
+
     def test_qml_engine_loads_and_starts_windowed(self):
         # An empty token makes network calls unnecessary; QML still binds to
         # the real QObject bridge, including properties, signals and slots.
