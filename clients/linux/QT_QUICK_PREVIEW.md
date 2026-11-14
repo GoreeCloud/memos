@@ -41,6 +41,12 @@ A new memo uses the existing Memos API's server-validated UUIDv4 `Idempotency-Ke
 
 The preview does not persist the retry key or memo body outside the editor session. Real-service retry/timeout acceptance has **not** yet been verified.
 
+## Native desktop keyboard workflow (November 13 follow-on)
+
+This draft adds **window-scoped** Qt Quick `StandardKey.New` and `StandardKey.Find` shortcuts using Qt 6.12's plural `sequences` property, so all OS-resolved standard bindings are registered. The New action opens the existing native editor; Find gives the search field keyboard focus and selects its contents. Both shortcuts are disabled while the modal editor is open or a save is pending, preventing a second editor/session from interrupting an in-flight write. Opening the editor gives its title field explicit popup focus. The QML runtime tests discover the real editable controls and exercise modal focus without tokens or a running server.
+
+The shortcuts are functional enhancements to the **independent migration preview only**. They do not replace the GTK default, authorize access to private notes, or prove physical keyboard, screen reader, Wayland/X11 or release acceptance.
+
 ## Acceptance gaps
 
 Headless QML startup is **verified on an isolated Linux runner**, but actual GNOME/KDE physical-desktop X11/Wayland behavior, keyboard/screen-reader accessibility, dark/high-contrast/reduced-motion native design, functional parity with the existing GTK/web clients, real service integration, desktop packaging and release/installation acceptance have **not** been verified. Existing Linux GTK app features/behavior must be compared before switching entrypoints. No release or installed product should be described as migrated merely because this experimental source exists. Track remaining work under [Linux migration issue #70](https://github.com/GoreeCloud/memos/issues/70).
