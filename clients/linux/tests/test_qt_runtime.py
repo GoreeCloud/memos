@@ -96,7 +96,7 @@ class QtQuickStartupTests(unittest.TestCase):
         qml = (LINUX_CLIENT / "Memos.qml").read_text(encoding="utf-8")
         self.assertIn("sequences: [StandardKey.New]", qml)
         self.assertIn("sequences: [StandardKey.Find]", qml)
-        self.assertIn("enabled: !editor.visible && !memosBackend.saving", qml)
+        self.assertIn("enabled: root.backendReady && !editor.visible && !root.backendSaving", qml)
         self.assertIn("onOpened: titleInput.forceActiveFocus(Qt.PopupFocusReason)", qml)
 
         bridge = MemosBridge("http://127.0.0.1:8765", "")
