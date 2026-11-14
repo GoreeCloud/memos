@@ -17,7 +17,7 @@ os.environ.setdefault("QT_QUICK_BACKEND", "software")
 os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Basic")
 
 from PySide6.QtCore import QUrl, qVersion
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QWindow
 from PySide6.QtQml import QQmlApplicationEngine
 
 LINUX_CLIENT = Path(__file__).resolve().parents[1]
@@ -47,8 +47,8 @@ class QtQuickStartupTests(unittest.TestCase):
         self.assertEqual(len(engine.rootObjects()), 1, "A single top-level QML window is required")
         window = engine.rootObjects()[0]
         self.assertTrue(window.isVisible(), "Main window must be visible on startup")
-        self.assertFalse(window.isFullScreen(), "Linux app must not default to fullscreen")
-        self.assertFalse(window.isMaximized(), "Linux app must be windowed by default")
+        self.assertEqual(window.visibility(), QWindow.Visibility.Windowed,
+                         "Linux app must open as a normal window")
         self.assertGreaterEqual(window.width(), 480)
         self.assertGreaterEqual(window.height(), 360)
 
