@@ -7,9 +7,10 @@ import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.error import HTTPError
+from uuid import UUID, uuid4
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from qt_api import checked_base, request_json, MAX_API_RESPONSE_BYTES
+from qt_api import checked_base, request_json, MAX_API_RESPONSE_BYTES, CreateReplayKey
 
 TOKEN = "fictional-test-token-not-a-secret"
 
@@ -28,6 +29,16 @@ class FakeAPI(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+    def do_POST(self):
+        FakeAPI.seen.append((self.path, self.headers.get("Authorization"),
+                             self.headers.get("Idempotency-Key")))
+        body = json.dumps({"result": "fictional-created"}).encode()
+        self.send_response(201)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def log_message(self, *args):
         return
 
@@ -67,5 +78,45 @@ class ApiBoundaryTests(unittest.TestCase):
     def test_rejects_oversized_request(self):
         with self.assertRaises(ValueError):request_json(self.base,TOKEN,"/api/v1/memos","POST",{"content":"x"*(MAX_API_RESPONSE_BYTES+1)})
         self.assertEqual(FakeAPI.seen,[])
+
+    def test_create_key_stable_for_unchanged_draft_only(self):
+        replay = CreateReplayKey()
+        key1 = replay.for_payload("Title", "Body")
+        self.assertEqual(UUID(key1).version, 4)
+        self.assertEqual(key1, replay.for_payload("Title", "Body"))
+        key2 = replay.for_payload("Title", "Body revised")
+        self.assertNotEqual(key1, key2)
+        self.assertEqual(key2, replay.for_payload("Title", "Body revised"))
+        replay.clear()
+        self.assertNotEqual(key2, replay.for_payload("Title", "Body revised"))
+        with self.assertRaises(ValueError):
+            replay.for_payload(None, "Body")
+
+    def test_create_header_sent_only_for_valid_canonical_uuid4_post(self):
+        key = str(uuid4())
+        result = request_json(self.base, TOKEN, "/api/v1/memos", "POST",
+                              {"title": "fictional"}, idempotency_key=key)
+        self.assertEqual(result["result"], "fictional-created")
+        self.assertEqual(FakeAPI.seen, [
+            ("/api/v1/memos", "Bearer " + TOKEN, key)
+        ])
+
+    def test_bad_idempotency_keys_rejected_before_network(self):
+        key = str(uuid4())
+        cases = [
+            ("/api/v1/memos", "POST", "not-a-key"),
+            ("/api/v1/memos", "POST", key.upper()),
+            ("/api/v1/memos", "POST", 123),
+            ("/api/v1/memos", "GET", key),
+            ("/api/v1/memos?folder=active", "POST", key),
+            ("/api/v1/memos/" + key, "PATCH", key),
+        ]
+        for path, method, replay in cases:
+            with self.subTest(path=path, method=method, replay=replay):
+                with self.assertRaises(ValueError):
+                    request_json(self.base, TOKEN, path, method, {"title": "x"},
+                                 idempotency_key=replay)
+        self.assertEqual(FakeAPI.seen, [])
+
 
 if __name__ == '__main__': unittest.main()
